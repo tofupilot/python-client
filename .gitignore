@@ -1,5 +1,36 @@
-build/*
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
 
-myenv/*
+# Ignore virtual environments
+myenv/
+venv/
 
-dist/*
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+
+# Ignore system-specific files
+.DS_Store
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+
+# Ignore pip environment files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+
+# Ignore test result files
+*.log
