@@ -1,16 +1,37 @@
 import requests
 import time
+import logging
 from datetime import timedelta
 from typing import Callable, Dict
 
+class TofuPilotClientError(Exception):
+    def __init__(self, message, original_exception=None):
+        super().__init__(message)
+        self.original_exception = original_exception
+
 class TofuPilotClient:
-    def __init__(self, api_key: str, base_url: str = "https://www.tofupilot.com/api/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://www.tofupilot.com/api/v1", error_callback=None):
         self.api_key = api_key
         self.base_url = base_url
         self.headers = {
             "Content-Type": "application/json", 
             "Authorization": f"Bearer {self.api_key}"
         }
+        self.error_callback = error_callback or self.default_error_handler
+        self.logger = logging.getLogger(__name__)
+
+    def default_error_handler(self, error_message):
+        self.logger.error(error_message)
+
+    def _parse_error_message(self, response):
+        try:
+            error_data = response.json()
+            if "error" in error_data and "message" in error_data["error"]:
+                return f"Error: {error_data['error']['message']}"
+            else:
+                return f"HTTP error occurred: {response.text}"
+        except ValueError:
+            return f"HTTP error occurred: {response.text}"
 
     def create_test_run(self, procedure_id: str, component_id: str, component_revision: str, unit_sn: str, test_function: Callable[[], bool], params: Dict[str, str] = None) -> dict:
         start_time = time.time()
@@ -36,11 +57,17 @@ class TofuPilotClient:
             "params": params
         }
 
-        response = requests.post(
-            f"{self.base_url}/runs",
-            json=payload,  # Directly pass the dictionary
-            headers=self.headers
-        )
-
-        response.raise_for_status()
-        return response.json()['url']
+        try:
+            response = requests.post(
+                f"{self.base_url}/runs",
+                json=payload,  # Directly pass the dictionary
+                headers=self.headers
+            )
+            response.raise_for_status()
+            return response.json()['url']
+        except requests.exceptions.HTTPError as http_err:
+            error_message = self._parse_error_message(http_err.response)
+            self.error_callback(error_message)
+        except Exception as e:
+            error_message = f"Failed to create test run: {e}"
+            self.error_callback(error_message)
