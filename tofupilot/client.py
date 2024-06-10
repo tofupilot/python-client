@@ -1,27 +1,53 @@
-import requests
-import time
 import logging
+import requests
+import pkg_resources
+from packaging import version
+import warnings
+import time
 from datetime import timedelta
 from typing import Callable, Dict
 
-class TofuPilotClientError(Exception):
-    def __init__(self, message, original_exception=None):
-        super().__init__(message)
-        self.original_exception = original_exception
-
 class TofuPilotClient:
     def __init__(self, api_key: str, error_callback=None):
-        self.api_key = api_key
-        self.base_url = "https://www.tofupilot.com/api/v1"
-        self.headers = {
-            "Content-Type": "application/json", 
-            "Authorization": f"Bearer {self.api_key}"
+        self._api_key = api_key
+        self._base_url = "https://www.tofupilot.com/api/v1"
+        self._headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self._api_key}"
         }
-        self.error_callback = error_callback or self.default_error_handler
-        self.logger = logging.getLogger(__name__)
+        self._error_callback = error_callback or self._default_error_handler
+        self._logger = logging.getLogger(__name__)
 
-    def default_error_handler(self, error_message):
-        self.logger.error(error_message)
+        # Check for the latest version
+        self._check_latest_version('tofupilot')
+
+    @staticmethod
+    def _check_latest_version(package_name):
+        try:
+            # Fetch the latest version from PyPI
+            response = requests.get(f'https://pypi.org/pypi/{package_name}/json')
+            response.raise_for_status()
+            latest_version = response.json()['info']['version']
+
+            # Get the installed version
+            installed_version = pkg_resources.get_distribution(package_name).version
+
+            # Compare versions
+            if version.parse(installed_version) < version.parse(latest_version):
+                warnings.warn(
+                    f'You are using {package_name} version {installed_version}, however version {latest_version} is available. '
+                    f'You should consider upgrading via the "pip install --upgrade {package_name}" command.',
+                    UserWarning
+                )
+        except requests.RequestException as e:
+            print(f"Error checking the latest version: {e}")
+        except pkg_resources.DistributionNotFound:
+            print(f"Package {package_name} is not installed.")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+    def _default_error_handler(self, error_message):
+        self._logger.error(error_message)
 
     def _parse_error_message(self, response):
         try:
@@ -61,18 +87,22 @@ class TofuPilotClient:
 
         try:
             response = requests.post(
-                f"{self.base_url}/runs",
+                f"{self._base_url}/runs",
                 json=payload,  # Directly pass the dictionary
-                headers=self.headers
+                headers=self._headers
             )
             response.raise_for_status()
             url = response.json()['url']
             print(url)
-            self.logger.info(url)
+            self._logger.info(url)
             return url
         except requests.exceptions.HTTPError as http_err:
             error_message = self._parse_error_message(http_err.response)
-            self.error_callback(error_message)
+            self._error_callback(error_message)
         except Exception as e:
             error_message = f"Failed to create test run: {e}"
-            self.error_callback(error_message)
+            self._error_callback(error_message)
+
+    def __getattr__(self, name):
+        if name != 'create_run':
+            raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
