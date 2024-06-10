@@ -66,7 +66,10 @@ class TofuPilotClient:
                 headers=self.headers
             )
             response.raise_for_status()
-            return response.json()['url']
+            url = response.json()['url']
+            print(url)
+            self.logger.info(url)
+            return url
         except requests.exceptions.HTTPError as http_err:
             error_message = self._parse_error_message(http_err.response)
             self.error_callback(error_message)
