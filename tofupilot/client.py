@@ -33,7 +33,7 @@ class TofuPilotClient:
         except ValueError:
             return f"HTTP error occurred: {response.text}"
 
-    def create_test_run(self, procedure_id: str, component_id: str, unit_sn: str, test_function: Callable[[], bool], component_revision: str = None, params: Dict[str, str] = None) -> dict:
+    def create_run(self, procedure_id: str, component_id: str, unit_sn: str, test_function: Callable[[], bool], component_revision: str = None, params: Dict[str, str] = None) -> dict:
         start_time = time.time()
         test_result = test_function()
         end_time = time.time()
