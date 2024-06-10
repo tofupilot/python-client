@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: tofupilot
-Version: 0.1.7
+Version: 0.1.8
 Summary: The official python client for the TofuPilot API
 Home-page: https://github.com/tofupilot/python-client
 Author: Félix Berthier
@@ -10,6 +10,8 @@ Classifier: Operating System :: OS Independent
 Requires-Python: >=3.6
 Description-Content-Type: text/markdown
 Requires-Dist: requests
+Requires-Dist: setuptools
+Requires-Dist: packaging
 
 # tofupilot
 

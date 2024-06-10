@@ -1,6 +1,6 @@
 import logging
 import requests
-from setuptools import pkg_resources
+import pkg_resources
 from packaging import version
 import warnings
 import time
