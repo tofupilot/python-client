@@ -10,9 +10,9 @@ class TofuPilotClientError(Exception):
         self.original_exception = original_exception
 
 class TofuPilotClient:
-    def __init__(self, api_key: str, base_url: str = "https://www.tofupilot.com/api/v1", error_callback=None):
+    def __init__(self, api_key: str, error_callback=None):
         self.api_key = api_key
-        self.base_url = base_url
+        self.base_url = "https://www.tofupilot.com/api/v1"
         self.headers = {
             "Content-Type": "application/json", 
             "Authorization": f"Bearer {self.api_key}"
