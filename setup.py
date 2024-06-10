@@ -5,7 +5,9 @@ setup(
     version="0.1.7",
     packages=find_packages(),
     install_requires=[
-        "requests"
+       "requests",
+        "setuptools",
+        "packaging"
     ],
     author="Félix Berthier",
     author_email="felix.berthier@tofupilot.com",
