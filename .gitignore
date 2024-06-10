@@ -6,17 +6,24 @@ dist/
 # Ignore virtual environments
 myenv/
 venv/
+.env/
+.env.*
 
 # Ignore Python cache files
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 
 # Ignore system-specific files
 .DS_Store
+Thumbs.db
 
 # Ignore IDE-specific files
 .idea/
 .vscode/
+*.sublime-workspace
+*.sublime-project
 
 # Ignore pip environment files
 pip-log.txt
@@ -34,3 +41,24 @@ coverage.xml
 
 # Ignore test result files
 *.log
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore temporary files
+*.swp
+*.bak
+*.tmp
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore mypy type checker cache
+.mypy_cache/
+
+# Ignore pyright type checker cache
+.pyright/
+
+# Ignore specific file patterns
+*.pot
+*.mo
