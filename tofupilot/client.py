@@ -88,20 +88,36 @@ class TofuPilotClient:
         try:
             response = requests.post(
                 f"{self._base_url}/runs",
-                json=payload,  # Directly pass the dictionary
+                json=payload,
                 headers=self._headers
             )
             response.raise_for_status()
-            url = response.json()['url']
-            print(url)
-            self._logger.info(url)
-            return url
+            json_response = response.json()
+            self._logger.info(json_response)
+            return {
+                "success": True,
+                "message": json_response,
+                "status_code": response.status_code,
+                "error": None
+            }
         except requests.exceptions.HTTPError as http_err:
             error_message = self._parse_error_message(http_err.response)
             self._error_callback(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": response.status_code,
+                "error": error_message
+            }
         except Exception as e:
             error_message = f"Failed to create test run: {e}"
             self._error_callback(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": response.status_code,
+                "error": error_message
+            } 
 
     def __getattr__(self, name):
         if name != 'create_run':
