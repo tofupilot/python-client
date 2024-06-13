@@ -91,14 +91,14 @@ class TofuPilotClient:
                 json=payload,
                 headers=self._headers
             )
-            response.raise_for_status()
+            response.raise_for_status()  # Will raise an HTTPError for bad responses
             json_response = response.json()
-            self._logger.info(json_response)
             return {
                 "success": True,
                 "message": json_response,
                 "status_code": response.status_code,
-                "error": None
+                "error": None,
+                "raw_response": response
             }
         except requests.exceptions.HTTPError as http_err:
             error_message = self._parse_error_message(http_err.response)
@@ -106,8 +106,9 @@ class TofuPilotClient:
             return {
                 "success": False,
                 "message": None,
-                "status_code": response.status_code,
-                "error": error_message
+                "status_code": http_err.response.status_code,
+                "error": error_message,
+                "raw_response": http_err.response
             }
         except Exception as e:
             error_message = f"Failed to create test run: {e}"
@@ -115,9 +116,10 @@ class TofuPilotClient:
             return {
                 "success": False,
                 "message": None,
-                "status_code": response.status_code,
-                "error": error_message
-            } 
+                "status_code": None,  # No response object available
+                "error": error_message,
+                "raw_response": None
+            }
 
     def __getattr__(self, name):
         if name != 'create_run':
