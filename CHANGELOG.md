@@ -5,15 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.12] - 2024-06-17
+
+### Added
+
+- Logging of any call to stdout or stderr in test_function
+
 ## [0.1.11] - 2024-06-13
 
 ### Added
 
 - "raw_response" parameter to create_run method
 
+### Changed
+
+- Message of error format like so: { "error": error_msg }
+
 ## [0.1.10] - 2024-06-13
 
-### Updated
+### Changed
 
 - Return type of create_run method
 
