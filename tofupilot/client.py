@@ -5,7 +5,10 @@ from packaging import version
 import warnings
 import time
 from datetime import timedelta
-from typing import Callable, Dict
+from typing import Callable, Dict, Union
+import subprocess
+import sys
+import io
 
 class TofuPilotClient:
     def __init__(self, api_key: str, error_callback=None):
@@ -17,6 +20,12 @@ class TofuPilotClient:
         }
         self._error_callback = error_callback or self._default_error_handler
         self._logger = logging.getLogger(__name__)
+        self._logger.setLevel(logging.DEBUG)
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self._logger.addHandler(handler)
 
         # Check for the latest version
         self._check_latest_version('tofupilot')
@@ -59,9 +68,45 @@ class TofuPilotClient:
         except ValueError:
             return f"HTTP error occurred: {response.text}"
 
-    def create_run(self, procedure_id: str, component_id: str, unit_sn: str, test_function: Callable[[], bool], component_revision: str = None, params: Dict[str, str] = None) -> dict:
+    def _capture_output(self, test_function: Callable[[], Union[int, list]]):
+        # Capture stdout and stderr
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
+        sys.stdout = io.StringIO()
+        sys.stderr = io.StringIO()
+
+        try:
+            result = test_function()
+            stdout_output = sys.stdout.getvalue()
+            stderr_output = sys.stderr.getvalue()
+
+            # Log the captured output
+            if stdout_output:
+                self._logger.info(stdout_output)
+            if stderr_output:
+                self._logger.error(stderr_output)
+
+            if isinstance(result, list):
+                # Handle subprocess if result is a list of commands
+                process = subprocess.Popen(result, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                stdout, stderr = process.communicate()
+
+                if stdout:
+                    self._logger.info(stdout.decode())
+                if stderr:
+                    self._logger.error(stderr.decode())
+
+                return process.returncode
+
+            return result
+        finally:
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
+
+    def create_run(self, procedure_id: str, component_id: str, unit_sn: str, test_function: Callable[[], Union[int, list]], component_revision: str = None, params: Dict[str, str] = None) -> dict:
         start_time = time.time()
-        test_result = test_function()
+        return_code = self._capture_output(test_function)
+        run_passed = return_code == 0
         end_time = time.time()
         duration_seconds = end_time - start_time
 
@@ -73,7 +118,7 @@ class TofuPilotClient:
             "procedure_id": procedure_id,
             "component_id": component_id,
             "unit_sn": unit_sn,
-            "run_passed": test_result,
+            "run_passed": run_passed,
             "duration": iso_duration,
         }
 
@@ -107,7 +152,7 @@ class TofuPilotClient:
                 "success": False,
                 "message": None,
                 "status_code": http_err.response.status_code,
-                "error": error_message,
+                "error": {"message": error_message},
                 "raw_response": http_err.response
             }
         except Exception as e:
@@ -116,8 +161,8 @@ class TofuPilotClient:
             return {
                 "success": False,
                 "message": None,
-                "status_code": None,  # No response object available
-                "error": error_message,
+                "status_code": None,
+                "error": {"message": error_message},
                 "raw_response": None
             }
 
