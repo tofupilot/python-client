@@ -131,7 +131,7 @@ class TofuPilotClient:
 
         # We include params if it is not None
         if sub_units is not None:
-            payload["sub_units"] = sub_units,
+            payload["sub_units"] = sub_units
 
         # We include params if it is not None
         if params is not None:
