@@ -145,6 +145,7 @@ class TofuPilotClient:
             )
             response.raise_for_status()  # Will raise an HTTPError for bad responses
             json_response = response.json()
+            print("✅ Test run created successfully:", json_response["url"])
             return {
                 "success": True,
                 "message": json_response,
