@@ -19,14 +19,13 @@ class SubUnit(TypedDict):
     serial_number: str
 
 class TofuPilotClient:
-    def __init__(self, api_key: str, error_callback=None):
+    def __init__(self, api_key: str):
         self._api_key = api_key
         self._base_url = "https://www.tofupilot.com/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}"
         }
-        self._error_callback = error_callback or self._default_error_handler
         self._logger = logging.getLogger(__name__)
         self._logger.setLevel(logging.DEBUG)
         handler = logging.StreamHandler()
@@ -63,7 +62,7 @@ class TofuPilotClient:
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
 
-    def _default_error_handler(self, error_message):
+    def _error_callback(self, error_message):
         self._logger.error(error_message)
 
     def _parse_error_message(self, response):
