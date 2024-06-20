@@ -112,8 +112,8 @@ class TofuPilotClient:
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: Callable[[], bool], sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None) -> dict:
         start_time = time.time()
-        return_code = self._capture_output(test_function)
-        run_passed = return_code == 0
+        result = self._capture_output(test_function)
+        run_passed = result is True
         end_time = time.time()
         duration_seconds = end_time - start_time
 
