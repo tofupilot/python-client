@@ -21,7 +21,7 @@ class SubUnit(TypedDict):
 class TofuPilotClient:
     def __init__(self, api_key: str):
         self._api_key = api_key
-        self._base_url = "http://localhost:3000/api/v1"
+        self._base_url = "https://www.tofupilot.com/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}"
@@ -176,25 +176,3 @@ class TofuPilotClient:
     def __getattr__(self, name):
         if name != 'create_run':
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
-
-client = TofuPilotClient(
-  api_key="a9b37728-8f75-4779-bfba-8f635cc04f53"
-)
-
-def test_function():
-    time.sleep(1)
-    # Your test execution goes here
-    return True
-
-res = client.create_run(
-    procedure_id= "FVT1",
-    unit_under_test = {
-        "part_number": "EXAMPLE-ID",
-        "serial_number": "EXAMPLE-SN"
-    },
-    sub_units=[{"serial_number": 'a'}],
-    test_function=test_function
-)
-
-if res["success"] is True:
-    print(res)
