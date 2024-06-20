@@ -5,10 +5,18 @@ from packaging import version
 import warnings
 import time
 from datetime import timedelta
-from typing import Callable, Dict, Union
+from typing import Callable, Dict, List, Union, TypedDict, Optional
 import subprocess
 import sys
 import io
+
+class UnitUnderTest(TypedDict):
+    part_number: str
+    serial_number: str
+    revision: Optional[str]
+
+class SubUnit(TypedDict):
+    serial_number: str
 
 class TofuPilotClient:
     def __init__(self, api_key: str, error_callback=None):
@@ -103,7 +111,7 @@ class TofuPilotClient:
             sys.stdout = old_stdout
             sys.stderr = old_stderr
 
-    def create_run(self, procedure_id: str, component_id: str, unit_sn: str, test_function: Callable[[], Union[int, list]], component_revision: str = None, params: Dict[str, str] = None) -> dict:
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: Callable[[], bool], sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None) -> dict:
         start_time = time.time()
         return_code = self._capture_output(test_function)
         run_passed = return_code == 0
@@ -116,15 +124,15 @@ class TofuPilotClient:
 
         payload = {
             "procedure_id": procedure_id,
-            "component_id": component_id,
-            "unit_sn": unit_sn,
+            "unit_under_test": unit_under_test,
             "run_passed": run_passed,
             "duration": iso_duration,
         }
 
-        # We include component_revision if it is not None
-        if component_revision is not None:
-            payload["component_revision"] = component_revision
+
+        # We include params if it is not None
+        if sub_units is not None:
+            payload["sub_units"] = sub_units,
 
         # We include params if it is not None
         if params is not None:
