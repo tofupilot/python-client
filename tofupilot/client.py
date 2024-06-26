@@ -10,6 +10,8 @@ import subprocess
 import sys
 import io
 
+TestFunction = Union[bool, Tuple[bool, Optional[Dict[str, str]]]]
+
 class UnitUnderTest(TypedDict):
     part_number: str
     serial_number: str
@@ -75,7 +77,7 @@ class TofuPilotClient:
         except ValueError:
             return f"HTTP error occurred: {response.text}"
 
-    def _capture_output(self, test_function: Callable[[], Union[int, list]]):
+    def _capture_output(self, test_function: TestFunction):
         # Capture stdout and stderr
         old_stdout = sys.stdout
         old_stderr = sys.stderr
@@ -110,16 +112,23 @@ class TofuPilotClient:
             sys.stdout = old_stdout
             sys.stderr = old_stderr
 
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: Callable[[], Tuple[bool, Optional[Dict[str, str]]]], sub_units: Optional[List[SubUnit]] = None) -> dict:
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: TestFunction, sub_units: Optional[List[SubUnit]] = None) -> dict:
         start_time = time.time()
-        result, params = self._capture_output(test_function)
-        run_passed = result is True
+        result = self._capture_output(test_function)
+
         end_time = time.time()
         duration_seconds = end_time - start_time
 
         # Convert duration to ISO 8601 format
         duration = timedelta(seconds=duration_seconds)
         iso_duration = f"P{duration.days}DT{duration.seconds // 3600}H{(duration.seconds // 60) % 60}M{duration.seconds % 60}.{duration.microseconds}S"
+
+        # Handle both bool and tuple return types
+        if isinstance(result, tuple):
+            run_passed, params = result
+        else:
+            run_passed = result
+            params = None
 
         payload = {
             "procedure_id": procedure_id,
