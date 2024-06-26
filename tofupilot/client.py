@@ -5,7 +5,7 @@ from packaging import version
 import warnings
 import time
 from datetime import timedelta
-from typing import Callable, Dict, List, Union, TypedDict, Optional
+from typing import Callable, Dict, List, Tuple, Union, TypedDict, Optional
 import subprocess
 import sys
 import io
@@ -110,9 +110,9 @@ class TofuPilotClient:
             sys.stdout = old_stdout
             sys.stderr = old_stderr
 
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: Callable[[], bool], sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None) -> dict:
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: Callable[[], Tuple[bool, Optional[Dict[str, str]]]], sub_units: Optional[List[SubUnit]] = None) -> dict:
         start_time = time.time()
-        result = self._capture_output(test_function)
+        result, params = self._capture_output(test_function)
         run_passed = result is True
         end_time = time.time()
         duration_seconds = end_time - start_time
