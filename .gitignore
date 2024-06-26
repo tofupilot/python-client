@@ -62,3 +62,6 @@ coverage.xml
 # Ignore specific file patterns
 *.pot
 *.mo
+
+# Ignore helpers file
+publish.sh
