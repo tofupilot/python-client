@@ -136,17 +136,23 @@ class TofuPilotClient:
 
     def _handle_attachments(self, attachments: List[str], run_id: str):
         for file_path in attachments:
+            self._logger.info(f"Uploading {file_path}...")
             try:
                 upload_url, upload_id = self._initialize_upload(file_path)
                 if upload_url and self._upload_file(upload_url, file_path):
                     if not self._notify_server(upload_id, run_id):
                         self._logger.error(f"Failed to notify server for file: {file_path}")
+                        break
                 else:
                     self._logger.error(f"Failed to upload file: {file_path}")
+                    break
             except requests.RequestException as e:
                 self._logger.error(f"Network error uploading file {file_path}: {e}")
+                break
             except Exception as e:
                 self._logger.error(f"Error uploading file {file_path}: {e}")
+                break
+            self._logger.info(f"✅ {file_path} uploaded")
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: timedelta, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
         if attachments is not None:
