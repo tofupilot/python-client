@@ -8,6 +8,7 @@ import json
 import os
 import mimetypes
 from datetime import timedelta
+import sys
 
 allowed_formats = ['.csv', '.txt', '.jpeg', '.png', '.webp', '.bmp', '.svg', '.doc', '.docx', '.pdf', '.xls', '.xlsx', '.json', '.ppt', '.pptx', '.zip', '.rar', '.7z', '.tar', '.gz']
 
@@ -62,7 +63,7 @@ class TofuPilotClient:
     def _setup_logger(self, log_level: int):
         logger = logging.getLogger(__name__)
         logger.setLevel(log_level)
-        handler = logging.StreamHandler()
+        handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(log_level)
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
