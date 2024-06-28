@@ -6,6 +6,7 @@ import warnings
 from typing import Dict, List, Tuple, TypedDict, Optional
 import json
 import os
+import mimetypes
 
 class UnitUnderTest(TypedDict):
     part_number: str
@@ -23,29 +24,26 @@ class TofuPilotClient:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}"
         }
-        self._logger = logging.getLogger(__name__)
-        self._logger.setLevel(logging.DEBUG)
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        self._logger.addHandler(handler)
-
-        # Check for the latest version
+        self._logger = self._setup_logger(logging.INFO)
         self._check_latest_version('tofupilot')
 
-    @staticmethod
-    def _check_latest_version(package_name):
+    def _setup_logger(self, log_level: int):
+        logger = logging.getLogger(__name__)
+        logger.setLevel(log_level)
+        handler = logging.StreamHandler()
+        handler.setLevel(log_level)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        if not logger.handlers:
+            logger.addHandler(handler)
+        return logger
+
+    def _check_latest_version(self, package_name: str):
         try:
-            # Fetch the latest version from PyPI
             response = requests.get(f'https://pypi.org/pypi/{package_name}/json')
             response.raise_for_status()
             latest_version = response.json()['info']['version']
-
-            # Get the installed version
             installed_version = pkg_resources.get_distribution(package_name).version
-
-            # Compare versions
             if version.parse(installed_version) < version.parse(latest_version):
                 warnings.warn(
                     f'You are using {package_name} version {installed_version}, however version {latest_version} is available. '
@@ -53,27 +51,25 @@ class TofuPilotClient:
                     UserWarning
                 )
         except requests.RequestException as e:
-            print(f"Error checking the latest version: {e}")
+            self._logger.warning(f"Error checking the latest version: {e}")
         except pkg_resources.DistributionNotFound:
-            print(f"Package {package_name} is not installed.")
+            self._logger.info(f"Package {package_name} is not installed.")
         except Exception as e:
-            print(f"An unexpected error occurred: {e}")
+            self._logger.error(f"An unexpected error occurred: {e}")
 
-    def _error_callback(self, error_message):
+    def _log_and_raise(self, error_message: str):
         self._logger.error(error_message)
+        raise RuntimeError(error_message)
 
-    def _parse_error_message(self, response):
+    def _parse_error_message(self, response: requests.Response) -> str:
         try:
             error_data = response.json()
-            if "error" in error_data and "message" in error_data["error"]:
-                return f"Error: {error_data['error']['message']}"
-            else:
-                return f"HTTP error occurred: {response.text}"
+            return error_data.get("error", {}).get("message", f"HTTP error occurred: {response.text}")
         except ValueError:
             return f"HTTP error occurred: {response.text}"
 
     def _initialize_upload(self, file_path: str) -> Tuple[str, str]:
-        initialize_url = f"{self._base_url}/uploads/initialize",
+        initialize_url = f"{self._base_url}/uploads/initialize"
         file_name = os.path.basename(file_path)
         payload = {"name": file_name}
         response = requests.post(initialize_url, data=json.dumps(payload), headers=self._headers)
@@ -83,15 +79,29 @@ class TofuPilotClient:
 
     def _upload_file(self, upload_url: str, file_path: str) -> bool:
         with open(file_path, 'rb') as file:
-            content_type = 'image/jpeg'  # Change this to your file type if known
+            content_type, _ = mimetypes.guess_type(file_path) or 'application/octet-stream'
             upload_response = requests.put(upload_url, data=file, headers={'Content-Type': content_type})
             return upload_response.status_code == 200
 
     def _notify_server(self, upload_id: str, run_id: str) -> bool:
-        sync_url = f"{self._base_url}/uploads/sync",
+        sync_url = f"{self._base_url}/uploads/sync"
         sync_payload = {"upload_id": upload_id, "run_id": run_id}
         sync_response = requests.post(sync_url, data=json.dumps(sync_payload), headers=self._headers)
         return sync_response.status_code == 200
+
+    def _handle_attachments(self, attachments: List[str], run_id: str):
+        for file_path in attachments:
+            try:
+                upload_url, upload_id = self._initialize_upload(file_path)
+                if upload_url and self._upload_file(upload_url, file_path):
+                    if not self._notify_server(upload_id, run_id):
+                        self._logger.error(f"Failed to notify server for file: {file_path}")
+                else:
+                    self._logger.error(f"Failed to upload file: {file_path}")
+            except requests.RequestException as e:
+                self._logger.error(f"Network error uploading file {file_path}: {e}")
+            except Exception as e:
+                self._logger.error(f"Error uploading file {file_path}: {e}")
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: str, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
         payload = {
@@ -107,18 +117,8 @@ class TofuPilotClient:
         if params is not None:
             payload["params"] = params
 
-        # Handle attachments upload
         if attachments:
-            for file_path in attachments:
-                try:
-                    upload_url, upload_id = self._initialize_upload(file_path)
-                    if upload_url and self._upload_file(upload_url, file_path):
-                        if not self._notify_server(upload_id, procedure_id):
-                            self._logger.error(f"Failed to notify server for file: {file_path}")
-                    else:
-                        self._logger.error(f"Failed to upload file: {file_path}")
-                except Exception as e:
-                    self._logger.error(f"Error uploading file {file_path}: {e}")
+            self._handle_attachments(attachments, procedure_id)
 
         try:
             response = requests.post(
@@ -126,9 +126,9 @@ class TofuPilotClient:
                 json=payload,
                 headers=self._headers
             )
-            response.raise_for_status()  # Will raise an HTTPError for bad responses
+            response.raise_for_status()
             json_response = response.json()
-            print("✅ Test run created successfully:", json_response["url"])
+            self._logger.info(f"✅ Test run created successfully: {json_response['url']}")
             return {
                 "success": True,
                 "message": json_response,
@@ -146,9 +146,18 @@ class TofuPilotClient:
                 "error": {"message": error_message},
                 "raw_response": http_err.response
             }
+        except requests.RequestException as e:
+            self._logger.error(f"Network error: {e}")
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": str(e)},
+                "raw_response": None
+            }
         except Exception as e:
             error_message = f"Failed to create test run: {e}"
-            self._error_callback(error_message)
+            self._logger.error(error_message)
             return {
                 "success": False,
                 "message": None,
@@ -157,6 +166,6 @@ class TofuPilotClient:
                 "raw_response": None
             }
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         if name != 'create_run':
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
