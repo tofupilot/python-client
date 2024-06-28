@@ -8,8 +8,6 @@ import json
 import os
 import mimetypes
 
-# TODO limit max number of attachments
-
 class UnitUnderTest(TypedDict):
     part_number: str
     serial_number: str
@@ -27,7 +25,10 @@ class TofuPilotClient:
             "Authorization": f"Bearer {self._api_key}"
         }
         self._logger = self._setup_logger(logging.INFO)
-        self._check_latest_version('tofupilot')
+        self._max_attachments = 10
+        self._max_file_size = 10 * 1024 * 1024 # 10 MB
+        self._allowed_file_formats = ['.jpg', '.jpeg', '.png', '.pdf']  # Default allowed formats
+        self._check_latet_version('tofupilot')
 
     def _setup_logger(self, log_level: int):
         logger = logging.getLogger(__name__)
@@ -91,8 +92,21 @@ class TofuPilotClient:
         sync_response = requests.post(sync_url, data=json.dumps(sync_payload), headers=self._headers)
         return sync_response.status_code == 200
 
+    def _validate_attachment(self, file_path: str):
+        file_extension = os.path.splitext(file_path)[1].lower()
+        if file_extension not in self._allowed_file_formats:
+            self._log_and_raise(f"File format not allowed: {file_extension}")
+        
+        file_size = os.path.getsize(file_path)
+        if file_size > self._max_file_size:
+            self._log_and_raise(f"File size exceeds the maximum allowed size of {self._max_file_size} bytes: {file_path}")
+
     def _handle_attachments(self, attachments: List[str], run_id: str):
+        if len(attachments) > self._max_attachments:
+            self._log_and_raise(f"Number of attachments exceeds the maximum allowed limit of {self._max_attachments}")
+
         for file_path in attachments:
+            self._validate_attachment(file_path)
             try:
                 upload_url, upload_id = self._initialize_upload(file_path)
                 if upload_url and self._upload_file(upload_url, file_path):
@@ -119,6 +133,8 @@ class TofuPilotClient:
         if params is not None:
             payload["params"] = params
 
+        if attachments:
+            self._handle_attachments(attachments, procedure_id)
 
         try:
             response = requests.post(
