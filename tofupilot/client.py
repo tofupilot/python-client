@@ -8,6 +8,8 @@ import json
 import os
 import mimetypes
 
+# TODO limit max number of attachments
+
 class UnitUnderTest(TypedDict):
     part_number: str
     serial_number: str
@@ -117,8 +119,6 @@ class TofuPilotClient:
         if params is not None:
             payload["params"] = params
 
-        if attachments:
-            self._handle_attachments(attachments, procedure_id)
 
         try:
             response = requests.post(
@@ -128,7 +128,14 @@ class TofuPilotClient:
             )
             response.raise_for_status()
             json_response = response.json()
-            self._logger.info(f"✅ Test run created successfully: {json_response['url']}")
+            url = json_response.get('url')
+
+            self._logger.info(f"✅ Test run created successfully: {url}")
+
+            run_id = json_response.get('id')
+
+            if attachments:
+                self._handle_attachments(attachments, run_id)
             return {
                 "success": True,
                 "message": json_response,
@@ -138,7 +145,7 @@ class TofuPilotClient:
             }
         except requests.exceptions.HTTPError as http_err:
             error_message = self._parse_error_message(http_err.response)
-            self._error_callback(error_message)
+            self._logger.error(error_message)
             return {
                 "success": False,
                 "message": None,
