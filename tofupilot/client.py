@@ -7,8 +7,35 @@ from typing import Dict, List, Tuple, TypedDict, Optional
 import json
 import os
 import mimetypes
+from datetime import timedelta
 
 allowed_formats = ['.csv', '.txt', '.jpeg', '.png', '.webp', '.bmp', '.svg', '.doc', '.docx', '.pdf', '.xls', '.xlsx', '.json', '.ppt', '.pptx', '.zip', '.rar', '.7z', '.tar', '.gz']
+
+def timedelta_to_iso8601(td: timedelta) -> str:
+    days = td.days
+    seconds = td.seconds
+    microseconds = td.microseconds
+
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    iso_duration = "P"
+    if days > 0:
+        iso_duration += f"{days}D"
+
+    if hours > 0 or minutes > 0 or seconds > 0 or microseconds > 0:
+        iso_duration += "T"
+        if hours > 0:
+            iso_duration += f"{hours}H"
+        if minutes > 0:
+            iso_duration += f"{minutes}M"
+        if seconds > 0 or microseconds > 0:
+            iso_duration += f"{seconds}"
+            if microseconds > 0:
+                iso_duration += f".{microseconds:06d}"
+            iso_duration += "S"
+
+    return iso_duration
 
 class UnitUnderTest(TypedDict):
     part_number: str
@@ -121,14 +148,14 @@ class TofuPilotClient:
             except Exception as e:
                 self._logger.error(f"Error uploading file {file_path}: {e}")
 
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: str, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: timedelta, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
         self._validate_attachments(attachments=attachments)
 
         payload = {
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
-            "duration": duration,
+            "duration": timedelta_to_iso8601(duration),
         }
 
         if sub_units is not None:
