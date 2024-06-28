@@ -48,7 +48,7 @@ class SubUnit(TypedDict):
 class TofuPilotClient:
     def __init__(self, api_key: str):
         self._api_key = api_key
-        self._base_url = "http://localhost:3000/api/v1"
+        self._base_url = "https://www.tofupilot.com/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}"
