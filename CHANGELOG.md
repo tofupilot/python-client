@@ -7,9 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.16] - 2024-06-28
 
+### Fixed
+
+- Removed example client code
+
+## [0.1.16] - 2024-06-28
+
 ### Added
 
-- Handling of file attahcments
+- Handling of file attachments
 
 ### Changed
 
