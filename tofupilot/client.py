@@ -56,7 +56,7 @@ class TofuPilotClient:
         self._logger = self._setup_logger(logging.INFO)
         self._max_attachments = 100
         self._max_file_size = 10 * 1024 * 1024 # 10 MB
-        self._allowed_file_formats = ['.jpg', '.jpeg', '.png', '.pdf']  # Default allowed formats
+        self._allowed_file_formats = allowed_formats
         self._check_latest_version('tofupilot')
 
     def _setup_logger(self, log_level: int):
