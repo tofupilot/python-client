@@ -3,14 +3,7 @@ import requests
 import pkg_resources
 from packaging import version
 import warnings
-import time
-from datetime import timedelta
-from typing import Callable, Dict, List, Tuple, Union, TypedDict, Optional
-import subprocess
-import sys
-import io
-
-TestFunction = Union[bool, Tuple[bool, Optional[Dict[str, str]]]]
+from typing import Dict, List, TypedDict, Optional
 
 class UnitUnderTest(TypedDict):
     part_number: str
@@ -77,72 +70,17 @@ class TofuPilotClient:
         except ValueError:
             return f"HTTP error occurred: {response.text}"
 
-    def _capture_output(self, test_function: TestFunction):
-        # Capture stdout and stderr
-        old_stdout = sys.stdout
-        old_stderr = sys.stderr
-        sys.stdout = io.StringIO()
-        sys.stderr = io.StringIO()
-
-        try:
-            result = test_function()
-            stdout_output = sys.stdout.getvalue()
-            stderr_output = sys.stderr.getvalue()
-
-            # Log the captured output
-            if stdout_output:
-                self._logger.info(stdout_output)
-            if stderr_output:
-                self._logger.error(stderr_output)
-
-            if isinstance(result, list):
-                # Handle subprocess if result is a list of commands
-                process = subprocess.Popen(result, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-                stdout, stderr = process.communicate()
-
-                if stdout:
-                    self._logger.info(stdout.decode())
-                if stderr:
-                    self._logger.error(stderr.decode())
-
-                return process.returncode
-
-            return result
-        finally:
-            sys.stdout = old_stdout
-            sys.stderr = old_stderr
-
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, test_function: TestFunction, sub_units: Optional[List[SubUnit]] = None) -> dict:
-        start_time = time.time()
-        result = self._capture_output(test_function)
-
-        end_time = time.time()
-        duration_seconds = end_time - start_time
-
-        # Convert duration to ISO 8601 format
-        duration = timedelta(seconds=duration_seconds)
-        iso_duration = f"P{duration.days}DT{duration.seconds // 3600}H{(duration.seconds // 60) % 60}M{duration.seconds % 60}.{duration.microseconds}S"
-
-        # Handle both bool and tuple return types
-        if isinstance(result, tuple):
-            run_passed, params = result
-        else:
-            run_passed = result
-            params = None
-
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: str, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None) -> dict:
         payload = {
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
-            "duration": iso_duration,
+            "duration": duration,
         }
 
-
-        # We include params if it is not None
         if sub_units is not None:
             payload["sub_units"] = sub_units
 
-        # We include params if it is not None
         if params is not None:
             payload["params"] = params
 
