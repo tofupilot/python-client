@@ -92,21 +92,21 @@ class TofuPilotClient:
         sync_response = requests.post(sync_url, data=json.dumps(sync_payload), headers=self._headers)
         return sync_response.status_code == 200
 
-    def _validate_attachment(self, file_path: str):
-        file_extension = os.path.splitext(file_path)[1].lower()
-        if file_extension not in self._allowed_file_formats:
-            self._log_and_raise(f"File format not allowed: {file_extension}")
-        
-        file_size = os.path.getsize(file_path)
-        if file_size > self._max_file_size:
-            self._log_and_raise(f"File size exceeds the maximum allowed size of {self._max_file_size} bytes: {file_path}")
-
-    def _handle_attachments(self, attachments: List[str], run_id: str):
+    def _validate_attachments(self, attachments: List[str]):
         if len(attachments) > self._max_attachments:
             self._log_and_raise(f"Number of attachments exceeds the maximum allowed limit of {self._max_attachments}")
 
         for file_path in attachments:
-            self._validate_attachment(file_path)
+            file_extension = os.path.splitext(file_path)[1].lower()
+            if file_extension not in self._allowed_file_formats:
+                self._log_and_raise(f"File format not allowed: {file_extension}")
+            
+            file_size = os.path.getsize(file_path)
+            if file_size > self._max_file_size:
+                self._log_and_raise(f"File size exceeds the maximum allowed size of {self._max_file_size} bytes: {file_path}")
+
+    def _handle_attachments(self, attachments: List[str], run_id: str):
+        for file_path in attachments:
             try:
                 upload_url, upload_id = self._initialize_upload(file_path)
                 if upload_url and self._upload_file(upload_url, file_path):
@@ -120,6 +120,8 @@ class TofuPilotClient:
                 self._logger.error(f"Error uploading file {file_path}: {e}")
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: str, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
+        self._validate_attachments(attachments=attachments)
+
         payload = {
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
@@ -132,9 +134,6 @@ class TofuPilotClient:
 
         if params is not None:
             payload["params"] = params
-
-        if attachments:
-            self._handle_attachments(attachments, procedure_id)
 
         try:
             response = requests.post(
