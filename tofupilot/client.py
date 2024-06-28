@@ -8,6 +8,8 @@ import json
 import os
 import mimetypes
 
+allowed_formats = ['.csv', '.txt', '.jpeg', '.png', '.webp', '.bmp', '.svg', '.doc', '.docx', '.pdf', '.xls', '.xlsx', '.json', '.ppt', '.pptx', '.zip', '.rar', '.7z', '.tar', '.gz']
+
 class UnitUnderTest(TypedDict):
     part_number: str
     serial_number: str
