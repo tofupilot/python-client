@@ -149,7 +149,8 @@ class TofuPilotClient:
                 self._logger.error(f"Error uploading file {file_path}: {e}")
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: timedelta, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
-        self._validate_attachments(attachments=attachments)
+        if attachments is not None:
+            self._validate_attachments(attachments=attachments)
 
         payload = {
             "procedure_id": procedure_id,
