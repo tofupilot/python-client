@@ -192,7 +192,7 @@ class TofuPilotClient:
                 self._handle_attachments(attachments, run_id)
             return {
                 "success": True,
-                "message": json_response,
+                "message": { "url": url },
                 "status_code": response.status_code,
                 "error": None,
                 "raw_response": response
