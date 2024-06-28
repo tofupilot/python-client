@@ -21,16 +21,16 @@ class SubUnit(TypedDict):
 class TofuPilotClient:
     def __init__(self, api_key: str):
         self._api_key = api_key
-        self._base_url = "https://www.tofupilot.com/api/v1"
+        self._base_url = "http://localhost:3000/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}"
         }
         self._logger = self._setup_logger(logging.INFO)
-        self._max_attachments = 10
+        self._max_attachments = 100
         self._max_file_size = 10 * 1024 * 1024 # 10 MB
         self._allowed_file_formats = ['.jpg', '.jpeg', '.png', '.pdf']  # Default allowed formats
-        self._check_latet_version('tofupilot')
+        self._check_latest_version('tofupilot')
 
     def _setup_logger(self, log_level: int):
         logger = logging.getLogger(__name__)
@@ -193,3 +193,22 @@ class TofuPilotClient:
     def __getattr__(self, name: str):
         if name != 'create_run':
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+
+api_key = "0eb4b567-7d7a-4465-85a2-99ccdc28c337"
+file_path = '/Users/felix/Downloads/Salt Water Taffy Band.jpeg'
+
+client = TofuPilotClient(api_key=api_key)
+
+procedure_id = 'FVT1'
+unit_under_test = {
+    'serial_number': '00102',
+    'part_number': 'PCB01',
+}
+duration = 'PT1H30M'  # Example duration in ISO 8601 format
+run_passed = True
+attachments = [file_path, file_path, file_path]
+
+response = client.create_run(procedure_id, unit_under_test, duration, run_passed, attachments=attachments)
+
+print(response)
