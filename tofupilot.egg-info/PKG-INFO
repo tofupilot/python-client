@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: tofupilot
-Version: 0.1.15
+Version: 0.1.16
 Summary: The official python client for the TofuPilot API
 Home-page: https://github.com/tofupilot/python-client
 Author: Félix Berthier
