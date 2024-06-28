@@ -155,7 +155,7 @@ class TofuPilotClient:
                 break
             self._logger.info(f"✅ {file_path} uploaded")
 
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: timedelta, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, run_passed: bool, duration: timedelta = None, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
         if attachments is not None:
             self._validate_attachments(attachments=attachments)
 
@@ -163,8 +163,10 @@ class TofuPilotClient:
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
-            "duration": timedelta_to_iso8601(duration),
         }
+
+        if duration is not None:
+            payload["duration"] = timedelta_to_iso8601(duration)
 
         if sub_units is not None:
             payload["sub_units"] = sub_units
