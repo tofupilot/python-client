@@ -3,7 +3,9 @@ import requests
 import pkg_resources
 from packaging import version
 import warnings
-from typing import Dict, List, TypedDict, Optional
+from typing import Dict, List, Tuple, TypedDict, Optional
+import json
+import os
 
 class UnitUnderTest(TypedDict):
     part_number: str
@@ -70,7 +72,28 @@ class TofuPilotClient:
         except ValueError:
             return f"HTTP error occurred: {response.text}"
 
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: str, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None) -> dict:
+    def _initialize_upload(self, file_path: str) -> Tuple[str, str]:
+        initialize_url = f"{self._base_url}/uploads/initialize",
+        file_name = os.path.basename(file_path)
+        payload = {"name": file_name}
+        response = requests.post(initialize_url, data=json.dumps(payload), headers=self._headers)
+        response.raise_for_status()
+        response_json = response.json()
+        return response_json.get('uploadUrl'), response_json.get('id')
+
+    def _upload_file(self, upload_url: str, file_path: str) -> bool:
+        with open(file_path, 'rb') as file:
+            content_type = 'image/jpeg'  # Change this to your file type if known
+            upload_response = requests.put(upload_url, data=file, headers={'Content-Type': content_type})
+            return upload_response.status_code == 200
+
+    def _notify_server(self, upload_id: str, run_id: str) -> bool:
+        sync_url = f"{self._base_url}/uploads/sync",
+        sync_payload = {"upload_id": upload_id, "run_id": run_id}
+        sync_response = requests.post(sync_url, data=json.dumps(sync_payload), headers=self._headers)
+        return sync_response.status_code == 200
+
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, duration: str, run_passed: bool, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
         payload = {
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
@@ -83,6 +106,19 @@ class TofuPilotClient:
 
         if params is not None:
             payload["params"] = params
+
+        # Handle attachments upload
+        if attachments:
+            for file_path in attachments:
+                try:
+                    upload_url, upload_id = self._initialize_upload(file_path)
+                    if upload_url and self._upload_file(upload_url, file_path):
+                        if not self._notify_server(upload_id, procedure_id):
+                            self._logger.error(f"Failed to notify server for file: {file_path}")
+                    else:
+                        self._logger.error(f"Failed to upload file: {file_path}")
+                except Exception as e:
+                    self._logger.error(f"Error uploading file {file_path}: {e}")
 
         try:
             response = requests.post(
