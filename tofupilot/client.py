@@ -155,7 +155,7 @@ class TofuPilotClient:
                 break
             self._logger.info(f"✅ {file_path} uploaded")
 
-    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, run_passed: bool, duration: timedelta = None, sub_units: Optional[List[SubUnit]] = None, params: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
+    def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, run_passed: bool, duration: timedelta = None, sub_units: Optional[List[SubUnit]] = None, report_variables: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
         if attachments is not None:
             self._validate_attachments(attachments=attachments)
 
@@ -171,8 +171,8 @@ class TofuPilotClient:
         if sub_units is not None:
             payload["sub_units"] = sub_units
 
-        if params is not None:
-            payload["params"] = params
+        if report_variables is not None:
+            payload["report_variables"] = report_variables
 
         try:
             response = requests.post(
