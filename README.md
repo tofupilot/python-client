@@ -21,7 +21,7 @@ pip install tofupilot
 
 ## Usage
 
-Uploading your first test run to TofuPilot is quick and easy using the Python client. This guide will show you how in just 2 minutes. {{ className: 'lead' }}
+Uploading your first test run to TofuPilot is quick and easy using the Python client. This guide will show you how in just 2 minutes.
 
 Generate your API key from your Profile page to securely authenticate Python client requests to the TofuPilot API.
 
