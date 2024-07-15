@@ -20,6 +20,56 @@ class TofuPilotClient:
         check_latest_version(self._logger, 'tofupilot')
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, run_passed: bool, duration: timedelta = None, sub_units: Optional[List[SubUnit]] = None, report_variables: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
+        """
+            Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
+
+            Args:
+                procedure_id (str): The unique identifier of the procedure to which the test run belongs.
+                unit_under_test (UnitUnderTest): The unit being tested. This should include attributes like serial number and part number.
+                run_passed (bool): Boolean indicating whether the test run was successful.
+                duration (timedelta, optional): The duration of the test run. Default is None.
+                sub_units (Optional[List[SubUnit]], optional): A list of sub-units included in the test run. Default is None.
+                report_variables (Optional[Dict[str, str]], optional): A dictionary of report variables to include in the test run. Default is None.
+                attachments (Optional[List[str]], optional): A list of file paths for attachments to include with the test run. Default is None.
+
+            Returns:
+                dict: A dictionary containing the following keys:
+                    - success (bool): Whether the test run creation was successful.
+                    - message (Optional[dict]): Contains URL if successful.
+                    - status_code (Optional[int]): HTTP status code of the response.
+                    - error (Optional[dict]): Error message if any.
+                    - raw_response (Optional[requests.Response]): Raw response object from the API request.
+
+            Raises:
+                requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+                requests.RequestException: If a network error occurred.
+                Exception: For any other exceptions that might occur.
+
+            Example usage:
+                from datetime import timedelta
+                from tofupilot import UnitUnderTest, SubUnit
+                
+                client = TofuPilotClient(api_key="your_api_key")
+
+                unit = UnitUnderTest(serial_number="00102", part_number="PCB01")
+                sub_units = [SubUnit(serial_number="00102")]
+                report_vars = {"temperature_sensor": "75°C", "calibration_date": "2024-06-20"}
+
+                result = client.create_run(
+                    procedure_id="FVT1",
+                    unit_under_test=unit,
+                    run_passed=True,
+                    duration=timedelta(minutes=5),
+                    sub_units=sub_units,
+                    report_variables=report_vars,
+                    attachments=["path/to/attachment1", "path/to/attachment2"]
+                )
+                
+                if result["success"]:
+                    print(f"Run created successfully: {result['message']['url']}")
+                else:
+                    print(f"Error creating run: {result['error']['message']}")
+        """
         if attachments is not None:
             validate_attachments(self._logger, attachments, self._max_attachments, self._max_file_size, self._allowed_file_formats)
 
