@@ -67,7 +67,7 @@ def test_create_run_with_attachments(mocker, mock_post):
         },
         run_passed=True,
         duration=timedelta(hours=1, minutes=32, seconds=18),
-        attachments=["/Users/felix/Documents/Github/python-client/requirements.txt"]
+        attachments=["./requirements.txt"]
     )
 
     assert response['success']
