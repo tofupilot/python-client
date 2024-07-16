@@ -27,7 +27,7 @@ Generate your API key from your Profile page to securely authenticate Python cli
 
 ### Create a test run
 
-A test run can now be easily created using a few parameters. Here is the code snippet:
+A test run can be easily created in TofuPilot using a few parameters.
 
 ```python {{ title: 'first_upload.py'}}
 from tofupilot import TofuPilotClient
