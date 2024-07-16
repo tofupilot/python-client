@@ -4,9 +4,11 @@ from datetime import timedelta
 from typing import Dict, List, Optional
 from .utils import allowed_formats, setup_logger, check_latest_version, validate_attachments, handle_attachments, timedelta_to_iso8601, parse_error_message
 from .models import UnitUnderTest, SubUnit
+from importlib.metadata import version
 
 class TofuPilotClient:
     def __init__(self, api_key: str, base_url: str = "https://www.tofupilot.com"):
+        print_version_banner('tofupilot')  # Print the version banner
         self._api_key = api_key
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
@@ -47,6 +49,8 @@ class TofuPilotClient:
                 Exception: For any other exceptions that might occur.
 
         """
+        self._logger.info("Creating run...")
+
         if attachments is not None:
             validate_attachments(self._logger, attachments, self._max_attachments, self._max_file_size, self._allowed_file_formats)
 
@@ -75,12 +79,22 @@ class TofuPilotClient:
             json_response = response.json()
             url = json_response.get('url')
 
-            self._logger.info(f"✅ Test run created successfully: {url}")
+            self._logger.success(f"Test run created: {url}")
 
             run_id = json_response.get('id')
 
-            if attachments:
-                handle_attachments(self._logger, self._headers, self._base_url, attachments, run_id)
+            try:
+                if attachments:
+                    handle_attachments(self._logger, self._headers, self._base_url, attachments, run_id)
+            except Exception as e:
+                self._logger.error(e)
+                return {
+                    "success": False,
+                    "message": None,
+                    "status_code": None,
+                    "error": {"message": str(e)},
+                    "raw_response": None
+                }
             return {
                 "success": True,
                 "message": { "url": url },
@@ -121,3 +135,9 @@ class TofuPilotClient:
     def __getattr__(self, name: str):
         if name != 'create_run':
             raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{name}'")
+
+def print_version_banner(package_name):
+    banner = f"""
+    TofuPilot Python Client {version(package_name)}
+    """
+    print(banner.strip())
