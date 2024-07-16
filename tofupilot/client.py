@@ -20,6 +20,33 @@ class TofuPilotClient:
         check_latest_version(self._logger, 'tofupilot')
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, run_passed: bool, duration: timedelta = None, sub_units: Optional[List[SubUnit]] = None, report_variables: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
+        """
+            Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
+            [See example](https://docs.tofupilot.com/1-create-your-first-test-run).
+
+            Args:
+                procedure_id (str): The unique identifier of the procedure to which the test run belongs.
+                unit_under_test (UnitUnderTest): The unit being tested.
+                run_passed (bool): Boolean indicating whether the test run was successful.
+                duration (timedelta, optional): The duration of the test run. Default is None.
+                sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/2-create-a-run-with-sub-units). Default is None.
+                report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://docs.tofupilot.com/3-create-a-run-with-report-variables). Default is None.
+                attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://docs.tofupilot.com/4-create-a-run-with-attachments). Default is None.
+
+            Returns:
+                dict: A dictionary containing the following keys:
+                    - success (bool): Whether the test run creation was successful.
+                    - message (Optional[dict]): Contains URL if successful.
+                    - status_code (Optional[int]): HTTP status code of the response.
+                    - error (Optional[dict]): Error message if any.
+                    - raw_response (Optional[requests.Response]): Raw response object from the API request.
+
+            Raises:
+                requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+                requests.RequestException: If a network error occurred.
+                Exception: For any other exceptions that might occur.
+
+        """
         if attachments is not None:
             validate_attachments(self._logger, attachments, self._max_attachments, self._max_file_size, self._allowed_file_formats)
 
