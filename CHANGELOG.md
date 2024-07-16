@@ -13,16 +13,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CONTRIBUTING.md file
 - CODE_OF_CONDUCT.md file
 - Test scripts using pytest in new tests/ folder
-- Dosctring to client's method 'create_run'
+- Docstring for the client’s create_run method
 
 ### Fixed
 
-- Replaced deprecated package pkg_resources by maintained alternative
+- Replaced deprecated package pkg_resources with a maintained alternative
 
 ### Changed
 
-- Open-source this repository
-- Detailed project in README.md
+- Open-sourced the repository
+- Detailed the project in README.md
 - Standardized and enhanced logging output for better readability
 
 ## [0.1.20] - 2024-06-28
@@ -35,14 +35,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- "duration" parameter of client is now optional, matching API.
-- client.create_run now returns an object containing only run url and not it's id.
+- Made the “duration” parameter of the client optional to match the API
+- Made the client.create_run method return an object containing only the run URL, not its ID
 
 ## [0.1.18] - 2024-06-28
 
 ### Added
 
-- Option to add different base url to client
+- Option to add different base URL to the client
 
 ## [0.1.17] - 2024-06-28
 
@@ -58,47 +58,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Removed "test_function" parameter to replace it by API wrapper
+- Removed the "test_function" parameter and replaced it with an API wrapper
 
 ## [0.1.15] - 2024-06-26
 
 ### Changed
 
-- Moved "params" parameter of client to optional return value of "test_function".
+- Moved "params" parameter of the client to the optional return value of "test_function"
 
 ## [0.1.14] - 2024-06-20
 
 ### Fixed
 
-- Fixed call of client from localhost and not TP website.
+- Fixed client call to use localhost instead of the TP website
 
 ## [0.1.13] - 2024-06-20
 
 ### Changed
 
-- Changed signature or client's create_run method to match new TofuPilot API format.
+- Updated the signature of the client’s create_run method to match the new TofuPilot API format
 
 ## [0.1.12] - 2024-06-17
 
 ### Added
 
-- Logging of any call to stdout or stderr in test_function
+- Logging of all calls to stdout or stderr in test_function
 
 ## [0.1.11] - 2024-06-13
 
 ### Added
 
-- "raw_response" parameter to create_run method
+- "raw_response" parameter to the create_run method
 
 ### Changed
 
-- Message of error format like so: { "error": error_msg }
+- Error messages are now formatted as: { "error": error_msg }
 
 ## [0.1.10] - 2024-06-13
 
 ### Changed
 
-- Return type of create_run method
+- Return type of the create_run method
 
 ## [0.1.9] - 2024-06-10
 
@@ -116,25 +116,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Print and logging of run url before returning it
-- Check of package version
-- Hid all attributes of TofuPilotClient except create_run method
+- Print and logging of the run URL before returning it
+- Package version check
+- Hid all attributes of TofuPilotClient except the create_run method
 
 ## [0.1.6] - 2024-06-10
 
 ### Changed
 
-- Removed base_url param from TofuPilotClient constructor
+- Removed base_url parameter from TofuPilotClient constructor
 - Renamed method create_test_run to create_run
-- Made param 'component_revision' of method create_run optional to match TofuPilot API
+- Made "component_revision" parameter of method create_run optional to match TofuPilot API
 
 ## [0.1.5] - 2024-06-10
 
 ### Changed
 
-- Better error messages
-- Custom Exception class (TofuPilotClientError)
-- Logging of errors to avoid use of try / catch statements around client
+- Improved error messages
+- Added custom exception class (TofuPilotClientError)
+- Logging of errors
 
 ## [0.1.4] - 2024-06-07
 
@@ -150,4 +150,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Transfered repo to tofupilot organization
+- Transfered repository to the tofupilot organization
