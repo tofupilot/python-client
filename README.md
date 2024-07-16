@@ -1,7 +1,6 @@
 # TofuPilot Python client
 
-The official Python client for [TofuPilot](https://tofupilot.com).
-Quickly and seemlessly integrate all your hardware test runs into one app by using this powerful open-source client.
+The official open source Python client for [TofuPilot](https://tofupilot.com). Quickly and seamlessly integrate all your hardware test runs into one app with just a few lines of Python.
 
 ## Table of Contents
 
@@ -22,7 +21,7 @@ pip install tofupilot
 
 ## Usage
 
-A test run can be easily created in TofuPilot using a few parameters.
+Creating a test run in TofuPilot is easy and can be done with just a few parameters.
 
 ```python
 from tofupilot import TofuPilotClient
@@ -81,6 +80,9 @@ load_dotenv()
 # Retrieve the API key from the environment variable
 api_key = os.getenv("TOFUPILOT_API_KEY")
 ```
+
+> [!NOTE]
+> You can find your API Key on the profile page of your TofuPilot account.
 
 ## Contributing
 
