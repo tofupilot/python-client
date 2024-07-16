@@ -1,7 +1,6 @@
 # TofuPilot Python client
 
-The official Python client for [TofuPilot](https://tofupilot.com).
-Quickly and seemlessly integrate all your hardware test runs into one app by using this powerful open-source client.
+The official open source Python client for [TofuPilot](https://tofupilot.com). Quickly and seamlessly integrate all your hardware test runs into one app with just a few lines of Python.
 
 ## Table of Contents
 
