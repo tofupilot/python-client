@@ -2,10 +2,6 @@ import pytest
 import os
 from datetime import timedelta
 from tofupilot.client import TofuPilotClient
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 @pytest.fixture
 def mock_post(mocker):
@@ -22,8 +18,7 @@ def test_create_run(mock_post, mocker):
     mock_response.status_code = 200
     mock_post.return_value = mock_response
 
-    api_key = os.getenv("TOFUPILOT_API_KEY")
-    client = TofuPilotClient(api_key=api_key)
+    client = TofuPilotClient()
 
     response = client.create_run(
         procedure_id="FVT1",
@@ -56,8 +51,7 @@ def test_create_run_with_attachments(mocker, mock_post):
     mocker.patch('tofupilot.utils.upload_file', return_value=True)
     mocker.patch('tofupilot.utils.notify_server', return_value=True)
 
-    api_key = os.getenv("TOFUPILOT_API_KEY")
-    client = TofuPilotClient(api_key=api_key)
+    client = TofuPilotClient()
 
     response = client.create_run(
         procedure_id="FVT1",

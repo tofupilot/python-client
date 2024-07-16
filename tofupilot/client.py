@@ -1,4 +1,5 @@
 import logging
+import os
 import requests
 from datetime import timedelta
 from typing import Dict, List, Optional
@@ -7,8 +8,12 @@ from .models import UnitUnderTest, SubUnit
 from importlib.metadata import version
 
 class TofuPilotClient:
-    def __init__(self, api_key: str, base_url: str = "https://www.tofupilot.com"):
+    def __init__(self, api_key: Optional[str] = None, base_url: str = "https://www.tofupilot.com"):
         print_version_banner('tofupilot')  # Print the version banner
+        if api_key is None:
+            api_key = os.environ.get("TOFUPILOT_API_KEY")
+        if api_key is None:
+            raise Exception("API key not provided. Please set TOFUPILOT_API_KEY environment variable.")
         self._api_key = api_key
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
