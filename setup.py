@@ -12,6 +12,8 @@ setup(
     author="Félix Berthier",
     author_email="felix.berthier@tofupilot.com",
     description="The official Python client for the TofuPilot API",
+    license = "MIT",
+    keywords = "automatic hardware testing tofupilot",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url="https://github.com/tofupilot/python-client",
