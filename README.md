@@ -6,7 +6,6 @@ The official open source Python client for [TofuPilot](https://tofupilot.com). Q
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Environment Variables](#environment-variables)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -21,68 +20,9 @@ pip install tofupilot
 
 ## Usage
 
-Creating a test run in TofuPilot is easy and can be done with just a few parameters.
+Creating a test run in TofuPilot via it's Python client is easy and can be done with just a few parameters.
 
-```python
-from tofupilot import TofuPilotClient
-import time
-from datetime import timedelta
-import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Retrieve the API key from the environment variable
-api_key = os.getenv("TOFUPILOT_API_KEY")
-
-client = TofuPilotClient(api_key=api_key)
-
-def test_function():
-    # Your test execution goes here
-    time.sleep(1)  # Placeholder for test execution time
-    return True
-
-# Measure the duration of the test_function (optional)
-start_time = time.time()
-run_passed = test_function()
-end_time = time.time()
-duration = end_time - start_time
-
-client.create_run(
-    procedure_id="FVT1",
-    unit_under_test={
-      "serial_number": "00102",
-      "part_number": "PCB01"
-    },
-    run_passed=run_passed,
-    duration=timedelta(seconds=duration) # Optional argument
-)
-```
-
-## Environment Variables
-
-To securely manage your API key, you can store it in a .env file. This file should be placed in the root of your project and contain the following line:
-
-```env
-TOFUPILOT_API_KEY="Your API KEY"
-```
-
-Make sure to load the environment variables at the beginning of your script by using dotenv:
-
-```python
-from dotenv import load_dotenv
-import os
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Retrieve the API key from the environment variable
-api_key = os.getenv("TOFUPILOT_API_KEY")
-```
-
-> [!NOTE]
-> You can find your API Key on the profile page of your TofuPilot account.
+[See official documentation](https://docs.tofupilot.com)
 
 ## Contributing
 
