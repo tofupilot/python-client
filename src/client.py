@@ -75,7 +75,7 @@ class TofuPilotClient:
             json_response = response.json()
             url = json_response.get('url')
 
-            self._logger.info(f"✅ Test run created successfully: {url}")
+            self._logger.info(f"Test run created: {url}")
 
             run_id = json_response.get('id')
 
