@@ -16,12 +16,12 @@ class CustomFormatter(logging.Formatter):
     reset_code = "\033[0m"
     
     format_dict = {
-        logging.DEBUG: "\033[0;37m%(asctime)s - %(name)s - DEBUG: %(message)s" + reset_code,  # White
-        logging.INFO: "\033[0;34m%(asctime)s - %(name)s - ℹ️ %(message)s" + reset_code,  # Blue with info symbol
-        logging.WARNING: "\033[0;33m%(asctime)s - %(name)s - ⚠️ %(message)s" + reset_code,  # Yellow with warning symbol
-        logging.ERROR: "\033[0;31m%(asctime)s - %(name)s - ❌ %(message)s" + reset_code,  # Red with cross mark
-        logging.CRITICAL: "\033[1;41m%(asctime)s - %(name)s - 🚨 %(message)s" + reset_code,  # White on red background with alarm symbol
-        SUCCESS_LEVEL_NUM: "\033[0;32m%(asctime)s - %(name)s - ✅ %(message)s" + reset_code,  # Green with checkmark
+        logging.DEBUG: "\033[0;37m%(asctime)s - DEBUG: %(message)s" + reset_code,  # White
+        logging.INFO: "\033[0;34m%(asctime)s - ℹ️ %(message)s" + reset_code,  # Blue with info symbol
+        logging.WARNING: "\033[0;33m%(asctime)s - ⚠️ %(message)s" + reset_code,  # Yellow with warning symbol
+        logging.ERROR: "\033[0;31m%(asctime)s - ❌ %(message)s" + reset_code,  # Red with cross mark
+        logging.CRITICAL: "\033[1;41m%(asctime)s - 🚨 %(message)s" + reset_code,  # White on red background with alarm symbol
+        SUCCESS_LEVEL_NUM: "\033[0;32m%(asctime)s - ✅ %(message)s" + reset_code,  # Green with checkmark
     }
 
     def format(self, record):
