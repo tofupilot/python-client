@@ -1,4 +1,4 @@
-# TofuPilot python client
+# TofuPilot Python client
 
 The official Python client for [TofuPilot](https://tofupilot.com).
 Quickly and seemlessly integrate all your hardware test runs into one app by using this powerful open-source client.
@@ -21,15 +21,9 @@ pip install tofupilot
 
 ## Usage
 
-Uploading your first test run to TofuPilot is quick and easy using the Python client. This guide will show you how in just 2 minutes.
-
-Generate your API key from your Profile page to securely authenticate Python client requests to the TofuPilot API.
-
-### Create a test run
-
 A test run can be easily created in TofuPilot using a few parameters.
 
-```python {{ title: 'first_upload.py'}}
+```python
 from tofupilot import TofuPilotClient
 import time
 from datetime import timedelta
