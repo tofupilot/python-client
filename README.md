@@ -7,6 +7,7 @@ Quickly and seemlessly integrate all your hardware test runs into one app by usi
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Environment Variables](#environment-variables)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -27,8 +28,16 @@ A test run can be easily created in TofuPilot using a few parameters.
 from tofupilot import TofuPilotClient
 import time
 from datetime import timedelta
+import os
+from dotenv import load_dotenv
 
-client = TofuPilotClient(api_key="Your API key goes here")
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the API key from the environment variable
+api_key = os.getenv("TOFUPILOT_API_KEY")
+
+client = TofuPilotClient(api_key=api_key)
 
 def test_function():
     # Your test execution goes here
@@ -48,18 +57,39 @@ client.create_run(
       "part_number": "PCB01"
     },
     run_passed=run_passed,
-    duration=timedelta(seconds=end_time-start_time) # Optional argument
+    duration=timedelta(seconds=duration) # Optional argument
 )
 ```
 
-# Contributing
+## Environment Variables
+
+To securely manage your API key, you can store it in a .env file. This file should be placed in the root of your project and contain the following line:
+
+```env
+TOFUPILOT_API_KEY="Your API KEY"
+```
+
+Make sure to load the environment variables at the beginning of your script by using dotenv:
+
+```python
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Retrieve the API key from the environment variable
+api_key = os.getenv("TOFUPILOT_API_KEY")
+```
+
+## Contributing
 
 Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
 
-# License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](./LICENSE.md) file for details.
 
-# Contact
+## Contact
 
 If you have any questions or feedback, feel free to open an issue or contact us at support@tofupilot.com.
