@@ -59,7 +59,7 @@ def handle_attachments(logger, headers: dict, base_url: str, attachments: List[s
         except Exception as e:
             logger.error(f"Error uploading file {file_path}: {e}")
             break
-        logger.info(f"{file_path} uploaded")
+        logger.success(f"{file_path} uploaded.")
 
 def parse_error_message(response: requests.Response) -> str:
     try:
