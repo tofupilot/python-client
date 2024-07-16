@@ -81,8 +81,18 @@ class TofuPilotClient:
 
             run_id = json_response.get('id')
 
-            if attachments:
-                handle_attachments(self._logger, self._headers, self._base_url, attachments, run_id)
+            try:
+                if attachments:
+                    handle_attachments(self._logger, self._headers, self._base_url, attachments, run_id)
+            except Exception as e:
+                self._logger.error(e)
+                return {
+                    "success": False,
+                    "message": None,
+                    "status_code": None,
+                    "error": {"message": str(e)},
+                    "raw_response": None
+                }
             return {
                 "success": True,
                 "message": { "url": url },
