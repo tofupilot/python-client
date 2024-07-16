@@ -4,7 +4,7 @@ from datetime import timedelta
 from typing import List
 
 # Import the functions to be tested
-from tofupilot.utils import (
+from src.utils import (
     validate_attachments, 
     initialize_upload, 
     upload_file, 
@@ -72,9 +72,9 @@ def test_handle_attachments():
     attachments = ['file1.txt']
     run_id = '67890'
 
-    with patch('tofupilot.utils.initialize_upload', return_value=('http://example.com/upload', '12345')):
-        with patch('tofupilot.utils.upload_file', return_value=True):
-            with patch('tofupilot.utils.notify_server', return_value=True):
+    with patch('src.utils.initialize_upload', return_value=('http://example.com/upload', '12345')):
+        with patch('src.utils.upload_file', return_value=True):
+            with patch('src.utils.notify_server', return_value=True):
                 handle_attachments(logger, headers, base_url, attachments, run_id)
 
     logger.info.assert_any_call(f"Uploading file1.txt...")
