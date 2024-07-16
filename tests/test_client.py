@@ -1,6 +1,6 @@
 import pytest
 from datetime import timedelta
-from src.client import TofuPilotClient
+from tofupilot.client import TofuPilotClient
 
 @pytest.fixture
 def mock_post(mocker):
