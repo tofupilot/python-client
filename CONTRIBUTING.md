@@ -19,7 +19,7 @@ You can suggest new features by opening an issue [here](https://github.com/tofup
 ### Submitting Pull Requests
 
 1. Fork the repository.
-2. Create a new branch (e.g., `feature-xyz`).
+2. Create a new branch (e.g., `feature/xyz`).
 3. Make your changes.
 4. Commit your changes with a clear message.
 5. Push to your branch.
