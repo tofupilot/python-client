@@ -20,9 +20,23 @@ pip install tofupilot
 
 ## Usage
 
-Creating a test run in TofuPilot via it's Python client is easy and can be done with just a few parameters.
+### API Key Setup
 
-[See official documentation](https://docs.tofupilot.com)
+Running the examples requires a TofuPilot AI API key.
+You can find examples in the examples/ directory.
+
+1. Get your own TofuPilot API Key: https://docs.tofupilot.com/api-key
+2. Set your TofuPilot API Key as an environment variable. You only need to do this once.
+
+```bash
+# set TofuPilot API Key (using zsh for example)
+
+$ echo 'export TOFUPILOT_API_KEY=[your_key_here]' >> ~/.zshenv
+
+# reload the environment (or just quit and open a new terminal)
+
+$ source ~/.zshenv
+```
 
 ## Contributing
 
