@@ -47,6 +47,8 @@ class TofuPilotClient:
                 Exception: For any other exceptions that might occur.
 
         """
+        self._logger.info("Creating run...")
+
         if attachments is not None:
             validate_attachments(self._logger, attachments, self._max_attachments, self._max_file_size, self._allowed_file_formats)
 

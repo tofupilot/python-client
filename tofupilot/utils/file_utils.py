@@ -8,6 +8,7 @@ from typing import List, Tuple
 allowed_formats = ['.csv', '.txt', '.jpeg', '.png', '.webp', '.bmp', '.svg', '.mp4', '.mpeg', '.doc', '.docx', '.pdf', '.xls', '.xlsx', '.json', '.ppt', '.pptx', '.zip', '.rar', '.7z', '.tar', '.gz']
 
 def validate_attachments(logger, attachments: List[str], max_attachments: int, max_file_size: int, allowed_file_formats: List[str]):
+    logger.info("Validating attachments...")
     if len(attachments) > max_attachments:
         log_and_raise(logger, f"Number of attachments exceeds the maximum allowed limit of {max_attachments}")
 
