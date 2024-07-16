@@ -11,7 +11,7 @@ setup(
     ],
     author="Félix Berthier",
     author_email="felix.berthier@tofupilot.com",
-    description="The official python client for the TofuPilot API",
+    description="The official Python client for the TofuPilot API",
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
     url="https://github.com/tofupilot/python-client",

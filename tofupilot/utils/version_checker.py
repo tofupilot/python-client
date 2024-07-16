@@ -12,11 +12,12 @@ def check_latest_version(logger, package_name: str):
         try:
             installed_version = get_version(package_name)
             if version.parse(installed_version) < version.parse(latest_version):
-                warnings.warn(
+                warning_message = (
                     f'You are using {package_name} version {installed_version}, however version {latest_version} is available. '
-                    f'You should consider upgrading via the "pip install --upgrade {package_name}" command.',
-                    UserWarning
+                    f'You should consider upgrading via the "pip install --upgrade {package_name}" command.'
                 )
+                warnings.warn(warning_message, UserWarning)
+                logger.warning(warning_message)
         except PackageNotFoundError:
             logger.info(f"Package {package_name} is not installed.")
     

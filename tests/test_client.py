@@ -4,7 +4,7 @@ from tofupilot.client import TofuPilotClient
 
 @pytest.fixture
 def mock_post(mocker):
-    return mocker.patch('tofupilot.client.requests.post')
+    return mocker.patch('src.client.requests.post')
 
 def test_create_run(mock_post, mocker):
     # Mocking the response of the POST request
@@ -46,9 +46,9 @@ def test_create_run_with_attachments(mocker, mock_post):
     mock_post.return_value = mock_response
 
     # Mocking the upload and notification methods
-    mocker.patch('tofupilot.utils.initialize_upload', return_value=('http://upload.url', 'upload_id'))
-    mocker.patch('tofupilot.utils.upload_file', return_value=True)
-    mocker.patch('tofupilot.utils.notify_server', return_value=True)
+    mocker.patch('src.utils.initialize_upload', return_value=('http://upload.url', 'upload_id'))
+    mocker.patch('src.utils.upload_file', return_value=True)
+    mocker.patch('src.utils.notify_server', return_value=True)
     
     client = TofuPilotClient(api_key="0eb4b567-7d7a-4465-85a2-99ccdc28c337")
 
