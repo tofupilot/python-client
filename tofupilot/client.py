@@ -165,12 +165,6 @@ class TofuPilotClient:
                 "raw_response": None,
             }
 
-    def __getattr__(self, name: str):
-        if name != "create_run":
-            raise AttributeError(
-                f"'{self.__class__.__name__}' object has no attribute '{name}'"
-            )
-
 
 def print_version_banner(package_name):
     banner = f"""
