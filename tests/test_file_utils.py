@@ -3,6 +3,7 @@ from unittest.mock import Mock, patch, mock_open
 from datetime import timedelta
 from typing import List
 
+from tofupilot.constants import ALLOWED_FORMATS
 # Import the functions to be tested
 from tofupilot.utils import (
     validate_attachments, 
@@ -12,7 +13,6 @@ from tofupilot.utils import (
     handle_attachments, 
     parse_error_message, 
     timedelta_to_iso8601, 
-    allowed_formats
 )
 
 def test_validate_attachments():
@@ -20,7 +20,7 @@ def test_validate_attachments():
     attachments = ['file1.txt', 'file2.csv']
     max_attachments = 2
     max_file_size = 1024
-    allowed_file_formats = allowed_formats
+    allowed_file_formats = ALLOWED_FORMATS
 
     with patch('os.path.getsize', return_value=500):
         validate_attachments(logger, attachments, max_attachments, max_file_size, allowed_file_formats)
