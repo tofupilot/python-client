@@ -12,8 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LICENSE.md file
 - CONTRIBUTING.md file
 - CODE_OF_CONDUCT.md file
-- Test scripts using pytest in new tests/ folder
+- Unitary tests in new tests/ folder
+- Functional tests in new examples/ folder
 - Docstring for the client’s create_run method
+- Github action for automatic testing
+- Github action for automatic release in Pypi
 
 ### Fixed
 
@@ -22,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Open-sourced the repository
+- Made API key readable from environment
 - Detailed the project in README.md
 - Standardized and enhanced logging output for better readability
 
