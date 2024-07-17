@@ -1,5 +1,4 @@
 import pytest
-import os
 from datetime import timedelta
 from tofupilot.client import TofuPilotClient
 

@@ -149,7 +149,7 @@ class TofuPilotClient:
                 "raw_response": http_err.response,
             }
         except requests.RequestException as e:
-            self._logger.error(f"Network error: {e}")
+            self._logger.error("Network error: %s", e)
             return {
                 "success": False,
                 "message": None,
