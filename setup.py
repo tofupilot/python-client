@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
+with open('README.md', 'r') as file:
+    long_description = file.read()
+
 setup(
     name="tofupilot",
-    version="0.1.20",
+    version="1.0.0",
     packages=find_packages(),
     install_requires=[
         "requests",
@@ -12,7 +15,9 @@ setup(
     author="Félix Berthier",
     author_email="felix.berthier@tofupilot.com",
     description="The official Python client for the TofuPilot API",
-    long_description=open('README.md').read(),
+    license = "MIT",
+    keywords = "automatic hardware testing tofupilot",
+    long_description=long_description,
     long_description_content_type='text/markdown',
     url="https://github.com/tofupilot/python-client",
     classifiers=[

@@ -1,13 +1,11 @@
 # TofuPilot Python client
 
-The official Python client for [TofuPilot](https://tofupilot.com).
-Quickly and seemlessly integrate all your hardware test runs into one app by using this powerful open-source client.
+The official open source Python client for [TofuPilot](https://tofupilot.com). Quickly and seamlessly integrate all your hardware test runs into one app with just a few lines of Python.
 
 ## Table of Contents
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [Environment Variables](#environment-variables)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -22,64 +20,22 @@ pip install tofupilot
 
 ## Usage
 
-A test run can be easily created in TofuPilot using a few parameters.
+### API Key Setup
 
-```python
-from tofupilot import TofuPilotClient
-import time
-from datetime import timedelta
-import os
-from dotenv import load_dotenv
+Running the examples requires a TofuPilot AI API key.
+You can find examples in the examples/ directory.
 
-# Load environment variables from .env file
-load_dotenv()
+1. Get your own TofuPilot API Key: https://docs.tofupilot.com/api-key
+2. Set your TofuPilot API Key as an environment variable. You only need to do this once.
 
-# Retrieve the API key from the environment variable
-api_key = os.getenv("TOFUPILOT_API_KEY")
+```bash
+# set TofuPilot API Key (using zsh for example)
 
-client = TofuPilotClient(api_key=api_key)
+$ echo 'export TOFUPILOT_API_KEY=[your_key_here]' >> ~/.zshenv
 
-def test_function():
-    # Your test execution goes here
-    time.sleep(1)  # Placeholder for test execution time
-    return True
+# reload the environment (or just quit and open a new terminal)
 
-# Measure the duration of the test_function (optional)
-start_time = time.time()
-run_passed = test_function()
-end_time = time.time()
-duration = end_time - start_time
-
-client.create_run(
-    procedure_id="FVT1",
-    unit_under_test={
-      "serial_number": "00102",
-      "part_number": "PCB01"
-    },
-    run_passed=run_passed,
-    duration=timedelta(seconds=duration) # Optional argument
-)
-```
-
-## Environment Variables
-
-To securely manage your API key, you can store it in a .env file. This file should be placed in the root of your project and contain the following line:
-
-```env
-TOFUPILOT_API_KEY="Your API KEY"
-```
-
-Make sure to load the environment variables at the beginning of your script by using dotenv:
-
-```python
-from dotenv import load_dotenv
-import os
-
-# Load environment variables from .env file
-load_dotenv()
-
-# Retrieve the API key from the environment variable
-api_key = os.getenv("TOFUPILOT_API_KEY")
+$ source ~/.zshenv
 ```
 
 ## Contributing
