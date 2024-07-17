@@ -8,6 +8,7 @@ from .file_utils import (
     handle_attachments,
     parse_error_message,
     timedelta_to_iso8601,
+    log_and_raise,
 )
 
 __all__ = [
@@ -20,4 +21,5 @@ __all__ = [
     "handle_attachments",
     "parse_error_message",
     "timedelta_to_iso8601",
+    log_and_raise,
 ]
