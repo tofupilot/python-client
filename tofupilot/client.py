@@ -6,14 +6,15 @@ from typing import Dict, List, Optional
 
 import requests
 
+from .constants import ENDPOINT, ALLOWED_FORMATS, FILE_MAX_SIZE, CLIENT_MAX_ATTACHMENTS
 from .models import SubUnit, UnitUnderTest
-from .utils import (allowed_formats, check_latest_version, handle_attachments,
+from .utils import (check_latest_version, handle_attachments,
                     parse_error_message, setup_logger, timedelta_to_iso8601,
                     validate_attachments)
 
 
 class TofuPilotClient:
-    def __init__(self, api_key: Optional[str] = None, base_url: str = "https://www.tofupilot.com"):
+    def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
         print_version_banner('tofupilot')  # Print the version banner
         if api_key is None:
             api_key = os.environ.get("TOFUPILOT_API_KEY")
@@ -26,9 +27,9 @@ class TofuPilotClient:
             "Authorization": f"Bearer {self._api_key}"
         }
         self._logger = setup_logger(logging.INFO)
-        self._max_attachments = 100
-        self._max_file_size = 10 * 1024 * 1024 # 10 MB
-        self._allowed_file_formats = allowed_formats
+        self._max_attachments = CLIENT_MAX_ATTACHMENTS
+        self._max_file_size = FILE_MAX_SIZE
+        self._allowed_file_formats = ALLOWED_FORMATS
         check_latest_version(self._logger, 'tofupilot')
 
     def create_run(self, procedure_id: str, unit_under_test: UnitUnderTest, run_passed: bool, duration: timedelta = None, sub_units: Optional[List[SubUnit]] = None, report_variables: Optional[Dict[str, str]] = None, attachments: Optional[List[str]] = None) -> dict:
