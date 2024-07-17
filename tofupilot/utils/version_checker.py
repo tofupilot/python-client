@@ -1,7 +1,10 @@
 import warnings
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as get_version
+
 import requests
 from packaging import version
-from importlib.metadata import version as get_version, PackageNotFoundError
+
 
 def check_latest_version(logger, package_name: str):
     try:

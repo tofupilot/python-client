@@ -1,11 +1,16 @@
 import logging
 import os
-import requests
 from datetime import timedelta
-from typing import Dict, List, Optional
-from .utils import allowed_formats, setup_logger, check_latest_version, validate_attachments, handle_attachments, timedelta_to_iso8601, parse_error_message
-from .models import UnitUnderTest, SubUnit
 from importlib.metadata import version
+from typing import Dict, List, Optional
+
+import requests
+
+from .models import SubUnit, UnitUnderTest
+from .utils import (allowed_formats, check_latest_version, handle_attachments,
+                    parse_error_message, setup_logger, timedelta_to_iso8601,
+                    validate_attachments)
+
 
 class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = "https://www.tofupilot.com"):
