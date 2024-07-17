@@ -1,11 +1,14 @@
 import warnings
+from importlib.metadata import version as get_version, PackageNotFoundError
 import requests
 from packaging import version
-from importlib.metadata import version as get_version, PackageNotFoundError
 
 def check_latest_version(logger, package_name: str):
+    """
+    Checks that package version is up to date, emits a warning otherwise
+    """
     try:
-        response = requests.get(f'https://pypi.org/pypi/{package_name}/json')
+        response = requests.get(f'https://pypi.org/pypi/{package_name}/json', timeout=10) # 10 seconds
         response.raise_for_status()
         latest_version = response.json()['info']['version']
         
