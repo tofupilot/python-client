@@ -1,19 +1,20 @@
-import pytest
-from unittest.mock import Mock, patch, mock_open
 from datetime import timedelta
 from typing import List
+from unittest.mock import Mock, mock_open, patch
+
+import pytest
 
 from tofupilot.constants import ALLOWED_FORMATS
 
 # Import the functions to be tested
 from tofupilot.utils import (
-    validate_attachments,
-    initialize_upload,
-    upload_file,
-    notify_server,
     handle_attachments,
+    initialize_upload,
+    notify_server,
     parse_error_message,
     timedelta_to_iso8601,
+    upload_file,
+    validate_attachments,
 )
 
 
