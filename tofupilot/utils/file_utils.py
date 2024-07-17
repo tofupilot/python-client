@@ -14,6 +14,7 @@ def validate_attachments(
     max_file_size: int,
     allowed_file_formats: List[str],
 ):
+    """Validates a list of attachments by making sure they have the right format and size"""
     logger.info("Validating attachments...")
     if len(attachments) > max_attachments:
         log_and_raise(
@@ -35,29 +36,40 @@ def validate_attachments(
 
 
 def initialize_upload(headers: dict, base_url: str, file_path: str) -> Tuple[str, str]:
+    """Creates a new upload in TofuPilot"""
     initialize_url = f"{base_url}/uploads/initialize"
     file_name = os.path.basename(file_path)
     payload = {"name": file_name}
-    response = requests.post(initialize_url, data=json.dumps(payload), headers=headers)
+    response = requests.post(
+        initialize_url, data=json.dumps(payload), headers=headers, timeout=10
+    )
     response.raise_for_status()
     response_json = response.json()
     return response_json.get("uploadUrl"), response_json.get("id")
 
 
 def upload_file(upload_url: str, file_path: str) -> bool:
+    """Stores a file into an upload"""
     with open(file_path, "rb") as file:
         content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
         upload_response = requests.put(
-            upload_url, data=file, headers={"Content-Type": content_type}
+            upload_url,
+            data=file,
+            headers={"Content-Type": content_type},
+            timeout=10,  # 10 seconds
         )
         return upload_response.status_code == 200
 
 
 def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> bool:
+    """Tells TP server to sync upload with newly created run"""
     sync_url = f"{base_url}/uploads/sync"
     sync_payload = {"upload_id": upload_id, "run_id": run_id}
     sync_response = requests.post(
-        sync_url, data=json.dumps(sync_payload), headers=headers
+        sync_url,
+        data=json.dumps(sync_payload),
+        headers=headers,
+        timeout=10,  # 10 seconds
     )
     return sync_response.status_code == 200
 
@@ -65,6 +77,7 @@ def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> 
 def handle_attachments(
     logger, headers: dict, base_url: str, attachments: List[str], run_id: str
 ):
+    """Creates one upload per file and stores them into TofuPilot"""
     for file_path in attachments:
         logger.info(f"Uploading {file_path}...")
         try:

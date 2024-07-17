@@ -7,6 +7,7 @@ logging.addLevelName(SUCCESS_LEVEL_NUM, "SUCCESS")
 
 
 def success(self, message, *args, **kws):
+    """Log a success message."""
     if self.isEnabledFor(SUCCESS_LEVEL_NUM):
         self._log(SUCCESS_LEVEL_NUM, message, args, **kws)
 
@@ -35,12 +36,14 @@ class CustomFormatter(logging.Formatter):
     }
 
     def format(self, record):
+        """Format the specified record as text."""
         log_fmt = self.format_dict.get(record.levelno, self._fmt)
         formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
         return formatter.format(record)
 
 
 def setup_logger(log_level: int):
+    """Set up the logger with a custom formatter and stream handler."""
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
     handler = logging.StreamHandler(sys.stdout)

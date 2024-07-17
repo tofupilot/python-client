@@ -20,7 +20,7 @@ from .utils import (
 
 class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
-        print_version_banner("tofupilot")  # Print the version banner
+        print_version_banner()  # Print the version banner
         if api_key is None:
             api_key = os.environ.get("TOFUPILOT_API_KEY")
         if api_key is None:
@@ -104,7 +104,10 @@ class TofuPilotClient:
 
         try:
             response = requests.post(
-                f"{self._base_url}/runs", json=payload, headers=self._headers
+                f"{self._base_url}/runs",
+                json=payload,
+                headers=self._headers,
+                timeout=10,  # 10 seconds
             )
             response.raise_for_status()
             json_response = response.json()
@@ -166,8 +169,9 @@ class TofuPilotClient:
             }
 
 
-def print_version_banner(package_name):
+def print_version_banner():
+    """Prints current version of client"""
     banner = f"""
-    TofuPilot Python Client {version(package_name)}
+    TofuPilot Python Client {version("tofupilot")}
     """
     print(banner.strip())

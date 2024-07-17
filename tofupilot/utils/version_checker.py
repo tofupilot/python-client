@@ -7,8 +7,11 @@ from packaging import version
 
 
 def check_latest_version(logger, package_name: str):
+    """Checks if the package is up-to-date and emits a warning if not"""
     try:
-        response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
+        response = requests.get(
+            f"https://pypi.org/pypi/{package_name}/json", timeout=10  # 10 seconds
+        )
         response.raise_for_status()
         latest_version = response.json()["info"]["version"]
 
