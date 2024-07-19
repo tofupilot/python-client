@@ -60,7 +60,7 @@ class TofuPilotClient:
             unit_under_test (UnitUnderTest): The unit being tested.
             run_passed (bool): Boolean indicating whether the test run was successful.
             duration (timedelta, optional): The duration of the test run. Default is None.
-            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/test-steps). Default is None.
+            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/steps). Default is None.
             sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/sub-units). Default is None.
             report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://docs.tofupilot.com/report). Default is None.
             attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://docs.tofupilot.com/attachments). Default is None.
