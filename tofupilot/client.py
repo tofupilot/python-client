@@ -7,13 +7,14 @@ from typing import Dict, List, Optional
 import requests
 
 from .constants import ENDPOINT, ALLOWED_FORMATS, FILE_MAX_SIZE, CLIENT_MAX_ATTACHMENTS
-from .models import SubUnit, UnitUnderTest
+from .models import SubUnit, UnitUnderTest, Step
 from .utils import (
     check_latest_version,
     handle_attachments,
     parse_error_message,
     setup_logger,
-    timedelta_to_iso8601,
+    timedelta_to_iso,
+    datetime_to_iso,
     validate_attachments,
 )
 
@@ -44,6 +45,7 @@ class TofuPilotClient:
         procedure_id: str,
         unit_under_test: UnitUnderTest,
         run_passed: bool,
+        steps: Optional[List[Step]] = None,
         duration: timedelta = None,
         sub_units: Optional[List[SubUnit]] = None,
         report_variables: Optional[Dict[str, str]] = None,
@@ -51,16 +53,17 @@ class TofuPilotClient:
     ) -> dict:
         """
         Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
-        [See example](https://docs.tofupilot.com/1-create-your-first-test-run).
+        [See API reference](https://docs.tofupilot.com/runs).
 
         Args:
             procedure_id (str): The unique identifier of the procedure to which the test run belongs.
             unit_under_test (UnitUnderTest): The unit being tested.
             run_passed (bool): Boolean indicating whether the test run was successful.
             duration (timedelta, optional): The duration of the test run. Default is None.
-            sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/2-create-a-run-with-sub-units). Default is None.
-            report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://docs.tofupilot.com/3-create-a-run-with-report-variables). Default is None.
-            attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://docs.tofupilot.com/4-create-a-run-with-attachments). Default is None.
+            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/test-steps). Default is None.
+            sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/sub-units). Default is None.
+            report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://docs.tofupilot.com/report). Default is None.
+            attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://docs.tofupilot.com/attachments). Default is None.
 
         Returns:
             dict: A dictionary containing the following keys:
@@ -93,8 +96,17 @@ class TofuPilotClient:
             "run_passed": run_passed,
         }
 
+        if steps is not None:
+            for step in steps:
+                if step["duration"] is not None:
+                    step["duration"] = timedelta_to_iso(step["duration"])
+                if step["started_at"] is not None:
+                    step["started_at"] = datetime_to_iso(step["started_at"])
+
+        payload["steps"] = steps
+
         if duration is not None:
-            payload["duration"] = timedelta_to_iso8601(duration)
+            payload["duration"] = timedelta_to_iso(duration)
 
         if sub_units is not None:
             payload["sub_units"] = sub_units

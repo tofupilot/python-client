@@ -1,7 +1,7 @@
 import json
 import mimetypes
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import List, Tuple
 
 import requests
@@ -108,7 +108,10 @@ def parse_error_message(response: requests.Response) -> str:
         return f"HTTP error occurred: {response.text}"
 
 
-def timedelta_to_iso8601(td: timedelta) -> str:
+def timedelta_to_iso(td: timedelta) -> str:
+    if td == timedelta():  # Check if timedelta is zero
+        return "PT0S"  # Return "PT0S" for zero duration
+
     days = td.days
     seconds = td.seconds
     microseconds = td.microseconds
@@ -133,6 +136,11 @@ def timedelta_to_iso8601(td: timedelta) -> str:
             iso_duration += "S"
 
     return iso_duration
+
+
+def datetime_to_iso(dt: datetime):
+    # Note: using dt.isoformat() does not add the trailing 'Z' which prevents the iso string from being recognized by TP' API
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
 
 def log_and_raise(logger, error_message: str):
