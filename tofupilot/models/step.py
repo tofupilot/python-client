@@ -6,8 +6,8 @@ class Step(TypedDict):
     name: str
     started_at: datetime
     duration: timedelta
-    passed: bool
-    unit: Optional[str]
-    measured_value: Optional[float]
-    min_threshold: Optional[float]
-    max_threshold: Optional[float]
+    step_passed: bool
+    measurement_unit: Optional[str]
+    measurement_value: Optional[float]
+    limit_low: Optional[float]
+    limit_high: Optional[float]

@@ -33,13 +33,13 @@ def run_all_tests():
 
         step = {
             "name": test.__name__,
+            "step_passed": passed,
             "started_at": start_time,
             "duration": end_time - start_time,
-            "passed": passed,
-            "unit": unit,
-            "measured_value": value_measured,
-            "min_threshold": min_threshold,
-            "max_threshold": max_threshold,
+            "measurement_unit": unit,
+            "measurement_value": value_measured,
+            "limit_low": min_threshold,
+            "limit_high": max_threshold,
         }
 
         steps.append(step)
