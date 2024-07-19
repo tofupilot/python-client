@@ -1,18 +1,15 @@
 import json
-import os
 from datetime import timedelta
 from unittest.mock import MagicMock, patch, mock_open
 
 import pytest
-import requests
 from tofupilot.utils import (
     validate_attachments,
     initialize_upload,
     upload_file,
     notify_server,
-    handle_attachments,
     parse_error_message,
-    timedelta_to_iso8601,
+    timedelta_to_iso,
     log_and_raise,
 )
 
@@ -118,9 +115,9 @@ def test_parse_error_message():
     assert error_message == "HTTP error occurred: Some error text"
 
 
-def test_timedelta_to_iso8601():
+def test_timedelta_to_iso():
     td = timedelta(days=2, hours=3, minutes=4, seconds=5, microseconds=600000)
-    iso_format = timedelta_to_iso8601(td)
+    iso_format = timedelta_to_iso(td)
     assert iso_format == "P2DT3H4M5.600000S"
 
 

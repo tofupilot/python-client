@@ -7,7 +7,8 @@ from .file_utils import (
     notify_server,
     handle_attachments,
     parse_error_message,
-    timedelta_to_iso8601,
+    timedelta_to_iso,
+    datetime_to_iso,
     log_and_raise,
 )
 
@@ -20,6 +21,7 @@ __all__ = [
     "notify_server",
     "handle_attachments",
     "parse_error_message",
-    "timedelta_to_iso8601",
+    "timedelta_to_iso",
+    "datetime_to_iso",
     log_and_raise,
 ]
