@@ -102,8 +102,7 @@ class TofuPilotClient:
                     step["duration"] = timedelta_to_iso(step["duration"])
                 if step["started_at"] is not None:
                     step["started_at"] = datetime_to_iso(step["started_at"])
-
-        payload["steps"] = steps
+            payload["steps"] = steps
 
         if duration is not None:
             payload["duration"] = timedelta_to_iso(duration)
