@@ -22,12 +22,6 @@ from .utils import (
 class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
         print_version_banner()  # Print the version banner
-        if api_key is None:
-            api_key = os.environ.get("TOFUPILOT_API_KEY")
-        if api_key is None:
-            raise Exception(
-                "API key not provided. Please set TOFUPILOT_API_KEY environment variable."
-            )
         self._api_key = api_key
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
@@ -39,6 +33,12 @@ class TofuPilotClient:
         self._max_file_size = FILE_MAX_SIZE
         self._allowed_file_formats = ALLOWED_FORMATS
         check_latest_version(self._logger, "tofupilot")
+        if api_key is None:
+            api_key = os.environ.get("TOFUPILOT_API_KEY")
+        if api_key is None:
+            error = "API key not provided. Please set TOFUPILOT_API_KEY environment variable."
+            self._logger.error(error)
+            raise Exception(error)
 
     def create_run(
         self,
