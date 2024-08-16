@@ -4,13 +4,14 @@ from importlib.metadata import version as get_version
 
 import requests
 from packaging import version
+from constants import SECONDS_BEFORE_TIMEOUT
 
 
 def check_latest_version(logger, package_name: str):
     """Checks if the package is up-to-date and emits a warning if not"""
     try:
         response = requests.get(
-            f"https://pypi.org/pypi/{package_name}/json", timeout=10  # 10 seconds
+            f"https://pypi.org/pypi/{package_name}/json", timeout=SECONDS_BEFORE_TIMEOUT
         )
         response.raise_for_status()
         latest_version = response.json()["info"]["version"]

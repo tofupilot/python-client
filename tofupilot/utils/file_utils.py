@@ -3,6 +3,7 @@ import mimetypes
 import os
 from datetime import timedelta, datetime
 from typing import List, Tuple
+from constants import SECONDS_BEFORE_TIMEOUT
 
 import requests
 
@@ -41,7 +42,10 @@ def initialize_upload(headers: dict, base_url: str, file_path: str) -> Tuple[str
     file_name = os.path.basename(file_path)
     payload = {"name": file_name}
     response = requests.post(
-        initialize_url, data=json.dumps(payload), headers=headers, timeout=10
+        initialize_url,
+        data=json.dumps(payload),
+        headers=headers,
+        timeout=SECONDS_BEFORE_TIMEOUT,
     )
     response.raise_for_status()
     response_json = response.json()
@@ -56,7 +60,7 @@ def upload_file(upload_url: str, file_path: str) -> bool:
             upload_url,
             data=file,
             headers={"Content-Type": content_type},
-            timeout=10,  # 10 seconds
+            timeout=SECONDS_BEFORE_TIMEOUT,
         )
         return upload_response.status_code == 200
 
@@ -69,7 +73,7 @@ def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> 
         sync_url,
         data=json.dumps(sync_payload),
         headers=headers,
-        timeout=10,  # 10 seconds
+        timeout=SECONDS_BEFORE_TIMEOUT,
     )
     return sync_response.status_code == 200
 

@@ -6,7 +6,13 @@ from typing import Dict, List, Optional
 
 import requests
 
-from constants import ENDPOINT, ALLOWED_FORMATS, FILE_MAX_SIZE, CLIENT_MAX_ATTACHMENTS
+from constants import (
+    ENDPOINT,
+    ALLOWED_FORMATS,
+    FILE_MAX_SIZE,
+    CLIENT_MAX_ATTACHMENTS,
+    SECONDS_BEFORE_TIMEOUT,
+)
 from models import SubUnit, UnitUnderTest, Step
 from utils import (
     check_latest_version,
@@ -117,7 +123,7 @@ class TofuPilotClient:
                 f"{self._base_url}/runs",
                 json=payload,
                 headers=self._headers,
-                timeout=10,  # 10 seconds
+                timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
             json_response = response.json()
