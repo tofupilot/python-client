@@ -71,7 +71,6 @@ class TofuPilotClient:
                 - message (Optional[dict]): Contains URL if successful.
                 - status_code (Optional[int]): HTTP status code of the response.
                 - error (Optional[dict]): Error message if any.
-                - raw_response (Optional[requests.Response]): Raw response object from the API request.
 
         Raises:
             requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
@@ -140,14 +139,12 @@ class TofuPilotClient:
                     "message": None,
                     "status_code": None,
                     "error": {"message": str(e)},
-                    "raw_response": None,
                 }
             return {
                 "success": True,
                 "message": {"url": url},
                 "status_code": response.status_code,
                 "error": None,
-                "raw_response": response,
             }
         except requests.exceptions.HTTPError as http_err:
             error_message = parse_error_message(http_err.response)
@@ -157,7 +154,6 @@ class TofuPilotClient:
                 "message": None,
                 "status_code": http_err.response.status_code,
                 "error": {"message": error_message},
-                "raw_response": http_err.response,
             }
         except requests.RequestException as e:
             self._logger.error("Network error: %s", e)
@@ -166,7 +162,6 @@ class TofuPilotClient:
                 "message": None,
                 "status_code": None,
                 "error": {"message": str(e)},
-                "raw_response": None,
             }
         except Exception as e:
             error_message = f"Failed to create test run: {e}"
@@ -176,7 +171,6 @@ class TofuPilotClient:
                 "message": None,
                 "status_code": None,
                 "error": {"message": error_message},
-                "raw_response": None,
             }
 
 
