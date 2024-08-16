@@ -37,7 +37,6 @@ class TofuPilotClient:
         self._logger = setup_logger(logging.INFO)
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
-        self._allowed_file_formats = ALLOWED_FORMATS
         check_latest_version(self._logger, "tofupilot")
         if api_key is None:
             api_key = os.environ.get("TOFUPILOT_API_KEY")
@@ -92,7 +91,6 @@ class TofuPilotClient:
                 attachments,
                 self._max_attachments,
                 self._max_file_size,
-                self._allowed_file_formats,
             )
 
         payload = {

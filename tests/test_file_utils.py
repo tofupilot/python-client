@@ -19,12 +19,9 @@ def test_validate_attachments():
     attachments = ["file1.txt", "file2.jpg"]
     max_attachments = 2
     max_file_size = 5000
-    allowed_file_formats = [".txt", ".jpg"]
 
     with patch("os.path.getsize", return_value=4000):
-        validate_attachments(
-            logger, attachments, max_attachments, max_file_size, allowed_file_formats
-        )
+        validate_attachments(logger, attachments, max_attachments, max_file_size)
 
     logger.info.assert_called_with("Validating attachments...")
     logger.error.assert_not_called()
@@ -36,7 +33,6 @@ def test_validate_attachments():
                 attachments,
                 max_attachments,
                 max_file_size,
-                allowed_file_formats,
             )
 
     logger.error.assert_called_with(

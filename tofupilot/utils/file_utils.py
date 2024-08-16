@@ -13,9 +13,8 @@ def validate_attachments(
     attachments: List[str],
     max_attachments: int,
     max_file_size: int,
-    allowed_file_formats: List[str],
 ):
-    """Validates a list of attachments by making sure they have the right format and size"""
+    """Validates a list of attachments by making sure they have the right size"""
     logger.info("Validating attachments...")
     if len(attachments) > max_attachments:
         log_and_raise(
@@ -24,10 +23,6 @@ def validate_attachments(
         )
 
     for file_path in attachments:
-        file_extension = os.path.splitext(file_path)[1].lower()
-        if file_extension not in allowed_file_formats:
-            log_and_raise(logger, f"File format not allowed: {file_extension}")
-
         file_size = os.path.getsize(file_path)
         if file_size > max_file_size:
             log_and_raise(
