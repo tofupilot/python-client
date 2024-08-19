@@ -27,7 +27,8 @@ from utils import (
 
 class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
-        print_version_banner()  # Print the version banner
+        self._current_version = version("tofupilot")
+        print_version_banner(self._current_version)  # Print the version banner
         self._api_key = api_key
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
@@ -37,7 +38,7 @@ class TofuPilotClient:
         self._logger = setup_logger(logging.INFO)
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
-        check_latest_version(self._logger, "tofupilot")
+        check_latest_version(self._logger, self._current_version, "tofupilot")
         if api_key is None:
             api_key = os.environ.get("TOFUPILOT_API_KEY")
         if api_key is None:
@@ -178,9 +179,9 @@ class TofuPilotClient:
             }
 
 
-def print_version_banner():
+def print_version_banner(current_version: str):
     """Prints current version of client"""
     banner = f"""
-    TofuPilot Python Client {version("tofupilot")}
+    TofuPilot Python Client {current_version}
     """
     print(banner.strip())
