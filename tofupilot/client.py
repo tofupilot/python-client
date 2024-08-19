@@ -98,6 +98,8 @@ class TofuPilotClient:
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
+            "client": "Python",
+            "client_version": self._current_version,
         }
 
         if steps is not None:
