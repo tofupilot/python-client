@@ -84,25 +84,27 @@ def handle_attachments(
             if upload_url and upload_file(upload_url, file_path):
                 if not notify_server(headers, base_url, upload_id, run_id):
                     logger.error(
-                        f"Failed to notify server for file: {file_path}. The upload may not be recorded. Please try again or contact support if the issue persists."
+                        f"Notification Failure: The server could not be notified of the upload for attachment '{file_path}'. The upload may not be recorded in the system. Please check the server status and retry. For more details about run attachments, visit: https://docs.tofupilot.com/attachments."
                     )
                     break
             else:
                 logger.error(
-                    f"Failed to upload file: {file_path}. The file might be inaccessible or there could be an issue with the upload URL. Please verify the file path and network connection, and try again."
+                    f"Upload Failure: The attachment '{file_path}' could not be uploaded. This might be due to an inaccessible file path or an issue with the provided upload URL. Verify the file path, ensure your network connection is stable, and try again. For more detail about run attachments, visit: https://docs.tofupilot.com/attachments."
                 )
                 break
         except requests.RequestException as e:
             logger.error(
-                f"Network error while uploading file: {file_path}. Error: {e}. Please check your network connection and try again."
+                f"Network Error: A network issue occurred while attempting to upload the attachment '{file_path}'. Error details: {e}. Please check your network connection and retry the operation."
             )
             break
         except Exception as e:
             logger.error(
-                f"Unexpected error while uploading file: {file_path}. Error: {e}. Please try again or contact support if the issue persists."
+                f"Unexpected Error: An unexpected issue occurred during the upload of the attachment '{file_path}'. Error details: {e}. Please retry the operation."
             )
             break
-        logger.success(f"{file_path} successfully uploaded and linked to run.")
+        logger.success(
+            f"Attachment {file_path} successfully uploaded and linked to run."
+        )
 
 
 def parse_error_message(response: requests.Response) -> str:
