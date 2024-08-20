@@ -42,7 +42,7 @@ class TofuPilotClient:
         if api_key is None:
             api_key = os.environ.get("TOFUPILOT_API_KEY")
         if api_key is None:
-            error = "API key not provided. Please set TOFUPILOT_API_KEY environment variable."
+            error = "Please provide an API key or set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
             self._logger.error(error)
             raise Exception(error)
 
@@ -84,7 +84,7 @@ class TofuPilotClient:
             Exception: For any other exceptions that might occur.
 
         """
-        self._logger.info("Creating run...")
+        self._logger.info("Run creation started...")
 
         if attachments is not None:
             validate_attachments(
@@ -129,13 +129,13 @@ class TofuPilotClient:
             response.raise_for_status()
             json_response = response.json()
 
-            warnings = json_response.get("warnings")
+            warnings: Optional[List[str]] = json_response.get("warnings")
             if warnings:
                 for warning in warnings:
                     self._logger.warning(warning)
 
-            url = json_response.get("url")
-            self._logger.success(f"Test run created: {url}")
+            message = json_response.get("message")
+            self._logger.success(message)
 
             run_id = json_response.get("id")
 
@@ -154,7 +154,7 @@ class TofuPilotClient:
                 }
             return {
                 "success": True,
-                "message": {"url": url},
+                "message": message,
                 "status_code": response.status_code,
                 "error": None,
             }
