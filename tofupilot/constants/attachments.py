@@ -1,7 +1,3 @@
-ENDPOINT = "https://www.tofupilot.com"
-
 FILE_MAX_SIZE = 10 * 1024 * 1024  # 10 MB
 
 CLIENT_MAX_ATTACHMENTS = 100
-
-SECONDS_BEFORE_TIMEOUT = 60

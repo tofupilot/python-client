@@ -3,9 +3,9 @@ import mimetypes
 import os
 from datetime import timedelta, datetime
 from typing import List, Tuple
-from constants import SECONDS_BEFORE_TIMEOUT
-
 import requests
+
+from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 
 
 def validate_attachments(

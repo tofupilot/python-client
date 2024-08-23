@@ -4,7 +4,7 @@ from importlib.metadata import version as get_version
 
 import requests
 from packaging import version
-from constants import SECONDS_BEFORE_TIMEOUT
+from ..constants import SECONDS_BEFORE_TIMEOUT
 
 
 def check_latest_version(logger, current_version, package_name: str):
