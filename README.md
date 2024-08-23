@@ -23,13 +23,13 @@ pip install tofupilot
 
 ## Usage
 
-### Examples
-
-For usage examples, see the [examples](./examples/create_run_basic.py) directory.
-
 ### Documentation
 
 You can find the full TofuPilot documentation [here](https://docs.tofupilot.com).
+
+### Examples
+
+For usage examples, see the [examples](./examples/create_run_basic.py) directory.
 
 ## Contributing
 
