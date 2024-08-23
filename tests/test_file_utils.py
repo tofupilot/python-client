@@ -12,6 +12,7 @@ from tofupilot.utils import (
     timedelta_to_iso,
     log_and_raise,
 )
+from tofupilot.constants import SECONDS_BEFORE_TIMEOUT
 
 
 def test_validate_attachments():
@@ -74,7 +75,7 @@ def test_upload_file():
             upload_url,
             data=mock_file(),
             headers={"Content-Type": "text/plain"},
-            timeout=10,
+            timeout=SECONDS_BEFORE_TIMEOUT,
         )
 
 
@@ -94,7 +95,7 @@ def test_notify_server():
             f"{base_url}/uploads/sync",
             data=json.dumps({"upload_id": upload_id, "run_id": run_id}),
             headers=headers,
-            timeout=10,
+            timeout=SECONDS_BEFORE_TIMEOUT,
         )
 
 
