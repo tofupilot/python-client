@@ -3,8 +3,9 @@ import mimetypes
 import os
 from datetime import timedelta, datetime
 from typing import List, Tuple
-
 import requests
+
+from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 
 
 def validate_attachments(
@@ -12,9 +13,8 @@ def validate_attachments(
     attachments: List[str],
     max_attachments: int,
     max_file_size: int,
-    allowed_file_formats: List[str],
 ):
-    """Validates a list of attachments by making sure they have the right format and size"""
+    """Validates a list of attachments by making sure they have the right size"""
     logger.info("Validating attachments...")
     if len(attachments) > max_attachments:
         log_and_raise(
@@ -23,10 +23,6 @@ def validate_attachments(
         )
 
     for file_path in attachments:
-        file_extension = os.path.splitext(file_path)[1].lower()
-        if file_extension not in allowed_file_formats:
-            log_and_raise(logger, f"File format not allowed: {file_extension}")
-
         file_size = os.path.getsize(file_path)
         if file_size > max_file_size:
             log_and_raise(
@@ -41,7 +37,10 @@ def initialize_upload(headers: dict, base_url: str, file_path: str) -> Tuple[str
     file_name = os.path.basename(file_path)
     payload = {"name": file_name}
     response = requests.post(
-        initialize_url, data=json.dumps(payload), headers=headers, timeout=10
+        initialize_url,
+        data=json.dumps(payload),
+        headers=headers,
+        timeout=SECONDS_BEFORE_TIMEOUT,
     )
     response.raise_for_status()
     response_json = response.json()
@@ -56,7 +55,7 @@ def upload_file(upload_url: str, file_path: str) -> bool:
             upload_url,
             data=file,
             headers={"Content-Type": content_type},
-            timeout=10,  # 10 seconds
+            timeout=SECONDS_BEFORE_TIMEOUT,
         )
         return upload_response.status_code == 200
 
@@ -69,7 +68,7 @@ def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> 
         sync_url,
         data=json.dumps(sync_payload),
         headers=headers,
-        timeout=10,  # 10 seconds
+        timeout=SECONDS_BEFORE_TIMEOUT,
     )
     return sync_response.status_code == 200
 
@@ -84,18 +83,28 @@ def handle_attachments(
             upload_url, upload_id = initialize_upload(headers, base_url, file_path)
             if upload_url and upload_file(upload_url, file_path):
                 if not notify_server(headers, base_url, upload_id, run_id):
-                    logger.error(f"Failed to notify server for file: {file_path}")
+                    logger.error(
+                        f"Notification Failure: The server could not be notified of the upload for attachment '{file_path}'. The upload may not be recorded in the system. Please check the server status and retry. For more details about run attachments, visit: https://docs.tofupilot.com/attachments."
+                    )
                     break
             else:
-                logger.error(f"Failed to upload file: {file_path}")
+                logger.error(
+                    f"Upload Failure: The attachment '{file_path}' could not be uploaded. This might be due to an inaccessible file path or an issue with the provided upload URL. Verify the file path, ensure your network connection is stable, and try again. For more detail about run attachments, visit: https://docs.tofupilot.com/attachments."
+                )
                 break
         except requests.RequestException as e:
-            logger.error(f"Network error uploading file {file_path}: {e}")
+            logger.error(
+                f"Network Error: A network issue occurred while attempting to upload the attachment '{file_path}'. Error details: {e}. Please check your network connection and retry the operation."
+            )
             break
         except Exception as e:
-            logger.error(f"Error uploading file {file_path}: {e}")
+            logger.error(
+                f"Unexpected Error: An unexpected issue occurred during the upload of the attachment '{file_path}'. Error details: {e}. Please retry the operation."
+            )
             break
-        logger.success(f"{file_path} uploaded and linked to run.")
+        logger.success(
+            f"Attachment {file_path} successfully uploaded and linked to run."
+        )
 
 
 def parse_error_message(response: requests.Response) -> str:

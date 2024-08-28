@@ -23,5 +23,5 @@ __all__ = [
     "parse_error_message",
     "timedelta_to_iso",
     "datetime_to_iso",
-    log_and_raise,
+    "log_and_raise",
 ]

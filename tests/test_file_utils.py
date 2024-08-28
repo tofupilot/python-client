@@ -12,6 +12,7 @@ from tofupilot.utils import (
     timedelta_to_iso,
     log_and_raise,
 )
+from tofupilot.constants import SECONDS_BEFORE_TIMEOUT
 
 
 def test_validate_attachments():
@@ -19,12 +20,9 @@ def test_validate_attachments():
     attachments = ["file1.txt", "file2.jpg"]
     max_attachments = 2
     max_file_size = 5000
-    allowed_file_formats = [".txt", ".jpg"]
 
     with patch("os.path.getsize", return_value=4000):
-        validate_attachments(
-            logger, attachments, max_attachments, max_file_size, allowed_file_formats
-        )
+        validate_attachments(logger, attachments, max_attachments, max_file_size)
 
     logger.info.assert_called_with("Validating attachments...")
     logger.error.assert_not_called()
@@ -36,7 +34,6 @@ def test_validate_attachments():
                 attachments,
                 max_attachments,
                 max_file_size,
-                allowed_file_formats,
             )
 
     logger.error.assert_called_with(
@@ -78,7 +75,7 @@ def test_upload_file():
             upload_url,
             data=mock_file(),
             headers={"Content-Type": "text/plain"},
-            timeout=10,
+            timeout=SECONDS_BEFORE_TIMEOUT,
         )
 
 
@@ -98,7 +95,7 @@ def test_notify_server():
             f"{base_url}/uploads/sync",
             data=json.dumps({"upload_id": upload_id, "run_id": run_id}),
             headers=headers,
-            timeout=10,
+            timeout=SECONDS_BEFORE_TIMEOUT,
         )
 
 

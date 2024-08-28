@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-08-23
+
+### Added
+
+- Centralized all constant values in a dedicated `/constants` folder
+- Introduced sending of metadata containing package type and version when communicating with TofuPilot API
+- Implemented logging of any warning received from API
+
+### Fixed
+
+- Corrected an issue where an exception was risen before user was informed that their API key was incorrect
+
+### Changed
+
+- Enhanced the logging and error messages related to attachments and run creation
+- Updated the success message handling to now be received directly from the API, rather than being computed by the client
+- Reorganized the README.md by swapping the Documentation and Examples sections
+- Updated links in README.md from relative to absolute, ensuring they work correctly across all contexts where the documentation is viewed
+
+### Removed
+
+- `raw_response` property in responses sent by client
+- Checking of file format during attachment upload (to keep only size checking)
+
 ## [1.1.1] - 2024-07-22
 
 ### Fixed

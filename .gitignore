@@ -23,6 +23,7 @@ Thumbs.db
 # Ignore IDE-specific files
 .idea/
 .vscode/
+tasks.json
 *.sublime-workspace
 *.sublime-project
 

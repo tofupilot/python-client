@@ -6,7 +6,12 @@ from typing import Dict, List, Optional
 
 import requests
 
-from .constants import ENDPOINT, ALLOWED_FORMATS, FILE_MAX_SIZE, CLIENT_MAX_ATTACHMENTS
+from .constants import (
+    ENDPOINT,
+    FILE_MAX_SIZE,
+    CLIENT_MAX_ATTACHMENTS,
+    SECONDS_BEFORE_TIMEOUT,
+)
 from .models import SubUnit, UnitUnderTest, Step
 from .utils import (
     check_latest_version,
@@ -21,13 +26,8 @@ from .utils import (
 
 class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
-        print_version_banner()  # Print the version banner
-        if api_key is None:
-            api_key = os.environ.get("TOFUPILOT_API_KEY")
-        if api_key is None:
-            raise Exception(
-                "API key not provided. Please set TOFUPILOT_API_KEY environment variable."
-            )
+        self._current_version = version("tofupilot")
+        print_version_banner(self._current_version)  # Print the version banner
         self._api_key = api_key
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
@@ -37,8 +37,13 @@ class TofuPilotClient:
         self._logger = setup_logger(logging.INFO)
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
-        self._allowed_file_formats = ALLOWED_FORMATS
-        check_latest_version(self._logger, "tofupilot")
+        check_latest_version(self._logger, self._current_version, "tofupilot")
+        if api_key is None:
+            api_key = os.environ.get("TOFUPILOT_API_KEY")
+        if api_key is None:
+            error = "Please provide an API key or set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
+            self._logger.error(error)
+            raise Exception(error)
 
     def create_run(
         self,
@@ -71,7 +76,6 @@ class TofuPilotClient:
                 - message (Optional[dict]): Contains URL if successful.
                 - status_code (Optional[int]): HTTP status code of the response.
                 - error (Optional[dict]): Error message if any.
-                - raw_response (Optional[requests.Response]): Raw response object from the API request.
 
         Raises:
             requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
@@ -79,7 +83,7 @@ class TofuPilotClient:
             Exception: For any other exceptions that might occur.
 
         """
-        self._logger.info("Creating run...")
+        self._logger.info("Run creation started...")
 
         if attachments is not None:
             validate_attachments(
@@ -87,13 +91,14 @@ class TofuPilotClient:
                 attachments,
                 self._max_attachments,
                 self._max_file_size,
-                self._allowed_file_formats,
             )
 
         payload = {
             "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
+            "client": "Python",
+            "client_version": self._current_version,
         }
 
         if steps is not None:
@@ -118,13 +123,18 @@ class TofuPilotClient:
                 f"{self._base_url}/runs",
                 json=payload,
                 headers=self._headers,
-                timeout=10,  # 10 seconds
+                timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
             json_response = response.json()
-            url = json_response.get("url")
 
-            self._logger.success(f"Test run created: {url}")
+            warnings: Optional[List[str]] = json_response.get("warnings")
+            if warnings:
+                for warning in warnings:
+                    self._logger.warning(warning)
+
+            message = json_response.get("message")
+            self._logger.success(message)
 
             run_id = json_response.get("id")
 
@@ -140,14 +150,12 @@ class TofuPilotClient:
                     "message": None,
                     "status_code": None,
                     "error": {"message": str(e)},
-                    "raw_response": None,
                 }
             return {
                 "success": True,
-                "message": {"url": url},
+                "message": message,
                 "status_code": response.status_code,
                 "error": None,
-                "raw_response": response,
             }
         except requests.exceptions.HTTPError as http_err:
             error_message = parse_error_message(http_err.response)
@@ -157,7 +165,6 @@ class TofuPilotClient:
                 "message": None,
                 "status_code": http_err.response.status_code,
                 "error": {"message": error_message},
-                "raw_response": http_err.response,
             }
         except requests.RequestException as e:
             self._logger.error("Network error: %s", e)
@@ -166,7 +173,6 @@ class TofuPilotClient:
                 "message": None,
                 "status_code": None,
                 "error": {"message": str(e)},
-                "raw_response": None,
             }
         except Exception as e:
             error_message = f"Failed to create test run: {e}"
@@ -176,13 +182,12 @@ class TofuPilotClient:
                 "message": None,
                 "status_code": None,
                 "error": {"message": error_message},
-                "raw_response": None,
             }
 
 
-def print_version_banner():
+def print_version_banner(current_version: str):
     """Prints current version of client"""
     banner = f"""
-    TofuPilot Python Client {version("tofupilot")}
+    TofuPilot Python Client {current_version}
     """
     print(banner.strip())

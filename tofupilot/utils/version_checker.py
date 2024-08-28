@@ -4,22 +4,22 @@ from importlib.metadata import version as get_version
 
 import requests
 from packaging import version
+from ..constants import SECONDS_BEFORE_TIMEOUT
 
 
-def check_latest_version(logger, package_name: str):
+def check_latest_version(logger, current_version, package_name: str):
     """Checks if the package is up-to-date and emits a warning if not"""
     try:
         response = requests.get(
-            f"https://pypi.org/pypi/{package_name}/json", timeout=10  # 10 seconds
+            f"https://pypi.org/pypi/{package_name}/json", timeout=SECONDS_BEFORE_TIMEOUT
         )
         response.raise_for_status()
         latest_version = response.json()["info"]["version"]
 
         try:
-            installed_version = get_version(package_name)
-            if version.parse(installed_version) < version.parse(latest_version):
+            if version.parse(current_version) < version.parse(latest_version):
                 warning_message = (
-                    f"You are using {package_name} version {installed_version}, however version {latest_version} is available. "
+                    f"You are using {package_name} version {current_version}, however version {latest_version} is available. "
                     f'You should consider upgrading via the "pip install --upgrade {package_name}" command.'
                 )
                 warnings.warn(warning_message, UserWarning)

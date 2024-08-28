@@ -23,21 +23,21 @@ pip install tofupilot
 
 ## Usage
 
-### Examples
-
-For usage examples, see the [examples](./examples/create_run_basic.py) directory.
-
 ### Documentation
 
 You can find the full TofuPilot documentation [here](https://docs.tofupilot.com).
 
+### Examples
+
+For usage examples, see the [examples](https://github.com/tofupilot/python-client/tree/main/examples) directory.
+
 ## Contributing
 
-Please read [CONTRIBUTING](./CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
+Please read [CONTRIBUTING](https://github.com/tofupilot/python-client/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/tofupilot/python-client/blob/main/LICENSE) for details.
 
 ## Contact
 
