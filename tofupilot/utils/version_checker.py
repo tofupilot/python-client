@@ -22,7 +22,6 @@ def check_latest_version(logger, current_version, package_name: str):
                     f"You are using {package_name} version {current_version}, however version {latest_version} is available. "
                     f'You should consider upgrading via the "pip install --upgrade {package_name}" command.'
                 )
-                warnings.warn(warning_message, UserWarning)
                 logger.warning(warning_message)
         except PackageNotFoundError:
             logger.info(f"Package {package_name} is not installed.")
