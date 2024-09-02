@@ -21,7 +21,10 @@ You can suggest new features by opening an issue [here](https://github.com/tofup
 1. Fork the repository.
 2. Create a new branch (e.g., `feature/xyz`).
 3. Make your changes.
-4. Commit your changes with a clear message.
+4. Commit your changes **following the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format** to ensure correct tagging, release notes, and changelog:
+   - `fix:` for bug fixes (SemVer patch).
+   - `feat:` for new features (SemVer minor).
+   - `feat!:`, `fix!:`, etc., for breaking changes (SemVer major).
 5. Push to your branch.
 6. Create a pull request [here](https://github.com/tofupilot/python-client/pulls).
 
