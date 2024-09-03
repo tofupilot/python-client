@@ -1,6 +1,6 @@
 import logging
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 from importlib.metadata import version
 from typing import Dict, List, Optional
 
@@ -51,6 +51,7 @@ class TofuPilotClient:
         unit_under_test: UnitUnderTest,
         run_passed: bool,
         steps: Optional[List[Step]] = None,
+        started_at: datetime = None,
         duration: timedelta = None,
         sub_units: Optional[List[SubUnit]] = None,
         report_variables: Optional[Dict[str, str]] = None,
@@ -64,6 +65,7 @@ class TofuPilotClient:
             procedure_id (str): The unique identifier of the procedure to which the test run belongs.
             unit_under_test (UnitUnderTest): The unit being tested.
             run_passed (bool): Boolean indicating whether the test run was successful.
+            started_at (datetime, optional): The datetime at which the test started. Default is None.
             duration (timedelta, optional): The duration of the test run. Default is None.
             steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/steps). Default is None.
             sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/sub-units). Default is None.
@@ -108,6 +110,9 @@ class TofuPilotClient:
                 if step["started_at"] is not None:
                     step["started_at"] = datetime_to_iso(step["started_at"])
             payload["steps"] = steps
+
+        if started_at is not None:
+            payload["started_at"] = datetime_to_iso(started_at)
 
         if duration is not None:
             payload["duration"] = timedelta_to_iso(duration)
