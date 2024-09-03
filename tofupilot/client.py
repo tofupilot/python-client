@@ -184,6 +184,86 @@ class TofuPilotClient:
                 "error": {"message": error_message},
             }
 
+    def get_unit(self, serial_number: str) -> dict:
+        """
+        Fetches a specific Unit from TofuPilot.
+
+        Args:
+            serial_number (str): The unique identifier of the unit.
+
+        Returns:
+            dict: A dictionary containing the following keys:
+                - success (bool): Whether the operation was successful.
+                - message (Optional[str]): Message returned from the API.
+                - data (Optional[dict]): The unit data if found.
+                - status_code (Optional[int]): HTTP status code of the response.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+        """
+        self._logger.info(f"Fetching unit {serial_number}...")
+
+        try:
+            response = requests.get(
+                f"{self._base_url}/units",
+                headers=self._headers,
+                params={"serial_number": serial_number},
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+
+            response.raise_for_status()
+            json_response = response.json()
+
+            # Log the message from the response
+            message = json_response.get("message")
+            self._logger.success(message)
+
+            # Extract the unit data from the response
+            data = json_response.get("data")
+
+            return {
+                "success": True,
+                "message": message,
+                "data": data,
+                "status_code": response.status_code,
+                "error": None,
+            }
+
+        except requests.exceptions.HTTPError as http_err:
+            # Parse the error message and log it
+            error_message = http_err.response.json().get(
+                "error", "An HTTP error occurred."
+            )
+            self._logger.error(f"HTTP error occurred: {error_message}")
+            return {
+                "success": False,
+                "message": None,
+                "status_code": http_err.response.status_code,
+                "error": {"message": error_message},
+            }
+
+        except requests.RequestException as e:
+            self._logger.error(f"Network error: {e}")
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": str(e)},
+            }
+
+        except Exception as e:
+            error_message = f"An unexpected error occurred: {e}"
+            self._logger.error(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": error_message},
+            }
+
 
 def print_version_banner(current_version: str):
     """Prints current version of client"""
