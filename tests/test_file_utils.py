@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch, mock_open
 
 import pytest
 from tofupilot.utils import (
-    validate_attachments,
+    validate_files,
     initialize_upload,
     upload_file,
     notify_server,
@@ -15,21 +15,21 @@ from tofupilot.utils import (
 from tofupilot.constants import SECONDS_BEFORE_TIMEOUT
 
 
-def test_validate_attachments():
+def test_validate_files():
     logger = MagicMock()
     attachments = ["file1.txt", "file2.jpg"]
     max_attachments = 2
     max_file_size = 5000
 
     with patch("os.path.getsize", return_value=4000):
-        validate_attachments(logger, attachments, max_attachments, max_file_size)
+        validate_files(logger, attachments, max_attachments, max_file_size)
 
     logger.info.assert_called_with("Validating attachments...")
     logger.error.assert_not_called()
 
     with pytest.raises(RuntimeError):
         with patch("os.path.getsize", return_value=6000):
-            validate_attachments(
+            validate_files(
                 logger,
                 attachments,
                 max_attachments,

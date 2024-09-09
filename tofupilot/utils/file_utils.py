@@ -8,14 +8,13 @@ import requests
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 
 
-def validate_attachments(
+def validate_files(
     logger,
     attachments: List[str],
     max_attachments: int,
     max_file_size: int,
 ):
     """Validates a list of attachments by making sure they have the right size"""
-    logger.info("Validating attachments...")
     if len(attachments) > max_attachments:
         log_and_raise(
             logger,

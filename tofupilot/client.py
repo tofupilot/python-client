@@ -15,12 +15,12 @@ from .constants import (
 from .models import SubUnit, UnitUnderTest, Step
 from .utils import (
     check_latest_version,
+    validate_files,
     handle_attachments,
     parse_error_message,
     setup_logger,
     timedelta_to_iso,
     datetime_to_iso,
-    validate_attachments,
 )
 
 
@@ -88,7 +88,7 @@ class TofuPilotClient:
         self._logger.info("Run creation started...")
 
         if attachments is not None:
-            validate_attachments(
+            validate_files(
                 self._logger,
                 attachments,
                 self._max_attachments,

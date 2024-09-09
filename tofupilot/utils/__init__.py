@@ -1,7 +1,7 @@
 from .logger import setup_logger
 from .version_checker import check_latest_version
 from .file_utils import (
-    validate_attachments,
+    validate_files,
     initialize_upload,
     upload_file,
     notify_server,
@@ -15,7 +15,7 @@ from .file_utils import (
 __all__ = [
     "setup_logger",
     "check_latest_version",
-    "validate_attachments",
+    "validate_files",
     "initialize_upload",
     "upload_file",
     "notify_server",
