@@ -12,10 +12,12 @@ from .constants import (
     CLIENT_MAX_ATTACHMENTS,
     SECONDS_BEFORE_TIMEOUT,
 )
-from .models import SubUnit, UnitUnderTest, Step
+from .models import SubUnit, UnitUnderTest, Step, Importer
 from .utils import (
     check_latest_version,
     validate_files,
+    initialize_upload,
+    upload_file,
     handle_attachments,
     parse_error_message,
     setup_logger,
@@ -41,7 +43,7 @@ class TofuPilotClient:
         if api_key is None:
             api_key = os.environ.get("TOFUPILOT_API_KEY")
         if api_key is None:
-            error = "Please provide an API key or set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
             self._logger.error(error)
             raise Exception(error)
 
@@ -85,7 +87,7 @@ class TofuPilotClient:
             Exception: For any other exceptions that might occur.
 
         """
-        self._logger.info("Run creation started...")
+        self._logger.info(f"Starting run creation...")
 
         if attachments is not None:
             validate_files(
@@ -189,12 +191,114 @@ class TofuPilotClient:
                 "error": {"message": error_message},
             }
 
-    def get_unit(self, serial_number: str) -> dict:
+    def create_run_from_file(self, file_path: str, importer: str = "OPENHTF") -> dict:
         """
-        Fetches a specific Unit from TofuPilot.
+        Creates a run on TofuPilot from a file report (e.g. OpenHTF JSON report).
 
         Args:
-            serial_number (str): The unique identifier of the unit.
+            file_path (str): The path to the log file to be imported.
+            importer (str): The type of importer to use. Defaults to "OPENHTF".
+
+        Returns:
+            dict: A dictionary containing the result of the import operation:
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - status_code (Optional[int]): HTTP status code of the response.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            ValueError: If the provided importer is not a valid Importer type.
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+        """
+        self._logger.info(f'Starting run creation from file "{file_path}"...')
+
+        # Validate the provided importer string against the Importer enum
+        if importer not in Importer.__members__:
+            error_message = f"Invalid importer '{importer}'. Must be one of: {', '.join(Importer.__members__.keys())}"
+            self._logger.error(error_message)
+            raise ValueError(error_message)
+
+        # Convert the string to the corresponding Importer enum value
+        importer_enum = Importer[importer]
+
+        try:
+            validate_files(
+                self._logger,
+                [file_path],
+                self._max_attachments,
+                self._max_file_size,
+            )
+            upload_url, upload_id = initialize_upload(
+                self._headers, self._base_url, file_path
+            )
+            upload_file(upload_url, file_path)
+
+            payload = {
+                "upload_id": upload_id,
+                "importer": importer_enum.value,
+                "client": "Python",
+                "client_version": self._current_version,
+            }
+
+            response = requests.post(
+                f"{self._base_url}/import",
+                json=payload,
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            import_response = response.json()
+
+            warnings: Optional[List[str]] = import_response.get("warnings")
+            if warnings:
+                for warning in warnings:
+                    self._logger.warning(warning)
+
+            message = import_response.get("message")
+            self._logger.success(message)
+
+            return {
+                "success": True,
+                "message": message,
+                "status_code": response.status_code,
+                "error": None,
+            }
+
+        except requests.exceptions.HTTPError as http_err:
+            error_message = parse_error_message(http_err.response)
+            self._logger.error(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": http_err.response.status_code,
+                "error": {"message": error_message},
+            }
+        except requests.RequestException as e:
+            self._logger.error("Network error: %s", e)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": str(e)},
+            }
+        except Exception as e:
+            error_message = f"Failed to import log: {e}"
+            self._logger.error(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": error_message},
+            }
+
+    def get_runs_by_serial_number(self, serial_number: str) -> dict:
+        """
+        Fetches all runs related to a specific unit from TofuPilot.
+
+        Args:
+            serial_number (str): The unique identifier of the unit associated with the runs.
 
         Returns:
             dict: A dictionary containing the following keys:
