@@ -191,7 +191,7 @@ class TofuPilotClient:
                 "error": {"message": error_message},
             }
 
-    def create_run_from_file(self, file_path: str, importer: str = "OPENHTF") -> dict:
+    def create_run_from_report(self, file_path: str, importer: str = "OPENHTF") -> dict:
         """
         Creates a run on TofuPilot from a file report (e.g. OpenHTF JSON report).
 
