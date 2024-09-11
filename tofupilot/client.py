@@ -342,7 +342,7 @@ class TofuPilotClient:
             f"Fetching runs for unit with serial number {serial_number}..."
         )
         params = {"serial_number": serial_number}
-        endpoint = f"{self._base_url}/units"
+        endpoint = f"{self._base_url}/runs"
 
         try:
             response = requests.get(
