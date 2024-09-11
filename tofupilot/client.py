@@ -293,44 +293,73 @@ class TofuPilotClient:
                 "error": {"message": error_message},
             }
 
-    def get_runs_by_serial_number(self, serial_number: str) -> dict:
+    def get_runs(self, *args, serial_number: str = None) -> dict:
         """
         Fetches all runs related to a specific unit from TofuPilot.
 
         Args:
-            serial_number (str): The unique identifier of the unit associated with the runs.
+            serial_number (str, required): The unique identifier of the unit associated with the runs.
 
         Returns:
             dict: A dictionary containing the following keys:
                 - success (bool): Whether the operation was successful.
                 - message (Optional[str]): Message returned from the API.
-                - data (Optional[dict]): The unit data if found.
+                - data (Optional[dict]): The runs data if found.
                 - status_code (Optional[int]): HTTP status code of the response.
                 - error (Optional[dict]): Error message if any.
 
         Raises:
+            ValueError: If no `serial_number` was provided.
+            TypeError: If positional arguments are passed instead of keyword arguments.
             requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
             requests.RequestException: If a network error occurred.
             Exception: For any other exceptions that might occur.
         """
-        self._logger.info(f"Fetching unit {serial_number}...")
+        # If any positional arguments were given
+        if args:
+            error_message = 'get_runs method only accepts keyword arguments. Please use `serial_number` as a named argument. For instance: client.get_runs(serial_number="YourSerialNumber")'
+            self._logger.error(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": error_message},
+            }
+
+        # Checking if serial_number is provided
+        if serial_number is None:
+            error_message = "A 'serial_number' is required to fetch runs."
+            self._logger.error(error_message)
+            return {
+                "success": False,
+                "message": None,
+                "status_code": None,
+                "error": {"message": error_message},
+            }
+
+        # Logging fetching operation
+        self._logger.info(
+            f"Fetching runs for unit with serial number {serial_number}..."
+        )
+        params = {"serial_number": serial_number}
+        endpoint = f"{self._base_url}/units"
 
         try:
             response = requests.get(
-                f"{self._base_url}/units",
+                endpoint,
                 headers=self._headers,
-                params={"serial_number": serial_number},
+                params=params,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
 
             response.raise_for_status()
             json_response = response.json()
 
-            # Log the message from the response
+            # Logging message from the response
             message = json_response.get("message")
             self._logger.success(message)
 
-            # Extract the unit data from the response
+            # Extracting the runs data from the response
             data = json_response.get("data")
 
             return {
@@ -342,15 +371,19 @@ class TofuPilotClient:
             }
 
         except requests.exceptions.HTTPError as http_err:
-            # Parse the error message and log it
-            error_message = http_err.response.json().get(
-                "error", "An HTTP error occurred."
+            error_message = (
+                http_err.response.json().get("error", "An HTTP error occurred.")
+                if http_err.response is not None
+                # Handling case where response might not have a json value
+                else "An HTTP error occurred."
             )
             self._logger.error(f"HTTP error occurred: {error_message}")
             return {
                 "success": False,
                 "message": None,
-                "status_code": http_err.response.status_code,
+                "status_code": (
+                    http_err.response.status_code if http_err.response else None
+                ),
                 "error": {"message": error_message},
             }
 
