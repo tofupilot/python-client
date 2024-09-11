@@ -6,12 +6,12 @@
   "outcome_details": [],
   "marginal": false,
   "metadata": {
-    "test_name": "openhtf_test",
+    "test_name": "FVT1",
     "config": {
       "attachments_directory": null,
       "plug_teardown_timeout_s": 0,
       "allow_unset_measurements": false,
-      "station_id": "Felixs-Laptop.local",
+      "station_id": "FVT1",
       "cancel_timeout_s": 2,
       "stop_on_first_failure": false,
       "capture_source": false
