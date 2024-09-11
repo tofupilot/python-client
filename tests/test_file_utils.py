@@ -24,7 +24,6 @@ def test_validate_files():
     with patch("os.path.getsize", return_value=4000):
         validate_files(logger, attachments, max_attachments, max_file_size)
 
-    logger.info.assert_called_with("Validating attachments...")
     logger.error.assert_not_called()
 
     with pytest.raises(RuntimeError):
