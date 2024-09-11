@@ -371,19 +371,12 @@ class TofuPilotClient:
             }
 
         except requests.exceptions.HTTPError as http_err:
-            error_message = (
-                http_err.response.json().get("error", "An HTTP error occurred.")
-                if http_err.response is not None
-                # Handling case where response might not have a json value
-                else "An HTTP error occurred."
-            )
-            self._logger.error(f"HTTP error occurred: {error_message}")
+            error_message = parse_error_message(http_err.response)
+            self._logger.error(error_message)
             return {
                 "success": False,
                 "message": None,
-                "status_code": (
-                    http_err.response.status_code if http_err.response else None
-                ),
+                "status_code": http_err.response.status_code,
                 "error": {"message": error_message},
             }
 
