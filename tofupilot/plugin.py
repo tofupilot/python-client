@@ -1,21 +1,30 @@
-import pytest
-import time
+from __future__ import annotations
+
 import datetime
-import json
 import functools
+import json
+import time
+from typing import Any, Callable, Dict, List, Optional, Type, Union
+
+import pytest
+from _pytest.config import Config
+from _pytest.config.argparsing import Parser
+from _pytest.fixtures import FixtureRequest
+from _pytest.main import Session
+from _pytest.nodes import Item
 
 # Global variable to store test steps data
-test_steps = []
+test_steps: List[Dict[str, Any]] = []
 
 
-def pytest_addoption(parser):
+def pytest_addoption(parser: Parser) -> None:
     """
     Add a command-line option to enable the Test Pilot plugin.
     """
     parser.addoption("--use-tp", action="store_true", help="Use Test Pilot plugin")
 
 
-def pytest_configure(config):
+def pytest_configure(config: Config) -> None:
     """
     Configure pytest to use the Test Pilot plugin if the --use-tp option is provided.
     """
@@ -28,11 +37,15 @@ class TestPilotPlugin:
     The Test Pilot plugin class that integrates with pytest hooks to collect test data.
     """
 
-    def __init__(self):
-        self.procedure_id = None  # To store the procedure ID from the test suite
-        self.unit_under_test = {}  # To store information about the unit under test
+    def __init__(self) -> None:
+        self.procedure_id: Optional[str] = (
+            None  # To store the procedure ID from the test suite
+        )
+        self.unit_under_test: Dict[str, Any] = (
+            {}
+        )  # To store information about the unit under test
 
-    def pytest_runtest_setup(self, item):
+    def pytest_runtest_setup(self, item: Item) -> None:
         """
         Called before each test item is run.
         """
@@ -47,7 +60,7 @@ class TestPilotPlugin:
             if unit:
                 self.unit_under_test = {"serial_number": unit}
 
-    def pytest_runtest_call(self, item):
+    def pytest_runtest_call(self, item: Item) -> None:
         """
         Execute the test function and handle exceptions.
         """
@@ -60,7 +73,7 @@ class TestPilotPlugin:
             item.outcome = "failed"
             item.excinfo = e
 
-    def pytest_runtest_teardown(self, item):
+    def pytest_runtest_teardown(self, item: Item) -> None:
         """
         Called after each test item is run, during the teardown phase.
         """
@@ -68,7 +81,7 @@ class TestPilotPlugin:
         duration = time.time() - item.start_time
 
         # Retrieve step_info from item.user_properties
-        step_info = {}
+        step_info: Dict[str, Any] = {}
         for name, value in item.user_properties:
             if name == "step_info":
                 step_info = value
@@ -89,7 +102,7 @@ class TestPilotPlugin:
         # Append the step information to the global test_steps list
         test_steps.append(step_info)
 
-    def pytest_sessionfinish(self, session, exitstatus):
+    def pytest_sessionfinish(self, session: Session, exitstatus: int) -> None:
         """
         Called after the entire test session finishes.
         Writes the test_report variable in a json file
@@ -109,14 +122,16 @@ class TestPilotPlugin:
             json.dump(test_report, f, indent=4)
 
 
-def pass_fail_step(name=None):
+def pass_fail_step(
+    name: Optional[str] = None,
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator for pass/fail test steps.
     """
 
-    def decorator(func):
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         @functools.wraps(func)
-        def wrapper(*args, step, **kwargs):
+        def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
             # Set the step name
             step.name = name or func.__name__
 
@@ -144,14 +159,16 @@ def pass_fail_step(name=None):
     return decorator
 
 
-def numeric_limit_step(func=None, **decorator_kwargs):
+def numeric_limit_step(
+    func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
+) -> Callable[..., Any]:
     """
     Decorator for numeric limit test steps, which can be used with or without arguments.
     """
     if func is not None and callable(func):
         # Decorator used without arguments
         @functools.wraps(func)
-        def wrapper(*args, step, **kwargs):
+        def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
             # Call the actual test function
             func(*args, step=step, **kwargs)
 
@@ -189,9 +206,9 @@ def numeric_limit_step(func=None, **decorator_kwargs):
         return wrapper
     else:
         # Decorator used with arguments
-        def decorator(func):
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @functools.wraps(func)
-            def wrapper(*args, step, **kwargs):
+            def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
                 # Set parameters from decorator arguments before calling the test function
                 step.limits_low = decorator_kwargs.get("low")
                 step.limits_high = decorator_kwargs.get("high")
@@ -238,7 +255,12 @@ def numeric_limit_step(func=None, **decorator_kwargs):
         return decorator
 
 
-def evaluate_limits(measurement, low, high, comp):
+def evaluate_limits(
+    measurement: Optional[float],
+    low: Optional[float],
+    high: Optional[float],
+    comp: str,
+) -> bool:
     """
     Evaluate whether a measurement is within specified limits using the comparator.
     """
@@ -249,13 +271,17 @@ def evaluate_limits(measurement, low, high, comp):
 
     # Perform the comparison based on the comparator type
     if comp == "GELE":
-        return low <= measurement <= high
+        return (low is None or measurement >= low) and (
+            high is None or measurement <= high
+        )
     elif comp == "LELE":
-        return low < measurement < high
+        return (low is None or measurement > low) and (
+            high is None or measurement < high
+        )
     elif comp == "GE":
-        return measurement >= low
+        return low is not None and measurement >= low
     elif comp == "LE":
-        return measurement <= high
+        return high is not None and measurement <= high
     else:
         # If an unknown comparator is provided, return False
         return False
@@ -266,10 +292,10 @@ class StepData:
     Class to store and manage data related to a test step.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         pass  # No initialization needed for now
 
-    def set_result(self, result, units=None):
+    def set_result(self, result: float, units: Optional[str] = None) -> StepData:
         """
         Set the numeric result of a measurement, optionally specifying units.
         """
@@ -278,7 +304,7 @@ class StepData:
             self.result_units = units  # Store the units if provided
         return self  # Allow method chaining
 
-    def set_limits(self, low, high):
+    def set_limits(self, low: float, high: float) -> StepData:
         """
         Set the lower and upper limits for a measurement.
         """
@@ -286,21 +312,21 @@ class StepData:
         self.limits_high = high
         return self  # Allow method chaining
 
-    def set_comparator(self, comp):
+    def set_comparator(self, comp: str) -> StepData:
         """
         Set the comparator type for limit evaluation.
         """
         self.comp = comp
         return self  # Allow method chaining
 
-    def set_name(self, name):
+    def set_name(self, name: str) -> StepData:
         """
         Set the name of the test step.
         """
         self.name = name
         return self  # Allow method chaining
 
-    def check_condition(self, condition):
+    def check_condition(self, condition: Union[Callable[[], bool], bool]) -> None:
         """
         Evaluate a pass/fail condition, which can be a callable or a boolean value.
         """
@@ -312,20 +338,22 @@ class StepData:
             self.result = bool(condition)
 
     # Allow arbitrary attributes to be set dynamically
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         self.__dict__[name] = value  # Store attribute in the instance dictionary
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         # Return None if the attribute is not found
         return self.__dict__.get(name, None)
 
 
-def test_suite(procedure_id=None, unit=None):
+def test_suite(
+    procedure_id: Optional[str] = None, unit: Optional[str] = None
+) -> Callable[[Type], Type]:
     """
     Decorator for test classes to attach procedure ID and unit information.
     """
 
-    def decorator(cls):
+    def decorator(cls: Type) -> Type:
         cls.procedure_id = procedure_id  # Attach procedure_id to the class
         cls.unit = unit  # Attach unit information to the class
         return cls
@@ -335,7 +363,7 @@ def test_suite(procedure_id=None, unit=None):
 
 # Define the 'step' fixture to provide a StepData instance to test functions
 @pytest.fixture
-def step(request):
+def step(request: FixtureRequest) -> StepData:
     s = StepData()
     s.request = request  # Attach the request object to access the pytest item
     return s
