@@ -3,10 +3,6 @@ import time
 import datetime
 import json
 import functools
-import logging
-
-# Set up logging configuration
-logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 # Global variable to store test steps data
 test_steps = []
@@ -64,6 +60,7 @@ class TestPilotPlugin:
         else:
             step_info["step_passed"] = False
 
+        # Append the step information to test_steps
         test_steps.append(step_info)
 
     def pytest_sessionfinish(self, session, exitstatus):
@@ -94,12 +91,9 @@ def pass_fail_step(name=None):
             step_info = {
                 "name": name or func.__name__,
                 "step_passed": step_passed,
+                # Include additional information if needed
             }
             func.step_info = step_info
-
-            # Logging step name and pass/fail status
-            logging.info(f"Step Name: {step_info['name']}")
-            logging.info(f"Step Passed: {step_info['step_passed']}")
 
             if not step_passed:
                 raise AssertionError("Step failed.")
@@ -134,15 +128,10 @@ def numeric_limit_step(func=None, **decorator_kwargs):
                 "measurement_unit": units,
                 "limit_low": low_limit,
                 "limit_high": high_limit,
+                "comparator": comp,
                 "step_passed": step_passed,
             }
             func.step_info = step_info
-
-            # Logging step details
-            logging.info(f"Step Name: {step_info['name']}")
-            logging.info(f"Measurement Value: {measurement} {units}")
-            logging.info(f"Limits: {low_limit} to {high_limit} {units}")
-            logging.info(f"Step Passed: {step_info['step_passed']}")
 
             if not step_passed:
                 raise AssertionError(
@@ -182,15 +171,10 @@ def numeric_limit_step(func=None, **decorator_kwargs):
                     "measurement_unit": units,
                     "limit_low": low_limit,
                     "limit_high": high_limit,
+                    "comparator": comp,
                     "step_passed": step_passed,
                 }
                 func.step_info = step_info
-
-                # Logging step details
-                logging.info(f"Step Name: {step_info['name']}")
-                logging.info(f"Measurement Value: {measurement} {units}")
-                logging.info(f"Limits: {low_limit} to {high_limit} {units}")
-                logging.info(f"Step Passed: {step_info['step_passed']}")
 
                 if not step_passed:
                     raise AssertionError(
@@ -206,6 +190,8 @@ def numeric_limit_step(func=None, **decorator_kwargs):
 def evaluate_limits(measurement, low, high, comp):
     if measurement is None:
         return False
+    if low is None and high is None:
+        return False  # Cannot evaluate without limits
     if comp == "GELE":
         return low <= measurement <= high
     elif comp == "LELE":
