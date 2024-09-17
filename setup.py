@@ -7,7 +7,12 @@ setup(
     name="tofupilot",
     version="1.3.0",
     packages=find_packages(),
-    install_requires=["requests", "setuptools", "packaging"],
+    install_requires=["requests", "setuptools", "packaging", "pytest"],
+    entry_points={
+        "pytest11": [
+            "tofupilot = tofupilot.plugin",  # Register the plugin
+        ],
+    },
     author="Félix Berthier",
     author_email="felix.berthier@tofupilot.com",
     description="The official Python client for the TofuPilot API",
