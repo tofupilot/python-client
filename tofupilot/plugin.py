@@ -237,8 +237,11 @@ class StepData:
         self.name = name
         return self  # Allow method chaining
 
-    def check_condition(self, condition_func):
-        self.result = condition_func()
+    def check_condition(self, condition):
+        if callable(condition):
+            self.result = condition()
+        else:
+            self.result = bool(condition)
 
     # Allow arbitrary attributes to be set dynamically
     def __setattr__(self, name, value):
