@@ -1,10 +1,10 @@
 # This script automates the testing process for multiple cables in a batch.
-# It generates a unique 8-character serial number for each test, prompts the user for the test result,
-# and logs the test outcome to the TofuPilot system. Failed tests can be retried, and the user 
+# It generates a unique 8-character serial number for each cable, prompts the user for the test result,
+# and logs the test outcome to the TofuPilot system. Failed tests can be retried, and the user
 # can decide whether to continue with the next test or end the process.
 
 from tofupilot import TofuPilotClient
-import shortuuid # Make sure to install shortuuid beforehand using pip install
+import shortuuid  # Make sure to install shortuuid beforehand using `pip install shortuuid`
 
 # Replace with your own information
 procedure_id = "FVT1"
@@ -13,7 +13,9 @@ part_number = "CBL"
 revision = "1.0"
 steps = []  # List of test steps, adapt according to your needs
 
-client = TofuPilotClient() # Check https://docs.tofupilot.com/ to save your API key as an environment variable
+# Check https://docs.tofupilot.com/ to save your API key as an environment variable
+client = TofuPilotClient()
+
 
 # Function to test a cable
 def test_cable():
@@ -21,11 +23,12 @@ def test_cable():
     test_result = input("Test result (OK/KO): ").strip().upper()
     return test_result == "OK"
 
+
 # Loop to test multiple cables in a batch
 while True:
-    # Generate the serial number for the test
-    id = shortuuid.uuid()[:8]  # Limit the UUID to 8 characters
-    serial_number = f"{batch_number}-{id}"
+    # Generate the serial number of the cable
+    uuid = shortuuid.uuid()[:8]  # Limit the UUID to 8 characters
+    serial_number = f"{batch_number}-{uuid}"
 
     print(f"\nTesting cable {serial_number}")
 
@@ -38,15 +41,19 @@ while True:
         unit_under_test={
             "part_number": part_number,
             "revision": revision,
-            "serial_number": serial_number
+            "serial_number": serial_number,
         },
         run_passed=run_passed,
-        steps=steps
+        steps=steps,
     )
 
     # If the test fails, offer to retry
     while not run_passed:
-        retry = input(f"Test {serial_number} failed. Do you want to retry? (y/n): ").strip().lower()
+        retry = (
+            input(f"Test {serial_number} failed. Do you want to retry? (y/n): ")
+            .strip()
+            .lower()
+        )
         if retry == "y":
             # Retest with the same serial number
             run_passed = test_cable()
@@ -55,17 +62,19 @@ while True:
                 unit_under_test={
                     "part_number": part_number,
                     "revision": revision,
-                    "serial_number": serial_number
+                    "serial_number": serial_number,
                 },
                 run_passed=run_passed,
-                steps=steps
+                steps=steps,
             )
         else:
             # Move on to the next test
             break
 
     # Ask if the user wants to continue
-    continue_testing = input("Do you want to continue with the next test? (y/n): ").strip().lower()
+    continue_testing = (
+        input("Do you want to continue with the next test? (y/n): ").strip().lower()
+    )
     if continue_testing != "y":
         print("End of tests.")
         break
