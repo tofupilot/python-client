@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import functools
 import json
+import os  # Added for directory handling
 import time
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
@@ -22,13 +23,14 @@ class Conf:
     def __init__(self):
         self.procedure_id: Optional[str] = None
         self.unit_under_test: Dict[str, Any] = {}
+        self.output_file: str = "test_report.json"  # Default output file name
 
     def set(
         self,
         procedure_id: Optional[str] = None,
         serial_number: Optional[str] = None,
         part_number: Optional[str] = None,
-        revision: Optional[str] = None,
+        output_file: Optional[str] = None,
     ) -> None:
         if procedure_id is not None:
             self.procedure_id = procedure_id
@@ -36,8 +38,8 @@ class Conf:
             self.unit_under_test["serial_number"] = serial_number
         if part_number is not None:
             self.unit_under_test["part_number"] = part_number
-        if revision is not None:
-            self.unit_under_test["revision"] = revision
+        if output_file is not None:
+            self.output_file = output_file
 
 
 # Create a global conf object
@@ -67,6 +69,7 @@ class TestPilotPlugin:
     def __init__(self) -> None:
         self.procedure_id: Optional[str] = None  # To store the procedure ID
         self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
+        self.output_file: str = conf.output_file  # Get output file from conf
 
     def pytest_runtest_setup(self, item: Item) -> None:
         """
@@ -79,6 +82,7 @@ class TestPilotPlugin:
         if self.procedure_id is None:
             self.procedure_id = conf.procedure_id
             self.unit_under_test = conf.unit_under_test
+            self.output_file = conf.output_file  # Update output_file from conf
 
         # If not set in conf, try to get from test class
         if self.procedure_id is None:
@@ -133,7 +137,7 @@ class TestPilotPlugin:
         Called after the entire test session finishes.
         Writes the test_report variable in a json file
         """
-        # At the end of the session, write out the test_report.json
+        # At the end of the session, write out the test report
         test_report = {
             "procedure_id": self.procedure_id or "your_procedure_id",
             "unit_under_test": self.unit_under_test
@@ -143,8 +147,14 @@ class TestPilotPlugin:
             },
             "steps": test_steps,  # Include all collected test steps
         }
-        # Write the test report to a JSON file
-        with open("test_report.json", "w") as f:
+
+        # Create directory if it does not exist
+        output_dir = os.path.dirname(self.output_file)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        # Write the test report to the specified output file
+        with open(self.output_file, "w") as f:
             json.dump(test_report, f, indent=4)
 
 
