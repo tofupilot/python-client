@@ -47,8 +47,13 @@ class TestPilotPlugin:
         # End timing the test
         duration = time.time() - item.start_time
 
-        # Collect test result information
-        step_info = getattr(item.obj, "step_info", {})
+        # Retrieve step_info from item.user_properties
+        step_info = {}
+        for name, value in item.user_properties:
+            if name == "step_info":
+                step_info = value
+                break
+
         step_info["duration"] = str(datetime.timedelta(seconds=duration))
         step_info["started_at"] = datetime.datetime.fromtimestamp(
             item.start_time
@@ -82,6 +87,8 @@ def pass_fail_step(name=None):
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, step, **kwargs):
+            step.name = name or func.__name__
+
             func(*args, step=step, **kwargs)
 
             # Evaluate the result
@@ -89,16 +96,16 @@ def pass_fail_step(name=None):
 
             # Store the result in step_info
             step_info = {
-                "name": name or func.__name__,
+                "name": step.name,
                 "step_passed": step_passed,
-                # Include additional information if needed
             }
-            func.step_info = step_info
+
+            # Attach step_info to the item object
+            step.request.node.user_properties.append(("step_info", step_info))
 
             if not step_passed:
                 raise AssertionError("Step failed.")
 
-        wrapper.step_info = {}
         return wrapper
 
     return decorator
@@ -113,7 +120,7 @@ def numeric_limit_step(func=None, **decorator_kwargs):
 
             # After the function call, get values from step
             measurement = getattr(step, "result_numeric", None)
-            units = getattr(step, "result_units", None)
+            units = getattr(step, "result_units", "")
             low_limit = getattr(step, "limits_low", None)
             high_limit = getattr(step, "limits_high", None)
             comp = getattr(step, "comp", "GELE")
@@ -131,14 +138,15 @@ def numeric_limit_step(func=None, **decorator_kwargs):
                 "comparator": comp,
                 "step_passed": step_passed,
             }
-            func.step_info = step_info
+
+            # Attach step_info to the item object
+            step.request.node.user_properties.append(("step_info", step_info))
 
             if not step_passed:
                 raise AssertionError(
                     f"Measurement {measurement} {units} is outside limits."
                 )
 
-        wrapper.step_info = {}
         return wrapper
     else:
         # Decorator used with arguments
@@ -148,7 +156,7 @@ def numeric_limit_step(func=None, **decorator_kwargs):
                 # Set parameters from decorator arguments
                 step.limits_low = decorator_kwargs.get("low")
                 step.limits_high = decorator_kwargs.get("high")
-                step.result_units = decorator_kwargs.get("units")
+                step.result_units = decorator_kwargs.get("units", "")
                 step.comp = decorator_kwargs.get("comp", "GELE")
                 step.name = decorator_kwargs.get("name", func.__name__)
 
@@ -156,7 +164,7 @@ def numeric_limit_step(func=None, **decorator_kwargs):
 
                 # Evaluate the result
                 measurement = getattr(step, "result_numeric", None)
-                units = getattr(step, "result_units", None)
+                units = getattr(step, "result_units", "")
                 low_limit = getattr(step, "limits_low", None)
                 high_limit = getattr(step, "limits_high", None)
                 comp = getattr(step, "comp", "GELE")
@@ -174,14 +182,15 @@ def numeric_limit_step(func=None, **decorator_kwargs):
                     "comparator": comp,
                     "step_passed": step_passed,
                 }
-                func.step_info = step_info
+
+                # Attach step_info to the item object
+                step.request.node.user_properties.append(("step_info", step_info))
 
                 if not step_passed:
                     raise AssertionError(
                         f"Measurement {measurement} {units} is outside limits."
                     )
 
-            wrapper.step_info = {}
             return wrapper
 
         return decorator
@@ -250,5 +259,7 @@ def test_suite(procedure_id=None, unit=None):
 
 # Define the 'step' fixture
 @pytest.fixture
-def step():
-    return StepData()
+def step(request):
+    s = StepData()
+    s.request = request
+    return s
