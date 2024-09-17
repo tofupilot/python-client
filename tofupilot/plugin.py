@@ -17,6 +17,33 @@ from _pytest.nodes import Item
 test_steps: List[Dict[str, Any]] = []
 
 
+# Configuration object
+class Conf:
+    def __init__(self):
+        self.procedure_id: Optional[str] = None
+        self.unit_under_test: Dict[str, Any] = {}
+
+    def set(
+        self,
+        procedure_id: Optional[str] = None,
+        serial_number: Optional[str] = None,
+        part_number: Optional[str] = None,
+        revision: Optional[str] = None,
+    ) -> None:
+        if procedure_id is not None:
+            self.procedure_id = procedure_id
+        if serial_number is not None:
+            self.unit_under_test["serial_number"] = serial_number
+        if part_number is not None:
+            self.unit_under_test["part_number"] = part_number
+        if revision is not None:
+            self.unit_under_test["revision"] = revision
+
+
+# Create a global conf object
+conf = Conf()
+
+
 def pytest_addoption(parser: Parser) -> None:
     """
     Add a command-line option to enable the Test Pilot plugin.
@@ -38,12 +65,8 @@ class TestPilotPlugin:
     """
 
     def __init__(self) -> None:
-        self.procedure_id: Optional[str] = (
-            None  # To store the procedure ID from the test suite
-        )
-        self.unit_under_test: Dict[str, Any] = (
-            {}
-        )  # To store information about the unit under test
+        self.procedure_id: Optional[str] = None  # To store the procedure ID
+        self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
 
     def pytest_runtest_setup(self, item: Item) -> None:
         """
@@ -52,13 +75,19 @@ class TestPilotPlugin:
         # Start timing the test
         item.start_time = time.time()
 
-        # Collect procedure_id and unit from the test class if available
-        cls = item.getparent(pytest.Class)
-        if cls and self.procedure_id is None:
-            self.procedure_id = getattr(cls.obj, "procedure_id", None)
-            unit = getattr(cls.obj, "unit", None)
-            if unit:
-                self.unit_under_test = {"serial_number": unit}
+        # Collect procedure_id and unit_under_test from conf if available
+        if self.procedure_id is None:
+            self.procedure_id = conf.procedure_id
+            self.unit_under_test = conf.unit_under_test
+
+        # If not set in conf, try to get from test class
+        if self.procedure_id is None:
+            cls = item.getparent(pytest.Class)
+            if cls:
+                self.procedure_id = getattr(cls.obj, "procedure_id", None)
+                unit = getattr(cls.obj, "unit", None)
+                if unit:
+                    self.unit_under_test = {"serial_number": unit}
 
     def pytest_runtest_call(self, item: Item) -> None:
         """
@@ -94,10 +123,7 @@ class TestPilotPlugin:
         ).isoformat()
 
         # Determine if the step passed or failed based on item.outcome
-        if getattr(item, "outcome", None) == "passed":
-            step_info["step_passed"] = True
-        else:
-            step_info["step_passed"] = False
+        step_info["step_passed"] = item.outcome == "passed"
 
         # Append the step information to the global test_steps list
         test_steps.append(step_info)
