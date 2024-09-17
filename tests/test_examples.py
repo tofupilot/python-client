@@ -3,12 +3,13 @@ import os
 import pytest
 
 
-# This function discovers all Python scripts in the examples directory
+# This function discovers all Python scripts in the examples directory that are not prefixed with '_'
 def discover_example_scripts():
     examples_dir = "examples"
     scripts = []
     for filename in os.listdir(examples_dir):
-        if filename.endswith(".py"):
+        # Exclude files that start with '_' or that are not Python scripts
+        if filename.endswith(".py") and not filename.startswith("_"):
             scripts.append(os.path.join(examples_dir, filename))
     return scripts
 

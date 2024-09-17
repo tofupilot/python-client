@@ -4,7 +4,7 @@
 # can decide whether to continue with the next test or end the process.
 
 from tofupilot import TofuPilotClient
-import shortuuid  # Make sure to install shortuuid beforehand using `pip install shortuuid`
+import uuid  # Make sure to install shortuuid beforehand using `pip install shortuuid`
 
 # Replace with your own information
 procedure_id = "FVT1"
@@ -27,8 +27,8 @@ def test_cable():
 # Loop to test multiple cables in a batch
 while True:
     # Generate the serial number of the cable
-    uuid = shortuuid.uuid()[:8]  # Limit the UUID to 8 characters
-    serial_number = f"{batch_number}-{uuid}"
+    random_id = str(uuid.uuid4())[:8]  # Limit the UUID to 8 characters
+    serial_number = f"{batch_number}-{random_id}"
 
     print(f"\nTesting cable {serial_number}")
 
