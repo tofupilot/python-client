@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from .utils import duration_to_iso, datetime_to_iso
 import functools
 import json
@@ -74,6 +74,14 @@ class TestPilotPlugin:
         self.procedure_id: Optional[str] = None  # To store the procedure ID
         self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
         self.output_file: str = conf.output_file  # Get output file from conf
+        self.session_start_time: Optional[float] = None  # To store session start time
+
+    def pytest_sessionstart(self, session: Session) -> None:
+        """
+        Called after the Session object has been created and before performing collection and entering the run test loop.
+        """
+        # Record the session start time
+        self.session_start_time = time.time()
 
     def pytest_runtest_setup(self, item: Item) -> None:
         """
@@ -126,7 +134,7 @@ class TestPilotPlugin:
 
         step_info["duration"] = duration_to_iso(duration)
         step_info["started_at"] = datetime_to_iso(
-            datetime.fromtimestamp(item.start_time)
+            datetime.fromtimestamp(item.start_time, tz=timezone.utc)
         )
 
         if step_info.get("name") is None:
@@ -146,6 +154,22 @@ class TestPilotPlugin:
         # Compute whether all steps passed
         run_passed = all(step.get("step_passed", False) for step in test_steps)
 
+        # Record the session end time
+        session_end_time = time.time()
+
+        # Calculate the total duration
+        total_duration = session_end_time - (
+            self.session_start_time or session_end_time
+        )
+
+        # Format the started_at and duration fields
+        started_at = datetime_to_iso(
+            datetime.fromtimestamp(
+                self.session_start_time or session_end_time, tz=timezone.utc
+            )
+        )
+        duration_iso = duration_to_iso(total_duration)
+
         # At the end of the session, write out the test report
         test_report = {
             "procedure_id": self.procedure_id or "your_procedure_id",
@@ -155,6 +179,8 @@ class TestPilotPlugin:
                 "part_number": "your_part_number",
             },
             "run_passed": run_passed,  # Add the run_passed property
+            "started_at": started_at,  # Add the started_at of the whole test
+            "duration": duration_iso,  # Add the duration of the whole test
             "steps": test_steps,  # Include all collected test steps
         }
 
