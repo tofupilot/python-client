@@ -129,6 +129,9 @@ class TestPilotPlugin:
             item.start_time
         ).isoformat()
 
+        if step_info.get("name") is None:
+            step_info["name"] = item.name
+
         # Determine if the step passed or failed based on item.outcome
         step_info["step_passed"] = item.outcome == "passed"
 
@@ -271,19 +274,52 @@ def evaluate_limits(
     if low is None and high is None:
         return False  # Cannot evaluate without limits
 
-    # Perform the comparison based on the comparator type
-    if comp == "GELE":
+    # Perform the comparison based on the comparator type (standard TestStand comparison type)
+    if comp == "EQ":
+        return low is not None and measurement == low
+    elif comp == "NE":
+        return low is not None and measurement != low
+    elif comp == "GELE":
         return (low is None or measurement >= low) and (
             high is None or measurement <= high
         )
-    elif comp == "LELE":
+    elif comp == "GTLT":
         return (low is None or measurement > low) and (
             high is None or measurement < high
         )
+    elif comp == "GELT":
+        return (low is None or measurement >= low) and (
+            high is None or measurement < high
+        )
+    elif comp == "GTLE":
+        return (low is None or measurement > low) and (
+            high is None or measurement <= high
+        )
+    elif comp == "LTGT":
+        return (low is not None and measurement < low) or (
+            high is not None and measurement > high
+        )
+    elif comp == "LEGE":
+        return (low is not None and measurement <= low) or (
+            high is not None and measurement >= high
+        )
+    elif comp == "LEGT":
+        return (low is not None and measurement <= low) or (
+            high is not None and measurement > high
+        )
+    elif comp == "LTGE":
+        return (low is not None and measurement < low) or (
+            high is not None and measurement >= high
+        )
+    elif comp == "GT":
+        return low is not None and measurement > low
+    elif comp == "LT":
+        return high is not None and measurement < high
     elif comp == "GE":
         return low is not None and measurement >= low
     elif comp == "LE":
         return high is not None and measurement <= high
+
     else:
         # If an unknown comparator is provided, return False
         return False
