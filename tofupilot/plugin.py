@@ -211,6 +211,14 @@ class Step(ABC):
     def evaluate(self) -> None:
         pass
 
+    def assert_(self) -> None:
+        """
+        Evaluate the step and raise an AssertionError if it failed.
+        """
+        self.evaluate()
+        if not self.step_passed:
+            raise AssertionError(f"Step '{self.name}' failed.")
+
     def set_name(self, name: str) -> Step:
         """
         Set the name of the test step.
@@ -276,6 +284,16 @@ class NumericStep(Step):
             self.result, self.low_limit, self.high_limit, self.comp
         )
 
+    def assert_(self) -> None:
+        """
+        Evaluate and assert the numeric measurement against the limits.
+        """
+        self.evaluate()
+        if not self.step_passed:
+            raise AssertionError(
+                f"Measurement {self.result} {self.units} did not meet the criteria."
+            )
+
 
 class StringStep(Step):
     """
@@ -307,6 +325,14 @@ class StringStep(Step):
         """
         self.step_passed = evaluate_string_limit(self.result, self.limit, self.comp)
 
+    def assert_(self) -> None:
+        """
+        Evaluate and assert the string measurement against the limit.
+        """
+        self.evaluate()
+        if not self.step_passed:
+            raise AssertionError(f"Value '{self.result}' did not meet the criteria.")
+
 
 # Decorator for numeric limit steps
 def numeric_limit_step(
@@ -322,9 +348,6 @@ def numeric_limit_step(
             # Call the actual test function
             func(*args, step=step, **kwargs)
 
-            # Evaluate the step
-            step.evaluate()
-
             # Prepare step_info with measurement details
             step_info = {
                 "name": step.name or func.__name__,
@@ -338,12 +361,6 @@ def numeric_limit_step(
 
             # Attach step_info to the pytest item object
             step.request.node.user_properties.append(("step_info", step_info))
-
-            # If the step failed, raise an AssertionError with a descriptive message
-            if not step.step_passed:
-                raise AssertionError(
-                    f"Measurement {step.result} {step.units} did not meet the criteria."
-                )
 
         wrapper.step_type = "numeric"  # Set step_type attribute
         return wrapper
@@ -363,9 +380,6 @@ def numeric_limit_step(
                 # Call the actual test function
                 func(*args, step=step, **kwargs)
 
-                # Evaluate the step
-                step.evaluate()
-
                 # Prepare step_info with measurement details
                 step_info = {
                     "name": step.name,
@@ -379,12 +393,6 @@ def numeric_limit_step(
 
                 # Attach step_info to the pytest item object
                 step.request.node.user_properties.append(("step_info", step_info))
-
-                # If the step failed, raise an AssertionError with a descriptive message
-                if not step.step_passed:
-                    raise AssertionError(
-                        f"Measurement {step.result} {step.units} did not meet the criteria."
-                    )
 
             wrapper.step_type = "numeric"  # Set step_type attribute
             return wrapper
@@ -406,9 +414,6 @@ def string_limit_step(
             # Call the actual test function
             func(*args, step=step, **kwargs)
 
-            # Evaluate the step
-            step.evaluate()
-
             # Prepare step_info with measurement details
             step_info = {
                 "name": step.name or func.__name__,
@@ -420,12 +425,6 @@ def string_limit_step(
 
             # Attach step_info to the pytest item object
             step.request.node.user_properties.append(("step_info", step_info))
-
-            # If the step failed, raise an AssertionError with a descriptive message
-            if not step.step_passed:
-                raise AssertionError(
-                    f"Value '{step.result}' did not meet the criteria."
-                )
 
         wrapper.step_type = "string"  # Set step_type attribute
         return wrapper
@@ -442,9 +441,6 @@ def string_limit_step(
                 # Call the actual test function
                 func(*args, step=step, **kwargs)
 
-                # Evaluate the step
-                step.evaluate()
-
                 # Prepare step_info with measurement details
                 step_info = {
                     "name": step.name,
@@ -456,12 +452,6 @@ def string_limit_step(
 
                 # Attach step_info to the pytest item object
                 step.request.node.user_properties.append(("step_info", step_info))
-
-                # If the step failed, raise an AssertionError with a descriptive message
-                if not step.step_passed:
-                    raise AssertionError(
-                        f"Value '{step.result}' did not meet the criteria."
-                    )
 
             wrapper.step_type = "string"  # Set step_type attribute
             return wrapper
@@ -478,7 +468,6 @@ def evaluate_numeric_limits(
     """
     Evaluate whether a measurement is within specified limits using the comparator.
     """
-    print(measurement, low, high, comp)
     if measurement is None:
         return False  # Cannot evaluate without a measurement
     if low is None and high is None:
