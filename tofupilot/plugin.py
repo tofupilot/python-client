@@ -104,10 +104,10 @@ class TestPilotPlugin:
         try:
             # Run the actual test function
             item.runtest()
-            item.outcome = "passed"
+            item.outcome = True
         except Exception as e:
             # If an exception occurs, mark the outcome as failed and store the exception
-            item.outcome = "failed"
+            item.outcome = False
             item.excinfo = e
 
     def pytest_runtest_teardown(self, item: Item) -> None:
@@ -133,7 +133,7 @@ class TestPilotPlugin:
             step_info["name"] = item.name
 
         # Determine if the step passed or failed based on item.outcome
-        step_info["step_passed"] = item.outcome == "passed"
+        step_info["step_passed"] = item.outcome
 
         # Append the step information to the global test_steps list
         test_steps.append(step_info)
@@ -143,6 +143,9 @@ class TestPilotPlugin:
         Called after the entire test session finishes.
         Writes the test_report variable in a json file
         """
+        # Compute whether all steps passed
+        run_passed = all(step.get("step_passed", False) for step in test_steps)
+
         # At the end of the session, write out the test report
         test_report = {
             "procedure_id": self.procedure_id or "your_procedure_id",
@@ -151,6 +154,7 @@ class TestPilotPlugin:
                 "serial_number": "your_serial_number",
                 "part_number": "your_part_number",
             },
+            "run_passed": run_passed,  # Add the run_passed property
             "steps": test_steps,  # Include all collected test steps
         }
 
