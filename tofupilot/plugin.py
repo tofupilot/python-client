@@ -216,7 +216,9 @@ def numeric_limit_step(
             name = getattr(step, "name", func.__name__)
 
             # Evaluate whether the measurement is within limits
-            step_passed = evaluate_limits(measurement, low_limit, high_limit, comp)
+            step_passed = evaluate_numeric_limits(
+                measurement, low_limit, high_limit, comp
+            )
 
             # Prepare step_info with measurement details
             step_info = {
@@ -263,7 +265,9 @@ def numeric_limit_step(
                 name = getattr(step, "name", func.__name__)
 
                 # Evaluate whether the measurement is within limits
-                step_passed = evaluate_limits(measurement, low_limit, high_limit, comp)
+                step_passed = evaluate_numeric_limits(
+                    measurement, low_limit, high_limit, comp
+                )
 
                 # Prepare step_info with measurement details
                 step_info = {
@@ -290,7 +294,89 @@ def numeric_limit_step(
         return decorator
 
 
-def evaluate_limits(
+def string_value_step(
+    func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
+) -> Callable[..., Any]:
+    """
+    Decorator for numeric limit test steps, which can be used with or without arguments.
+    """
+    if func is not None and callable(func):
+        # Decorator used without arguments
+        @functools.wraps(func)
+        def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
+            # Call the actual test function
+            func(*args, step=step, **kwargs)
+
+            # Retrieve values from step after the test function executes
+            value = getattr(step, "result_string", None)
+            limit = getattr(step, "limits_low", None)
+            comp = getattr(step, "comp", "EQ")
+            name = getattr(step, "name", func.__name__)
+
+            # Evaluate whether the measurement is within limits
+            step_passed = evaluate_string_limit(value, limit, comp)
+
+            # Prepare step_info with measurement details
+            step_info = {
+                "name": name,
+                "value": value,
+                "limit": limit,
+                "comparator": comp,
+                "step_passed": step_passed,
+            }
+
+            # Attach step_info to the pytest item object
+            step.request.node.user_properties.append(("step_info", step_info))
+
+            # If the step failed, raise an AssertionError with a descriptive message
+            if not step_passed:
+                raise AssertionError(f"Value {value} is outside limit.")
+
+        return wrapper
+    else:
+        # Decorator used with arguments
+        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+            @functools.wraps(func)
+            def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
+                # Set parameters from decorator arguments before calling the test function
+                step.limit = decorator_kwargs.get("limit")
+                step.comp = decorator_kwargs.get("comp", "EQ")
+                step.name = decorator_kwargs.get("name", func.__name__)
+
+                # Call the actual test function
+                func(*args, step=step, **kwargs)
+
+                # Retrieve values from step after the test function executes
+                value = getattr(step, "result_string", None)
+                limit = getattr(step, "limit", None)
+                comp = getattr(step, "comp", "GELE")
+                name = getattr(step, "name", func.__name__)
+
+                # Evaluate whether the measurement is within limits
+                step_passed = evaluate_string_limit(value, limit, comp)
+
+                # Prepare step_info with measurement details
+                step_info = {
+                    "name": name,
+                    "value": value,
+                    "limit": limit,
+                    "comparator": comp,
+                    "step_passed": step_passed,
+                }
+
+                # Attach step_info to the pytest item object
+                step.request.node.user_properties.append(("step_info", step_info))
+
+                # If the step failed, raise an AssertionError with a descriptive message
+                if not step_passed:
+                    raise AssertionError(f"Value {value} is outside limit.")
+
+            return wrapper
+
+        return decorator
+
+
+def evaluate_numeric_limits(
     measurement: Optional[float],
     low: Optional[float],
     high: Optional[float],
@@ -298,61 +384,91 @@ def evaluate_limits(
 ) -> bool:
     """
     Evaluate whether a measurement is within specified limits using the comparator.
+
+    Comparators:
+    - 'EQ': True if measurement equals low.
+    - 'NE': True if measurement does not equal low.
+    - 'LT': True if measurement is less than low.
+    - 'LE': True if measurement is less than or equal to low.
+    - 'GT': True if measurement is greater than high.
+    - 'GE': True if measurement is greater than or equal to high.
+    - 'LTGT': True if low < measurement < high.
+    - 'LTGE': True if low < measurement <= high.
+    - 'LEGT': True if low <= measurement < high.
+    - 'LEGE': True if low <= measurement <= high.
+    - 'GTLT': True if high < measurement < low (swapped range).
+    - 'GTLE': True if high < measurement <= low (swapped range).
+    - 'GELT': True if high <= measurement < low (swapped range).
+    - 'GELE': True if high <= measurement <= low (swapped range).
+
+    If measurement is None, return False. If both limits are None, return False.
     """
     if measurement is None:
         return False  # Cannot evaluate without a measurement
     if low is None and high is None:
         return False  # Cannot evaluate without limits
 
-    # Perform the comparison based on the comparator type (standard TestStand comparison type)
     if comp == "EQ":
-        return low is not None and measurement == low
+        return measurement == low
     elif comp == "NE":
-        return low is not None and measurement != low
-    elif comp == "GELE":
-        return (low is None or measurement >= low) and (
-            high is None or measurement <= high
-        )
-    elif comp == "GTLT":
-        return (low is None or measurement > low) and (
-            high is None or measurement < high
-        )
-    elif comp == "GELT":
-        return (low is None or measurement >= low) and (
-            high is None or measurement < high
-        )
-    elif comp == "GTLE":
-        return (low is None or measurement > low) and (
-            high is None or measurement <= high
-        )
-    elif comp == "LTGT":
-        return (low is not None and measurement < low) or (
-            high is not None and measurement > high
-        )
-    elif comp == "LEGE":
-        return (low is not None and measurement <= low) or (
-            high is not None and measurement >= high
-        )
-    elif comp == "LEGT":
-        return (low is not None and measurement <= low) or (
-            high is not None and measurement > high
-        )
-    elif comp == "LTGE":
-        return (low is not None and measurement < low) or (
-            high is not None and measurement >= high
-        )
-    elif comp == "GT":
-        return low is not None and measurement > low
+        return measurement != low
     elif comp == "LT":
-        return high is not None and measurement < high
-    elif comp == "GE":
-        return low is not None and measurement >= low
+        return measurement < low if low is not None else False
     elif comp == "LE":
-        return high is not None and measurement <= high
-
+        return measurement <= low if low is not None else False
+    elif comp == "GT":
+        return measurement > high if high is not None else False
+    elif comp == "GE":
+        return measurement >= high if high is not None else False
+    elif comp == "LTGT":
+        return (low is not None and high is not None) and low < measurement < high
+    elif comp == "LTGE":
+        return (low is not None and high is not None) and low < measurement <= high
+    elif comp == "LEGT":
+        return (low is not None and high is not None) and low <= measurement < high
+    elif comp == "LEGE":
+        return (low is not None and high is not None) and low <= measurement <= high
+    elif comp == "GTLT":
+        return (low is not None and high is not None) and high < measurement < low
+    elif comp == "GTLE":
+        return (low is not None and high is not None) and high < measurement <= low
+    elif comp == "GELT":
+        return (low is not None and high is not None) and high <= measurement < low
+    elif comp == "GELE":
+        return (low is not None and high is not None) and high <= measurement <= low
     else:
-        # If an unknown comparator is provided, return False
-        return False
+        raise ValueError(f"Unknown comparison operator for numeric value: {comp}")
+
+
+def evaluate_string_limit(
+    value: Optional[str],
+    limit: Optional[str],
+    comp: str,
+) -> bool:
+    """
+    Evaluate whether a string value is within specified limits using the comparator.
+    Comparators:
+    - 'EQ': True if value equals limit (case-sensitive)
+    - 'NE': True if value does not equal limit (case-sensitive)
+    - 'CASESENSIT': True if value exactly equals limit (case-sensitive)
+    - 'IGNORECASE': True if value equals limit (case-insensitive)
+
+    If value or limit is None, return False.
+    """
+    if value is None or limit is None:
+        return False  # Cannot evaluate without value and limit
+
+    # Handle comparison logic
+    if comp == "EQ":
+        return value == limit
+    elif comp == "NE":
+        return value != limit
+    elif comp == "CASESENSIT":
+        return value == limit  # Same as EQ but explicitly case-sensitive
+    elif comp == "IGNORECASE":
+        return value.lower() == limit.lower()
+    else:
+        raise ValueError(f"Unknown comparison operator for string value: {comp}")
 
 
 class StepData:
@@ -363,13 +479,25 @@ class StepData:
     def __init__(self) -> None:
         pass  # No initialization needed for now
 
-    def set_result(self, result: float, units: Optional[str] = None) -> StepData:
+        from typing import Union, Optional
+
+    def set_result(
+        self, result: Union[float, str], units: Optional[str] = None
+    ) -> StepData:
         """
-        Set the numeric result of a measurement, optionally specifying units.
+        Set the result of a measurement. If result is a float, update result_numeric.
+        If result is a string, update result_step. Optionally specify units.
         """
-        self.result_numeric = result  # Store the measurement value
+        if isinstance(result, float):
+            self.result_numeric = result  # Store the numeric result
+        elif isinstance(result, str):
+            self.result_string = result  # Store the string result
+        else:
+            raise ValueError("Result must be either a float or a string")
+
         if units:
             self.result_units = units  # Store the units if provided
+
         return self  # Allow method chaining
 
     def set_limits(self, low: float, high: float) -> StepData:
@@ -412,21 +540,6 @@ class StepData:
     def __getattr__(self, name: str) -> Any:
         # Return None if the attribute is not found
         return self.__dict__.get(name, None)
-
-
-def test_suite(
-    procedure_id: Optional[str] = None, unit: Optional[str] = None
-) -> Callable[[Type], Type]:
-    """
-    Decorator for test classes to attach procedure ID and unit information.
-    """
-
-    def decorator(cls: Type) -> Type:
-        cls.procedure_id = procedure_id  # Attach procedure_id to the class
-        cls.unit = unit  # Attach unit information to the class
-        return cls
-
-    return decorator
 
 
 # Define the 'step' fixture to provide a StepData instance to test functions
