@@ -30,6 +30,7 @@ class Conf:
         procedure_id: Optional[str] = None,
         serial_number: Optional[str] = None,
         part_number: Optional[str] = None,
+        revision: Optional[str] = None,
         output_file: Optional[str] = None,
     ) -> None:
         if procedure_id is not None:
@@ -38,6 +39,8 @@ class Conf:
             self.unit_under_test["serial_number"] = serial_number
         if part_number is not None:
             self.unit_under_test["part_number"] = part_number
+        if revision is not None:
+            self.unit_under_test["revision"] = revision
         if output_file is not None:
             self.output_file = output_file
 
@@ -156,43 +159,6 @@ class TestPilotPlugin:
         # Write the test report to the specified output file
         with open(self.output_file, "w") as f:
             json.dump(test_report, f, indent=4)
-
-
-def pass_fail_step(
-    name: Optional[str] = None,
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
-    """
-    Decorator for pass/fail test steps.
-    """
-
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        @functools.wraps(func)
-        def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
-            # Set the step name
-            step.name = name or func.__name__
-
-            # Call the actual test function, passing the step object
-            func(*args, step=step, **kwargs)
-
-            # Evaluate the result stored in step.result
-            step_passed = getattr(step, "result", False)
-
-            # Prepare step_info with necessary details
-            step_info = {
-                "name": step.name,
-                "step_passed": step_passed,
-            }
-
-            # Attach step_info to the pytest item object via user_properties
-            step.request.node.user_properties.append(("step_info", step_info))
-
-            # If the step failed, raise an AssertionError to mark the test as failed
-            if not step_passed:
-                raise AssertionError("Step failed.")
-
-        return wrapper
-
-    return decorator
 
 
 def numeric_limit_step(
