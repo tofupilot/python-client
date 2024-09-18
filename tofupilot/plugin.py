@@ -6,7 +6,7 @@ import functools
 import json
 import os
 import time
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import pytest
 from _pytest.config import Config
@@ -14,6 +14,7 @@ from _pytest.config.argparsing import Parser
 from _pytest.fixtures import FixtureRequest
 from _pytest.main import Session
 from _pytest.nodes import Item
+from abc import ABC, abstractmethod
 
 # Global variable to store test steps data
 test_steps: List[Dict[str, Any]] = []
@@ -194,183 +195,275 @@ class TestPilotPlugin:
             json.dump(test_report, f, indent=4)
 
 
+# Abstract base class for Steps
+class Step(ABC):
+    """
+    Abstract base class to represent a test step.
+    """
+
+    def __init__(self) -> None:
+        self.name: Optional[str] = None
+        self.comp: str = "EQ"
+        self.step_passed: Optional[bool] = None
+        self.request: Optional[FixtureRequest] = None  # Will be set by the fixture
+
+    @abstractmethod
+    def evaluate(self) -> None:
+        pass
+
+    def set_name(self, name: str) -> Step:
+        """
+        Set the name of the test step.
+        """
+        self.name = name
+        return self  # Allow method chaining
+
+    def set_comparator(self, comp: str) -> Step:
+        """
+        Set the comparator type for limit evaluation.
+        """
+        self.comp = comp
+        return self  # Allow method chaining
+
+    # Allow arbitrary attributes to be set dynamically
+    def __setattr__(self, name: str, value: Any) -> None:
+        self.__dict__[name] = value  # Store attribute in the instance dictionary
+
+    def __getattr__(self, name: str) -> Any:
+        # Return None if the attribute is not found
+        return self.__dict__.get(name, None)
+
+
+class NumericStep(Step):
+    """
+    Class to represent a numeric limit test step.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.result: Optional[float] = None
+        self.low_limit: Optional[float] = None
+        self.high_limit: Optional[float] = None
+        self.units: Optional[str] = None
+
+    def set_result(self, result: float) -> NumericStep:
+        """
+        Set the numeric result of the measurement.
+        """
+        self.result = result
+        return self  # Allow method chaining
+
+    def set_limits(self, low: Optional[float], high: Optional[float]) -> NumericStep:
+        """
+        Set the lower and upper limits for a numeric measurement.
+        """
+        self.low_limit = low
+        self.high_limit = high
+        return self  # Allow method chaining
+
+    def set_units(self, units: str) -> NumericStep:
+        """
+        Set the units of the measurement.
+        """
+        self.units = units
+        return self  # Allow method chaining
+
+    def evaluate(self) -> None:
+        """
+        Evaluate the numeric measurement against the limits.
+        """
+        self.step_passed = evaluate_numeric_limits(
+            self.result, self.low_limit, self.high_limit, self.comp
+        )
+
+
+class StringStep(Step):
+    """
+    Class to represent a string limit test step.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.result: Optional[str] = None
+        self.limit: Optional[str] = None
+
+    def set_result(self, result: str) -> StringStep:
+        """
+        Set the string result of the measurement.
+        """
+        self.result = result
+        return self  # Allow method chaining
+
+    def set_limit(self, limit: str) -> StringStep:
+        """
+        Set the limit for a string measurement.
+        """
+        self.limit = limit
+        return self  # Allow method chaining
+
+    def evaluate(self) -> None:
+        """
+        Evaluate the string measurement against the limit.
+        """
+        self.step_passed = evaluate_string_limit(self.result, self.limit, self.comp)
+
+
+# Decorator for numeric limit steps
 def numeric_limit_step(
     func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
 ) -> Callable[..., Any]:
     """
-    Decorator for numeric limit test steps, which can be used with or without arguments.
+    Decorator for numeric limit test steps, can be used with or without arguments.
     """
     if func is not None and callable(func):
         # Decorator used without arguments
         @functools.wraps(func)
-        def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
+        def wrapper(*args: Any, step: NumericStep, **kwargs: Any) -> None:
             # Call the actual test function
             func(*args, step=step, **kwargs)
 
-            # Retrieve values from step after the test function executes
-            measurement = getattr(step, "result_numeric", None)
-            units = getattr(step, "result_units", "")
-            low_limit = getattr(step, "limits_low", None)
-            high_limit = getattr(step, "limits_high", None)
-            comp = getattr(step, "comp", "GELE")
-            name = getattr(step, "name", func.__name__)
-
-            # Evaluate whether the measurement is within limits
-            step_passed = evaluate_numeric_limits(
-                measurement, low_limit, high_limit, comp
-            )
+            # Evaluate the step
+            step.evaluate()
 
             # Prepare step_info with measurement details
             step_info = {
-                "name": name,
-                "measurement_value": measurement,
-                "measurement_unit": units,
-                "limit_low": low_limit,
-                "limit_high": high_limit,
-                "comparator": comp,
-                "step_passed": step_passed,
+                "name": step.name or func.__name__,
+                "measurement_value": step.result,
+                "measurement_unit": step.units,
+                "limit_low": step.low_limit,
+                "limit_high": step.high_limit,
+                "comparator": step.comp,
+                "step_passed": step.step_passed,
             }
 
             # Attach step_info to the pytest item object
             step.request.node.user_properties.append(("step_info", step_info))
 
             # If the step failed, raise an AssertionError with a descriptive message
-            if not step_passed:
+            if not step.step_passed:
                 raise AssertionError(
-                    f"Measurement {measurement} {units} is outside limits."
+                    f"Measurement {step.result} {step.units} did not meet the criteria."
                 )
 
+        wrapper.step_type = "numeric"  # Set step_type attribute
         return wrapper
     else:
         # Decorator used with arguments
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @functools.wraps(func)
-            def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
+            def wrapper(*args: Any, step: NumericStep, **kwargs: Any) -> None:
                 # Set parameters from decorator arguments before calling the test function
-                step.limits_low = decorator_kwargs.get("low")
-                step.limits_high = decorator_kwargs.get("high")
-                step.result_units = decorator_kwargs.get("units", "")
-                step.comp = decorator_kwargs.get("comp", "GELE")
-                step.name = decorator_kwargs.get("name", func.__name__)
+                step.set_limits(
+                    decorator_kwargs.get("low"), decorator_kwargs.get("high")
+                )
+                step.set_units(decorator_kwargs.get("units", ""))
+                step.set_comparator(decorator_kwargs.get("comp", "GELE"))
+                step.set_name(decorator_kwargs.get("name", func.__name__))
 
                 # Call the actual test function
                 func(*args, step=step, **kwargs)
 
-                # Retrieve values from step after the test function executes
-                measurement = getattr(step, "result_numeric", None)
-                units = getattr(step, "result_units", "")
-                low_limit = getattr(step, "limits_low", None)
-                high_limit = getattr(step, "limits_high", None)
-                comp = getattr(step, "comp", "GELE")
-                name = getattr(step, "name", func.__name__)
-
-                # Evaluate whether the measurement is within limits
-                step_passed = evaluate_numeric_limits(
-                    measurement, low_limit, high_limit, comp
-                )
+                # Evaluate the step
+                step.evaluate()
 
                 # Prepare step_info with measurement details
                 step_info = {
-                    "name": name,
-                    "measurement_value": measurement,
-                    "measurement_unit": units,
-                    "limit_low": low_limit,
-                    "limit_high": high_limit,
-                    "comparator": comp,
-                    "step_passed": step_passed,
+                    "name": step.name,
+                    "measurement_value": step.result,
+                    "measurement_unit": step.units,
+                    "limit_low": step.low_limit,
+                    "limit_high": step.high_limit,
+                    "comparator": step.comp,
+                    "step_passed": step.step_passed,
                 }
 
                 # Attach step_info to the pytest item object
                 step.request.node.user_properties.append(("step_info", step_info))
 
                 # If the step failed, raise an AssertionError with a descriptive message
-                if not step_passed:
+                if not step.step_passed:
                     raise AssertionError(
-                        f"Measurement {measurement} {units} is outside limits."
+                        f"Measurement {step.result} {step.units} did not meet the criteria."
                     )
 
+            wrapper.step_type = "numeric"  # Set step_type attribute
             return wrapper
 
         return decorator
 
 
-def string_value_step(
+# Decorator for string limit steps
+def string_limit_step(
     func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
 ) -> Callable[..., Any]:
     """
-    Decorator for numeric limit test steps, which can be used with or without arguments.
+    Decorator for string limit test steps, can be used with or without arguments.
     """
     if func is not None and callable(func):
         # Decorator used without arguments
         @functools.wraps(func)
-        def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
+        def wrapper(*args: Any, step: StringStep, **kwargs: Any) -> None:
             # Call the actual test function
             func(*args, step=step, **kwargs)
 
-            # Retrieve values from step after the test function executes
-            value = getattr(step, "result_string", None)
-            limit = getattr(step, "limits_low", None)
-            comp = getattr(step, "comp", "EQ")
-            name = getattr(step, "name", func.__name__)
-
-            # Evaluate whether the measurement is within limits
-            step_passed = evaluate_string_limit(value, limit, comp)
+            # Evaluate the step
+            step.evaluate()
 
             # Prepare step_info with measurement details
             step_info = {
-                "name": name,
-                "value": value,
-                "limit": limit,
-                "comparator": comp,
-                "step_passed": step_passed,
+                "name": step.name or func.__name__,
+                "value": step.result,
+                "limit": step.limit,
+                "comparator": step.comp,
+                "step_passed": step.step_passed,
             }
 
             # Attach step_info to the pytest item object
             step.request.node.user_properties.append(("step_info", step_info))
 
             # If the step failed, raise an AssertionError with a descriptive message
-            if not step_passed:
-                raise AssertionError(f"Value {value} is outside limit.")
+            if not step.step_passed:
+                raise AssertionError(
+                    f"Value '{step.result}' did not meet the criteria."
+                )
 
+        wrapper.step_type = "string"  # Set step_type attribute
         return wrapper
     else:
         # Decorator used with arguments
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             @functools.wraps(func)
-            def wrapper(*args: Any, step: "StepData", **kwargs: Any) -> None:
+            def wrapper(*args: Any, step: StringStep, **kwargs: Any) -> None:
                 # Set parameters from decorator arguments before calling the test function
-                step.limit = decorator_kwargs.get("limit")
-                step.comp = decorator_kwargs.get("comp", "EQ")
-                step.name = decorator_kwargs.get("name", func.__name__)
+                step.set_limit(decorator_kwargs.get("limit"))
+                step.set_comparator(decorator_kwargs.get("comp", "EQ"))
+                step.set_name(decorator_kwargs.get("name", func.__name__))
 
                 # Call the actual test function
                 func(*args, step=step, **kwargs)
 
-                # Retrieve values from step after the test function executes
-                value = getattr(step, "result_string", None)
-                limit = getattr(step, "limit", None)
-                comp = getattr(step, "comp", "GELE")
-                name = getattr(step, "name", func.__name__)
-
-                # Evaluate whether the measurement is within limits
-                step_passed = evaluate_string_limit(value, limit, comp)
+                # Evaluate the step
+                step.evaluate()
 
                 # Prepare step_info with measurement details
                 step_info = {
-                    "name": name,
-                    "value": value,
-                    "limit": limit,
-                    "comparator": comp,
-                    "step_passed": step_passed,
+                    "name": step.name,
+                    "value": step.result,
+                    "limit": step.limit,
+                    "comparator": step.comp,
+                    "step_passed": step.step_passed,
                 }
 
                 # Attach step_info to the pytest item object
                 step.request.node.user_properties.append(("step_info", step_info))
 
                 # If the step failed, raise an AssertionError with a descriptive message
-                if not step_passed:
-                    raise AssertionError(f"Value {value} is outside limit.")
+                if not step.step_passed:
+                    raise AssertionError(
+                        f"Value '{step.result}' did not meet the criteria."
+                    )
 
+            wrapper.step_type = "string"  # Set step_type attribute
             return wrapper
 
         return decorator
@@ -384,25 +477,8 @@ def evaluate_numeric_limits(
 ) -> bool:
     """
     Evaluate whether a measurement is within specified limits using the comparator.
-
-    Comparators:
-    - 'EQ': True if measurement equals low.
-    - 'NE': True if measurement does not equal low.
-    - 'LT': True if measurement is less than low.
-    - 'LE': True if measurement is less than or equal to low.
-    - 'GT': True if measurement is greater than high.
-    - 'GE': True if measurement is greater than or equal to high.
-    - 'LTGT': True if low < measurement < high.
-    - 'LTGE': True if low < measurement <= high.
-    - 'LEGT': True if low <= measurement < high.
-    - 'LEGE': True if low <= measurement <= high.
-    - 'GTLT': True if high < measurement < low (swapped range).
-    - 'GTLE': True if high < measurement <= low (swapped range).
-    - 'GELT': True if high <= measurement < low (swapped range).
-    - 'GELE': True if high <= measurement <= low (swapped range).
-
-    If measurement is None, return False. If both limits are None, return False.
     """
+    print(measurement, low, high, comp)
     if measurement is None:
         return False  # Cannot evaluate without a measurement
     if low is None and high is None:
@@ -447,13 +523,6 @@ def evaluate_string_limit(
 ) -> bool:
     """
     Evaluate whether a string value is within specified limits using the comparator.
-    Comparators:
-    - 'EQ': True if value equals limit (case-sensitive)
-    - 'NE': True if value does not equal limit (case-sensitive)
-    - 'CASESENSIT': True if value exactly equals limit (case-sensitive)
-    - 'IGNORECASE': True if value equals limit (case-insensitive)
-
-    If value or limit is None, return False.
     """
     if value is None or limit is None:
         return False  # Cannot evaluate without value and limit
@@ -471,80 +540,20 @@ def evaluate_string_limit(
         raise ValueError(f"Unknown comparison operator for string value: {comp}")
 
 
-class StepData:
-    """
-    Class to store and manage data related to a test step.
-    """
-
-    def __init__(self) -> None:
-        pass  # No initialization needed for now
-
-        from typing import Union, Optional
-
-    def set_result(
-        self, result: Union[float, str], units: Optional[str] = None
-    ) -> StepData:
-        """
-        Set the result of a measurement. If result is a float, update result_numeric.
-        If result is a string, update result_step. Optionally specify units.
-        """
-        if isinstance(result, float):
-            self.result_numeric = result  # Store the numeric result
-        elif isinstance(result, str):
-            self.result_string = result  # Store the string result
-        else:
-            raise ValueError("Result must be either a float or a string")
-
-        if units:
-            self.result_units = units  # Store the units if provided
-
-        return self  # Allow method chaining
-
-    def set_limits(self, low: float, high: float) -> StepData:
-        """
-        Set the lower and upper limits for a measurement.
-        """
-        self.limits_low = low
-        self.limits_high = high
-        return self  # Allow method chaining
-
-    def set_comparator(self, comp: str) -> StepData:
-        """
-        Set the comparator type for limit evaluation.
-        """
-        self.comp = comp
-        return self  # Allow method chaining
-
-    def set_name(self, name: str) -> StepData:
-        """
-        Set the name of the test step.
-        """
-        self.name = name
-        return self  # Allow method chaining
-
-    def check_condition(self, condition: Union[Callable[[], bool], bool]) -> None:
-        """
-        Evaluate a pass/fail condition, which can be a callable or a boolean value.
-        """
-        if callable(condition):
-            # If condition is a callable (e.g., a lambda), call it to get the result
-            self.result = condition()
-        else:
-            # If condition is a direct value, convert it to a boolean
-            self.result = bool(condition)
-
-    # Allow arbitrary attributes to be set dynamically
-    def __setattr__(self, name: str, value: Any) -> None:
-        self.__dict__[name] = value  # Store attribute in the instance dictionary
-
-    def __getattr__(self, name: str) -> Any:
-        # Return None if the attribute is not found
-        return self.__dict__.get(name, None)
-
-
-# Define the 'step' fixture to provide a StepData instance to test functions
+# Define the 'step' fixture to provide a Step instance to test functions
 @pytest.fixture
-def step(request: FixtureRequest) -> StepData:
-    s = StepData()
+def step(request: FixtureRequest) -> Step:
+    # Depending on the test function, we need to decide whether to provide a NumericStep or StringStep
+    # This can be inferred from the test function annotations or could be specified explicitly
+
+    # For simplicity, let's assume the test function has an attribute 'step_type' set by the decorator
+    step_type = getattr(request.node.function, "step_type", "numeric")
+    if step_type == "numeric":
+        s = NumericStep()
+    elif step_type == "string":
+        s = StringStep()
+    else:
+        raise ValueError(f"Unknown step type: {step_type}")
+
     s.request = request  # Attach the request object to access the pytest item
     return s
