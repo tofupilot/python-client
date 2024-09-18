@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 
 def timedelta_to_iso(td: timedelta) -> str:
@@ -31,6 +31,19 @@ def timedelta_to_iso(td: timedelta) -> str:
     return iso_duration
 
 
+def duration_to_iso(duration_seconds):
+    td = timedelta(seconds=duration_seconds)
+    return timedelta_to_iso(td)
+
+
 def datetime_to_iso(dt: datetime):
-    # Note: using dt.isoformat() does not add the trailing 'Z' which prevents the iso string from being recognized by TP' API
-    return dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+    # Ensure the datetime object is timezone-aware and in UTC
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        dt = dt.astimezone(timezone.utc)
+    # Format the datetime and replace '+00:00' with 'Z'
+    iso_str = dt.isoformat()
+    if iso_str.endswith("+00:00"):
+        iso_str = iso_str[:-6] + "Z"
+    return iso_str

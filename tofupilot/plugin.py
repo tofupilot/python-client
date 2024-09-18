@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import datetime
+from datetime import datetime
+from .utils import duration_to_iso, datetime_to_iso
 import functools
 import json
-import os  # Added for directory handling
+import os
 import time
 from typing import Any, Callable, Dict, List, Optional, Type, Union
 
@@ -123,11 +124,10 @@ class TestPilotPlugin:
                 step_info = value
                 break  # Found the step_info, no need to continue
 
-        # Add duration and start time to step_info
-        step_info["duration"] = str(datetime.timedelta(seconds=duration))
-        step_info["started_at"] = datetime.datetime.fromtimestamp(
-            item.start_time
-        ).isoformat()
+        step_info["duration"] = duration_to_iso(duration)
+        step_info["started_at"] = datetime_to_iso(
+            datetime.fromtimestamp(item.start_time)
+        )
 
         if step_info.get("name") is None:
             step_info["name"] = item.name

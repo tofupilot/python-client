@@ -11,6 +11,7 @@ from .files import (
 )
 from .dates import (
     timedelta_to_iso,
+    duration_to_iso,
     datetime_to_iso,
 )
 
@@ -24,6 +25,7 @@ __all__ = [
     "handle_attachments",
     "parse_error_message",
     "timedelta_to_iso",
+    "duration_to_iso",
     "datetime_to_iso",
     "log_and_raise",
 ]
