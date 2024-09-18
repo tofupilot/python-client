@@ -357,7 +357,7 @@ def numeric_limit_step(
                     decorator_kwargs.get("low"), decorator_kwargs.get("high")
                 )
                 step.set_units(decorator_kwargs.get("units", ""))
-                step.set_comparator(decorator_kwargs.get("comp", "GELE"))
+                step.set_comparator(decorator_kwargs.get("comp", "LEGE"))
                 step.set_name(decorator_kwargs.get("name", func.__name__))
 
                 # Call the actual test function
