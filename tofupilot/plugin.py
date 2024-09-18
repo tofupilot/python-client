@@ -211,13 +211,14 @@ class Step(ABC):
     def evaluate(self) -> None:
         pass
 
-    def assert_(self) -> None:
+    def __call__(self) -> None:
         """
         Evaluate the step and raise an AssertionError if it failed.
         """
         self.evaluate()
         if not self.step_passed:
-            raise AssertionError(f"Step '{self.name}' failed.")
+            raise AssertionError(f"Value '{self.result}' did not meet the criteria.")
+        return self.step_passed
 
     def set_name(self, name: str) -> Step:
         """
@@ -284,7 +285,7 @@ class NumericStep(Step):
             self.result, self.low_limit, self.high_limit, self.comp
         )
 
-    def assert_(self) -> None:
+    def __call__(self) -> None:
         """
         Evaluate and assert the numeric measurement against the limits.
         """
@@ -293,6 +294,7 @@ class NumericStep(Step):
             raise AssertionError(
                 f"Measurement {self.result} {self.units} did not meet the criteria."
             )
+        return self.step_passed
 
 
 class StringStep(Step):
@@ -325,13 +327,14 @@ class StringStep(Step):
         """
         self.step_passed = evaluate_string_limit(self.result, self.limit, self.comp)
 
-    def assert_(self) -> None:
+    def __call__(self) -> None:
         """
         Evaluate and assert the string measurement against the limit.
         """
         self.evaluate()
         if not self.step_passed:
             raise AssertionError(f"Value '{self.result}' did not meet the criteria.")
+        return self.step_passed
 
 
 # Decorator for numeric limit steps
