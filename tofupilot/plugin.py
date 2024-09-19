@@ -55,14 +55,14 @@ def pytest_addoption(parser: Parser) -> None:
     """
     Add a command-line option to enable the Test Pilot plugin.
     """
-    parser.addoption("--use-tp", action="store_true", help="Use Test Pilot plugin")
+    parser.addoption("--tofupilot", action="store_true", help="Use Test Pilot plugin")
 
 
 def pytest_configure(config: Config) -> None:
     """
-    Configure pytest to use the Test Pilot plugin if the --use-tp option is provided.
+    Configure pytest to use the Test Pilot plugin if the --tofupilot option is provided.
     """
-    if config.getoption("--use-tp"):
+    if config.getoption("--tofupilot"):
         config.pluginmanager.register(TestPilotPlugin(), "testpilotplugin")
 
 
