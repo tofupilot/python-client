@@ -1,8 +1,8 @@
-import logging
+from typing import Dict, List, Optional
 import os
 from datetime import datetime, timedelta
 from importlib.metadata import version
-from typing import Dict, List, Optional
+import logging
 
 import requests
 
@@ -19,18 +19,25 @@ from .utils import (
     initialize_upload,
     upload_file,
     handle_attachments,
-    parse_error_message,
     setup_logger,
     timedelta_to_iso,
     datetime_to_iso,
+    handle_response,
+    handle_http_error,
+    handle_network_error,
+    handle_unexpected_error,
 )
 
 
 class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
         self._current_version = version("tofupilot")
-        print_version_banner(self._current_version)  # Print the version banner
-        self._api_key = api_key
+        print_version_banner(self._current_version)
+        self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
+        if self._api_key is None:
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
+            raise Exception(error)
+
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
@@ -40,12 +47,12 @@ class TofuPilotClient:
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
-        if api_key is None:
-            api_key = os.environ.get("TOFUPILOT_API_KEY")
-        if api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
-            self._logger.error(error)
-            raise Exception(error)
+
+    def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
+        """Logs the details of the HTTP request."""
+        self._logger.debug(
+            f"{method} {self._base_url}{endpoint} with payload: {payload}"
+        )
 
     def create_run(
         self,
@@ -76,9 +83,10 @@ class TofuPilotClient:
 
         Returns:
             dict: A dictionary containing the following keys:
+                - status_code (Optional[int]): HTTP status code of the response.
                 - success (bool): Whether the test run creation was successful.
                 - message (Optional[dict]): Contains URL if successful.
-                - status_code (Optional[int]): HTTP status code of the response.
+                - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
 
         Raises:
@@ -91,10 +99,7 @@ class TofuPilotClient:
 
         if attachments is not None:
             validate_files(
-                self._logger,
-                attachments,
-                self._max_attachments,
-                self._max_file_size,
+                self._logger, attachments, self._max_attachments, self._max_file_size
             )
 
         payload = {
@@ -125,6 +130,8 @@ class TofuPilotClient:
         if report_variables is not None:
             payload["report_variables"] = report_variables
 
+        self._log_request("POST", "/runs", payload)
+
         try:
             response = requests.post(
                 f"{self._base_url}/runs",
@@ -133,63 +140,24 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            json_response = response.json()
+            result = handle_response(self._logger, response)
 
-            warnings: Optional[List[str]] = json_response.get("warnings")
-            if warnings:
-                for warning in warnings:
-                    self._logger.warning(warning)
+            run_id = result.get("id")
+            if attachments:
+                handle_attachments(
+                    self._logger, self._headers, self._base_url, attachments, run_id
+                )
 
-            message = json_response.get("message")
-            self._logger.success(message)
+            return result
 
-            run_id = json_response.get("id")
-
-            try:
-                if attachments:
-                    handle_attachments(
-                        self._logger, self._headers, self._base_url, attachments, run_id
-                    )
-            except Exception as e:
-                self._logger.error(e)
-                return {
-                    "success": False,
-                    "message": None,
-                    "status_code": None,
-                    "error": {"message": str(e)},
-                }
-            return {
-                "success": True,
-                "message": message,
-                "status_code": response.status_code,
-                "error": None,
-            }
         except requests.exceptions.HTTPError as http_err:
-            error_message = parse_error_message(http_err.response)
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": http_err.response.status_code,
-                "error": {"message": error_message},
-            }
+            return handle_http_error(self._logger, http_err)
+
         except requests.RequestException as e:
-            self._logger.error("Network error: %s", e)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": str(e)},
-            }
+            return handle_network_error(self._logger, e)
+
         except Exception as e:
-            error_message = f"Failed to create test run: {e}"
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": error_message},
-            }
+            return handle_unexpected_error(self._logger, e)
 
     def create_run_from_report(self, file_path: str, importer: str = "OPENHTF") -> dict:
         """
@@ -201,9 +169,10 @@ class TofuPilotClient:
 
         Returns:
             dict: A dictionary containing the result of the import operation:
+                - status_code (Optional[int]): HTTP status code of the response.
                 - success (bool): Whether the import was successful.
                 - message (Optional[str]): Message if the operation was successful.
-                - status_code (Optional[int]): HTTP status code of the response.
+                - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
 
         Raises:
@@ -214,34 +183,34 @@ class TofuPilotClient:
         """
         self._logger.info(f'Starting run creation from file "{file_path}"...')
 
-        # Validate the provided importer string against the Importer enum
         if importer not in Importer.__members__:
             error_message = f"Invalid importer '{importer}'. Must be one of: {', '.join(Importer.__members__.keys())}"
             self._logger.error(error_message)
             raise ValueError(error_message)
 
-        # Convert the string to the corresponding Importer enum value
         importer_enum = Importer[importer]
+        validate_files(
+            self._logger, [file_path], self._max_attachments, self._max_file_size
+        )
 
         try:
-            validate_files(
-                self._logger,
-                [file_path],
-                self._max_attachments,
-                self._max_file_size,
-            )
             upload_url, upload_id = initialize_upload(
-                self._headers, self._base_url, file_path
+                self._logger, self._headers, self._base_url, file_path
             )
-            upload_file(upload_url, file_path)
+            upload_file(self._logger, upload_url, file_path)
+        except Exception as e:
+            return e
 
-            payload = {
-                "upload_id": upload_id,
-                "importer": importer_enum.value,
-                "client": "Python",
-                "client_version": self._current_version,
-            }
+        payload = {
+            "upload_id": upload_id,
+            "importer": importer_enum.value,
+            "client": "Python",
+            "client_version": self._current_version,
+        }
 
+        self._log_request("POST", "/import", payload)
+
+        try:
             response = requests.post(
                 f"{self._base_url}/import",
                 json=payload,
@@ -249,51 +218,18 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            import_response = response.json()
-
-            warnings: Optional[List[str]] = import_response.get("warnings")
-            if warnings:
-                for warning in warnings:
-                    self._logger.warning(warning)
-
-            message = import_response.get("message")
-            self._logger.success(message)
-
-            return {
-                "success": True,
-                "message": message,
-                "status_code": response.status_code,
-                "error": None,
-            }
+            return handle_response(self._logger, response)
 
         except requests.exceptions.HTTPError as http_err:
-            error_message = parse_error_message(http_err.response)
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": http_err.response.status_code,
-                "error": {"message": error_message},
-            }
-        except requests.RequestException as e:
-            self._logger.error("Network error: %s", e)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": str(e)},
-            }
-        except Exception as e:
-            error_message = f"Failed to import log: {e}"
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": error_message},
-            }
+            return handle_http_error(self._logger, http_err)
 
-    def get_runs(self, *args, serial_number: str = None) -> dict:
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+        except Exception as e:
+            return handle_unexpected_error(self._logger, e)
+
+    def get_runs(self, serial_number: str) -> dict:
         """
         Fetches all runs related to a specific unit from TofuPilot.
 
@@ -302,10 +238,10 @@ class TofuPilotClient:
 
         Returns:
             dict: A dictionary containing the following keys:
-                - success (bool): Whether the operation was successful.
-                - message (Optional[str]): Message returned from the API.
-                - data (Optional[dict]): The runs data if found.
                 - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the operation was successful.
+                - data (Optional[dict]): The runs data if found.
+                - message (Optional[str]): Message returned from the API.
                 - error (Optional[dict]): Error message if any.
 
         Raises:
@@ -315,89 +251,90 @@ class TofuPilotClient:
             requests.RequestException: If a network error occurred.
             Exception: For any other exceptions that might occur.
         """
-        # If any positional arguments were given
-        if args:
-            error_message = 'get_runs method only accepts keyword arguments. Please use `serial_number` as a named argument. For instance: client.get_runs(serial_number="YourSerialNumber")'
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": error_message},
-            }
-
-        # Checking if serial_number is provided
-        if serial_number is None:
+        if not serial_number:
             error_message = "A 'serial_number' is required to fetch runs."
             self._logger.error(error_message)
             return {
+                "status_code": None,
                 "success": False,
                 "message": None,
-                "status_code": None,
                 "error": {"message": error_message},
             }
 
-        # Logging fetching operation
         self._logger.info(
             f"Fetching runs for unit with serial number {serial_number}..."
         )
         params = {"serial_number": serial_number}
-        endpoint = f"{self._base_url}/runs"
+
+        self._log_request("GET", "/runs", params)
 
         try:
             response = requests.get(
-                endpoint,
+                f"{self._base_url}/runs",
                 headers=self._headers,
                 params=params,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
-
             response.raise_for_status()
-            json_response = response.json()
-
-            # Logging message from the response
-            message = json_response.get("message")
-            self._logger.success(message)
-
-            # Extracting the runs data from the response
-            data = json_response.get("data")
-
-            return {
-                "success": True,
-                "message": message,
-                "data": data,
-                "status_code": response.status_code,
-                "error": None,
-            }
+            return handle_response(self._logger, response, with_data=True)
 
         except requests.exceptions.HTTPError as http_err:
-            error_message = parse_error_message(http_err.response)
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": http_err.response.status_code,
-                "error": {"message": error_message},
-            }
+            return handle_http_error(self._logger, http_err)
 
         except requests.RequestException as e:
-            self._logger.error(f"Network error: {e}")
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": str(e)},
-            }
+            return handle_network_error(self._logger, e)
 
         except Exception as e:
-            error_message = f"An unexpected error occurred: {e}"
-            self._logger.error(error_message)
-            return {
-                "success": False,
-                "message": None,
-                "status_code": None,
-                "error": {"message": error_message},
-            }
+            return handle_unexpected_error(self._logger, e)
+
+    def update_unit(
+        self, serial_number: str, sub_units: Optional[List[SubUnit]] = None
+    ) -> dict:
+        """
+        Updates a given unit.
+
+        Args:
+            file_path (str): The serial number of the unit.
+            importer (str): The list of units to be added as sub-units of unit.
+
+        Returns:
+            dict: A dictionary containing the result of the import operation:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            ValueError: If the provided importer is not a valid Importer type.
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+        """
+        self._logger.info(f'Starting update of unit "{serial_number}"...')
+
+        payload = {"serial_number": serial_number, "sub_units": sub_units}
+
+        self._log_request("PATCH", "/units", payload)
+
+        try:
+            response = requests.patch(
+                f"{self._base_url}/units",
+                json=payload,
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            return handle_response(self._logger, response)
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+        except Exception as e:
+            return handle_unexpected_error(self._logger, e)
 
 
 def print_version_banner(current_version: str):
