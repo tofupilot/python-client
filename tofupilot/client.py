@@ -287,6 +287,55 @@ class TofuPilotClient:
         except Exception as e:
             return handle_unexpected_error(self._logger, e)
 
+    def update_unit(
+        self, serial_number: str, sub_units: Optional[List[SubUnit]] = None
+    ) -> dict:
+        """
+        Updates a given unit.
+
+        Args:
+            file_path (str): The serial number of the unit.
+            importer (str): The list of units to be added as sub-units of unit.
+
+        Returns:
+            dict: A dictionary containing the result of the import operation:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            ValueError: If the provided importer is not a valid Importer type.
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+        """
+        self._logger.info(f'Starting update of unit "{serial_number}"...')
+
+        payload = {"serial_number": serial_number, "sub_units": sub_units}
+
+        self._log_request("PATCH", "/units", payload)
+
+        try:
+            response = requests.patch(
+                f"{self._base_url}/units",
+                json=payload,
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            return handle_response(self._logger, response)
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+        except Exception as e:
+            return handle_unexpected_error(self._logger, e)
+
 
 def print_version_banner(current_version: str):
     """Prints current version of client"""
