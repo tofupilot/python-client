@@ -1,5 +1,4 @@
 from importlib.metadata import PackageNotFoundError
-from importlib.metadata import version as get_version
 
 import requests
 from packaging import version
@@ -27,5 +26,3 @@ def check_latest_version(logger, current_version, package_name: str):
 
     except requests.RequestException as e:
         logger.warning(f"Error checking the latest version: {e}")
-    except Exception as e:
-        logger.error(f"An unexpected error occurred: {e}")

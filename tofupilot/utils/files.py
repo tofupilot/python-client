@@ -1,5 +1,6 @@
 import json
 import mimetypes
+from logging import Logger
 import os
 from typing import List, Tuple
 import requests
@@ -8,17 +9,16 @@ from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from .network import (
     handle_http_error,
     handle_network_error,
-    handle_unexpected_error,
 )
 
 
-def log_and_raise(logger, error_message: str):
+def log_and_raise(logger: Logger, error_message: str):
     logger.error(error_message)
     raise RuntimeError(error_message)
 
 
 def validate_files(
-    logger,
+    logger: Logger,
     attachments: List[str],
     max_attachments: int,
     max_file_size: int,
@@ -40,7 +40,7 @@ def validate_files(
 
 
 def initialize_upload(
-    logger, headers: dict, base_url: str, file_path: str
+    logger: Logger, headers: dict, base_url: str, file_path: str
 ) -> Tuple[str, str]:
     """Creates a new upload in TofuPilot"""
     initialize_url = f"{base_url}/uploads/initialize"
@@ -65,11 +65,8 @@ def initialize_upload(
     except requests.RequestException as e:
         return handle_network_error(logger, e)
 
-    except Exception as e:
-        return handle_unexpected_error(logger, e)
 
-
-def upload_file(logger, upload_url: str, file_path: str) -> bool:
+def upload_file(logger: Logger, upload_url: str, file_path: str) -> bool:
     """Stores a file into an upload"""
     with open(file_path, "rb") as file:
         content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
@@ -87,12 +84,9 @@ def upload_file(logger, upload_url: str, file_path: str) -> bool:
         except requests.RequestException as e:
             return handle_network_error(logger, e)
 
-        except Exception as e:
-            return handle_unexpected_error(logger, e)
-
 
 def notify_server(
-    logger, headers: dict, base_url: str, upload_id: str, run_id: str
+    logger: Logger, headers: dict, base_url: str, upload_id: str, run_id: str
 ) -> bool:
     """Tells TP server to sync upload with newly created run"""
     sync_url = f"{base_url}/uploads/sync"
@@ -112,16 +106,13 @@ def notify_server(
     except requests.RequestException as e:
         return handle_network_error(logger, e)
 
-    except Exception as e:
-        return handle_unexpected_error(logger, e)
-
 
 def handle_attachments(
-    logger, headers: dict, base_url: str, attachments: List[str], run_id: str
+    logger: Logger, headers: dict, base_url: str, attachments: List[str], run_id: str
 ):
     """Creates one upload per file and stores them into TofuPilot"""
     for file_path in attachments:
-        logger.info(f"Uploading {file_path}...")
+        logger.info("Uploading %s...", file_path)
         try:
             upload_url, upload_id = initialize_upload(
                 logger, headers, base_url, file_path
@@ -143,8 +134,6 @@ def handle_attachments(
         except requests.RequestException as e:
             return handle_network_error(logger, e)
 
-        except Exception as e:
-            return handle_unexpected_error(logger, e)
         logger.success(
             f"Attachment {file_path} successfully uploaded and linked to run."
         )

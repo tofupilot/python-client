@@ -18,7 +18,6 @@ from .network import (
     handle_response,
     handle_http_error,
     handle_network_error,
-    handle_unexpected_error,
 )
 
 __all__ = [
@@ -37,5 +36,4 @@ __all__ = [
     "handle_response",
     "handle_http_error",
     "handle_network_error",
-    "handle_unexpected_error",
 ]

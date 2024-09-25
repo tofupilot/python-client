@@ -74,16 +74,3 @@ def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]
         "status_code": None,
         "error": {"message": str(e)},
     }
-
-
-def handle_unexpected_error(logger, e: Exception) -> Dict[str, Any]:
-    """Handles unexpected errors and logs them."""
-    error_message = f"An unexpected error occurred: {e}"
-    logger.error(error_message)
-    return {
-        "success": False,
-        "message": None,
-        "status_code": None,
-        "warnings": None,
-        "error": {"message": error_message},
-    }

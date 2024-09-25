@@ -25,7 +25,6 @@ from .utils import (
     handle_response,
     handle_http_error,
     handle_network_error,
-    handle_unexpected_error,
 )
 
 
@@ -36,7 +35,7 @@ class TofuPilotClient:
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
             error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
-            raise Exception(error)
+            raise ValueError(error)
 
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
@@ -51,7 +50,7 @@ class TofuPilotClient:
     def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
         """Logs the details of the HTTP request."""
         self._logger.debug(
-            f"{method} {self._base_url}{endpoint} with payload: {payload}"
+            "%s %s%s with payload: %s", method, self._base_url, endpoint, payload
         )
 
     def create_run(
@@ -95,7 +94,7 @@ class TofuPilotClient:
             Exception: For any other exceptions that might occur.
 
         """
-        self._logger.info(f"Starting run creation...")
+        self._logger.info("Starting run creation...")
 
         if attachments is not None:
             validate_files(
@@ -156,9 +155,6 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
-        except Exception as e:
-            return handle_unexpected_error(self._logger, e)
-
     def create_run_from_report(self, file_path: str, importer: str = "OPENHTF") -> dict:
         """
         Creates a run on TofuPilot from a file report (e.g. OpenHTF JSON report).
@@ -181,7 +177,7 @@ class TofuPilotClient:
             requests.RequestException: If a network error occurred.
             Exception: For any other exceptions that might occur.
         """
-        self._logger.info(f'Starting run creation from file "{file_path}"...')
+        self._logger.info('Starting run creation from file "%s"...', file_path)
 
         if importer not in Importer.__members__:
             error_message = f"Invalid importer '{importer}'. Must be one of: {', '.join(Importer.__members__.keys())}"
@@ -198,8 +194,11 @@ class TofuPilotClient:
                 self._logger, self._headers, self._base_url, file_path
             )
             upload_file(self._logger, upload_url, file_path)
-        except Exception as e:
-            return e
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
 
         payload = {
             "upload_id": upload_id,
@@ -225,9 +224,6 @@ class TofuPilotClient:
 
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
-
-        except Exception as e:
-            return handle_unexpected_error(self._logger, e)
 
     def get_runs(self, serial_number: str) -> dict:
         """
@@ -262,7 +258,7 @@ class TofuPilotClient:
             }
 
         self._logger.info(
-            f"Fetching runs for unit with serial number {serial_number}..."
+            "Fetching runs for unit with serial number %s...", serial_number
         )
         params = {"serial_number": serial_number}
 
@@ -283,9 +279,6 @@ class TofuPilotClient:
 
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
-
-        except Exception as e:
-            return handle_unexpected_error(self._logger, e)
 
     def update_unit(
         self, serial_number: str, sub_units: Optional[List[SubUnit]] = None
@@ -311,7 +304,7 @@ class TofuPilotClient:
             requests.RequestException: If a network error occurred.
             Exception: For any other exceptions that might occur.
         """
-        self._logger.info(f'Starting update of unit "{serial_number}"...')
+        self._logger.info('Starting update of unit "%s"...', serial_number)
 
         payload = {"serial_number": serial_number, "sub_units": sub_units}
 
@@ -332,9 +325,6 @@ class TofuPilotClient:
 
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
-
-        except Exception as e:
-            return handle_unexpected_error(self._logger, e)
 
 
 def print_version_banner(current_version: str):
