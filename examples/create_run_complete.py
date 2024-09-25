@@ -26,7 +26,7 @@ run_passed, report_variables, attachments = test_function()
 end_time = datetime.now()
 duration = end_time - start_time
 
-client.create_run(
+response = client.create_run(
     procedure_id="FVT1",
     unit_under_test={"serial_number": "00102", "part_number": "PCB01"},
     run_passed=run_passed,
@@ -34,3 +34,7 @@ client.create_run(
     report_variables=report_variables,
     attachments=attachments,
 )
+
+success = response.get("success")
+
+assert success

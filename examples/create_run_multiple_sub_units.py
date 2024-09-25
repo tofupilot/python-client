@@ -3,16 +3,13 @@ from tofupilot import TofuPilotClient
 client = TofuPilotClient()
 
 
-def test_function():
-    # your test execution goes here
-    return True
-
-
-run_passed = test_function()
-
-client.create_run(
+response = client.create_run(
     procedure_id="FVT1",
     unit_under_test={"serial_number": "00003", "part_number": "SI002"},
-    run_passed=run_passed,
+    run_passed=True,
     sub_units=[{"serial_number": "00002"}, {"serial_number": "00102"}],
 )
+
+success = response.get("success")
+
+assert success

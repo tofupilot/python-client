@@ -53,9 +53,13 @@ def run_all_tests():
 # Run the tests and create the run
 run_passed, steps = run_all_tests()
 
-client.create_run(
+response = client.create_run(
     procedure_id="FVT1",
     unit_under_test={"serial_number": "0001"},
     run_passed=run_passed,
     steps=steps,
 )
+
+success = response.get("success")
+
+assert success

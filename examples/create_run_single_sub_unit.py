@@ -10,9 +10,13 @@ def test_function():
 
 run_passed = test_function()
 
-client.create_run(
+response = client.create_run(
     procedure_id="FVT1",
     unit_under_test={"serial_number": "00002", "part_number": "SI001"},
     run_passed=run_passed,
     sub_units=[{"serial_number": "00102"}],
 )
+
+success = response.get("success")
+
+assert success
