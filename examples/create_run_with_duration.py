@@ -1,30 +1,45 @@
-import time
-from datetime import timedelta
+"""
+Example script demonstrating how to create a test run in TofuPilot with the duration of the test.
+
+This script measures the duration of a test function, then creates a test run for a unit 
+with the specified serial number and part number, including the duration as part of the run data.
+
+Ensure your API key is stored in the environment variables as per the documentation:
+https://docs.tofupilot.com/user-management#api-key
+"""
 
 from tofupilot import TofuPilotClient
+import time
 
+# Initialize the TofuPilot client
 client = TofuPilotClient()
 
 
 def test_function():
-    # Your test execution goes here
+    """
+    Simulates a test execution.
+    """
+    # Simulate test execution with a delay
     time.sleep(1)  # Placeholder for test execution time
     return True
 
 
-# Measure the duration of the test_function (optional)
+# Measure the duration of the test_function
 start_time = time.time()
 run_passed = test_function()
 end_time = time.time()
-duration = end_time - start_time
+duration = end_time - start_time  # Calculate duration
 
+# Create a test run for the unit with serial number "00102" and part number "PCB01",
+# including the duration of the test
 response = client.create_run(
     procedure_id="FVT1",
     unit_under_test={"serial_number": "00102", "part_number": "PCB01"},
     run_passed=run_passed,
-    duration=timedelta(seconds=end_time - start_time),  # Optional argument
+    duration=duration,  # Optional argument to include the duration
 )
 
+# Ensure the run was successfully created
 success = response.get("success")
 
 assert success
