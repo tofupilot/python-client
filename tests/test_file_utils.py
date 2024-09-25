@@ -41,6 +41,7 @@ def test_validate_files():
 
 
 def test_initialize_upload():
+    logger = MagicMock()
     headers = {"Authorization": "Bearer token"}
     base_url = "http://example.com"
     file_path = "file.txt"
@@ -50,13 +51,14 @@ def test_initialize_upload():
         mock_post.return_value.status_code = 200
         mock_post.return_value.json.return_value = response_data
 
-        upload_url, upload_id = initialize_upload(headers, base_url, file_path)
+        upload_url, upload_id = initialize_upload(logger, headers, base_url, file_path)
 
         assert upload_url == response_data["uploadUrl"]
         assert upload_id == response_data["id"]
 
 
 def test_upload_file():
+    logger = MagicMock()
     upload_url = "http://example.com/upload"
     file_path = "file.txt"
     file_content = b"file content"
@@ -66,7 +68,7 @@ def test_upload_file():
     ) as mock_put, patch("mimetypes.guess_type", return_value=("text/plain", None)):
         mock_put.return_value.status_code = 200
 
-        result = upload_file(upload_url, file_path)
+        result = upload_file(logger, upload_url, file_path)
 
         assert result is True
         mock_file.assert_called_once_with(file_path, "rb")

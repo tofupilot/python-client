@@ -1,9 +1,10 @@
-from typing import Dict, List, Optional, Any
-import requests
-import logging
+from typing import Dict, List, Optional
 import os
 from datetime import datetime, timedelta
 from importlib.metadata import version
+import logging
+
+import requests
 
 from .constants import (
     ENDPOINT,
@@ -18,10 +19,13 @@ from .utils import (
     initialize_upload,
     upload_file,
     handle_attachments,
-    parse_error_message,
     setup_logger,
     timedelta_to_iso,
     datetime_to_iso,
+    handle_response,
+    handle_http_error,
+    handle_network_error,
+    handle_unexpected_error,
 )
 
 
@@ -49,65 +53,6 @@ class TofuPilotClient:
         self._logger.debug(
             f"{method} {self._base_url}{endpoint} with payload: {payload}"
         )
-
-    def _handle_response(self, response: requests.Response) -> Dict[str, Any]:
-        """Processes the response from the server and logs necessary information."""
-        json_response = response.json()
-        warnings: Optional[List[str]] = json_response.get("warnings")
-        if warnings:
-            self._log_warnings(warnings)
-        message = json_response.get("message")
-        if message:
-            self._logger.success(message)
-        return {
-            "success": True,
-            "message": message,
-            "warnings": warnings,
-            "status_code": response.status_code,
-            "error": None,
-        }
-
-    def _log_warnings(self, warnings: List[str]):
-        """Logs any warnings found in the response."""
-        for warning in warnings:
-            self._logger.warning(warning)
-
-    def _handle_http_error(
-        self, http_err: requests.exceptions.HTTPError
-    ) -> Dict[str, Any]:
-        """Handles HTTP errors and logs them."""
-        error_message = parse_error_message(http_err.response)
-        self._logger.error(error_message)
-        return {
-            "success": False,
-            "message": None,
-            "warnings": None,
-            "status_code": http_err.response.status_code,
-            "error": {"message": error_message},
-        }
-
-    def _handle_network_error(self, e: requests.RequestException) -> Dict[str, Any]:
-        """Handles network errors and logs them."""
-        self._logger.error(f"Network error: {e}")
-        return {
-            "success": False,
-            "message": None,
-            "warnings": None,
-            "status_code": None,
-            "error": {"message": str(e)},
-        }
-
-    def _handle_unexpected_error(self, e: Exception) -> Dict[str, Any]:
-        """Handles unexpected errors and logs them."""
-        error_message = f"An unexpected error occurred: {e}"
-        self._logger.error(error_message)
-        return {
-            "success": False,
-            "message": None,
-            "status_code": None,
-            "warnings": None,
-            "error": {"message": error_message},
-        }
 
     def create_run(
         self,
@@ -166,7 +111,7 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            result = self._handle_response(response)
+            result = handle_response(self._logger, response)
 
             run_id = result.get("id")
             if attachments:
@@ -177,13 +122,13 @@ class TofuPilotClient:
             return result
 
         except requests.exceptions.HTTPError as http_err:
-            return self._handle_http_error(http_err)
+            return handle_http_error(self._logger, http_err)
 
         except requests.RequestException as e:
-            return self._handle_network_error(e)
+            return handle_network_error(self._logger, e)
 
         except Exception as e:
-            return self._handle_unexpected_error(e)
+            return handle_unexpected_error(self._logger, e)
 
     def create_run_from_report(self, file_path: str, importer: str = "OPENHTF") -> dict:
         self._logger.info(f'Starting run creation from file "{file_path}"...')
@@ -198,10 +143,13 @@ class TofuPilotClient:
             self._logger, [file_path], self._max_attachments, self._max_file_size
         )
 
-        upload_url, upload_id = initialize_upload(
-            self._headers, self._base_url, file_path
-        )
-        upload_file(upload_url, file_path)
+        try:
+            upload_url, upload_id = initialize_upload(
+                self._logger, self._headers, self._base_url, file_path
+            )
+            upload_file(self._logger, upload_url, file_path)
+        except Exception as e:
+            return e
 
         payload = {
             "upload_id": upload_id,
@@ -220,16 +168,16 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return self._handle_response(response)
+            return handle_response(self._logger, response)
 
         except requests.exceptions.HTTPError as http_err:
-            return self._handle_http_error(http_err)
+            return handle_http_error(self._logger, http_err)
 
         except requests.RequestException as e:
-            return self._handle_network_error(e)
+            return handle_network_error(self._logger, e)
 
         except Exception as e:
-            return self._handle_unexpected_error(e)
+            return handle_unexpected_error(self._logger, e)
 
     def get_runs(self, serial_number: str) -> dict:
         if not serial_number:
@@ -257,16 +205,16 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return self._handle_response(response)
+            return handle_response(self._logger, response, with_data=True)
 
         except requests.exceptions.HTTPError as http_err:
-            return self._handle_http_error(http_err)
+            return handle_http_error(self._logger, http_err)
 
         except requests.RequestException as e:
-            return self._handle_network_error(e)
+            return handle_network_error(self._logger, e)
 
         except Exception as e:
-            return self._handle_unexpected_error(e)
+            return handle_unexpected_error(self._logger, e)
 
 
 def print_version_banner(current_version: str):

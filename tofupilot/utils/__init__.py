@@ -6,12 +6,18 @@ from .files import (
     upload_file,
     notify_server,
     handle_attachments,
-    parse_error_message,
     log_and_raise,
 )
 from .dates import (
     timedelta_to_iso,
     datetime_to_iso,
+)
+from .network import (
+    parse_error_message,
+    handle_response,
+    handle_http_error,
+    handle_network_error,
+    handle_unexpected_error,
 )
 
 __all__ = [
@@ -26,4 +32,8 @@ __all__ = [
     "timedelta_to_iso",
     "datetime_to_iso",
     "log_and_raise",
+    "handle_response",
+    "handle_http_error",
+    "handle_network_error",
+    "handle_unexpected_error",
 ]
