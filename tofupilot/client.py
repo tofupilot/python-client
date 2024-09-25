@@ -66,6 +66,35 @@ class TofuPilotClient:
         report_variables: Optional[Dict[str, str]] = None,
         attachments: Optional[List[str]] = None,
     ) -> dict:
+        """
+        Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
+        [See API reference](https://docs.tofupilot.com/runs).
+
+        Args:
+            procedure_id (str): The unique identifier of the procedure to which the test run belongs.
+            unit_under_test (UnitUnderTest): The unit being tested.
+            run_passed (bool): Boolean indicating whether the test run was successful.
+            started_at (datetime, optional): The datetime at which the test started. Default is None.
+            duration (timedelta, optional): The duration of the test run. Default is None.
+            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/steps). Default is None.
+            sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/sub-units). Default is None.
+            report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://docs.tofupilot.com/report). Default is None.
+            attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://docs.tofupilot.com/attachments). Default is None.
+
+        Returns:
+            dict: A dictionary containing the following keys:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the test run creation was successful.
+                - message (Optional[dict]): Contains URL if successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+
+        """
         self._logger.info(f"Starting run creation...")
 
         if attachments is not None:
@@ -131,6 +160,27 @@ class TofuPilotClient:
             return handle_unexpected_error(self._logger, e)
 
     def create_run_from_report(self, file_path: str, importer: str = "OPENHTF") -> dict:
+        """
+        Creates a run on TofuPilot from a file report (e.g. OpenHTF JSON report).
+
+        Args:
+            file_path (str): The path to the log file to be imported.
+            importer (str): The type of importer to use. Defaults to "OPENHTF".
+
+        Returns:
+            dict: A dictionary containing the result of the import operation:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            ValueError: If the provided importer is not a valid Importer type.
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+        """
         self._logger.info(f'Starting run creation from file "{file_path}"...')
 
         if importer not in Importer.__members__:
@@ -180,6 +230,27 @@ class TofuPilotClient:
             return handle_unexpected_error(self._logger, e)
 
     def get_runs(self, serial_number: str) -> dict:
+        """
+        Fetches all runs related to a specific unit from TofuPilot.
+
+        Args:
+            serial_number (str, required): The unique identifier of the unit associated with the runs.
+
+        Returns:
+            dict: A dictionary containing the following keys:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the operation was successful.
+                - data (Optional[dict]): The runs data if found.
+                - message (Optional[str]): Message returned from the API.
+                - error (Optional[dict]): Error message if any.
+
+        Raises:
+            ValueError: If no `serial_number` was provided.
+            TypeError: If positional arguments are passed instead of keyword arguments.
+            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
+            requests.RequestException: If a network error occurred.
+            Exception: For any other exceptions that might occur.
+        """
         if not serial_number:
             error_message = "A 'serial_number' is required to fetch runs."
             self._logger.error(error_message)
