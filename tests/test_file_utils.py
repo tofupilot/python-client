@@ -10,7 +10,6 @@ from tofupilot.utils import (
     notify_server,
     parse_error_message,
     timedelta_to_iso,
-    log_and_raise,
 )
 from tofupilot.constants import SECONDS_BEFORE_TIMEOUT
 
@@ -118,11 +117,3 @@ def test_timedelta_to_iso():
     td = timedelta(days=2, hours=3, minutes=4, seconds=5, microseconds=600000)
     iso_format = timedelta_to_iso(td)
     assert iso_format == "P2DT3H4M5.600000S"
-
-
-def test_log_and_raise():
-    logger = MagicMock()
-    with pytest.raises(RuntimeError):
-        log_and_raise(logger, "An error occurred")
-
-    logger.error.assert_called_with("An error occurred")

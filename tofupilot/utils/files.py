@@ -2,6 +2,7 @@ import json
 import mimetypes
 from logging import Logger
 import os
+import sys
 from typing import List, Tuple
 import requests
 
@@ -14,7 +15,7 @@ from .network import (
 
 def log_and_raise(logger: Logger, error_message: str):
     logger.error(error_message)
-    raise RuntimeError(error_message)
+    sys.exit(1)
 
 
 def validate_files(

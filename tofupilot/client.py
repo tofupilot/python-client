@@ -1,5 +1,6 @@
 from typing import Dict, List, Optional
 import os
+import sys
 from datetime import datetime, timedelta
 from importlib.metadata import version
 import logging
@@ -32,17 +33,19 @@ class TofuPilotClient:
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
+        self._logger = setup_logger(logging.INFO)
+
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
             error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
-            raise ValueError(error)
+            self._logger.error(error)
+            sys.exit(1)
 
         self._base_url = f"{base_url}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
         }
-        self._logger = setup_logger(logging.INFO)
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
@@ -182,7 +185,7 @@ class TofuPilotClient:
         if importer not in Importer.__members__:
             error_message = f"Invalid importer '{importer}'. Must be one of: {', '.join(Importer.__members__.keys())}"
             self._logger.error(error_message)
-            raise ValueError(error_message)
+            sys.exit(1)
 
         importer_enum = Importer[importer]
         validate_files(
