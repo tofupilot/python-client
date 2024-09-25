@@ -8,8 +8,9 @@ Ensure your API key is stored in the environment variables as per the documentat
 https://docs.tofupilot.com/user-management#api-key
 """
 
-from tofupilot import TofuPilotClient
 import time
+from datetime import timedelta
+from tofupilot import TofuPilotClient
 
 # Initialize the TofuPilot client
 client = TofuPilotClient()
@@ -28,7 +29,7 @@ def test_function():
 start_time = time.time()
 run_passed = test_function()
 end_time = time.time()
-duration = end_time - start_time  # Calculate duration
+duration = timedelta(seconds=end_time - start_time)  # Calculate duration
 
 # Create a test run for the unit with serial number "00102" and part number "PCB01",
 # including the duration of the test
