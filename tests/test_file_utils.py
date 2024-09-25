@@ -81,6 +81,7 @@ def test_upload_file():
 
 
 def test_notify_server():
+    logger = MagicMock()
     headers = {"Authorization": "Bearer token"}
     base_url = "http://example.com"
     upload_id = "123"
@@ -89,7 +90,7 @@ def test_notify_server():
     with patch("requests.post") as mock_post:
         mock_post.return_value.status_code = 200
 
-        result = notify_server(headers, base_url, upload_id, run_id)
+        result = notify_server(logger, headers, base_url, upload_id, run_id)
 
         assert result is True
         mock_post.assert_called_with(

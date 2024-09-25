@@ -91,17 +91,29 @@ def upload_file(logger, upload_url: str, file_path: str) -> bool:
             return handle_unexpected_error(logger, e)
 
 
-def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> bool:
+def notify_server(
+    logger, headers: dict, base_url: str, upload_id: str, run_id: str
+) -> bool:
     """Tells TP server to sync upload with newly created run"""
     sync_url = f"{base_url}/uploads/sync"
     sync_payload = {"upload_id": upload_id, "run_id": run_id}
-    sync_response = requests.post(
-        sync_url,
-        data=json.dumps(sync_payload),
-        headers=headers,
-        timeout=SECONDS_BEFORE_TIMEOUT,
-    )
-    return sync_response.status_code == 200
+    try:
+        sync_response = requests.post(
+            sync_url,
+            data=json.dumps(sync_payload),
+            headers=headers,
+            timeout=SECONDS_BEFORE_TIMEOUT,
+        )
+        return sync_response.status_code == 200
+
+    except requests.exceptions.HTTPError as http_err:
+        return handle_http_error(logger, http_err)
+
+    except requests.RequestException as e:
+        return handle_network_error(logger, e)
+
+    except Exception as e:
+        return handle_unexpected_error(logger, e)
 
 
 def handle_attachments(
@@ -115,7 +127,7 @@ def handle_attachments(
                 logger, headers, base_url, file_path
             )
             if upload_url and upload_file(logger, upload_url, file_path):
-                if not notify_server(headers, base_url, upload_id, run_id):
+                if not notify_server(logger, headers, base_url, upload_id, run_id):
                     logger.error(
                         f"Notification Failure: The server could not be notified of the upload for attachment '{file_path}'. The upload may not be recorded in the system. Please check the server status and retry. For more details about run attachments, visit: https://docs.tofupilot.com/attachments."
                     )

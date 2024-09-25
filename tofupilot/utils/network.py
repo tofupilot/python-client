@@ -19,12 +19,12 @@ def handle_response(
     """Processes the response from the server and logs necessary information."""
     json_response = response.json()
     warnings: Optional[List[str]] = json_response.get("warnings")
-    if warnings:
+    if warnings is not None:
         for warning in warnings:
             logger.warning(warning)
 
     message = json_response.get("message")
-    if message:
+    if message is not None:
         logger.success(message)
 
     return_response = {
@@ -46,12 +46,19 @@ def handle_http_error(
     logger, http_err: requests.exceptions.HTTPError
 ) -> Dict[str, Any]:
     """Handles HTTP errors and logs them."""
+
+    warnings: Optional[List[str]] = http_err.response.json().get("warnings")
+    if warnings is not None:
+        for warning in warnings:
+            logger.warning(warning)
+
     error_message = parse_error_message(http_err.response)
     logger.error(error_message)
+
     return {
         "success": False,
         "message": None,
-        "warnings": None,
+        "warnings": warnings,
         "status_code": http_err.response.status_code,
         "error": {"message": error_message},
     }
