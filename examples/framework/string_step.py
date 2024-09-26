@@ -1,6 +1,10 @@
 from tofupilot import conf, string_step
 
-conf.set(procedure_id="FVT1", serial_number="PCBA01-0001")
+conf.set(procedure_id="FVT2", serial_number="PCBA01-0001", part_number="PCBA01")
+
+
+def test_passing_step():
+    assert True
 
 
 @string_step

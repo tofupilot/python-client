@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, List
 from threading import Lock
 from datetime import datetime, timezone, timedelta
 import functools
@@ -13,6 +13,7 @@ from _pytest.fixtures import FixtureRequest
 from _pytest.nodes import Item
 
 from .client import TofuPilotClient
+from .models import SubUnit
 
 
 # Configuration object
@@ -20,6 +21,7 @@ class Conf:
     def __init__(self):
         self.procedure_id: Optional[str] = None
         self.unit_under_test: Dict[str, Any] = {}
+        self.sub_units: Optional[List[SubUnit]] = None
 
     def set(
         self,
@@ -27,6 +29,7 @@ class Conf:
         serial_number: Optional[str] = None,
         part_number: Optional[str] = None,
         revision: Optional[str] = None,
+        sub_units: Optional[List[SubUnit]] = None,
     ) -> None:
         if procedure_id is not None:
             self.procedure_id = procedure_id
@@ -36,6 +39,8 @@ class Conf:
             self.unit_under_test["part_number"] = part_number
         if revision is not None:
             self.unit_under_test["revision"] = revision
+        if sub_units is not None:
+            self.sub_units = sub_units
         return self
 
 
@@ -66,6 +71,7 @@ class TestPilotPlugin:
     def __init__(self) -> None:
         self.procedure_id: Optional[str] = None  # To store the procedure ID
         self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
+        self.sub_units: Optional[List[SubUnit]] = None
         self.session_start_time: Optional[float] = None  # To store session start time
         self.test_steps_lock = Lock()
         self.test_steps = []
@@ -88,10 +94,9 @@ class TestPilotPlugin:
         # Start timing the test
         item.start_time = time.time()
 
-        # Collect procedure_id and unit_under_test from conf if available
-        if self.procedure_id is None:
-            self.procedure_id = conf.procedure_id
-            self.unit_under_test = conf.unit_under_test
+        self.procedure_id = conf.procedure_id
+        self.unit_under_test = conf.unit_under_test
+        self.sub_units = conf.sub_units
 
         # If not set in conf, try to get from test class
         if self.procedure_id is None:
@@ -166,31 +171,21 @@ class TestPilotPlugin:
         )
         duration_td = timedelta(seconds=total_duration)
 
-        if not self.procedure_id:
-            raise ValueError(
-                "No procedure ID provided. Ensure you call conf.set(procedure_id='your_procedure_id', serial_number='your_serial_number'). For detailed instructions, visit docs.tofupilot.com/clients/pytest."
-            )
-        if not self.unit_under_test:
-            raise ValueError(
-                "No serial number provided. Ensure you call conf.set(procedure_id='your_procedure_id', serial_number='your_serial_number'). For detailed instructions, visit docs.tofupilot.com/clients/pytest."
-            )
-
         # Prepare the steps
         steps = self.test_steps
 
         # Create the TofuPilot client
         try:
-            client = TofuPilotClient()
-            response = client.create_run(
+            client = TofuPilotClient(base_url="http://localhost:3000")
+            client.create_run(
                 procedure_id=self.procedure_id,
                 unit_under_test=self.unit_under_test,
                 run_passed=run_passed,
                 started_at=started_at,
                 duration=duration_td,
                 steps=steps,
+                sub_units=self.sub_units,
             )
-            if not response.get("success"):
-                print(f"Failed to upload test report. Error: {response.get('error')}")
         except Exception as e:
             raise RuntimeError(f"Failed to upload report: {e}") from e
 
