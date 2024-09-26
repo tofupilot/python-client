@@ -17,9 +17,6 @@ from _pytest.nodes import Item
 
 from .utils import duration_to_iso, datetime_to_iso
 
-# Global variable to store test steps data
-test_steps: List[Dict[str, Any]] = []
-
 
 # Configuration object
 class Conf:
@@ -100,9 +97,6 @@ class TestPilotPlugin:
             tempfile.gettempdir(), f"{script_file_name}.json"
         )
 
-        # Resetting test steps accross script executions
-        self.test_steps = []
-
         # Start timing the test
         item.start_time = time.time()
 
@@ -167,7 +161,7 @@ class TestPilotPlugin:
         Writes the test_report variable in a json file
         """
         # Compute whether all steps passed
-        run_passed = all(step.get("step_passed", False) for step in test_steps)
+        run_passed = all(step.get("step_passed", False) for step in self.test_steps)
 
         # Record the session end time
         session_end_time = time.time()
@@ -201,7 +195,7 @@ class TestPilotPlugin:
             "run_passed": run_passed,  # Add the run_passed property
             "started_at": started_at,  # Add the started_at of the whole test
             "duration": duration_iso,  # Add the duration of the whole test
-            "steps": test_steps,  # Include all collected test steps
+            "steps": self.test_steps,  # Include all collected test steps
         }
 
         # Write the test report to the dynamically determined output file
