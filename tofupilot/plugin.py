@@ -23,6 +23,7 @@ class Conf:
         self.unit_under_test: Dict[str, Any] = {}
         self.sub_units: Optional[List[SubUnit]] = None
         self.report_variables: Optional[Dict[str, str]] = None
+        self.attachments: Optional[List[str]] = None
 
     def set(
         self,
@@ -32,6 +33,7 @@ class Conf:
         revision: Optional[str] = None,
         sub_units: Optional[List[SubUnit]] = None,
         report_variables: Optional[Dict[str, str]] = None,
+        attachments: Optional[List[str]] = None,
     ) -> None:
         if procedure_id is not None:
             self.procedure_id = procedure_id
@@ -45,6 +47,8 @@ class Conf:
             self.sub_units = sub_units
         if report_variables is not None:
             self.report_variables = report_variables
+        if attachments is not None:
+            self.attachments = attachments
         return self
 
 
@@ -73,10 +77,6 @@ class TestPilotPlugin:
     """
 
     def __init__(self) -> None:
-        self.procedure_id: Optional[str] = None  # To store the procedure ID
-        self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
-        self.sub_units: Optional[List[SubUnit]] = None
-        self.report_variables: Optional[Dict[str, str]] = None
         self.session_start_time: Optional[float] = None  # To store session start time
         self.test_steps_lock = Lock()
         self.test_steps = []
@@ -98,20 +98,6 @@ class TestPilotPlugin:
         """
         # Start timing the test
         item.start_time = time.time()
-
-        self.procedure_id = conf.procedure_id
-        self.unit_under_test = conf.unit_under_test
-        self.sub_units = conf.sub_units
-        self.report_variables = conf.report_variables
-
-        # If not set in conf, try to get from test class
-        if self.procedure_id is None:
-            cls = item.getparent(pytest.Class)
-            if cls:
-                self.procedure_id = getattr(cls.obj, "procedure_id", None)
-                unit = getattr(cls.obj, "unit", None)
-                if unit:
-                    self.unit_under_test = {"serial_number": unit}
 
     def pytest_runtest_call(self, item: Item) -> None:
         """
@@ -184,14 +170,15 @@ class TestPilotPlugin:
         try:
             client = TofuPilotClient(base_url="http://localhost:3000")
             client.create_run(
-                procedure_id=self.procedure_id,
-                unit_under_test=self.unit_under_test,
+                procedure_id=conf.procedure_id,
+                unit_under_test=conf.unit_under_test,
                 run_passed=run_passed,
                 started_at=started_at,
                 duration=duration_td,
                 steps=steps,
-                sub_units=self.sub_units,
-                report_variables=self.report_variables,
+                sub_units=conf.sub_units,
+                report_variables=conf.report_variables,
+                attachments=conf.attachments,
             )
         except Exception as e:
             raise RuntimeError(f"Failed to upload report: {e}") from e
