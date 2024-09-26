@@ -22,6 +22,7 @@ class Conf:
         self.procedure_id: Optional[str] = None
         self.unit_under_test: Dict[str, Any] = {}
         self.sub_units: Optional[List[SubUnit]] = None
+        self.report_variables: Optional[Dict[str, str]] = None
 
     def set(
         self,
@@ -30,6 +31,7 @@ class Conf:
         part_number: Optional[str] = None,
         revision: Optional[str] = None,
         sub_units: Optional[List[SubUnit]] = None,
+        report_variables: Optional[Dict[str, str]] = None,
     ) -> None:
         if procedure_id is not None:
             self.procedure_id = procedure_id
@@ -41,6 +43,8 @@ class Conf:
             self.unit_under_test["revision"] = revision
         if sub_units is not None:
             self.sub_units = sub_units
+        if report_variables is not None:
+            self.report_variables = report_variables
         return self
 
 
@@ -72,6 +76,7 @@ class TestPilotPlugin:
         self.procedure_id: Optional[str] = None  # To store the procedure ID
         self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
         self.sub_units: Optional[List[SubUnit]] = None
+        self.report_variables: Optional[Dict[str, str]] = None
         self.session_start_time: Optional[float] = None  # To store session start time
         self.test_steps_lock = Lock()
         self.test_steps = []
@@ -97,6 +102,7 @@ class TestPilotPlugin:
         self.procedure_id = conf.procedure_id
         self.unit_under_test = conf.unit_under_test
         self.sub_units = conf.sub_units
+        self.report_variables = conf.report_variables
 
         # If not set in conf, try to get from test class
         if self.procedure_id is None:
@@ -185,6 +191,7 @@ class TestPilotPlugin:
                 duration=duration_td,
                 steps=steps,
                 sub_units=self.sub_units,
+                report_variables=self.report_variables,
             )
         except Exception as e:
             raise RuntimeError(f"Failed to upload report: {e}") from e
