@@ -80,7 +80,7 @@ class TestPilotPlugin:
         """
         Called after the Session object has been created and before performing collection and entering the run test loop.
         """
-        # Record the session start time
+        # Recording the session start time
         self.session_start_time = time.time()
 
     def pytest_runtest_setup(self, item: Item) -> None:
@@ -170,14 +170,19 @@ class TestPilotPlugin:
         )
         duration_iso = duration_to_iso(total_duration)
 
+        if not self.procedure_id:
+            raise ValueError(
+                "No procedure ID provided. Ensure you call conf.set(procedure_id='your_procedure_id', serial_number='your_serial_number'). For detailed instructions, visit docs.tofupilot.com/clients/pytest."
+            )
+        if not self.unit_under_test:
+            raise ValueError(
+                "No serial number provided. Ensure you call conf.set(procedure_id='your_procedure_id', serial_number='your_serial_number'). For detailed instructions, visit docs.tofupilot.com/clients/pytest."
+            )
+
         # At the end of the session, write out the test report
         test_report = {
-            "procedure_id": self.procedure_id or "your_procedure_id",
-            "unit_under_test": self.unit_under_test
-            or {
-                "serial_number": "your_serial_number",
-                "part_number": "your_part_number",
-            },
+            "procedure_id": self.procedure_id,
+            "unit_under_test": self.unit_under_test,
             "run_passed": run_passed,  # Add the run_passed property
             "started_at": started_at,  # Add the started_at of the whole test
             "duration": duration_iso,  # Add the duration of the whole test
@@ -341,7 +346,7 @@ class StringStep(Step):
 
 
 # Decorator for numeric limit steps
-def numeric_limit_step(
+def numeric_step(
     func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
 ) -> Callable[..., Any]:
     """
@@ -405,7 +410,7 @@ def numeric_limit_step(
 
 
 # Decorator for string limit steps
-def string_limit_step(
+def string_step(
     func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
 ) -> Callable[..., Any]:
     """
@@ -525,8 +530,10 @@ def evaluate_string_limit(
     """
     Evaluate whether a string value is within specified limits using the comparator.
     """
-    if value is None or limit is None:
-        return False  # Cannot evaluate without value and limit
+    if value is None:
+        return False
+    if limit is None:
+        return True  # One may simply log a value without comparing it
 
     # Handle comparison logic
     if comp == "EQ":

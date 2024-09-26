@@ -6,4 +6,4 @@ the main interface for interacting with the TofuPilot API.
 """
 
 from .client import TofuPilotClient
-from .plugin import numeric_limit_step, string_limit_step, conf
+from .plugin import numeric_step, string_step, conf
