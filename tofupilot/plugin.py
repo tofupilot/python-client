@@ -1,11 +1,8 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 from threading import Lock
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import functools
-import tempfile
-import os
-import json
 import time
 from abc import ABC, abstractmethod
 
@@ -15,7 +12,7 @@ from _pytest.config.argparsing import Parser
 from _pytest.fixtures import FixtureRequest
 from _pytest.nodes import Item
 
-from .utils import duration_to_iso, datetime_to_iso
+from .client import TofuPilotClient
 
 
 # Configuration object
@@ -72,7 +69,6 @@ class TestPilotPlugin:
         self.session_start_time: Optional[float] = None  # To store session start time
         self.test_steps_lock = Lock()
         self.test_steps = []
-        self.output_file = None
 
     def append_step(self, step_info: Dict[str, Any]) -> None:
         with self.test_steps_lock:
@@ -89,14 +85,6 @@ class TestPilotPlugin:
         """
         Called before each test item is run.
         """
-        # Determine the script file name
-        script_file_name = os.path.basename(item.fspath).split(".")[0]
-
-        # Create the output file path using the script file name
-        self.output_file = os.path.join(
-            tempfile.gettempdir(), f"{script_file_name}.json"
-        )
-
         # Start timing the test
         item.start_time = time.time()
 
@@ -132,7 +120,8 @@ class TestPilotPlugin:
         Called after each test item is run, during the teardown phase.
         """
         # End timing the test
-        duration = time.time() - item.start_time
+        duration_seconds = time.time() - item.start_time
+        duration = timedelta(seconds=duration_seconds)
 
         # Retrieve step_info from item.user_properties
         step_info: Dict[str, Any] = {}
@@ -141,9 +130,9 @@ class TestPilotPlugin:
                 step_info = value
                 break  # Found the step_info, no need to continue
 
-        step_info["duration"] = duration_to_iso(duration)
-        step_info["started_at"] = datetime_to_iso(
-            datetime.fromtimestamp(item.start_time, tz=timezone.utc)
+        step_info["duration"] = duration
+        step_info["started_at"] = datetime.fromtimestamp(
+            item.start_time, tz=timezone.utc
         )
 
         if step_info.get("name") is None:
@@ -158,7 +147,7 @@ class TestPilotPlugin:
     def pytest_sessionfinish(self) -> None:
         """
         Called after the entire test session finishes.
-        Writes the test_report variable in a json file
+        Uploads the test report to TofuPilot's API.
         """
         # Compute whether all steps passed
         run_passed = all(step.get("step_passed", False) for step in self.test_steps)
@@ -172,12 +161,10 @@ class TestPilotPlugin:
         )
 
         # Format the started_at and duration fields
-        started_at = datetime_to_iso(
-            datetime.fromtimestamp(
-                self.session_start_time or session_end_time, tz=timezone.utc
-            )
+        started_at = datetime.fromtimestamp(
+            self.session_start_time or session_end_time, tz=timezone.utc
         )
-        duration_iso = duration_to_iso(total_duration)
+        duration_td = timedelta(seconds=total_duration)
 
         if not self.procedure_id:
             raise ValueError(
@@ -188,25 +175,24 @@ class TestPilotPlugin:
                 "No serial number provided. Ensure you call conf.set(procedure_id='your_procedure_id', serial_number='your_serial_number'). For detailed instructions, visit docs.tofupilot.com/clients/pytest."
             )
 
-        # At the end of the session, write out the test report
-        test_report = {
-            "procedure_id": self.procedure_id,
-            "unit_under_test": self.unit_under_test,
-            "run_passed": run_passed,  # Add the run_passed property
-            "started_at": started_at,  # Add the started_at of the whole test
-            "duration": duration_iso,  # Add the duration of the whole test
-            "steps": self.test_steps,  # Include all collected test steps
-        }
+        # Prepare the steps
+        steps = self.test_steps
 
-        # Write the test report to the dynamically determined output file
+        # Create the TofuPilot client
         try:
-            with open(self.output_file, "w", encoding="utf-8") as f:
-                json.dump(test_report, f, indent=4)
-            print(f"Test report written to {self.output_file}")
-        except IOError as e:
-            raise RuntimeError(
-                f"Failed to write report to {self.output_file}: {e}"
-            ) from e
+            client = TofuPilotClient()
+            response = client.create_run(
+                procedure_id=self.procedure_id,
+                unit_under_test=self.unit_under_test,
+                run_passed=run_passed,
+                started_at=started_at,
+                duration=duration_td,
+                steps=steps,
+            )
+            if not response.get("success"):
+                print(f"Failed to upload test report. Error: {response.get('error')}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to upload report: {e}") from e
 
 
 # Abstract base class for Steps
@@ -389,8 +375,7 @@ def step_decorator(
         elif step_type == "string":
             step_info.update(
                 {
-                    "value": step.result,
-                    "limit": step.limit,
+                    "measurement_value": step.result,
                 }
             )
 
