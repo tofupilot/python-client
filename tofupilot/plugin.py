@@ -168,7 +168,7 @@ class TestPilotPlugin:
 
         # Create the TofuPilot client
         try:
-            client = TofuPilotClient(base_url="http://localhost:3000")
+            client = TofuPilotClient()
             client.create_run(
                 procedure_id=conf.procedure_id,
                 unit_under_test=conf.unit_under_test,

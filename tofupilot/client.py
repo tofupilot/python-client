@@ -142,10 +142,10 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            result = handle_response(self._logger, response)
+            result = handle_response(self._logger, response, additional_field="id")
 
             run_id = result.get("id")
-            if attachments:
+            if run_id and attachments:
                 handle_attachments(
                     self._logger, self._headers, self._base_url, attachments, run_id
                 )
@@ -275,7 +275,7 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return handle_response(self._logger, response, with_data=True)
+            return handle_response(self._logger, response, additional_field="data")
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)

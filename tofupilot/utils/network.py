@@ -14,7 +14,7 @@ def parse_error_message(response: requests.Response) -> str:
 
 
 def handle_response(
-    logger, response: requests.Response, with_data: bool = None
+    logger, response: requests.Response, additional_field: Optional[str] = None
 ) -> Dict[str, Any]:
     """Processes the response from the server and logs necessary information."""
     json_response = response.json()
@@ -35,9 +35,10 @@ def handle_response(
         "error": None,
     }
 
-    if with_data is not None and with_data:
-        data = json_response.get("data")
-        return_response["data"] = data
+    if additional_field:
+        additional_data = json_response.get(additional_field)
+        if additional_data is not None:
+            return_response[additional_field] = additional_data
 
     return return_response
 
