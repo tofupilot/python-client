@@ -9,9 +9,9 @@ def test_pass_fail():
 
 @numeric_step(name="second", low=10)
 def test_second(step):
-    step.set_result(16).set_comparator("LE")
+    step.measure(16).set_comparator("LE")
 
 
 @numeric_step(name="titi")
 def test_third(step):
-    step.set_result(9, "V").set_limits(10, 12).set_comparator("GELE")
+    step.measure(9).set_units("V").set_limits(10, 12).set_comparator("GELE")

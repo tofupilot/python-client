@@ -1,9 +1,11 @@
 from __future__ import annotations
 from typing import Any, Callable, Dict, List, Optional
+from threading import Lock
 from datetime import datetime, timezone
 import functools
-import json
+import tempfile
 import os
+import json
 import time
 from abc import ABC, abstractmethod
 
@@ -24,7 +26,6 @@ class Conf:
     def __init__(self):
         self.procedure_id: Optional[str] = None
         self.unit_under_test: Dict[str, Any] = {}
-        self.output_file: str = "test_report.json"  # Default output file name
 
     def set(
         self,
@@ -32,7 +33,6 @@ class Conf:
         serial_number: Optional[str] = None,
         part_number: Optional[str] = None,
         revision: Optional[str] = None,
-        output_file: Optional[str] = None,
     ) -> None:
         if procedure_id is not None:
             self.procedure_id = procedure_id
@@ -42,8 +42,7 @@ class Conf:
             self.unit_under_test["part_number"] = part_number
         if revision is not None:
             self.unit_under_test["revision"] = revision
-        if output_file is not None:
-            self.output_file = output_file
+        return self
 
 
 # Create a global conf object
@@ -73,8 +72,14 @@ class TestPilotPlugin:
     def __init__(self) -> None:
         self.procedure_id: Optional[str] = None  # To store the procedure ID
         self.unit_under_test: Dict[str, Any] = {}  # To store unit under test info
-        self.output_file: str = conf.output_file  # Get output file from conf
         self.session_start_time: Optional[float] = None  # To store session start time
+        self.test_steps_lock = Lock()
+        self.test_steps = []
+        self.output_file = None
+
+    def append_step(self, step_info: Dict[str, Any]) -> None:
+        with self.test_steps_lock:
+            self.test_steps.append(step_info)
 
     def pytest_sessionstart(self) -> None:
         """
@@ -87,6 +92,17 @@ class TestPilotPlugin:
         """
         Called before each test item is run.
         """
+        # Determine the script file name
+        script_file_name = os.path.basename(item.fspath).split(".")[0]
+
+        # Create the output file path using the script file name
+        self.output_file = os.path.join(
+            tempfile.gettempdir(), f"{script_file_name}.json"
+        )
+
+        # Resetting test steps accross script executions
+        self.test_steps = []
+
         # Start timing the test
         item.start_time = time.time()
 
@@ -94,7 +110,6 @@ class TestPilotPlugin:
         if self.procedure_id is None:
             self.procedure_id = conf.procedure_id
             self.unit_under_test = conf.unit_under_test
-            self.output_file = conf.output_file  # Update output_file from conf
 
         # If not set in conf, try to get from test class
         if self.procedure_id is None:
@@ -144,7 +159,7 @@ class TestPilotPlugin:
         step_info["step_passed"] = item.outcome
 
         # Append the step information to the global test_steps list
-        test_steps.append(step_info)
+        self.append_step(step_info)
 
     def pytest_sessionfinish(self) -> None:
         """
@@ -189,14 +204,15 @@ class TestPilotPlugin:
             "steps": test_steps,  # Include all collected test steps
         }
 
-        # Create directory if it does not exist
-        output_dir = os.path.dirname(self.output_file)
-        if output_dir and not os.path.exists(output_dir):
-            os.makedirs(output_dir)
-
-        # Write the test report to the specified output file
-        with open(self.output_file, "w", encoding="utf-8") as f:
-            json.dump(test_report, f, indent=4)
+        # Write the test report to the dynamically determined output file
+        try:
+            with open(self.output_file, "w", encoding="utf-8") as f:
+                json.dump(test_report, f, indent=4)
+            print(f"Test report written to {self.output_file}")
+        except IOError as e:
+            raise RuntimeError(
+                f"Failed to write report to {self.output_file}: {e}"
+            ) from e
 
 
 # Abstract base class for Steps
@@ -345,127 +361,57 @@ class StringStep(Step):
         return self.step_passed
 
 
-# Decorator for numeric limit steps
-def numeric_step(
-    func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
+def step_decorator(
+    func: Callable[..., Any], step_type: str, **decorator_kwargs: Any
 ) -> Callable[..., Any]:
-    """
-    Decorator for numeric limit test steps, can be used with or without arguments.
-    """
-    if func is not None and callable(func):
-        # Decorator used without arguments
-        @functools.wraps(func)
-        def wrapper(*args: Any, step: NumericStep, **kwargs: Any) -> None:
-            # Call the actual test function
-            func(*args, step=step, **kwargs)
-
-            # Prepare step_info with measurement details
-            step_info = {
-                "name": step.name or func.__name__,
-                "measurement_value": step.result,
-                "measurement_unit": step.units,
-                "limit_low": step.low_limit,
-                "limit_high": step.high_limit,
-                "comparator": step.comp,
-                "step_passed": step.step_passed,
-            }
-
-            # Attach step_info to the pytest item object
-            step.request.node.user_properties.append(("step_info", step_info))
-
-        wrapper.step_type = "numeric"  # Set step_type attribute
-        return wrapper
-
-    # Decorator used with arguments
-    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        @functools.wraps(func)
-        def wrapper(*args: Any, step: NumericStep, **kwargs: Any) -> None:
-            # Set parameters from decorator arguments before calling the test function
+    @functools.wraps(func)
+    def wrapper(*args: Any, step: Step, **kwargs: Any) -> None:
+        if step_type == "numeric":
             step.set_limits(decorator_kwargs.get("low"), decorator_kwargs.get("high"))
             step.set_units(decorator_kwargs.get("units", ""))
             step.set_comparator(decorator_kwargs.get("comp", "DEFAULT"))
-            step.set_name(decorator_kwargs.get("name", func.__name__))
+        elif step_type == "string":
+            step.set_limit(decorator_kwargs.get("limit"))
+            step.set_comparator(decorator_kwargs.get("comp", "EQ"))
 
-            # Call the actual test function
-            func(*args, step=step, **kwargs)
+        step.set_name(decorator_kwargs.get("name", func.__name__))
 
-            # Prepare step_info with measurement details
-            step_info = {
-                "name": step.name,
-                "measurement_value": step.result,
-                "measurement_unit": step.units,
-                "limit_low": step.low_limit,
-                "limit_high": step.high_limit,
-                "comparator": step.comp,
-                "step_passed": step.step_passed,
-            }
+        func(*args, step=step, **kwargs)
 
-            # Attach step_info to the pytest item object
-            step.request.node.user_properties.append(("step_info", step_info))
-
-        wrapper.step_type = "numeric"  # Set step_type attribute
-        return wrapper
-
-    return decorator
-
-
-# Decorator for string limit steps
-def string_step(
-    func: Optional[Callable[..., Any]] = None, **decorator_kwargs: Any
-) -> Callable[..., Any]:
-    """
-    Decorator for string limit test steps, can be used with or without arguments.
-    """
-    if func is not None and callable(func):
-        # Decorator used without arguments
-        @functools.wraps(func)
-        def wrapper(*args: Any, step: StringStep, **kwargs: Any) -> None:
-            # Call the actual test function
-            func(*args, step=step, **kwargs)
-
-            # Prepare step_info with measurement details
-            step_info = {
-                "name": step.name or func.__name__,
-                "value": step.result,
-                "limit": step.limit,
-                "comparator": step.comp,
-                "step_passed": step.step_passed,
-            }
-
-            # Attach step_info to the pytest item object
-            step.request.node.user_properties.append(("step_info", step_info))
-
-        wrapper.step_type = "string"  # Set step_type attribute
-        return wrapper
-    else:
-        # Decorator used with arguments
-        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-            @functools.wraps(func)
-            def wrapper(*args: Any, step: StringStep, **kwargs: Any) -> None:
-                # Set parameters from decorator arguments before calling the test function
-                step.set_limit(decorator_kwargs.get("limit"))
-                step.set_comparator(decorator_kwargs.get("comp", "EQ"))
-                step.set_name(decorator_kwargs.get("name", func.__name__))
-
-                # Call the actual test function
-                func(*args, step=step, **kwargs)
-
-                # Prepare step_info with measurement details
-                step_info = {
-                    "name": step.name,
+        step_info = {
+            "name": step.name,
+            "step_passed": step.step_passed,
+            "comparator": step.comp,
+        }
+        if step_type == "numeric":
+            step_info.update(
+                {
+                    "measurement_value": step.result,
+                    "measurement_unit": step.units,
+                    "limit_low": step.low_limit,
+                    "limit_high": step.high_limit,
+                }
+            )
+        elif step_type == "string":
+            step_info.update(
+                {
                     "value": step.result,
                     "limit": step.limit,
-                    "comparator": step.comp,
-                    "step_passed": step.step_passed,
                 }
+            )
 
-                # Attach step_info to the pytest item object
-                step.request.node.user_properties.append(("step_info", step_info))
+        step.request.node.user_properties.append(("step_info", step_info))
 
-            wrapper.step_type = "string"  # Set step_type attribute
-            return wrapper
+    wrapper.step_type = step_type  # Set step_type attribute
+    return wrapper
 
-        return decorator
+
+def numeric_step(func: Callable[..., Any] = None, **kwargs: Any) -> Callable[..., Any]:
+    return step_decorator(func, step_type="numeric", **kwargs)
+
+
+def string_step(func: Callable[..., Any] = None, **kwargs: Any) -> Callable[..., Any]:
+    return step_decorator(func, step_type="string", **kwargs)
 
 
 def evaluate_numeric_limits(
