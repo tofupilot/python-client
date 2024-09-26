@@ -1,20 +1,19 @@
 from __future__ import annotations
-
-from datetime import datetime, timedelta, timezone
-from .utils import duration_to_iso, datetime_to_iso
+from typing import Any, Callable, Dict, List, Optional
+from datetime import datetime, timezone
 import functools
 import json
 import os
 import time
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+from abc import ABC, abstractmethod
 
 import pytest
 from _pytest.config import Config
 from _pytest.config.argparsing import Parser
 from _pytest.fixtures import FixtureRequest
-from _pytest.main import Session
 from _pytest.nodes import Item
-from abc import ABC, abstractmethod
+
+from .utils import duration_to_iso, datetime_to_iso
 
 # Global variable to store test steps data
 test_steps: List[Dict[str, Any]] = []
@@ -77,7 +76,7 @@ class TestPilotPlugin:
         self.output_file: str = conf.output_file  # Get output file from conf
         self.session_start_time: Optional[float] = None  # To store session start time
 
-    def pytest_sessionstart(self, session: Session) -> None:
+    def pytest_sessionstart(self) -> None:
         """
         Called after the Session object has been created and before performing collection and entering the run test loop.
         """
@@ -114,7 +113,7 @@ class TestPilotPlugin:
             # Run the actual test function
             item.runtest()
             item.outcome = True
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught / W0718
             # If an exception occurs, mark the outcome as failed and store the exception
             item.outcome = False
             item.excinfo = e
@@ -147,7 +146,7 @@ class TestPilotPlugin:
         # Append the step information to the global test_steps list
         test_steps.append(step_info)
 
-    def pytest_sessionfinish(self, session: Session, exitstatus: int) -> None:
+    def pytest_sessionfinish(self) -> None:
         """
         Called after the entire test session finishes.
         Writes the test_report variable in a json file
@@ -191,7 +190,7 @@ class TestPilotPlugin:
             os.makedirs(output_dir)
 
         # Write the test report to the specified output file
-        with open(self.output_file, "w") as f:
+        with open(self.output_file, "w", encoding="utf-8") as f:
             json.dump(test_report, f, indent=4)
 
 
@@ -254,15 +253,18 @@ class NumericStep(Step):
         self.low_limit: Optional[float] = None
         self.high_limit: Optional[float] = None
         self.units: Optional[str] = None
+        self.comp = "DEFAULT"
 
-    def set_result(self, result: float) -> NumericStep:
+    def measure(self, result: float) -> NumericStep:
         """
         Set the numeric result of the measurement.
         """
         self.result = result
         return self  # Allow method chaining
 
-    def set_limits(self, low: Optional[float], high: Optional[float]) -> NumericStep:
+    def set_limits(
+        self, low: Optional[float] = None, high: Optional[float] = None
+    ) -> NumericStep:
         """
         Set the lower and upper limits for a numeric measurement.
         """
@@ -306,8 +308,9 @@ class StringStep(Step):
         super().__init__()
         self.result: Optional[str] = None
         self.limit: Optional[str] = None
+        self.comp = "EQ"
 
-    def set_result(self, result: str) -> StringStep:
+    def measure(self, result: str) -> StringStep:
         """
         Set the string result of the measurement.
         """
@@ -367,40 +370,38 @@ def numeric_limit_step(
 
         wrapper.step_type = "numeric"  # Set step_type attribute
         return wrapper
-    else:
-        # Decorator used with arguments
-        def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-            @functools.wraps(func)
-            def wrapper(*args: Any, step: NumericStep, **kwargs: Any) -> None:
-                # Set parameters from decorator arguments before calling the test function
-                step.set_limits(
-                    decorator_kwargs.get("low"), decorator_kwargs.get("high")
-                )
-                step.set_units(decorator_kwargs.get("units", ""))
-                step.set_comparator(decorator_kwargs.get("comp", "LEGE"))
-                step.set_name(decorator_kwargs.get("name", func.__name__))
 
-                # Call the actual test function
-                func(*args, step=step, **kwargs)
+    # Decorator used with arguments
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(func)
+        def wrapper(*args: Any, step: NumericStep, **kwargs: Any) -> None:
+            # Set parameters from decorator arguments before calling the test function
+            step.set_limits(decorator_kwargs.get("low"), decorator_kwargs.get("high"))
+            step.set_units(decorator_kwargs.get("units", ""))
+            step.set_comparator(decorator_kwargs.get("comp", "DEFAULT"))
+            step.set_name(decorator_kwargs.get("name", func.__name__))
 
-                # Prepare step_info with measurement details
-                step_info = {
-                    "name": step.name,
-                    "measurement_value": step.result,
-                    "measurement_unit": step.units,
-                    "limit_low": step.low_limit,
-                    "limit_high": step.high_limit,
-                    "comparator": step.comp,
-                    "step_passed": step.step_passed,
-                }
+            # Call the actual test function
+            func(*args, step=step, **kwargs)
 
-                # Attach step_info to the pytest item object
-                step.request.node.user_properties.append(("step_info", step_info))
+            # Prepare step_info with measurement details
+            step_info = {
+                "name": step.name,
+                "measurement_value": step.result,
+                "measurement_unit": step.units,
+                "limit_low": step.low_limit,
+                "limit_high": step.high_limit,
+                "comparator": step.comp,
+                "step_passed": step.step_passed,
+            }
 
-            wrapper.step_type = "numeric"  # Set step_type attribute
-            return wrapper
+            # Attach step_info to the pytest item object
+            step.request.node.user_properties.append(("step_info", step_info))
 
-        return decorator
+        wrapper.step_type = "numeric"  # Set step_type attribute
+        return wrapper
+
+    return decorator
 
 
 # Decorator for string limit steps
@@ -476,34 +477,42 @@ def evaluate_numeric_limits(
     if low is None and high is None:
         return False  # Cannot evaluate without limits
 
+    if comp == "DEFAULT":
+        if low is not None and high is None:
+            comp = "GE"
+        elif low is None and high is not None:
+            comp = "LE"
+        else:
+            comp = "LEGE"
+
     if comp == "EQ":
-        return measurement == low
+        return (
+            measurement == low
+            if low is not None
+            else measurement == high if high is not None else False
+        )
     elif comp == "NE":
-        return measurement != low
+        return (
+            measurement != low
+            if low is not None
+            else measurement != high if high is not None else False
+        )
     elif comp == "LT":
-        return measurement < low if low is not None else False
+        return measurement < high if high is not None else False
     elif comp == "LE":
-        return measurement <= low if low is not None else False
+        return measurement <= high if high is not None else False
     elif comp == "GT":
-        return measurement > high if high is not None else False
+        return measurement > low if low is not None else False
     elif comp == "GE":
-        return measurement >= high if high is not None else False
+        return measurement >= low if low is not None else False
     elif comp == "LTGT":
         return (low is not None and high is not None) and low < measurement < high
     elif comp == "LTGE":
-        return (low is not None and high is not None) and low < measurement <= high
-    elif comp == "LEGT":
         return (low is not None and high is not None) and low <= measurement < high
+    elif comp == "LEGT":
+        return (low is not None and high is not None) and low < measurement <= high
     elif comp == "LEGE":
         return (low is not None and high is not None) and low <= measurement <= high
-    elif comp == "GTLT":
-        return (low is not None and high is not None) and high < measurement < low
-    elif comp == "GTLE":
-        return (low is not None and high is not None) and high < measurement <= low
-    elif comp == "GELT":
-        return (low is not None and high is not None) and high <= measurement < low
-    elif comp == "GELE":
-        return (low is not None and high is not None) and high <= measurement <= low
     else:
         raise ValueError(f"Unknown comparison operator for numeric value: {comp}")
 
