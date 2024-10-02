@@ -31,6 +31,7 @@ class Conf:
         serial_number: Optional[str] = None,
         part_number: Optional[str] = None,
         revision: Optional[str] = None,
+        batch_number: Optional[str] = None,
         sub_units: Optional[List[SubUnit]] = None,
         report_variables: Optional[Dict[str, str]] = None,
         attachments: Optional[List[str]] = None,
@@ -43,6 +44,8 @@ class Conf:
             self.unit_under_test["part_number"] = part_number
         if revision is not None:
             self.unit_under_test["revision"] = revision
+        if batch_number is not None:
+            self.unit_under_test["batch_number"] = batch_number
         if sub_units is not None:
             self.sub_units = sub_units
         if report_variables is not None:
