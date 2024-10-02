@@ -85,12 +85,16 @@ class TestPilotPlugin:
         self.test_steps = []
 
     def append_step(self, step_info: Dict[str, Any]) -> None:
+        """
+        Thread-safely appends test step to the test_step list.
+        """
         with self.test_steps_lock:
             self.test_steps.append(step_info)
 
     def pytest_sessionstart(self) -> None:
         """
-        Called after the Session object has been created and before performing collection and entering the run test loop.
+        Called after the Session object has been created and before
+        performing collection and entering the run test loop.
         """
         # Recording the session start time
         self.session_start_time = time.time()
@@ -413,30 +417,29 @@ def evaluate_numeric_limits(
             if low is not None
             else measurement == high if high is not None else False
         )
-    elif comp == "NE":
+    if comp == "NE":
         return (
             measurement != low
             if low is not None
             else measurement != high if high is not None else False
         )
-    elif comp == "LT":
+    if comp == "LT":
         return measurement < high if high is not None else False
-    elif comp == "LE":
+    if comp == "LE":
         return measurement <= high if high is not None else False
-    elif comp == "GT":
+    if comp == "GT":
         return measurement > low if low is not None else False
-    elif comp == "GE":
+    if comp == "GE":
         return measurement >= low if low is not None else False
-    elif comp == "LTGT":
+    if comp == "LTGT":
         return (low is not None and high is not None) and low < measurement < high
-    elif comp == "LTGE":
+    if comp == "LTGE":
         return (low is not None and high is not None) and low <= measurement < high
-    elif comp == "LEGT":
+    if comp == "LEGT":
         return (low is not None and high is not None) and low < measurement <= high
-    elif comp == "LEGE":
+    if comp == "LEGE":
         return (low is not None and high is not None) and low <= measurement <= high
-    else:
-        raise ValueError(f"Unknown comparison operator for numeric value: {comp}")
+    raise ValueError(f"Unknown comparison operator for numeric value: {comp}")
 
 
 def evaluate_string_limit(
@@ -468,10 +471,10 @@ def evaluate_string_limit(
 # Define the 'step' fixture to provide a Step instance to test functions
 @pytest.fixture
 def step(request: FixtureRequest) -> Step:
-    # Depending on the test function, we need to decide whether to provide a NumericStep or StringStep
+    # We need to decide whether to provide a NumericStep or StringStep
     # This can be inferred from the test function annotations or could be specified explicitly
 
-    # For simplicity, let's assume the test function has an attribute 'step_type' set by the decorator
+    # Test function has an attribute 'step_type' set by the decorator
     step_type = getattr(request.node.function, "step_type", "numeric")
     if step_type == "numeric":
         s = NumericStep()
