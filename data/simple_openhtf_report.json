@@ -1,0 +1,206 @@
+{
+  "dut_id": "DeviceUnderTest123",
+  "start_time_millis": 1725998448961,
+  "end_time_millis": 1725998448963,
+  "outcome": "PASS",
+  "outcome_details": [],
+  "marginal": false,
+  "metadata": {
+    "test_name": "FVT1",
+    "config": {
+      "attachments_directory": null,
+      "plug_teardown_timeout_s": 0,
+      "allow_unset_measurements": false,
+      "station_id": "FVT1",
+      "cancel_timeout_s": 2,
+      "stop_on_first_failure": false,
+      "capture_source": false
+    }
+  },
+  "phases": [
+    {
+      "measurements": {},
+      "options": {
+        "name": null,
+        "timeout_s": null,
+        "run_if": null,
+        "requires_state": false,
+        "force_repeat": false,
+        "repeat_on_timeout": false,
+        "repeat_limit": null,
+        "run_under_pdb": false,
+        "phase_name_case": "KEEP",
+        "stop_on_measurement_fail": false
+      },
+      "diagnosers": [],
+      "subtest_name": null,
+      "start_time_millis": 1725998448959,
+      "end_time_millis": 1725998448961,
+      "attachments": {},
+      "diagnosis_results": [],
+      "failure_diagnosis_results": [],
+      "result": {
+        "phase_result": "CONTINUE"
+      },
+      "outcome": "PASS",
+      "marginal": false,
+      "descriptor_id": 4442062560,
+      "name": "trigger_phase",
+      "codeinfo": {
+        "name": "",
+        "docstring": null,
+        "sourcecode": ""
+      }
+    },
+    {
+      "measurements": {},
+      "options": {
+        "name": null,
+        "timeout_s": null,
+        "run_if": null,
+        "requires_state": false,
+        "force_repeat": false,
+        "repeat_on_timeout": false,
+        "repeat_limit": null,
+        "run_under_pdb": false,
+        "phase_name_case": "KEEP",
+        "stop_on_measurement_fail": false
+      },
+      "diagnosers": [],
+      "subtest_name": null,
+      "start_time_millis": 1725998448961,
+      "end_time_millis": 1725998448963,
+      "attachments": {},
+      "diagnosis_results": [],
+      "failure_diagnosis_results": [],
+      "result": {
+        "phase_result": "CONTINUE"
+      },
+      "outcome": "PASS",
+      "marginal": false,
+      "descriptor_id": 4442058416,
+      "name": "power_on_test",
+      "codeinfo": {
+        "name": "",
+        "docstring": null,
+        "sourcecode": ""
+      }
+    }
+  ],
+  "subtests": [],
+  "branches": [],
+  "diagnosers": [],
+  "diagnoses": [],
+  "log_records": [
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase_executor",
+      "source": "phase_executor.py",
+      "lineno": 307,
+      "timestamp_millis": 1725998448959,
+      "message": "Executing phase trigger_phase"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase_executor_thread",
+      "source": "threads.py",
+      "lineno": 118,
+      "timestamp_millis": 1725998448961,
+      "message": "Thread finished: <PhaseExecutorThread: (trigger_phase)>"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase.trigger_phase",
+      "source": "test_state.py",
+      "lineno": 774,
+      "timestamp_millis": 1725998448961,
+      "message": "Phase outcome of trigger_phase is PASS."
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase_executor",
+      "source": "phase_executor.py",
+      "lineno": 336,
+      "timestamp_millis": 1725998448961,
+      "message": "Phase trigger_phase finished with result PhaseResult.CONTINUE"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959",
+      "source": "test_executor.py",
+      "lineno": 310,
+      "timestamp_millis": 1725998448961,
+      "message": "Executing phase power_on_test"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase_executor",
+      "source": "phase_executor.py",
+      "lineno": 307,
+      "timestamp_millis": 1725998448961,
+      "message": "Executing phase power_on_test"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase_executor_thread",
+      "source": "threads.py",
+      "lineno": 118,
+      "timestamp_millis": 1725998448962,
+      "message": "Thread finished: <PhaseExecutorThread: (power_on_test)>"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase.power_on_test",
+      "source": "test_state.py",
+      "lineno": 774,
+      "timestamp_millis": 1725998448963,
+      "message": "Phase outcome of power_on_test is PASS."
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959.phase_executor",
+      "source": "phase_executor.py",
+      "lineno": 336,
+      "timestamp_millis": 1725998448963,
+      "message": "Phase power_on_test finished with result PhaseResult.CONTINUE"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.plugs",
+      "source": "__init__.py",
+      "lineno": 334,
+      "timestamp_millis": 1725998448963,
+      "message": "Tearing down all plugs."
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.test_record.69697:e2b1ca6ab5e74f2a:baa22630e757438f:1725998448959",
+      "source": "test_state.py",
+      "lineno": 473,
+      "timestamp_millis": 1725998448963,
+      "message": "Finishing test execution normally with outcome PASS."
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.util.threads",
+      "source": "threads.py",
+      "lineno": 118,
+      "timestamp_millis": 1725998448963,
+      "message": "Thread finished: TestExecutorThread"
+    },
+    {
+      "level": 10,
+      "logger_name": "openhtf.core.test_descriptor",
+      "source": "test_descriptor.py",
+      "lineno": 351,
+      "timestamp_millis": 1725998448963,
+      "message": "Test completed for openhtf_test, outputting now."
+    }
+  ],
+  "station_id": "Felixs-Laptop.local",
+  "code_info": {
+    "name": "",
+    "docstring": null,
+    "sourcecode": ""
+  }
+}

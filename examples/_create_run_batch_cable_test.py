@@ -1,10 +1,16 @@
-# This script automates the testing process for multiple cables in a batch.
-# It generates a unique 8-character serial number for each cable, prompts the user for the test result,
-# and logs the test outcome to the TofuPilot system. Failed tests can be retried, and the user
-# can decide whether to continue with the next test or end the process.
+"""
+This script automates the testing process for multiple cables in a batch.
+
+It generates a unique 8-character serial number for each cable, prompts the user for the test result,
+and logs the test outcome to the TofuPilot system. Failed tests can be retried, and the user can 
+decide whether to continue with the next test or end the process.
+
+Ensure your API key is stored in the environment variables as per the documentation:
+https://docs.tofupilot.com/user-management#api-key
+"""
 
 from tofupilot import TofuPilotClient
-import uuid  # Make sure to install shortuuid beforehand using `pip install shortuuid`
+import uuid  # Import uuid for generating unique serial numbers
 
 # Replace with your own information
 procedure_id = "FVT1"
@@ -13,21 +19,24 @@ part_number = "CBL"
 revision = "1.0"
 steps = []  # List of test steps, adapt according to your needs
 
-# Check https://docs.tofupilot.com/ to save your API key as an environment variable
+# Initialize the TofuPilot client
 client = TofuPilotClient()
 
 
-# Function to test a cable
 def test_cable():
-    # Test logic, here we simulate a test
+    """
+    Simulates the testing of a cable.
+
+    Prompts the user for the test result (OK/KO) and returns True if the test passed.
+    """
     test_result = input("Test result (OK/KO): ").strip().upper()
     return test_result == "OK"
 
 
 # Loop to test multiple cables in a batch
 while True:
-    # Generate the serial number of the cable
-    random_id = str(uuid.uuid4())[:8]  # Limit the UUID to 8 characters
+    # Generate a unique 8-character serial number for the cable
+    random_id = str(uuid.uuid4())[:8]
     serial_number = f"{batch_number}-{random_id}"
 
     print(f"\nTesting cable {serial_number}")
@@ -71,7 +80,7 @@ while True:
             # Move on to the next test
             break
 
-    # Ask if the user wants to continue
+    # Ask if the user wants to continue testing the next cable
     continue_testing = (
         input("Do you want to continue with the next test? (y/n): ").strip().lower()
     )

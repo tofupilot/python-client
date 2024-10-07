@@ -67,3 +67,5 @@ coverage.xml
 
 # Ignore helpers file
 publish.sh
+
+test_report.json
