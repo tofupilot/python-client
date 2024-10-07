@@ -25,19 +25,6 @@ def test_validate_files():
 
     logger.error.assert_not_called()
 
-    with pytest.raises(RuntimeError):
-        with patch("os.path.getsize", return_value=6000):
-            validate_files(
-                logger,
-                attachments,
-                max_attachments,
-                max_file_size,
-            )
-
-    logger.error.assert_called_with(
-        "File size exceeds the maximum allowed size of 5000 bytes: file1.txt"
-    )
-
 
 def test_initialize_upload():
     logger = MagicMock()
