@@ -7,7 +7,13 @@ setup(
     name="tofupilot",
     version="1.3.0",
     packages=find_packages(),
-    install_requires=["requests", "setuptools", "packaging", "pytest"],
+    install_requires=[
+        "requests",
+        "setuptools",
+        "packaging",
+        "pytest",
+        "openhtf",
+    ],
     entry_points={
         "pytest11": [
             "tofupilot = tofupilot.plugin",  # Register the plugin
