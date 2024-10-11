@@ -5,5 +5,5 @@ It imports the TofuPilotClient class which provides
 the main interface for interacting with the TofuPilot API.
 """
 
-from .client import TofuPilotClient
+from .client import TofuPilotClient, UploadToTofuPilot
 from .plugin import numeric_step, string_step, conf

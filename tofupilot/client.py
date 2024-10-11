@@ -1,10 +1,13 @@
 from typing import Dict, List, Optional
 import os
 import sys
+import tempfile
+import logging
 from datetime import datetime, timedelta
 from importlib.metadata import version
-import logging
 
+from openhtf.core import test_record
+from openhtf.output.callbacks import json_factory
 import requests
 
 from .constants import (
@@ -180,7 +183,7 @@ class TofuPilotClient:
             requests.RequestException: If a network error occurred.
             Exception: For any other exceptions that might occur.
         """
-        self._logger.info('Starting run creation from file "%s"...', file_path)
+        self._logger.info("Starting run creation...")
 
         if importer not in Importer.__members__:
             error_message = f"Invalid importer '{importer}'. Must be one of: {', '.join(Importer.__members__.keys())}"
@@ -329,6 +332,22 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
+    def send_import_request(self, payload):
+        self._log_request("POST", "/import", payload)
+        try:
+            response = requests.post(
+                f"{self._base_url}/import",
+                json=payload,
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            return handle_response(self._logger, response)
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
 
 def print_version_banner(current_version: str):
     """Prints current version of client"""
@@ -336,3 +355,33 @@ def print_version_banner(current_version: str):
     TofuPilot Python Client {current_version}
     """
     print(banner.strip())
+
+
+class UploadToTofuPilot:
+    def __init__(self, allow_nan=False, base_url: Optional[str] = None):
+        self.allow_nan = allow_nan
+        self.client = (
+            TofuPilotClient(base_url=base_url) if base_url else TofuPilotClient()
+        )
+        self._logger = self.client._logger  # Assuming your client has a logger
+
+    def __call__(self, test_rec: test_record.TestRecord):
+        # Create a temporary file to store the JSON output
+        with tempfile.NamedTemporaryFile(
+            delete=False, mode="w", suffix=".json"
+        ) as tmp_file:
+            # Use the existing OutputToJSON callback to write to the temporary file
+            output_callback = json_factory.OutputToJSON(
+                tmp_file.name,
+                inline_attachments=False,  # Exclude raw attachments since they will be stored on TofuPilot
+                allow_nan=self.allow_nan,
+            )
+            # Serialize the test record and write to the file
+            for json_line in output_callback.serialize_test_record(test_rec):
+                tmp_file.write(json_line)
+            # Close the file to ensure data is flushed
+            tmp_file.close()
+            # Call create_run_from_report with the temporary file path
+            self.client.create_run_from_report(tmp_file.name)
+        # Delete the temporary file
+        os.remove(tmp_file.name)
