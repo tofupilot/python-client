@@ -9,6 +9,7 @@ from importlib.metadata import version
 from openhtf.core import test_record
 from openhtf.output.callbacks import json_factory
 import requests
+import json
 
 from .constants import (
     ENDPOINT,
@@ -16,13 +17,13 @@ from .constants import (
     CLIENT_MAX_ATTACHMENTS,
     SECONDS_BEFORE_TIMEOUT,
 )
-from .models import SubUnit, UnitUnderTest, Step, Importer
+from .models import SubUnit, UnitUnderTest, Step
 from .utils import (
     check_latest_version,
     validate_files,
-    initialize_upload,
     upload_file,
-    handle_attachments,
+    upload_attachments,
+    notify_server,
     setup_logger,
     timedelta_to_iso,
     datetime_to_iso,
@@ -93,12 +94,6 @@ class TofuPilotClient:
                 - message (Optional[dict]): Contains URL if successful.
                 - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
-
-        Raises:
-            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
-            requests.RequestException: If a network error occurred.
-            Exception: For any other exceptions that might occur.
-
         """
         self._logger.info("Starting run creation...")
 
@@ -149,7 +144,7 @@ class TofuPilotClient:
 
             run_id = result.get("id")
             if run_id and attachments:
-                handle_attachments(
+                upload_attachments(
                     self._logger, self._headers, self._base_url, attachments, run_id
                 )
 
@@ -157,77 +152,6 @@ class TofuPilotClient:
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
-
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-
-    def create_run_from_report(self, file_path: str, importer: str = "OPENHTF") -> dict:
-        """
-        Creates a run on TofuPilot from a file report (e.g. OpenHTF JSON report).
-
-        Args:
-            file_path (str): The path to the log file to be imported.
-            importer (str): The type of importer to use. Defaults to "OPENHTF".
-
-        Returns:
-            dict: A dictionary containing the result of the import operation:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
-
-        Raises:
-            ValueError: If the provided importer is not a valid Importer type.
-            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
-            requests.RequestException: If a network error occurred.
-            Exception: For any other exceptions that might occur.
-        """
-        self._logger.info("Starting run creation...")
-
-        if importer not in Importer.__members__:
-            error_message = f"Invalid importer '{importer}'. Must be one of: {', '.join(Importer.__members__.keys())}"
-            self._logger.error(error_message)
-            sys.exit(1)
-
-        importer_enum = Importer[importer]
-        validate_files(
-            self._logger, [file_path], self._max_attachments, self._max_file_size
-        )
-
-        try:
-            upload_url, upload_id = initialize_upload(
-                self._logger, self._headers, self._base_url, file_path
-            )
-            upload_file(self._logger, upload_url, file_path)
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-
-        payload = {
-            "upload_id": upload_id,
-            "importer": importer_enum.value,
-            "client": "Python",
-            "client_version": self._current_version,
-        }
-
-        self._log_request("POST", "/import", payload)
-
-        try:
-            response = requests.post(
-                f"{self._base_url}/import",
-                json=payload,
-                headers=self._headers,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            return handle_response(self._logger, response)
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
@@ -249,8 +173,6 @@ class TofuPilotClient:
         Raises:
             ValueError: If no `serial_number` was provided.
             TypeError: If positional arguments are passed instead of keyword arguments.
-            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
-            requests.RequestException: If a network error occurred.
             Exception: For any other exceptions that might occur.
         """
         if not serial_number:
@@ -282,7 +204,6 @@ class TofuPilotClient:
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
-
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
@@ -293,22 +214,16 @@ class TofuPilotClient:
         Updates a given unit.
 
         Args:
-            file_path (str): The serial number of the unit.
-            importer (str): The list of units to be added as sub-units of unit.
+            serial_number (str): The serial number of the unit.
+            sub_units (Optional[List[SubUnit]]): The list of units to be added as sub-units of unit.
 
         Returns:
-            dict: A dictionary containing the result of the import operation:
+            dict: A dictionary describing the outcome of the update:
                 - status_code (Optional[int]): HTTP status code of the response.
                 - success (bool): Whether the import was successful.
                 - message (Optional[str]): Message if the operation was successful.
                 - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
-
-        Raises:
-            ValueError: If the provided importer is not a valid Importer type.
-            requests.exceptions.HTTPError: If the HTTP request returned an unsuccessful status code.
-            requests.RequestException: If a network error occurred.
-            Exception: For any other exceptions that might occur.
         """
         self._logger.info('Starting update of unit "%s"...', serial_number)
 
@@ -328,12 +243,53 @@ class TofuPilotClient:
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
-
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
-    def send_import_request(self, payload):
+    def create_run_from_openhtf_report(
+        self,
+        file_path: str,
+    ) -> dict:
+        """
+        Creates a run on TofuPilot from an OpenHTF JSON report.
+
+        Args:
+            file_path (str): The path to the log file to be imported.
+
+        Returns:
+            dict: A dictionary containing the result of the import operation:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+        """
+        self._logger.info("Starting run creation...")
+
+        # Validate report
+        validate_files(
+            self._logger, [file_path], self._max_attachments, self._max_file_size
+        )
+
+        # Upload report
+        file_name = "openhtf-report.json"
+        try:
+            upload_id = upload_file(self._headers, self._base_url, file_path, file_name)
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+        payload = {
+            "upload_id": upload_id,
+            "importer": "OPENHTF",
+            "client": "Python",
+            "client_version": self._current_version,
+        }
+
         self._log_request("POST", "/import", payload)
+
+        # Create run from file
         try:
             response = requests.post(
                 f"{self._base_url}/import",
@@ -342,7 +298,12 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return handle_response(self._logger, response)
+            result = handle_response(self._logger, response, additional_field="id")
+
+            run_id = result.get("id")
+
+            return run_id
+
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
@@ -363,9 +324,14 @@ class UploadToTofuPilot:
         self.client = (
             TofuPilotClient(base_url=base_url) if base_url else TofuPilotClient()
         )
-        self._logger = self.client._logger  # Assuming your client has a logger
+        self._logger = self.client._logger
+        self._base_url = self.client._base_url
+        self._headers = self.client._headers
+        self._max_attachments = self.client._max_attachments
+        self._max_file_size = self.client._max_file_size
 
     def __call__(self, test_rec: test_record.TestRecord):
+
         # Create a temporary file to store the JSON output
         with tempfile.NamedTemporaryFile(
             delete=False, mode="w", suffix=".json"
@@ -373,15 +339,71 @@ class UploadToTofuPilot:
             # Use the existing OutputToJSON callback to write to the temporary file
             output_callback = json_factory.OutputToJSON(
                 tmp_file.name,
-                inline_attachments=False,  # Exclude raw attachments since they will be stored on TofuPilot
+                inline_attachments=False,  # Exclude raw attachments since they will already be stored on TofuPilot
                 allow_nan=self.allow_nan,
             )
             # Serialize the test record and write to the file
             for json_line in output_callback.serialize_test_record(test_rec):
                 tmp_file.write(json_line)
-            # Close the file to ensure data is flushed
-            tmp_file.close()
-            # Call create_run_from_report with the temporary file path
-            self.client.create_run_from_report(tmp_file.name)
+
+        # Call create_run_from_report with the temporary file path
+        run_id = self.client.create_run_from_openhtf_report(tmp_file.name)
+
         # Delete the temporary file
         os.remove(tmp_file.name)
+
+        if run_id:
+            number_of_attachments = 0
+            for phase in test_rec.phases:
+                # Keep only max number of attachments
+                if number_of_attachments >= self._max_attachments:
+                    self._logger.warning(
+                        "Too many attachments, trimming to %d attachments.",
+                        self._max_attachments,
+                    )
+                    break
+                for attachment_name, attachment in phase.attachments.items():
+                    # Remove attachments that exceed the max file size
+                    if attachment.size > self._max_file_size:
+                        self._logger.warning(
+                            "File size exceeds the maximum allowed size of %d bytes: %s",
+                            self._max_file_size,
+                            attachment.name,
+                        )
+                        continue
+                    if number_of_attachments >= self._max_attachments:
+                        break
+
+                    number_of_attachments += 1
+
+                    self._logger.info("Uploading %s...", attachment_name)
+
+                    # Upload initialization
+                    initialize_url = f"{self._base_url}/uploads/initialize"
+                    payload = {"name": attachment_name}
+
+                    response = requests.post(
+                        initialize_url,
+                        data=json.dumps(payload),
+                        headers=self._headers,
+                        timeout=SECONDS_BEFORE_TIMEOUT,
+                    )
+
+                    response.raise_for_status()
+                    response_json = response.json()
+                    upload_url = response_json.get("uploadUrl")
+                    upload_id = response_json.get("id")
+
+                    requests.put(
+                        upload_url,
+                        data=attachment.data,
+                        headers={"Content-Type": attachment.mimetype},
+                        timeout=SECONDS_BEFORE_TIMEOUT,
+                    )
+
+                    notify_server(self._headers, self._base_url, upload_id, run_id)
+
+                    self._logger.success(
+                        "Attachment %s successfully uploaded and linked to run.",
+                        attachment_name,
+                    )

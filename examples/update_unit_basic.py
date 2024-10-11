@@ -13,17 +13,17 @@ from tofupilot import TofuPilotClient
 # Initialize the TofuPilot client
 client = TofuPilotClient()
 
-# Uncomment the lines below if units with the specified serial numbers do not exist
-# client.create_run(
-#     procedure_id="FVT1",
-#     unit_under_test={"serial_number": "00102", "part_number": "PCB01"},
-#     run_passed=True,
-# )
-# client.create_run(
-#     procedure_id="FVT1",
-#     unit_under_test={"serial_number": "00103", "part_number": "PSU01"},
-#     run_passed=True,
-# )
+# Creating units
+client.create_run(
+    procedure_id="FVT1",
+    unit_under_test={"serial_number": "00102", "part_number": "PCB01"},
+    run_passed=True,
+)
+client.create_run(
+    procedure_id="FVT1",
+    unit_under_test={"serial_number": "00103", "part_number": "PSU01"},
+    run_passed=True,
+)
 
 # Update unit "00102" by adding unit "00103" as a sub-unit
 response = client.update_unit(

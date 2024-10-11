@@ -1,6 +1,5 @@
 from typing import Optional, Union, TypedDict
 from datetime import datetime, timedelta
-from enum import Enum
 
 
 class Step(TypedDict):
@@ -12,10 +11,6 @@ class Step(TypedDict):
     measurement_value: Optional[Union[float, str]]
     limit_low: Optional[float]
     limit_high: Optional[float]
-
-
-class Importer(Enum):
-    OPENHTF = "OPENHTF"
 
 
 class SubUnit(TypedDict):
