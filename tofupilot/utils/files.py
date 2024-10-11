@@ -37,12 +37,14 @@ def validate_files(
 
 
 def upload_file(
-    headers: dict, base_url: str, file_path: str, file_name: Optional[str] = None
+    headers: dict,
+    base_url: str,
+    file_path: str,
 ) -> bool:
     """Initializes an upload and stores file in it"""
     # Upload initialization
     initialize_url = f"{base_url}/uploads/initialize"
-    file_name = file_name if file_name else os.path.basename(file_path)
+    file_name = os.path.basename(file_path)
     payload = {"name": file_name}
 
     response = requests.post(
@@ -91,13 +93,12 @@ def upload_attachments(
     base_url: str,
     paths: List[Dict[str, Optional[str]]],
     run_id: str,
-    file_name: Optional[str] = None,
 ):
     """Creates one upload per file and stores them into TofuPilot"""
     for file_path in paths:
         logger.info("Uploading %s...", file_path)
 
-        upload_id = upload_file(headers, base_url, file_path, file_name)
+        upload_id = upload_file(headers, base_url, file_path)
         notify_server(headers, base_url, upload_id, run_id)
 
         logger.success(
