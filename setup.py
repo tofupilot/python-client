@@ -5,7 +5,7 @@ with open("README.md", "r") as file:
 
 setup(
     name="tofupilot",
-    version="1.4.0",
+    version="1.3.0",
     packages=find_packages(),
     install_requires=[
         "requests",
@@ -13,7 +13,6 @@ setup(
         "packaging",
         "pytest",
         "openhtf",
-        "six",
     ],
     entry_points={
         "pytest11": [
