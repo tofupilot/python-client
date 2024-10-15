@@ -13,6 +13,7 @@ setup(
         "packaging",
         "pytest",
         "openhtf",
+        "six",
     ],
     entry_points={
         "pytest11": [
