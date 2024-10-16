@@ -16,7 +16,7 @@ from .utils import (
 )
 
 
-class UploadToTofuPilot:
+class upload:
     def __init__(self, allow_nan=False, base_url: Optional[str] = None):
         self.allow_nan = allow_nan
         self.client = (
