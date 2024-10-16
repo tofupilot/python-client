@@ -1,3 +1,5 @@
+"""Module for TofuPilot's Python API wrapper."""
+
 from typing import Dict, List, Optional
 import os
 import sys
@@ -5,8 +7,6 @@ import logging
 from datetime import datetime, timedelta
 from importlib.metadata import version
 
-from openhtf.core import test_record
-from openhtf.output.callbacks import json_factory
 import requests
 
 from .constants import (
@@ -31,6 +31,8 @@ from .utils import (
 
 
 class TofuPilotClient:
+    """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
+
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
@@ -38,7 +40,7 @@ class TofuPilotClient:
 
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."  # pylint: disable=line-too-long
             self._logger.error(error)
             sys.exit(1)
 
@@ -57,7 +59,7 @@ class TofuPilotClient:
             "%s %s%s with payload: %s", method, self._base_url, endpoint, payload
         )
 
-    def create_run(
+    def create_run(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         procedure_id: str,
         unit_under_test: UnitUnderTest,
