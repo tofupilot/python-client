@@ -21,7 +21,7 @@ setup(
     },
     entry_points={
         "pytest11": [
-            "tofupilot = tofupilot.plugin",  # Register the plugin
+            "tofupilot = tofupilot.plugin",  # Register the pytest plugin
         ],
     },
     author="Félix Berthier",
