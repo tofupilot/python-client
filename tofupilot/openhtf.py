@@ -10,7 +10,10 @@ import os
 import json
 import datetime
 from typing import Optional
+import threading
+import time
 
+import openhtf
 from openhtf.core.test_record import TestRecord
 from openhtf.output.callbacks import json_factory
 import requests
@@ -34,12 +37,13 @@ class upload:  # pylint: disable=invalid-name
     ### Usage Example:
 
     ```python
+    from openhtf import test
     import tofupilot
 
-    ...
+    # ...
 
     def main():
-        test = Test(*your_phases, test_name="OpenHTF Test")
+        test = Test(*your_phases, procedure_id="FVT1")
 
         # Add TofuPilot's upload callback to automatically send the test report upon completion
         test.add_output_callback(tofupilot.upload())
@@ -153,3 +157,100 @@ class upload:  # pylint: disable=invalid-name
                         "Attachment %s successfully uploaded and linked to run.",
                         attachment_name,
                     )
+
+
+def _get_executing_test():
+    """Get the currently executing test and its state.
+    See: https://github.com/google/openhtf/blob/4706af6c186340abf1735c992b2f1a3a11068e52/openhtf/output/servers/station_server.py
+
+    When this function returns, it is not guaranteed that the returned test is
+    still running. A consumer of this function that wants to access test.state is
+    exposed to a race condition in which test.state may become None at any time
+    due to the test finishing. To address this, in addition to returning the test
+    itself, this function returns the last known test state.
+
+    Returns:
+      test: The test that was executing when this function was called, or None.
+      test_state: The state of the executing test, or None.
+    """
+    tests = list(openhtf.Test.TEST_INSTANCES.values())
+
+    if not tests:
+        return None, None
+
+    test = tests[0]
+    test_state = test.state
+
+    if test_state is None:
+        # This is the case if:
+        # 1. The test executor was created but has not started running.
+        # 2. The test finished while this function was running, after we got the
+        #        list of tests but before we accessed the test state.
+        return None, None
+
+    return test, test_state
+
+
+class TofuPilot:
+    """
+    Context manager to automatically add an output callback to the running OpenHTF test.
+
+
+    ### Usage Example:
+
+    ```python
+    from openhtf import Test
+    from tofupilot import TofuPilot
+
+    #...
+
+    def main():
+        test = Test(*your_phases, procedure_id="FVT1")
+
+        # Stream real-time test execution data to TofuPilot
+        with TofuPilot():
+            test.execute(lambda: "SN15")
+    ```
+    """
+
+    def __init__(self, base_url=None):
+        self.base_url = base_url
+        self.test = None
+        self.timeout = 10
+        self.watcher_thread = None
+        self.stop_event = threading.Event()
+
+    def __enter__(self):
+        test, _ = _get_executing_test()
+        self.test = test
+        # Start a watcher thread to monitor the test state
+        self.watcher_thread = threading.Thread(target=self._watch_for_test_start)
+        self.watcher_thread.start()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        # Stop the watcher thread when exiting
+        self.stop_event.set()
+        self.watcher_thread.join()
+
+    def _watch_for_test_start(self):
+        """Watch for the test to start and add the output callback when it does."""
+        start_time = time.time()
+
+        while not self.stop_event.is_set():
+            test, _ = _get_executing_test()
+            self.test = test
+
+            if self.test is not None:
+                # Add the output callback when the test starts
+                self.test.add_output_callbacks(upload(base_url=self.base_url))
+                return
+
+            # Check for timeout
+            if time.time() - start_time > self.timeout:
+                raise RuntimeError(
+                    "Timeout: No OpenHTF test started within the timeout period."
+                )
+
+            # Sleep briefly to avoid busy-waiting
+            time.sleep(0.1)

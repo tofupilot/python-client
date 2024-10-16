@@ -6,5 +6,5 @@ the main interface for interacting with the TofuPilot API.
 """
 
 from .client import TofuPilotClient
-from .openhtf import upload
+from .openhtf import upload, TofuPilot
 from .plugin import numeric_step, string_step, conf
