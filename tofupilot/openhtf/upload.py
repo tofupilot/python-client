@@ -79,6 +79,7 @@ class upload:  # pylint: disable=invalid-name
             filename,
             inline_attachments=False,  # Exclude raw attachments
             allow_nan=self.allow_nan,
+            indent=4,
         )
 
         # Open the custom file and write serialized test record to it
