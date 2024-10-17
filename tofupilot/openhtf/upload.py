@@ -42,7 +42,9 @@ class upload:  # pylint: disable=invalid-name
     ```
     """
 
-    def __init__(self, allow_nan=False, base_url: Optional[str] = None):
+    def __init__(
+        self, allow_nan: Optional[bool] = False, base_url: Optional[str] = None
+    ):
         self.allow_nan = allow_nan
         self.client = (
             TofuPilotClient(base_url=base_url) if base_url else TofuPilotClient()
@@ -76,7 +78,7 @@ class upload:  # pylint: disable=invalid-name
         output_callback = json_factory.OutputToJSON(
             filename,
             inline_attachments=False,  # Exclude raw attachments
-            allow_nan=False,  # Customize this flag as needed
+            allow_nan=self.allow_nan,
         )
 
         # Open the custom file and write serialized test record to it
