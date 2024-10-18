@@ -13,12 +13,6 @@ setup(
         "packaging",
         "pytest",
     ],
-    extras_require={
-        "openhtf": [
-            "openhtf",
-            "six",
-        ]
-    },
     entry_points={
         "pytest11": [
             "tofupilot = tofupilot.plugin",  # Register the pytest plugin
