@@ -3,21 +3,48 @@ import json
 import datetime
 from typing import Optional
 
-from openhtf.core import test_record
+import openhtf
+from openhtf.core.test_record import TestRecord
 from openhtf.output.callbacks import json_factory
 import requests
 
-from .client import TofuPilotClient
-from .constants import (
+from ..client import TofuPilotClient
+from ..constants import (
     SECONDS_BEFORE_TIMEOUT,
 )
-from .utils import (
+from ..utils import (
     notify_server,
 )
 
 
-class UploadToTofuPilot:
-    def __init__(self, allow_nan=False, base_url: Optional[str] = None):
+class upload:  # pylint: disable=invalid-name
+    """
+    OpenHTF output callback to automatically upload the test report to TofuPilot upon test completion.
+
+    This function behaves similarly to manually parsing the OpenHTF JSON test report and calling
+    `TofuPilotClient().create_run()` with the parsed data, streamlining the process for automatic uploads.
+
+    ### Usage Example:
+
+    ```python
+    from openhtf import test
+    import tofupilot
+
+    # ...
+
+    def main():
+        test = Test(*your_phases, procedure_id="FVT1")
+
+        # Add TofuPilot's upload callback to automatically send the test report upon completion
+        test.add_output_callback(tofupilot.upload())
+
+        test.execute(lambda: "SN15")
+    ```
+    """
+
+    def __init__(
+        self, allow_nan: Optional[bool] = False, base_url: Optional[str] = None
+    ):
         self.allow_nan = allow_nan
         self.client = (
             TofuPilotClient(base_url=base_url) if base_url else TofuPilotClient()
@@ -28,7 +55,7 @@ class UploadToTofuPilot:
         self._max_attachments = self.client._max_attachments
         self._max_file_size = self.client._max_file_size
 
-    def __call__(self, test_record: test_record.TestRecord):
+    def __call__(self, test_record: TestRecord):
 
         # Extract relevant details from the test record
         dut_id = test_record.dut_id
@@ -45,19 +72,18 @@ class UploadToTofuPilot:
         ]  # Use underscores for time, slice for milliseconds precision
 
         # Format the custom file name
-        filename = "./{dut_id}.{test_name}.{start_time}.json".format(
-            dut_id=dut_id, test_name=test_name, start_time=start_time_formatted
-        )
+        filename = f"./{dut_id}.{test_name}.{start_time_formatted}.json"
 
         # Use the existing OutputToJSON callback to write to the custom file
         output_callback = json_factory.OutputToJSON(
             filename,
             inline_attachments=False,  # Exclude raw attachments
-            allow_nan=False,  # Customize this flag as needed
+            allow_nan=self.allow_nan,
+            indent=4,
         )
 
         # Open the custom file and write serialized test record to it
-        with open(filename, "w") as file:
+        with open(filename, "w", encoding="utf-8") as file:
             for json_line in output_callback.serialize_test_record(test_record):
                 file.write(json_line)
 

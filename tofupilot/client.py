@@ -1,3 +1,5 @@
+"""Module for TofuPilot's Python API wrapper."""
+
 from typing import Dict, List, Optional
 import os
 import sys
@@ -5,8 +7,6 @@ import logging
 from datetime import datetime, timedelta
 from importlib.metadata import version
 
-from openhtf.core import test_record
-from openhtf.output.callbacks import json_factory
 import requests
 
 from .constants import (
@@ -31,6 +31,8 @@ from .utils import (
 
 
 class TofuPilotClient:
+    """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
+
     def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
@@ -38,7 +40,7 @@ class TofuPilotClient:
 
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."  # pylint: disable=line-too-long
             self._logger.error(error)
             sys.exit(1)
 
@@ -57,11 +59,12 @@ class TofuPilotClient:
             "%s %s%s with payload: %s", method, self._base_url, endpoint, payload
         )
 
-    def create_run(
+    def create_run(  # pylint: disable=too-many-arguments,too-many-locals
         self,
-        procedure_id: str,
         unit_under_test: UnitUnderTest,
         run_passed: bool,
+        procedure_id: Optional[str] = None,
+        procedure_name: Optional[str] = None,
         steps: Optional[List[Step]] = None,
         started_at: datetime = None,
         duration: timedelta = None,
@@ -74,9 +77,10 @@ class TofuPilotClient:
         [See API reference](https://docs.tofupilot.com/runs).
 
         Args:
-            procedure_id (str): The unique identifier of the procedure to which the test run belongs.
             unit_under_test (UnitUnderTest): The unit being tested.
             run_passed (bool): Boolean indicating whether the test run was successful.
+            procedure_id (str, optional): The unique identifier of the procedure to which the test run belongs. Required if several procedures exists with the same procedure_name.
+            procedure_name (str, optional): The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
             started_at (datetime, optional): The datetime at which the test started. Default is None.
             duration (timedelta, optional): The duration of the test run. Default is None.
             steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/steps). Default is None.
@@ -100,9 +104,10 @@ class TofuPilotClient:
             )
 
         payload = {
-            "procedure_id": procedure_id,
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
+            "procedure_id": procedure_id,
+            "procedure_name": procedure_name,
             "client": "Python",
             "client_version": self._current_version,
         }

@@ -2,7 +2,6 @@ import json
 from datetime import timedelta
 from unittest.mock import MagicMock, patch
 
-import pytest
 from tofupilot.utils import (
     validate_files,
     notify_server,

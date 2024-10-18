@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-with open("README.md", "r") as file:
+with open("README.md", "r", encoding="utf-8") as file:
     long_description = file.read()
 
 setup(
@@ -12,11 +12,16 @@ setup(
         "setuptools",
         "packaging",
         "pytest",
-        "openhtf",
     ],
+    extras_require={
+        "openhtf": [
+            "openhtf",
+            "six",
+        ]
+    },
     entry_points={
         "pytest11": [
-            "tofupilot = tofupilot.plugin",  # Register the plugin
+            "tofupilot = tofupilot.plugin",  # Register the pytest plugin
         ],
     },
     author="Félix Berthier",
