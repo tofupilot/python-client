@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as file:
 
 setup(
     name="tofupilot",
-    version="1.5.0",
+    version="1.5.1",
     packages=find_packages(),
     install_requires=[
         "requests",
