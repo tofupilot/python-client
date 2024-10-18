@@ -3,7 +3,6 @@ import json
 import datetime
 from typing import Optional
 
-import openhtf
 from openhtf.core.test_record import TestRecord
 from openhtf.output.callbacks import json_factory
 import requests
