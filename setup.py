@@ -12,6 +12,7 @@ setup(
         "setuptools",
         "packaging",
         "pytest",
+        "asyncio",
     ],
     entry_points={
         "pytest11": [
