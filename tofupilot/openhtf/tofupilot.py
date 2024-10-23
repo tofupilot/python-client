@@ -1,16 +1,15 @@
-import os
 from typing import Optional
 from time import sleep
 import threading
 import asyncio
 
+import json
 from openhtf import Test
 from openhtf.util import data
-from y_py import YDoc
-from ypy_websocket import WebsocketProvider
 from websockets import connect
 
 from .upload import upload
+from ..client import TofuPilotClient
 
 
 def _get_executing_test():
@@ -75,7 +74,8 @@ class SimpleStationWatcher(threading.Thread):
 
 class TofuPilot:
     """
-    Context manager to automatically add an output callback to the running OpenHTF test.
+    Context manager to automatically add an output callback to the running OpenHTF test
+    and live stream it's execution.
 
 
     ### Usage Example:
@@ -95,8 +95,16 @@ class TofuPilot:
     ```
     """
 
-    def __init__(self, test: Test, base_url: Optional[str] = None):
+    def __init__(
+        self,
+        test: Test,
+        stream: Optional[bool] = True,
+        base_url: Optional[str] = None,
+        environment="development",
+    ):
         self.test = test
+        self.stream = stream
+        self.client = TofuPilotClient(base_url=base_url)
         self.base_url = base_url
         self.loop = None
         self.update_queue = None
@@ -104,27 +112,30 @@ class TofuPilot:
         self.watcher = None
         self.shutdown_event = threading.Event()
         self.update_task = None
-        self.uri = "ws://localhost:1234"
-        self.room = os.environ.get("TOFUPILOT_API_KEY")
+        self.uri = "wss://on35xrljfl.execute-api.us-east-1.amazonaws.com"
+        self.environment = environment
 
     def __enter__(self):
         # Initialize a thread-safe asyncio.Queue
         self.test.add_output_callbacks(upload(base_url=self.base_url))
-        self.update_queue = asyncio.Queue()
 
-        # Start the event loop in a separate thread
-        self.event_loop_thread = threading.Thread(
-            target=self.run_event_loop, daemon=True
-        )
-        self.event_loop_thread.start()
+        if self.stream:
 
-        # Wait until the event loop is ready
-        while self.loop is None:
-            sleep(0.1)
+            self.update_queue = asyncio.Queue()
 
-        # Start the SimpleStationWatcher with a callback to send updates
-        self.watcher = SimpleStationWatcher(self.send_update)
-        self.watcher.start()
+            # Start the event loop in a separate thread
+            self.event_loop_thread = threading.Thread(
+                target=self.run_event_loop, daemon=True
+            )
+            self.event_loop_thread.start()
+
+            # Wait until the event loop is ready
+            while self.loop is None:
+                sleep(0.1)
+
+            # Start the SimpleStationWatcher with a callback to send updates
+            self.watcher = SimpleStationWatcher(self.send_update)
+            self.watcher.start()
 
         return self
 
@@ -161,21 +172,18 @@ class TofuPilot:
 
     async def process_updates(self):
         """Sends current state of the test to the websocket server"""
-        ydoc = YDoc()
-        async with (
-            connect(f"{self.uri}/{self.room}") as websocket,
-            WebsocketProvider(ydoc, websocket),
-        ):
-            ymap = ydoc.get_map("test_state_map")
+        response = self.client.get_token()
+        token = response.get("token")
+
+        async with connect(f"{self.uri}/{self.environment}?token={token}") as websocket:
             try:
                 while True:
                     state_update = await self.update_queue.get()
-                    with ydoc.begin_transaction() as txn:
-                        ymap.set(txn, "test_state", state_update)
-                    print("Updated test state")
+                    await websocket.send(
+                        json.dumps({"action": "send", "message": state_update})
+                    )
             except asyncio.CancelledError:
                 pass  # Handle task cancellation gracefully
-        ydoc.close()
 
     async def shutdown(self):
         """Cleans up resources and stops the event loop."""
