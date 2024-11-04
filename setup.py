@@ -7,15 +7,10 @@ setup(
     name="tofupilot",
     version="1.5.1",
     packages=find_packages(),
-    install_requires=[
-        "requests",
-        "setuptools",
-        "packaging",
-        "pytest",
-    ],
+    install_requires=["requests", "setuptools", "packaging", "pytest", "websockets"],
     entry_points={
         "pytest11": [
-            "tofupilot = tofupilot.plugin",  # Register the pytest plugin
+            "tofupilot = tofupilot.plugin",  # Registering the pytest plugin
         ],
     },
     author="Félix Berthier",
@@ -30,5 +25,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.8",
 )
