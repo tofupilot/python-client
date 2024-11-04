@@ -33,7 +33,7 @@ from .utils import (
 class TofuPilotClient:
     """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
+    def __init__(self, api_key: Optional[str] = None, base_url: str = None):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
@@ -44,7 +44,7 @@ class TofuPilotClient:
             self._logger.error(error)
             sys.exit(1)
 
-        self._base_url = f"{base_url}/api/v1"
+        self._base_url = f"{base_url or ENDPOINT}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",

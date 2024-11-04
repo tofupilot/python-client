@@ -117,10 +117,11 @@ class TofuPilot:
 
     def __enter__(self):
         # Initialize a thread-safe asyncio.Queue
-        self.test.add_output_callbacks(upload(base_url=self.base_url))
+        self.test.add_output_callbacks(
+            upload(base_url=self.base_url, client=self.client)
+        )
 
         if self.stream:
-
             self.update_queue = asyncio.Queue()
 
             # Start the event loop in a separate thread
