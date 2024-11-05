@@ -1,0 +1,37 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+
+requires = [ "setuptools>=61.2" ]
+
+[project]
+name = "tofupilot"
+version = "1.6.0"
+description = "The official Python client for the TofuPilot API"
+readme.content-type = "text/markdown"
+readme.file = "README.md"
+keywords = [ "automatic", "hardware", "testing", "tofupilot" ]
+license = { text = "MIT" }
+authors = [ { name = "Félix Berthier", email = "felix.berthier@tofupilot.com" } ]
+requires-python = ">=3.6"
+classifiers = [
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [ "packaging", "pytest", "requests", "setuptools" ]
+
+urls.Homepage = "https://github.com/tofupilot/python-client"
+entry-points.pytest11.tofupilot = "tofupilot.plugin"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages]
+find = { namespaces = false }
