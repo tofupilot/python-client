@@ -33,7 +33,7 @@ from .utils import (
 class TofuPilotClient:
     """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: str = None):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
@@ -332,7 +332,7 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return handle_response(self._logger, response, additional_field="token")
+            return handle_response(self._logger, response, additional_field="url")
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)

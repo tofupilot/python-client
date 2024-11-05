@@ -100,7 +100,6 @@ class TofuPilot:
         test: Test,
         stream: Optional[bool] = True,
         base_url: Optional[str] = None,
-        environment="development",
     ):
         self.test = test
         self.stream = stream
@@ -112,8 +111,6 @@ class TofuPilot:
         self.watcher = None
         self.shutdown_event = threading.Event()
         self.update_task = None
-        self.uri = "wss://on35xrljfl.execute-api.us-east-1.amazonaws.com"
-        self.environment = environment
 
     def __enter__(self):
         # Initialize a thread-safe asyncio.Queue
@@ -174,9 +171,9 @@ class TofuPilot:
     async def process_updates(self):
         """Sends current state of the test to the websocket server"""
         response = self.client.get_token()
-        token = response.get("token")
+        url = response.get("url")
 
-        async with connect(f"{self.uri}/{self.environment}?token={token}") as websocket:
+        async with connect(url) as websocket:
             try:
                 while True:
                     state_update = await self.update_queue.get()
