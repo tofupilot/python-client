@@ -28,6 +28,12 @@ def validate_files(
         )
 
     for file_path in attachments:
+        # Checking if the file exists before attempting to get its size
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError(
+                f"The file at {file_path} does not exist or is not accessible"
+            )
+
         file_size = os.path.getsize(file_path)
         if file_size > max_file_size:
             log_and_raise(

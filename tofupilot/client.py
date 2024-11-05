@@ -33,7 +33,7 @@ from .utils import (
 class TofuPilotClient:
     """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: str = ENDPOINT):
+    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
@@ -44,7 +44,7 @@ class TofuPilotClient:
             self._logger.error(error)
             sys.exit(1)
 
-        self._base_url = f"{base_url}/api/v1"
+        self._base_url = f"{base_url or ENDPOINT}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
@@ -304,6 +304,35 @@ class TofuPilotClient:
             run_id = result.get("id")
 
             return run_id
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+    def get_token(self) -> dict:
+        """
+        Fetches websocket authentication token associated with API Key.
+
+        Returns:
+            dict: A dictionary describing the outcome of the update:
+                - token (str): Authentication token to connect to websocket server.
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+        """
+        self._log_request("GET", "/rooms")
+
+        try:
+            response = requests.get(
+                f"{self._base_url}/rooms",
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            return handle_response(self._logger, response, additional_field="url")
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
