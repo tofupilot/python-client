@@ -43,12 +43,13 @@ class upload:  # pylint: disable=invalid-name
 
     def __init__(
         self,
+        api_key: Optional[str] = None,
         allow_nan: Optional[bool] = False,
         base_url: Optional[str] = None,
         client: Optional[TofuPilotClient] = None,
     ):
         self.allow_nan = allow_nan
-        self.client = client or TofuPilotClient(base_url=base_url)
+        self.client = client or TofuPilotClient(api_key=api_key, base_url=base_url)
         self._logger = self.client._logger
         self._base_url = self.client._base_url
         self._headers = self.client._headers
