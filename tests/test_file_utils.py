@@ -13,7 +13,7 @@ from tofupilot.constants import SECONDS_BEFORE_TIMEOUT
 
 def test_validate_files():
     logger = MagicMock()
-    attachments = ["file1.txt", "file2.jpg"]
+    attachments = ["data/performance-report.pdf", "data/temperature-map.png"]
     max_attachments = 2
     max_file_size = 5000
 
