@@ -7,7 +7,7 @@ This script runs a test, measures its duration, and then creates a test run in T
 indicating whether the test passed, and including relevant report variables and attachments.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 import time

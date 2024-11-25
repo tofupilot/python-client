@@ -40,7 +40,7 @@ class TofuPilotClient:
 
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://docs.tofupilot.com/user-management#api-key."  # pylint: disable=line-too-long
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."  # pylint: disable=line-too-long
             self._logger.error(error)
             sys.exit(1)
 
@@ -74,7 +74,7 @@ class TofuPilotClient:
     ) -> dict:
         """
         Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
-        [See API reference](https://docs.tofupilot.com/runs).
+        [See API reference](https://tofupilot.com/docs/runs).
 
         Args:
             unit_under_test (UnitUnderTest): The unit being tested.
@@ -83,10 +83,10 @@ class TofuPilotClient:
             procedure_name (str, optional): The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
             started_at (datetime, optional): The datetime at which the test started. Default is None.
             duration (timedelta, optional): The duration of the test run. Default is None.
-            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://docs.tofupilot.com/steps). Default is None.
-            sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://docs.tofupilot.com/sub-units). Default is None.
-            report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://docs.tofupilot.com/report). Default is None.
-            attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://docs.tofupilot.com/attachments). Default is None.
+            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://tofupilot.com/docs/steps). Default is None.
+            sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://tofupilot.com/docs/sub-units). Default is None.
+            report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://tofupilot.com/docs/report). Default is None.
+            attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://tofupilot.com/docs/attachments). Default is None.
 
         Returns:
             dict: A dictionary containing the following keys:

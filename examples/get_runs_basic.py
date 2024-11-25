@@ -5,7 +5,7 @@ This script first creates a test run for a unit with a specified serial number a
 then retrieves the run data using the serial number.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 from tofupilot import TofuPilotClient

@@ -5,7 +5,7 @@ This script creates a test run for a unit with the specified serial number and p
 and includes multiple sub-units in the run.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 from tofupilot import TofuPilotClient
