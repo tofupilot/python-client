@@ -33,7 +33,7 @@ from .utils import (
 class TofuPilotClient:
     """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
 
-    def __init__(self, api_key: Optional[str] = None, base_url: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, url: Optional[str] = None):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
@@ -44,7 +44,7 @@ class TofuPilotClient:
             self._logger.error(error)
             sys.exit(1)
 
-        self._base_url = f"{base_url or ENDPOINT}/api/v1"
+        self._url = f"{url or ENDPOINT}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
@@ -56,7 +56,7 @@ class TofuPilotClient:
     def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
         """Logs the details of the HTTP request."""
         self._logger.debug(
-            "%s %s%s with payload: %s", method, self._base_url, endpoint, payload
+            "%s %s%s with payload: %s", method, self._url, endpoint, payload
         )
 
     def create_run(  # pylint: disable=too-many-arguments,too-many-locals
@@ -136,7 +136,7 @@ class TofuPilotClient:
 
         try:
             response = requests.post(
-                f"{self._base_url}/runs",
+                f"{self._url}/runs",
                 json=payload,
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
@@ -147,7 +147,7 @@ class TofuPilotClient:
             run_id = result.get("id")
             if run_id and attachments:
                 upload_attachments(
-                    self._logger, self._headers, self._base_url, attachments, run_id
+                    self._logger, self._headers, self._url, attachments, run_id
                 )
 
             return result
@@ -196,7 +196,7 @@ class TofuPilotClient:
 
         try:
             response = requests.get(
-                f"{self._base_url}/runs",
+                f"{self._url}/runs",
                 headers=self._headers,
                 params=params,
                 timeout=SECONDS_BEFORE_TIMEOUT,
@@ -235,7 +235,7 @@ class TofuPilotClient:
 
         try:
             response = requests.patch(
-                f"{self._base_url}/units",
+                f"{self._url}/units",
                 json=payload,
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
@@ -275,7 +275,7 @@ class TofuPilotClient:
 
         # Upload report
         try:
-            upload_id = upload_file(self._headers, self._base_url, file_path)
+            upload_id = upload_file(self._headers, self._url, file_path)
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
@@ -293,7 +293,7 @@ class TofuPilotClient:
         # Create run from file
         try:
             response = requests.post(
-                f"{self._base_url}/import",
+                f"{self._url}/import",
                 json=payload,
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
@@ -327,7 +327,7 @@ class TofuPilotClient:
 
         try:
             response = requests.get(
-                f"{self._base_url}/rooms",
+                f"{self._url}/rooms",
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )

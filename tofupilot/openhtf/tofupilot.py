@@ -101,13 +101,13 @@ class TofuPilot:
         test: Test,
         stream: Optional[bool] = True,
         api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
+        url: Optional[str] = None,
     ):
         self.test = test
         self.stream = stream
-        self.client = TofuPilotClient(api_key=api_key, base_url=base_url)
+        self.client = TofuPilotClient(api_key=api_key, url=url)
         self.api_key = api_key
-        self.base_url = base_url
+        self.url = url
         self.loop = None
         self.update_queue = None
         self.event_loop_thread = None
@@ -118,7 +118,7 @@ class TofuPilot:
     def __enter__(self):
         # Initialize a thread-safe asyncio.Queue
         self.test.add_output_callbacks(
-            upload(api_key=self.api_key, base_url=self.base_url, client=self.client)
+            upload(api_key=self.api_key, url=self.url, client=self.client)
         )
 
         if self.stream:

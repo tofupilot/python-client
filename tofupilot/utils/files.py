@@ -44,12 +44,12 @@ def validate_files(
 
 def upload_file(
     headers: dict,
-    base_url: str,
+    url: str,
     file_path: str,
 ) -> bool:
     """Initializes an upload and stores file in it"""
     # Upload initialization
-    initialize_url = f"{base_url}/uploads/initialize"
+    initialize_url = f"{url}/uploads/initialize"
     file_name = os.path.basename(file_path)
     payload = {"name": file_name}
 
@@ -78,9 +78,9 @@ def upload_file(
     return upload_id
 
 
-def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> bool:
+def notify_server(headers: dict, url: str, upload_id: str, run_id: str) -> bool:
     """Tells TP server to sync upload with newly created run"""
-    sync_url = f"{base_url}/uploads/sync"
+    sync_url = f"{url}/uploads/sync"
     sync_payload = {"upload_id": upload_id, "run_id": run_id}
 
     response = requests.post(
@@ -96,7 +96,7 @@ def notify_server(headers: dict, base_url: str, upload_id: str, run_id: str) -> 
 def upload_attachments(
     logger: Logger,
     headers: dict,
-    base_url: str,
+    url: str,
     paths: List[Dict[str, Optional[str]]],
     run_id: str,
 ):
@@ -104,8 +104,8 @@ def upload_attachments(
     for file_path in paths:
         logger.info("Uploading %s...", file_path)
 
-        upload_id = upload_file(headers, base_url, file_path)
-        notify_server(headers, base_url, upload_id, run_id)
+        upload_id = upload_file(headers, url, file_path)
+        notify_server(headers, url, upload_id, run_id)
 
         logger.success(
             f"Attachment {file_path} successfully uploaded and linked to run."

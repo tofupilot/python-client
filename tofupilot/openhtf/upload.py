@@ -45,13 +45,13 @@ class upload:  # pylint: disable=invalid-name
         self,
         api_key: Optional[str] = None,
         allow_nan: Optional[bool] = False,
-        base_url: Optional[str] = None,
+        url: Optional[str] = None,
         client: Optional[TofuPilotClient] = None,
     ):
         self.allow_nan = allow_nan
-        self.client = client or TofuPilotClient(api_key=api_key, base_url=base_url)
+        self.client = client or TofuPilotClient(api_key=api_key, url=url)
         self._logger = self.client._logger
-        self._base_url = self.client._base_url
+        self._url = self.client._url
         self._headers = self.client._headers
         self._max_attachments = self.client._max_attachments
         self._max_file_size = self.client._max_file_size
@@ -123,7 +123,7 @@ class upload:  # pylint: disable=invalid-name
                     self._logger.info("Uploading %s...", attachment_name)
 
                     # Upload initialization
-                    initialize_url = f"{self._base_url}/uploads/initialize"
+                    initialize_url = f"{self._url}/uploads/initialize"
                     payload = {"name": attachment_name}
 
                     response = requests.post(
@@ -145,7 +145,7 @@ class upload:  # pylint: disable=invalid-name
                         timeout=SECONDS_BEFORE_TIMEOUT,
                     )
 
-                    notify_server(self._headers, self._base_url, upload_id, run_id)
+                    notify_server(self._headers, self._url, upload_id, run_id)
 
                     self._logger.success(
                         "Attachment %s successfully uploaded and linked to run.",
