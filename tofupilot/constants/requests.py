@@ -1,3 +1,3 @@
-ENDPOINT = "https://www.tofupilot.com"
+ENDPOINT = "https://tofupilot.app"
 
 SECONDS_BEFORE_TIMEOUT = 60
