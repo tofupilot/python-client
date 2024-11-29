@@ -48,12 +48,24 @@ def handle_http_error(
 ) -> Dict[str, Any]:
     """Handles HTTP errors and logs them."""
 
-    warnings: Optional[List[str]] = http_err.response.json().get("warnings")
-    if warnings is not None:
-        for warning in warnings:
-            logger.warning(warning)
+    warnings = None  # Initialize warnings to None
 
-    error_message = parse_error_message(http_err.response)
+    # Check if the response body is not empty and Content-Type is application/json
+    if (
+        http_err.response.text.strip()
+        and http_err.response.headers.get("Content-Type") == "application/json"
+    ):
+        # Parse JSON safely
+        response_json = http_err.response.json()
+        warnings = response_json.get("warnings")
+        if warnings is not None:
+            for warning in warnings:
+                logger.warning(warning)
+        error_message = parse_error_message(http_err.response)
+    else:
+        # Handle cases where response is empty or non-JSON
+        error_message = http_err
+
     logger.error(error_message)
 
     return {
