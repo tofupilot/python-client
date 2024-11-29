@@ -25,7 +25,7 @@ pip install tofupilot
 
 ### Documentation
 
-You can find the full TofuPilot documentation [here](https://docs.tofupilot.com).
+You can find the full TofuPilot documentation [here](https://tofupilot.com/docs).
 
 ### Examples
 

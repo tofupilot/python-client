@@ -6,7 +6,7 @@ and then creates a test run in TofuPilot. Each step includes detailed informatio
 the measured value, unit, and thresholds.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 from tofupilot import TofuPilotClient

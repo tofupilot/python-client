@@ -6,7 +6,8 @@ import asyncio
 import json
 from openhtf import Test
 from openhtf.util import data
-from websockets import connect
+from websockets import connect, ConnectionClosedError, InvalidURI
+
 
 from .upload import upload
 from ..client import TofuPilotClient
@@ -100,13 +101,13 @@ class TofuPilot:
         test: Test,
         stream: Optional[bool] = True,
         api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
+        url: Optional[str] = None,
     ):
         self.test = test
         self.stream = stream
-        self.client = TofuPilotClient(api_key=api_key, base_url=base_url)
+        self.client = TofuPilotClient(api_key=api_key, url=url)
         self.api_key = api_key
-        self.base_url = base_url
+        self.url = url
         self.loop = None
         self.update_queue = None
         self.event_loop_thread = None
@@ -117,7 +118,7 @@ class TofuPilot:
     def __enter__(self):
         # Initialize a thread-safe asyncio.Queue
         self.test.add_output_callbacks(
-            upload(api_key=self.api_key, base_url=self.base_url, client=self.client)
+            upload(api_key=self.api_key, url=self.url, client=self.client)
         )
 
         if self.stream:
@@ -171,19 +172,52 @@ class TofuPilot:
         self.update_task = asyncio.create_task(self.process_updates())
 
     async def process_updates(self):
-        """Sends current state of the test to the websocket server"""
-        response = self.client.get_token()
-        url = response.get("url")
+        """
+        Sends the current state of the test to the WebSocket server.
+        """
+        try:
+            response = self.client.get_token()
+            url = response.get("url")
 
-        async with connect(url) as websocket:
-            try:
-                while True:
-                    state_update = await self.update_queue.get()
-                    await websocket.send(
-                        json.dumps({"action": "send", "message": state_update})
-                    )
-            except asyncio.CancelledError:
-                pass  # Handle task cancellation gracefully
+            if not url:
+                return  # Exit gracefully if no URL is provided
+
+            retry_count = 0
+            max_retries = 5
+            backoff_factor = 2  # Exponential backoff base
+
+            while retry_count < max_retries and not self.shutdown_event.is_set():
+                try:
+                    async with connect(url) as websocket:
+                        while not self.shutdown_event.is_set():
+                            try:
+                                # Fetch state update from the queue (with timeout to avoid blocking indefinitely)
+                                state_update = await asyncio.wait_for(
+                                    self.update_queue.get(), timeout=1.0
+                                )
+                                # Send the state update to the WebSocket server
+                                await websocket.send(
+                                    json.dumps(
+                                        {"action": "send", "message": state_update}
+                                    )
+                                )
+                            except asyncio.TimeoutError:
+                                continue  # Timeout waiting for an update; loop back
+                            except asyncio.CancelledError:
+                                return  # Exit cleanly on task cancellation
+                            except Exception:  # pylint: disable=broad-exception-caught
+                                break  # Exit WebSocket loop on unexpected errors
+                except (ConnectionClosedError, OSError, InvalidURI):
+                    retry_count += 1
+                    await asyncio.sleep(
+                        backoff_factor**retry_count
+                    )  # Exponential backoff
+                except asyncio.CancelledError:
+                    return  # Exit cleanly on task cancellation
+                except Exception:  # pylint: disable=broad-exception-caught
+                    break  # Exit gracefully on unexpected errors
+        except Exception:  # pylint: disable=broad-exception-caught
+            pass  # Catch all remaining exceptions to ensure robustness
 
     async def shutdown(self):
         """Cleans up resources and stops the event loop."""

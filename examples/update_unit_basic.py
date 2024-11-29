@@ -5,7 +5,7 @@ This script assumes you already have two units with the respective serial number
 If the units do not exist, you can uncomment the lines to create them first.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 from tofupilot import TofuPilotClient

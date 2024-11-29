@@ -5,7 +5,7 @@ This script measures the duration of a test function, then creates a test run fo
 with the specified serial number and part number, including the duration as part of the run data.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 import time

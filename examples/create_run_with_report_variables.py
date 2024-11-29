@@ -6,7 +6,7 @@ and includes additional report variables such as temperature readings, calibrati
 and technician information.
 
 Ensure your API key is stored in the environment variables as per the documentation:
-https://docs.tofupilot.com/user-management#api-key
+https://tofupilot.com/docs/user-management#api-key
 """
 
 from tofupilot import TofuPilotClient

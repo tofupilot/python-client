@@ -25,19 +25,19 @@ def test_validate_files():
 
 def test_notify_server():
     headers = {"Authorization": "Bearer token"}
-    base_url = "http://example.com"
+    url = "http://example.com"
     upload_id = "123"
     run_id = "456"
 
     with patch("requests.post") as mock_post:
         mock_post.return_value.status_code = 200
 
-        result = notify_server(headers, base_url, upload_id, run_id)
+        result = notify_server(headers, url, upload_id, run_id)
 
         assert result is True
 
         mock_post.assert_called_with(
-            f"{base_url}/uploads/sync",
+            f"{url}/uploads/sync",
             data=json.dumps({"upload_id": upload_id, "run_id": run_id}),
             headers=headers,
             timeout=SECONDS_BEFORE_TIMEOUT,
