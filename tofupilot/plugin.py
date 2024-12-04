@@ -381,11 +381,11 @@ def step_decorator(
     return wrapper
 
 
-def numeric_step(func: Callable[..., Any] = None, **kwargs: Any) -> Callable[..., Any]:
+def numeric_step(func: Callable[..., Any], **kwargs: Any) -> Callable[..., Any]:
     return step_decorator(func, step_type="numeric", **kwargs)
 
 
-def string_step(func: Callable[..., Any] = None, **kwargs: Any) -> Callable[..., Any]:
+def string_step(func: Callable[..., Any], **kwargs: Any) -> Callable[..., Any]:
     return step_decorator(func, step_type="string", **kwargs)
 
 
