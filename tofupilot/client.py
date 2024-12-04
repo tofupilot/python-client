@@ -160,6 +160,72 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
+    def create_run_from_openhtf_report(
+        self,
+        file_path: str,
+    ) -> dict:
+        """
+        Creates a run on TofuPilot from an OpenHTF JSON report.
+
+        Args:
+            file_path (str): The path to the log file to be imported.
+
+        Returns:
+            dict: A dictionary containing the result of the import operation:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#create-a-run-from-a-file
+        """
+        self._logger.info("Starting run creation...")
+
+        # Validate report
+        validate_files(
+            self._logger, [file_path], self._max_attachments, self._max_file_size
+        )
+
+        # Upload report
+        try:
+            upload_id = upload_file(self._headers, self._url, file_path)
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+        payload = {
+            "upload_id": upload_id,
+            "importer": "OPENHTF",
+            "client": "Python",
+            "client_version": self._current_version,
+        }
+
+        self._log_request("POST", "/import", payload)
+
+        # Create run from file
+        try:
+            response = requests.post(
+                f"{self._url}/import",
+                json=payload,
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            result = handle_response(self._logger, response, additional_field="id")
+
+            run_id = result.get("id")
+
+            return run_id
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
     def get_runs(self, serial_number: str) -> dict:
         """
         Fetches all runs related to a specific unit from TofuPilot.
@@ -328,72 +394,6 @@ class TofuPilotClient:
             )
             response.raise_for_status()
             return handle_response(self._logger, response)
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-
-    def create_run_from_openhtf_report(
-        self,
-        file_path: str,
-    ) -> dict:
-        """
-        Creates a run on TofuPilot from an OpenHTF JSON report.
-
-        Args:
-            file_path (str): The path to the log file to be imported.
-
-        Returns:
-            dict: A dictionary containing the result of the import operation:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
-
-        References:
-            For more details, see:
-            https://www.tofupilot.com/docs/api#create-a-run-from-a-file
-        """
-        self._logger.info("Starting run creation...")
-
-        # Validate report
-        validate_files(
-            self._logger, [file_path], self._max_attachments, self._max_file_size
-        )
-
-        # Upload report
-        try:
-            upload_id = upload_file(self._headers, self._url, file_path)
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-
-        payload = {
-            "upload_id": upload_id,
-            "importer": "OPENHTF",
-            "client": "Python",
-            "client_version": self._current_version,
-        }
-
-        self._log_request("POST", "/import", payload)
-
-        # Create run from file
-        try:
-            response = requests.post(
-                f"{self._url}/import",
-                json=payload,
-                headers=self._headers,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            result = handle_response(self._logger, response, additional_field="id")
-
-            run_id = result.get("id")
-
-            return run_id
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
