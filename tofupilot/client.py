@@ -229,13 +229,13 @@ class TofuPilotClient:
         """
         self._logger.info('Starting update of unit "%s"...', serial_number)
 
-        payload = {"serial_number": serial_number, "sub_units": sub_units}
+        payload = {"sub_units": sub_units}
 
-        self._log_request("PATCH", "/units", payload)
+        self._log_request("PATCH", f"/units/{serial_number}", payload)
 
         try:
             response = requests.patch(
-                f"{self._url}/units",
+                f"{self._url}/units/{serial_number}",
                 json=payload,
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
