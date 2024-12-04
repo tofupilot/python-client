@@ -74,7 +74,6 @@ class TofuPilotClient:
     ) -> dict:
         """
         Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
-        [See API reference](https://tofupilot.com/docs/runs).
 
         Args:
             unit_under_test (UnitUnderTest): The unit being tested.
@@ -95,6 +94,10 @@ class TofuPilotClient:
                 - message (Optional[dict]): Contains URL if successful.
                 - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#create-a-run
         """
         self._logger.info("Starting run creation...")
 
@@ -176,6 +179,11 @@ class TofuPilotClient:
             ValueError: If no `serial_number` was provided.
             TypeError: If positional arguments are passed instead of keyword arguments.
             Exception: For any other exceptions that might occur.
+
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#get-runs-by-serial-number
         """
         if not serial_number:
             error_message = "A 'serial_number' is required to fetch runs."
@@ -211,10 +219,10 @@ class TofuPilotClient:
 
     def delete_run(self, run_id: str) -> dict:
         """
-        Deletes a given unit.
+        Deletes a given run.
 
         Args:
-            run_id (str): The complete id of the run. See https://www.tofupilot.com/docs/api#delete-a-run
+            run_id (str): The complete id of the run.
 
         Returns:
             dict: A dictionary describing the outcome of the deletion:
@@ -223,6 +231,10 @@ class TofuPilotClient:
                 - message (Optional[str]): Message if the operation was successful.
                 - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#delete-a-run
         """
         self._logger.info('Starting deletion of run "%s"...', run_id)
 
@@ -259,6 +271,10 @@ class TofuPilotClient:
                 - message (Optional[str]): Message if the operation was successful.
                 - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#update-a-unit
         """
         self._logger.info('Starting update of unit "%s"...', serial_number)
 
@@ -335,6 +351,10 @@ class TofuPilotClient:
                 - message (Optional[str]): Message if the operation was successful.
                 - warnings (Optional[List[str]]): Warning messages if any.
                 - error (Optional[dict]): Error message if any.
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#create-a-run-from-a-file
         """
         self._logger.info("Starting run creation...")
 
