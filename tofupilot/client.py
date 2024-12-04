@@ -209,6 +209,39 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
+    def delete_run(self, run_id: str) -> dict:
+        """
+        Deletes a given unit.
+
+        Args:
+            run_id (str): The complete id of the run. See https://www.tofupilot.com/docs/api#delete-a-run
+
+        Returns:
+            dict: A dictionary describing the outcome of the deletion:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+        """
+        self._logger.info('Starting deletion of run "%s"...', run_id)
+
+        self._log_request("DELETE", f"/runs/{run_id}")
+
+        try:
+            response = requests.delete(
+                f"{self._url}/runs/{run_id}",
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            return handle_response(self._logger, response)
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
     def update_unit(
         self, serial_number: str, sub_units: Optional[List[SubUnit]] = None
     ) -> dict:
