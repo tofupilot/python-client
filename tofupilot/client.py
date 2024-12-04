@@ -281,6 +281,43 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
+    def delete_unit(self, serial_number: str) -> dict:
+        """
+        Deletes a given unit.
+
+        Args:
+            serial_number (str): The serial number of the unit.
+
+        Returns:
+            dict: A dictionary describing the outcome of the deletion:
+                - status_code (Optional[int]): HTTP status code of the response.
+                - success (bool): Whether the import was successful.
+                - message (Optional[str]): Message if the operation was successful.
+                - warnings (Optional[List[str]]): Warning messages if any.
+                - error (Optional[dict]): Error message if any.
+
+        References:
+            For more details, see:
+            https://www.tofupilot.com/docs/api#delete-a-unit
+        """
+        self._logger.info('Starting deletion of unit "%s"...', serial_number)
+
+        self._log_request("DELETE", f"/units/{serial_number}")
+
+        try:
+            response = requests.delete(
+                f"{self._url}/units/{serial_number}",
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            return handle_response(self._logger, response)
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
     def create_run_from_openhtf_report(
         self,
         file_path: str,
