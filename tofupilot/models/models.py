@@ -20,5 +20,6 @@ class SubUnit(TypedDict):
 class UnitUnderTest(TypedDict):
     serial_number: str
     part_number: Optional[str]
+    part_name: Optional[str]
     revision: Optional[str]
     batch_number: Optional[str]
