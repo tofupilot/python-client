@@ -1,4 +1,4 @@
-from typing import Optional, Union, TypedDict
+from typing import Optional, Union, TypedDict, List
 from datetime import datetime, timedelta
 
 
@@ -11,6 +11,26 @@ class Step(TypedDict):
     measurement_value: Optional[Union[float, str]]
     limit_low: Optional[float]
     limit_high: Optional[float]
+
+
+class Measurement(TypedDict):
+    name: str
+    outcome: str  # "PASS", "FAIL", "UNSET"
+    value: Optional[Union[float, str]]
+    units: Optional[str]
+    lower_limit: Optional[float]
+    upper_limit: Optional[float]
+    validators: Optional[List[str]]
+    docstring: Optional[str]
+
+
+class Phase(TypedDict):
+    name: str
+    outcome: str  # "PASS", "FAIL", "SKIP", "ERROR"
+    started_at: datetime
+    duration: timedelta
+    measurements: Optional[List[Measurement]]
+    docstring: Optional[str]
 
 
 class SubUnit(TypedDict):
