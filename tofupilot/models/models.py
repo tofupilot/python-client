@@ -16,7 +16,7 @@ class Step(TypedDict):
 class Measurement(TypedDict):
     name: str
     outcome: str  # "PASS", "FAIL", "UNSET"
-    value: Optional[Union[float, str]]
+    measured_value: Optional[Union[float, str]]
     units: Optional[str]
     lower_limit: Optional[float]
     upper_limit: Optional[float]
@@ -27,8 +27,8 @@ class Measurement(TypedDict):
 class Phase(TypedDict):
     name: str
     outcome: str  # "PASS", "FAIL", "SKIP", "ERROR"
-    started_at: datetime
-    duration: timedelta
+    start_time_millis: int
+    end_time_millis: int
     measurements: Optional[List[Measurement]]
     docstring: Optional[str]
 

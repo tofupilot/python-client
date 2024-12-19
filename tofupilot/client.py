@@ -125,11 +125,6 @@ class TofuPilotClient:
             payload["steps"] = steps
 
         if phases is not None:
-            for phase in phases:
-                if phase["duration"] is not None:
-                    phase["duration"] = timedelta_to_iso(phase["duration"])
-                if phase["started_at"] is not None:
-                    phase["started_at"] = datetime_to_iso(phase["started_at"])
             payload["phases"] = phases
 
         if started_at is not None:
