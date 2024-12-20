@@ -1,3 +1,17 @@
-from .models import UnitUnderTest, SubUnit, Step
+from .models import (
+    UnitUnderTest,
+    SubUnit,
+    Step,
+    Phase,
+    MeasurementOutcome,
+    PhaseOutcome,
+)
 
-__all__ = ["UnitUnderTest", "SubUnit", "Step"]
+__all__ = [
+    "UnitUnderTest",
+    "SubUnit",
+    "Step",
+    "Phase",
+    "MeasurementOutcome",
+    "PhaseOutcome",
+]

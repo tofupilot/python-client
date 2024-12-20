@@ -15,7 +15,7 @@ from .constants import (
     CLIENT_MAX_ATTACHMENTS,
     SECONDS_BEFORE_TIMEOUT,
 )
-from .models import SubUnit, UnitUnderTest, Step
+from .models import SubUnit, UnitUnderTest, Step, Phase
 from .utils import (
     check_latest_version,
     validate_files,
@@ -66,6 +66,7 @@ class TofuPilotClient:
         procedure_id: Optional[str] = None,
         procedure_name: Optional[str] = None,
         steps: Optional[List[Step]] = None,
+        phases: Optional[List[Phase]] = None,
         started_at: Optional[datetime] = None,
         duration: Optional[timedelta] = None,
         sub_units: Optional[List[SubUnit]] = None,
@@ -122,6 +123,9 @@ class TofuPilotClient:
                 if step["started_at"] is not None:
                     step["started_at"] = datetime_to_iso(step["started_at"])
             payload["steps"] = steps
+
+        if phases is not None:
+            payload["phases"] = phases
 
         if started_at is not None:
             payload["started_at"] = datetime_to_iso(started_at)
