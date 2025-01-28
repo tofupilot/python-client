@@ -73,7 +73,7 @@ class upload:  # pylint: disable=invalid-name
         ]  # Use underscores for time, slice for milliseconds precision
 
         # Format the custom file name
-        filename = f"./{dut_id}.{test_name}.{start_time_formatted}.json"
+        filename = f"/tmp/{dut_id}.{test_name}.{start_time_formatted}.json"
 
         # Use the existing OutputToJSON callback to write to the custom file
         output_callback = json_factory.OutputToJSON(
