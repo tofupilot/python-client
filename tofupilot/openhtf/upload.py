@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import tempfile
 from typing import Optional
 
 from openhtf.core.test_record import TestRecord
@@ -72,8 +73,12 @@ class upload:  # pylint: disable=invalid-name
             :-3
         ]  # Use underscores for time, slice for milliseconds precision
 
-        # Format the custom file name
-        filename = f"/tmp/{dut_id}.{test_name}.{start_time_formatted}.json"
+        temp_dir = tempfile.gettempdir()
+
+        # Craft system-agnostic temporary filename
+        filename = os.path.join(
+            temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json"
+        )
 
         # Use the existing OutputToJSON callback to write to the custom file
         output_callback = json_factory.OutputToJSON(
