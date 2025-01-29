@@ -6,12 +6,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout examples repo
-        uses: actions/checkout@v4
-        with:
-          repository: tofupilot/examples
-          path: examples
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -22,6 +16,12 @@ jobs:
           pip install --upgrade pip
           pip install -e .
           pip install -r requirements.txt
+
+      - name: Checkout examples repo
+        uses: actions/checkout@v4
+        with:
+          repository: tofupilot/examples
+          path: examples
 
       - name: Run example scripts
         env:
