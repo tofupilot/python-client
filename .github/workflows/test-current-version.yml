@@ -31,7 +31,11 @@ jobs:
         run: |
           cd examples
           pip install -r requirements.txt
-          find . -type f -name 'main.py' -not -path '*/venv/*' -print0 | while IFS= read -r -d '' file; do
+          # Executing every `main.py` files, excluding virtual environment and hidden directories
+          find . -type f -name 'main.py' \
+            -not -path '*/venv/*' \
+            -not -path '*/.*/*' \
+            -print0 | while IFS= read -r -d '' file; do
             echo "Running $file"
             python "$file"
           done
