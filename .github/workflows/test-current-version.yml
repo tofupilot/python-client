@@ -31,11 +31,24 @@ jobs:
         run: |
           cd examples
           pip install -r requirements.txt
-          # Executing every `main.py` files, excluding virtual environment and hidden directories
+          # Finding every `main.py` files, excluding virtual environment and hidden directories
           find . -type f -name 'main.py' \
             -not -path '*/venv/*' \
             -not -path '*/.*/*' \
             -print0 | while IFS= read -r -d '' file; do
-            echo "Running $file"
-            python "$file"
+
+            # Storing directory containing the `main.py`
+            directory="$(dirname "$file")"
+
+            # Checking if requirements.txt is present in the same directory as `main.py`
+            if [ -f "$directory/requirements.txt" ]; then
+              # Installing dependencies from requirements.txt before running the script
+              pip install -r "$directory/requirements.txt"
+            fi
+
+            # Executing `main.py` from within its own directory
+            (
+              cd "$directory" || exit
+              python main.py
+            )
           done
