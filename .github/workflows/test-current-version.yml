@@ -4,28 +4,32 @@ on: [push, pull_request]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Checkout current repository
+      - name: Checking out current repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setting up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - name: Install current development version of package
+      - name: Installing current development version of package
         run: |
           pip install --upgrade pip
           pip install -e .
 
-      - name: Checkout examples repo
+      - name: Checking out examples repo
         uses: actions/checkout@v4
         with:
           repository: tofupilot/examples
           path: examples
 
-      - name: Run example scripts
+      - name: Running example scripts
+        shell: bash
         env:
           TOFUPILOT_API_KEY: ${{ secrets.TOFUPILOT_API_KEY }}
         run: |
