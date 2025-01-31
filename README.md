@@ -29,7 +29,7 @@ You can find the full TofuPilot documentation [here](https://tofupilot.com/docs)
 
 ### Examples
 
-For usage examples, see the [examples](https://github.com/tofupilot/python-client/tree/main/examples) directory.
+For usage examples, see the [examples](https://github.com/tofupilot/examples/tree/main/docs/client).
 
 ## Contributing
 

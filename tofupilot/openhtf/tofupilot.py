@@ -176,8 +176,7 @@ class TofuPilot:
         Sends the current state of the test to the WebSocket server.
         """
         try:
-            response = self.client.get_token()
-            url = response.get("url")
+            url = self.client.get_websocket_url()
 
             if not url:
                 return  # Exit gracefully if no URL is provided

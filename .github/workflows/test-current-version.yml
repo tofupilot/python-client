@@ -1,0 +1,72 @@
+name: Test Current Version
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    env:
+      # Forcing Python to run in UTF-8 mode for all steps in this job
+      PYTHONUTF8: "1"
+
+    steps:
+      - name: Checking out current repository
+        uses: actions/checkout@v4
+
+      - name: Setting up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Changing code page to UTF-8 (Windows only)
+        if: runner.os == 'Windows'
+        run: chcp 65001
+
+      - name: Installing current development version of package
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+
+      - name: Checking out examples repo
+        uses: actions/checkout@v4
+        with:
+          repository: tofupilot/examples
+          path: examples
+
+      - name: Running example scripts
+        shell: bash
+        env:
+          TOFUPILOT_API_KEY: ${{ secrets.TOFUPILOT_API_KEY }}
+        run: |
+          cd examples
+          pip install -r requirements.txt
+          # Finding every `main.py` files, excluding virtual environment and hidden directories
+          find . -type f -name 'main.py' \
+            -not -path '*/venv/*' \
+            -not -path '*/.*/*' \
+            -print0 | while IFS= read -r -d '' file; do
+
+            # Storing directory containing the `main.py`
+            directory="$(dirname "$file")"
+
+            # Checking if requirements.txt is present in the same directory as `main.py`
+            if [ -f "$directory/requirements.txt" ]; then
+              # Installing dependencies from requirements.txt before running the script
+              pip install -r "$directory/requirements.txt"
+            fi
+
+            echo "Running files in $directory"
+
+            # Executing `main.py` from within its own directory
+            (
+              cd "$directory" || exit
+              python main.py
+            )
+          done
