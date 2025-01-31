@@ -44,7 +44,7 @@ class TofuPilotClient:
             self._logger.error(error)
             sys.exit(1)
 
-        self._url = f"{url or ENDPOINT}/api/v1"
+        self._url = f"{url or os.environ.get('TOFUPILOT_URL') or ENDPOINT}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
