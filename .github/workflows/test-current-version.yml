@@ -62,6 +62,8 @@ jobs:
               pip install -r "$directory/requirements.txt"
             fi
 
+            echo "Running files in $directory"
+
             # Executing `main.py` from within its own directory
             (
               cd "$directory" || exit
