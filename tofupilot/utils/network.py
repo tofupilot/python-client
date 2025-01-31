@@ -14,33 +14,28 @@ def parse_error_message(response: requests.Response) -> str:
 
 
 def handle_response(
-    logger, response: requests.Response, additional_field: Optional[str] = None
-) -> Dict[str, Any]:
-    """Processes the response from the server and logs necessary information."""
-    json_response = response.json()
-    warnings: Optional[List[str]] = json_response.get("warnings")
+    logger,
+    response: requests.Response,
+) -> dict:
+    """
+    Processes a successful response from the server.
+    Logs any warnings or success messages, then returns the parsed data.
+    """
+    data = response.json()
+
+    # Logging warnings if present
+    warnings: Optional[List[str]] = data.get("warnings")
     if warnings is not None:
         for warning in warnings:
             logger.warning(warning)
 
-    message = json_response.get("message")
+    # Logging success message if the JSON has one
+    message = data.get("message")
     if message is not None:
         logger.success(message)
 
-    return_response = {
-        "success": True,
-        "message": message,
-        "warnings": warnings,
-        "status_code": response.status_code,
-        "error": None,
-    }
-
-    if additional_field:
-        additional_data = json_response.get(additional_field)
-        if additional_data is not None:
-            return_response[additional_field] = additional_data
-
-    return return_response
+    # Returning the parsed JSON to the caller
+    return data
 
 
 def handle_http_error(
