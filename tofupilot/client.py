@@ -391,6 +391,7 @@ class TofuPilotClient:
         Returns:
             str:
                 Websocket connection URL.
+        """
 
         try:
             response = requests.get(
