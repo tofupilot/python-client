@@ -77,27 +77,32 @@ class TofuPilotClient:
         Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
 
         Args:
-            unit_under_test (UnitUnderTest): The unit being tested.
-            run_passed (bool): Boolean indicating whether the test run was successful.
-            procedure_id (str, optional): The unique identifier of the procedure to which the test run belongs. Required if several procedures exists with the same procedure_name.
-            procedure_name (str, optional): The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
-            started_at (datetime, optional): The datetime at which the test started. Default is None.
-            duration (timedelta, optional): The duration of the test run. Default is None.
-            steps (Optional[List[Step]], optional): [A list of steps included in the test run](https://tofupilot.com/docs/steps). Default is None.
-            sub_units (Optional[List[SubUnit]], optional): [A list of sub-units included in the test run](https://tofupilot.com/docs/sub-units). Default is None.
-            report_variables (Optional[Dict[str, str]], optional): [A dictionary of key values that will replace the procedure's {{report_variables}}](https://tofupilot.com/docs/report). Default is None.
-            attachments (Optional[List[str]], optional): [A list of file paths for attachments to include with the test run](https://tofupilot.com/docs/attachments). Default is None.
+            unit_under_test (UnitUnderTest):
+                The unit being tested.
+            run_passed (bool):
+                Boolean indicating whether the test run was successful.
+            procedure_id (str, optional):
+                The unique identifier of the procedure to which the test run belongs. Required if several procedures exists with the same procedure_name.
+            procedure_name (str, optional):
+                The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
+            started_at (datetime, optional):
+                The datetime at which the test started. Default is None.
+            duration (timedelta, optional):
+                The duration of the test run. Default is None.
+            steps (Optional[List[Step]], optional):
+                [A list of steps included in the test run](https://tofupilot.com/docs/steps). Default is None.
+            sub_units (Optional[List[SubUnit]], optional):
+                [A list of sub-units included in the test run](https://tofupilot.com/docs/sub-units). Default is None.
+            report_variables (Optional[Dict[str, str]], optional):
+                [A dictionary of key values that will replace the procedure's {{report_variables}}](https://tofupilot.com/docs/report). Default is None.
+            attachments (Optional[List[str]], optional):
+                [A list of file paths for attachments to include with the test run](https://tofupilot.com/docs/attachments). Default is None.
 
         Returns:
-            dict: A dictionary containing the following keys:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the test run creation was successful.
-                - message (Optional[dict]): Contains URL if successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
+            message (Optional[str]):
+                Message containing run URL if successful.
 
         References:
-            For more details, see:
             https://www.tofupilot.com/docs/api#create-a-run
         """
         self._logger.info("Starting run creation...")
@@ -149,7 +154,7 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            result = handle_response(self._logger, response, additional_field="id")
+            result = handle_response(self._logger, response)
 
             run_id = result.get("id")
             if run_id and attachments:
@@ -172,18 +177,14 @@ class TofuPilotClient:
         Creates a run on TofuPilot from an OpenHTF JSON report.
 
         Args:
-            file_path (str): The path to the log file to be imported.
+            file_path (str):
+                The path to the log file to be imported.
 
         Returns:
-            dict: A dictionary containing the result of the import operation:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
+            str:
+                The id of the newly created run.
 
         References:
-            For more details, see:
             https://www.tofupilot.com/docs/api#create-a-run-from-a-file
         """
         self._logger.info("Starting run creation...")
@@ -219,7 +220,7 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            result = handle_response(self._logger, response, additional_field="id")
+            result = handle_response(self._logger, response)
 
             run_id = result.get("id")
 
@@ -238,21 +239,12 @@ class TofuPilotClient:
             serial_number (str, required): The unique identifier of the unit associated with the runs.
 
         Returns:
-            dict: A dictionary containing the following keys:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the operation was successful.
-                - data (Optional[dict]): The runs data if found.
-                - message (Optional[str]): Message returned from the API.
-                - error (Optional[dict]): Error message if any.
-
-        Raises:
-            ValueError: If no `serial_number` was provided.
-            TypeError: If positional arguments are passed instead of keyword arguments.
-            Exception: For any other exceptions that might occur.
-
+            data (Optional[dict]):
+                The runs data if found.
+            message (Optional[str]):
+                Message returned from TofuPilot API.
 
         References:
-            For more details, see:
             https://www.tofupilot.com/docs/api#get-runs-by-serial-number
         """
         if not serial_number:
@@ -280,7 +272,7 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return handle_response(self._logger, response, additional_field="data")
+            return handle_response(self._logger, response)
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
@@ -295,15 +287,10 @@ class TofuPilotClient:
             run_id (str): The complete id of the run.
 
         Returns:
-            dict: A dictionary describing the outcome of the deletion:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
+            message (Optional[str]):
+                Message if the operation was successful.
 
         References:
-            For more details, see:
             https://www.tofupilot.com/docs/api#delete-a-run
         """
         self._logger.info('Starting deletion of run "%s"...', run_id)
@@ -331,19 +318,16 @@ class TofuPilotClient:
         Updates a given unit.
 
         Args:
-            serial_number (str): The serial number of the unit.
-            sub_units (Optional[List[SubUnit]]): The list of units to be added as sub-units of unit.
+            serial_number (str):
+                The serial number of the unit.
+            sub_units (Optional[List[SubUnit]]):
+                The list of units to be added as sub-units of unit.
 
         Returns:
-            dict: A dictionary describing the outcome of the update:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
+            message (Optional[str]):
+                Message if the operation was successful.
 
         References:
-            For more details, see:
             https://www.tofupilot.com/docs/api#update-a-unit
         """
         self._logger.info('Starting update of unit "%s"...', serial_number)
@@ -372,18 +356,14 @@ class TofuPilotClient:
         Deletes a given unit.
 
         Args:
-            serial_number (str): The serial number of the unit.
+            serial_number (str):
+                The serial number of the unit.
 
         Returns:
-            dict: A dictionary describing the outcome of the deletion:
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
+            message (Optional[str]):
+                Message if the operation was successful.
 
         References:
-            For more details, see:
             https://www.tofupilot.com/docs/api#delete-a-unit
         """
         self._logger.info('Starting deletion of unit "%s"...', serial_number)
@@ -404,20 +384,13 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
-    def get_token(self) -> dict:
+    def get_websocket_url(self) -> dict:
         """
-        Fetches websocket authentication token associated with API Key.
+        Fetches websocket connection url associated with API Key.
 
         Returns:
-            dict: A dictionary describing the outcome of the update:
-                - token (str): Authentication token to connect to websocket server.
-                - status_code (Optional[int]): HTTP status code of the response.
-                - success (bool): Whether the import was successful.
-                - message (Optional[str]): Message if the operation was successful.
-                - warnings (Optional[List[str]]): Warning messages if any.
-                - error (Optional[dict]): Error message if any.
-        """
-        self._log_request("GET", "/rooms")
+            str:
+                Websocket connection URL.
 
         try:
             response = requests.get(
@@ -426,7 +399,9 @@ class TofuPilotClient:
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
-            return handle_response(self._logger, response, additional_field="url")
+            values = handle_response(self._logger, response)
+            url = values.get("url")
+            return url
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
