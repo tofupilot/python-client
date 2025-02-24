@@ -2,8 +2,6 @@ from typing import Dict, List, Optional, Any
 
 import requests
 
-from .exception import RunCreationError
-
 
 def parse_error_message(response: requests.Response) -> str:
     try:
@@ -40,7 +38,9 @@ def handle_response(
     return data
 
 
-def handle_http_error(logger, http_err: requests.exceptions.HTTPError):
+def handle_http_error(
+    logger, http_err: requests.exceptions.HTTPError
+) -> Dict[str, Any]:
     """Handles HTTP errors and logs them."""
 
     warnings = None  # Initialize warnings to None
@@ -62,11 +62,23 @@ def handle_http_error(logger, http_err: requests.exceptions.HTTPError):
         error_message = http_err
 
     logger.error(error_message)
-    raise RunCreationError(error_message, warnings, http_err.response.status_code)
+
+    return {
+        "success": False,
+        "message": None,
+        "warnings": warnings,
+        "status_code": http_err.response.status_code,
+        "error": {"message": error_message},
+    }
 
 
-def handle_network_error(logger, e: requests.RequestException):
+def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]:
     """Handles network errors and logs them."""
-    error_message = f"Network error: {e}"
-    logger.error(error_message)
-    raise RunCreationError(error_message)
+    logger.error(f"Network error: {e}")
+    return {
+        "success": False,
+        "message": None,
+        "warnings": None,
+        "status_code": None,
+        "error": {"message": str(e)},
+    }

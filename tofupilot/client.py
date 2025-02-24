@@ -432,9 +432,9 @@ class TofuPilotClient:
         try:
             upload_id = upload_file(self._headers, self._url, file_path)
         except requests.exceptions.HTTPError as http_err:
-            handle_http_error(self._logger, http_err)
+            return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
-            handle_network_error(self._logger, e)
+            return handle_network_error(self._logger, e)
 
         payload = {
             "upload_id": upload_id,
@@ -461,11 +461,9 @@ class TofuPilotClient:
             return run_id
 
         except requests.exceptions.HTTPError as http_err:
-            handle_http_error(self._logger, http_err)
+            return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
-            handle_network_error(self._logger, e)
-
-        return ""
+            return handle_network_error(self._logger, e)
 
     def get_websocket_url(self) -> dict:
         """
