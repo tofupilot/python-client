@@ -65,6 +65,7 @@ class TofuPilotClient:
         run_passed: bool,
         procedure_id: Optional[str] = None,
         procedure_name: Optional[str] = None,
+        procedure_version: Optional[str] = None,
         steps: Optional[List[Step]] = None,
         phases: Optional[List[Phase]] = None,
         started_at: Optional[datetime] = None,
@@ -85,6 +86,8 @@ class TofuPilotClient:
                 The unique identifier of the procedure to which the test run belongs. Required if several procedures exists with the same procedure_name.
             procedure_name (str, optional):
                 The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
+            procedure_version (str, optional):
+                The version of the procedure to which the test run belongs.
             started_at (datetime, optional):
                 The datetime at which the test started. Default is None.
             duration (timedelta, optional):
@@ -117,6 +120,7 @@ class TofuPilotClient:
             "run_passed": run_passed,
             "procedure_id": procedure_id,
             "procedure_name": procedure_name,
+            "procedure_version": procedure_version,
             "client": "Python",
             "client_version": self._current_version,
         }
