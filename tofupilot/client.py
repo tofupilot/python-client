@@ -7,6 +7,8 @@ import logging
 from datetime import datetime, timedelta
 from importlib.metadata import version
 
+import json
+import base64
 import requests
 
 from .constants import (
@@ -27,6 +29,7 @@ from .utils import (
     handle_response,
     handle_http_error,
     handle_network_error,
+    notify_server,
 )
 
 
@@ -65,6 +68,7 @@ class TofuPilotClient:
         run_passed: bool,
         procedure_id: Optional[str] = None,
         procedure_name: Optional[str] = None,
+        procedure_version: Optional[str] = None,
         steps: Optional[List[Step]] = None,
         phases: Optional[List[Phase]] = None,
         started_at: Optional[datetime] = None,
@@ -85,6 +89,8 @@ class TofuPilotClient:
                 The unique identifier of the procedure to which the test run belongs. Required if several procedures exists with the same procedure_name.
             procedure_name (str, optional):
                 The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
+            procedure_version (str, optional):
+                The version of the procedure to which the test run belongs.
             started_at (datetime, optional):
                 The datetime at which the test started. Default is None.
             duration (timedelta, optional):
@@ -117,6 +123,7 @@ class TofuPilotClient:
             "run_passed": run_passed,
             "procedure_id": procedure_id,
             "procedure_name": procedure_name,
+            "procedure_version": procedure_version,
             "client": "Python",
             "client_version": self._current_version,
         }
@@ -169,10 +176,7 @@ class TofuPilotClient:
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
 
-    def create_run_from_openhtf_report(
-        self,
-        file_path: str,
-    ) -> dict:
+    def create_run_from_openhtf_report(self, file_path: str):
         """
         Creates a run on TofuPilot from an OpenHTF JSON report.
 
@@ -187,49 +191,70 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#create-a-run-from-a-file
         """
-        self._logger.info("Starting run creation...")
+        # Upload report and create run from file_path
+        run_id = self.upload_and_create_from_openhtf_report(file_path)
 
-        # Validate report
-        validate_files(
-            self._logger, [file_path], self._max_attachments, self._max_file_size
-        )
-
-        # Upload report
         try:
-            upload_id = upload_file(self._headers, self._url, file_path)
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+            with open(file_path, "r", encoding="utf-8") as file:
+                test_record = json.load(file)
+        except FileNotFoundError:
+            print(f"Error: The file '{file_path}' was not found.")
+        except json.JSONDecodeError:
+            print(f"Error: The file '{file_path}' contains invalid JSON.")
+        except PermissionError:
+            print(f"Error: Insufficient permissions to read '{file_path}'.")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
 
-        payload = {
-            "upload_id": upload_id,
-            "importer": "OPENHTF",
-            "client": "Python",
-            "client_version": self._current_version,
-        }
+        if run_id and test_record:
+            number_of_attachments = 0
+            for phase in test_record.get("phases"):
+                # Keep only max number of attachments
+                if number_of_attachments >= self._max_attachments:
+                    self._logger.warning(
+                        "Too many attachments, trimming to %d attachments.",
+                        self._max_attachments,
+                    )
+                    break
+                for attachment_name, attachment in phase.get("attachments").items():
+                    number_of_attachments += 1
 
-        self._log_request("POST", "/import", payload)
+                    self._logger.info("Uploading %s...", attachment_name)
 
-        # Create run from file
-        try:
-            response = requests.post(
-                f"{self._url}/import",
-                json=payload,
-                headers=self._headers,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            result = handle_response(self._logger, response)
+                    # Upload initialization
+                    initialize_url = f"{self._url}/uploads/initialize"
+                    payload = {"name": attachment_name}
 
-            run_id = result.get("id")
+                    response = requests.post(
+                        initialize_url,
+                        data=json.dumps(payload),
+                        headers=self._headers,
+                        timeout=SECONDS_BEFORE_TIMEOUT,
+                    )
 
-            return run_id
+                    response.raise_for_status()
+                    response_json = response.json()
+                    upload_url = response_json.get("uploadUrl")
+                    upload_id = response_json.get("id")
 
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+                    data = base64.b64decode(attachment["data"])
+
+                    requests.put(
+                        upload_url,
+                        data=data,
+                        headers={
+                            "Content-Type": attachment["mimetype"]
+                            or "application/octet-stream",  # Default to binary if mimetype is missing
+                        },
+                        timeout=SECONDS_BEFORE_TIMEOUT,
+                    )
+
+                    notify_server(self._headers, self._url, upload_id, run_id)
+
+                    self._logger.success(
+                        "Attachment %s successfully uploaded and linked to run.",
+                        attachment_name,
+                    )
 
     def get_runs(self, serial_number: str) -> dict:
         """
@@ -378,6 +403,62 @@ class TofuPilotClient:
             )
             response.raise_for_status()
             return handle_response(self._logger, response)
+
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+    def upload_and_create_from_openhtf_report(
+        self,
+        file_path: str,
+    ) -> str:
+        """
+        Takes a path to an OpenHTF JSON file report, uploads it and creates a run from it.
+
+        Returns:
+            str:
+                Id of the newly created run
+        """
+
+        self._logger.info("Starting run creation...")
+
+        # Validate report
+        validate_files(
+            self._logger, [file_path], self._max_attachments, self._max_file_size
+        )
+
+        # Upload report
+        try:
+            upload_id = upload_file(self._headers, self._url, file_path)
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+        payload = {
+            "upload_id": upload_id,
+            "importer": "OPENHTF",
+            "client": "Python",
+            "client_version": self._current_version,
+        }
+
+        self._log_request("POST", "/import", payload)
+
+        # Create run from file
+        try:
+            response = requests.post(
+                f"{self._url}/import",
+                json=payload,
+                headers=self._headers,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            result = handle_response(self._logger, response)
+
+            run_id = result.get("id")
+
+            return run_id
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
