@@ -22,13 +22,13 @@ class upload:  # pylint: disable=invalid-name
     OpenHTF output callback to automatically upload the test report to TofuPilot upon test completion.
 
     This function behaves similarly to manually parsing the OpenHTF JSON test report and calling
-    `TofuPilotClient().create_run()` with the parsed data, streamlining the process for automatic uploads.
+    `TofuPilotClient().create_run()` with the parsed data.
 
     ### Usage Example:
 
     ```python
     from openhtf import test
-    import tofupilot
+    from tofupilot.openhtf import upload
 
     # ...
 
@@ -36,7 +36,7 @@ class upload:  # pylint: disable=invalid-name
         test = Test(*your_phases, procedure_id="FVT1")
 
         # Add TofuPilot's upload callback to automatically send the test report upon completion
-        test.add_output_callback(tofupilot.upload())
+        test.add_output_callback(upload())
 
         test.execute(lambda: "SN15")
     ```
@@ -69,9 +69,7 @@ class upload:  # pylint: disable=invalid-name
         )
 
         # Format the timestamp as YYYY-MM-DD_HH_MM_SS_SSS
-        start_time_formatted = start_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[
-            :-3
-        ]  # Use underscores for time, slice for milliseconds precision
+        start_time_formatted = start_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
 
         temp_dir = tempfile.gettempdir()
 
@@ -95,7 +93,7 @@ class upload:  # pylint: disable=invalid-name
 
         try:
             # Call create_run_from_report with the generated file path
-            run_id = self.client.create_run_from_openhtf_report(filename)
+            run_id = self.client.upload_and_create_from_openhtf_report(filename)
         finally:
             # Ensure the file is deleted after processing
             if os.path.exists(filename):
