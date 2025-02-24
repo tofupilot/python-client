@@ -40,9 +40,7 @@ def handle_response(
     return data
 
 
-def handle_http_error(
-    logger, http_err: requests.exceptions.HTTPError
-) -> Dict[str, Any]:
+def handle_http_error(logger, http_err: requests.exceptions.HTTPError):
     """Handles HTTP errors and logs them."""
 
     warnings = None  # Initialize warnings to None
@@ -67,7 +65,7 @@ def handle_http_error(
     raise RunCreationError(error_message, warnings, http_err.response.status_code)
 
 
-def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]:
+def handle_network_error(logger, e: requests.RequestException):
     """Handles network errors and logs them."""
     error_message = f"Network error: {e}"
     logger.error(error_message)
