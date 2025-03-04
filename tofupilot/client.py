@@ -49,6 +49,8 @@ class TofuPilotClient:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
         }
+        # Immediately clear the API key from memory after setting the header
+        self._api_key = None
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
