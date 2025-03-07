@@ -52,3 +52,67 @@ To run tests, use:
 ```bash
 pytest
 ```
+
+## How is the package published?
+
+TofuPilot is available on [PyPI](https://pypi.org/project/tofupilot/). Version publishing is handled via [release-please](https://github.com/googleapis/release-please) and [Twine](https://twine.readthedocs.io/en/stable/) through GitHub Actions.
+
+To better understand how this works, you can read the release-please documentation, the [`release-please.yml` file](https://github.com/tofupilot/python-client/blob/main/.github/workflows/release-please.yml), and the [`python-publish.yml` file](https://github.com/tofupilot/python-client/blob/main/.github/workflows/python-publish.yml).
+
+In summary, when new commits are added to `main` and are considered “releasable units” (e.g., a commit with a `"feat"` or `"fix"` prefix), a new release PR is automatically created by release-please. The changelog and the version number in `setup.py` are also updated by release-please, and a tag and release commit are created.
+
+When the release PR is merged, and a new release is detected by the “Python publish” Github workflow, a new version of the TofuPilot package is uploaded to PyPI.
+
+### Testing the Python Client locally
+
+1. Create a new branch for testing your changes.  
+2. Apply any changes to the code as needed.  
+3. In `setup.py`, update the following line:  
+   ```python
+   version="X.Y.Z"
+   ```  
+   to:  
+   ```python
+   version="X.Y.Z.dev0"
+   ```
+
+4. Run:  
+   ```sh
+   rm -rf dist/*
+   ```
+
+5. Run:  
+   ```sh
+   python -m build
+   ```
+
+6. Install your new version locally in your project [using pip](https://packaging.python.org/en/latest/tutorials/installing-packages/#installing-from-a-local-src-tree)
+
+### Releasing a test version of the Python Client
+
+If you need to test a new version of the Python client before making an official release, you can publish it to TestPyPI, a sandbox version of PyPI used for testing package distributions.
+
+1. Build the package locally using:
+   ```sh
+   rm -rf dist/*
+   python -m build
+   ```
+   This will generate distribution files in the dist/ directory.
+
+2. If a previous test package with the exact same version was released, update the version in `setup.py`. For instance, change version="X.Y.Z.dev0" to version="X.Y.Z.dev1".
+
+   Then run:
+   ```sh
+   twine upload --repository testpypi dist/
+   ```
+ 
+3. To install the new test package, run:
+   ```sh
+   pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ tofupilot==<exact-version>
+   ```
+
+### Releasing a production version of the Python Client
+
+Only members of the TofuPilot team can merge the release PR into `main`, which triggers a new release and an upload to PyPI.
+
+However, contributions are always welcome! If you'd like to help improve the project, feel free to open an issue or submit a pull request. We appreciate your input.
