@@ -14,11 +14,6 @@ setup(
             "black",
         ],
     },
-    entry_points={
-        "pytest11": [
-            "tofupilot = tofupilot.plugin",  # Registering the pytest plugin
-        ],
-    },
     author="Félix Berthier",
     author_email="felix.berthier@tofupilot.com",
     description="The official Python client for the TofuPilot API",
