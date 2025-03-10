@@ -38,7 +38,7 @@ To set up a local development environment:
    ```
 2. Install dependencies
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements_dev.txt
    ```
 
 ## Style Guide
