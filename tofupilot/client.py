@@ -74,7 +74,6 @@ class TofuPilotClient:
         started_at: Optional[datetime] = None,
         duration: Optional[timedelta] = None,
         sub_units: Optional[List[SubUnit]] = None,
-        report_variables: Optional[Dict[str, str]] = None,
         attachments: Optional[List[str]] = None,
     ) -> dict:
         """
@@ -99,8 +98,6 @@ class TofuPilotClient:
                 [A list of steps included in the test run](https://tofupilot.com/docs/steps). Default is None.
             sub_units (Optional[List[SubUnit]], optional):
                 [A list of sub-units included in the test run](https://tofupilot.com/docs/sub-units). Default is None.
-            report_variables (Optional[Dict[str, str]], optional):
-                [A dictionary of key values that will replace the procedure's {{report_variables}}](https://tofupilot.com/docs/report). Default is None.
             attachments (Optional[List[str]], optional):
                 [A list of file paths for attachments to include with the test run](https://tofupilot.com/docs/attachments). Default is None.
 
@@ -147,9 +144,6 @@ class TofuPilotClient:
 
         if sub_units is not None:
             payload["sub_units"] = sub_units
-
-        if report_variables is not None:
-            payload["report_variables"] = report_variables
 
         self._log_request("POST", "/runs", payload)
 

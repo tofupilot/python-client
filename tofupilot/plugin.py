@@ -22,7 +22,6 @@ class Conf:
         self.procedure_id: Optional[str] = None
         self.unit_under_test: Dict[str, Any] = {}
         self.sub_units: Optional[List[SubUnit]] = None
-        self.report_variables: Optional[Dict[str, str]] = None
         self.attachments: Optional[List[str]] = None
 
     def set(
@@ -33,7 +32,6 @@ class Conf:
         revision: Optional[str] = None,
         batch_number: Optional[str] = None,
         sub_units: Optional[List[SubUnit]] = None,
-        report_variables: Optional[Dict[str, str]] = None,
         attachments: Optional[List[str]] = None,
     ) -> None:
         if procedure_id is not None:
@@ -48,8 +46,6 @@ class Conf:
             self.unit_under_test["batch_number"] = batch_number
         if sub_units is not None:
             self.sub_units = sub_units
-        if report_variables is not None:
-            self.report_variables = report_variables
         if attachments is not None:
             self.attachments = attachments
         return self
@@ -184,7 +180,6 @@ class TestPilotPlugin:
                 duration=duration_td,
                 steps=steps,
                 sub_units=conf.sub_units,
-                report_variables=conf.report_variables,
                 attachments=conf.attachments,
             )
         except Exception as e:
