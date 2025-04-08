@@ -47,6 +47,22 @@ class Phase(TypedDict):
     docstring: Optional[str]
 
 
+class LogLevel(str, Enum):
+    DEBUG = "DEBUG"
+    INFO = "INFO"
+    WARNING = "WARNING"
+    ERROR = "ERROR"
+    CRITICAL = " CRITICAL"
+
+
+class Log(TypedDict):
+    level: LogLevel
+    timestamp: int
+    message: str
+    source_file: Optional[str]
+    line_number: Optional[int]
+
+
 class SubUnit(TypedDict):
     serial_number: str
 

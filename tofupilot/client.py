@@ -17,7 +17,7 @@ from .constants import (
     CLIENT_MAX_ATTACHMENTS,
     SECONDS_BEFORE_TIMEOUT,
 )
-from .models import SubUnit, UnitUnderTest, Step, Phase
+from .models import SubUnit, UnitUnderTest, Step, Phase, Log
 from .utils import (
     check_latest_version,
     validate_files,
@@ -76,6 +76,7 @@ class TofuPilotClient:
         sub_units: Optional[List[SubUnit]] = None,
         report_variables: Optional[Dict[str, str]] = None,
         attachments: Optional[List[str]] = None,
+        logs: Optional[List[Log]] = None,
     ) -> dict:
         """
         Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
@@ -138,6 +139,9 @@ class TofuPilotClient:
 
         if phases is not None:
             payload["phases"] = phases
+
+        if logs is not None:
+            payload["logs"] = logs
 
         if started_at is not None:
             payload["started_at"] = datetime_to_iso(started_at)
