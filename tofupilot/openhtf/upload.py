@@ -48,12 +48,14 @@ class upload:  # pylint: disable=invalid-name
         allow_nan: Optional[bool] = False,
         url: Optional[str] = None,
         client: Optional[TofuPilotClient] = None,
+        custom_certificate_path: Optional[str] = None,
     ):
         self.allow_nan = allow_nan
         self.client = client or TofuPilotClient(api_key=api_key, url=url)
         self._logger = self.client._logger
         self._url = self.client._url
         self._headers = self.client._headers
+        self._custom_certificate_path = custom_certificate_path
         self._max_attachments = self.client._max_attachments
         self._max_file_size = self.client._max_file_size
 
@@ -133,6 +135,7 @@ class upload:  # pylint: disable=invalid-name
                         initialize_url,
                         data=json.dumps(payload),
                         headers=self._headers,
+                        cert=self._custom_certificate_path,
                         timeout=SECONDS_BEFORE_TIMEOUT,
                     )
 
@@ -148,7 +151,13 @@ class upload:  # pylint: disable=invalid-name
                         timeout=SECONDS_BEFORE_TIMEOUT,
                     )
 
-                    notify_server(self._headers, self._url, upload_id, run_id)
+                    notify_server(
+                        self._headers,
+                        self._url,
+                        upload_id,
+                        run_id,
+                        self._custom_certificate_path,
+                    )
 
                     self._logger.success(
                         "Attachment %s successfully uploaded and linked to run.",

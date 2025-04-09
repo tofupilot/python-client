@@ -36,7 +36,12 @@ from .utils import (
 class TofuPilotClient:
     """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
 
-    def __init__(self, api_key: Optional[str] = None, url: Optional[str] = None):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        url: Optional[str] = None,
+        custom_certificate_path: Optional[str] = None,
+    ):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
@@ -52,6 +57,7 @@ class TofuPilotClient:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
         }
+        self._custom_certificate_path = custom_certificate_path
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
@@ -159,6 +165,7 @@ class TofuPilotClient:
                 json=payload,
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
+                cert=self._custom_certificate_path,
             )
             response.raise_for_status()
             result = handle_response(self._logger, response)
@@ -166,7 +173,12 @@ class TofuPilotClient:
             run_id = result.get("id")
             if run_id and attachments:
                 upload_attachments(
-                    self._logger, self._headers, self._url, attachments, run_id
+                    self._logger,
+                    self._headers,
+                    self._url,
+                    attachments,
+                    run_id,
+                    self._custom_certificate_path,
                 )
 
             return result
@@ -229,6 +241,7 @@ class TofuPilotClient:
                         initialize_url,
                         data=json.dumps(payload),
                         headers=self._headers,
+                        cert=self._custom_certificate_path,
                         timeout=SECONDS_BEFORE_TIMEOUT,
                     )
 
@@ -249,7 +262,13 @@ class TofuPilotClient:
                         timeout=SECONDS_BEFORE_TIMEOUT,
                     )
 
-                    notify_server(self._headers, self._url, upload_id, run_id)
+                    notify_server(
+                        self._headers,
+                        self._url,
+                        upload_id,
+                        run_id,
+                        self._custom_certificate_path,
+                    )
 
                     self._logger.success(
                         "Attachment %s successfully uploaded and linked to run.",
@@ -293,6 +312,7 @@ class TofuPilotClient:
             response = requests.get(
                 f"{self._url}/runs",
                 headers=self._headers,
+                cert=self._custom_certificate_path,
                 params=params,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
@@ -326,6 +346,7 @@ class TofuPilotClient:
             response = requests.delete(
                 f"{self._url}/runs/{run_id}",
                 headers=self._headers,
+                cert=self._custom_certificate_path,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
@@ -366,6 +387,7 @@ class TofuPilotClient:
                 f"{self._url}/units/{serial_number}",
                 json=payload,
                 headers=self._headers,
+                cert=self._custom_certificate_path,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
@@ -399,6 +421,7 @@ class TofuPilotClient:
             response = requests.delete(
                 f"{self._url}/units/{serial_number}",
                 headers=self._headers,
+                cert=self._custom_certificate_path,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
@@ -430,7 +453,9 @@ class TofuPilotClient:
 
         # Upload report
         try:
-            upload_id = upload_file(self._headers, self._url, file_path)
+            upload_id = upload_file(
+                self._headers, self._url, file_path, self._custom_certificate_path
+            )
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
@@ -451,6 +476,7 @@ class TofuPilotClient:
                 f"{self._url}/import",
                 json=payload,
                 headers=self._headers,
+                cert=self._custom_certificate_path,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
@@ -478,6 +504,7 @@ class TofuPilotClient:
             response = requests.get(
                 f"{self._url}/rooms",
                 headers=self._headers,
+                cert=self._custom_certificate_path,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()

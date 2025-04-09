@@ -46,6 +46,7 @@ def upload_file(
     headers: dict,
     url: str,
     file_path: str,
+    custom_certificate_path: Optional[str] = None,
 ) -> bool:
     """Initializes an upload and stores file in it"""
     # Upload initialization
@@ -58,6 +59,7 @@ def upload_file(
         data=json.dumps(payload),
         headers=headers,
         timeout=SECONDS_BEFORE_TIMEOUT,
+        cert=custom_certificate_path,
     )
 
     response.raise_for_status()
@@ -78,7 +80,13 @@ def upload_file(
     return upload_id
 
 
-def notify_server(headers: dict, url: str, upload_id: str, run_id: str) -> bool:
+def notify_server(
+    headers: dict,
+    url: str,
+    upload_id: str,
+    run_id: str,
+    custom_certificate_path: Optional[str] = None,
+) -> bool:
     """Tells TP server to sync upload with newly created run"""
     sync_url = f"{url}/uploads/sync"
     sync_payload = {"upload_id": upload_id, "run_id": run_id}
@@ -86,6 +94,7 @@ def notify_server(headers: dict, url: str, upload_id: str, run_id: str) -> bool:
     response = requests.post(
         sync_url,
         data=json.dumps(sync_payload),
+        cert=custom_certificate_path,
         headers=headers,
         timeout=SECONDS_BEFORE_TIMEOUT,
     )
@@ -99,13 +108,14 @@ def upload_attachments(
     url: str,
     paths: List[Dict[str, Optional[str]]],
     run_id: str,
+    custom_certificate_path: Optional[str] = None,
 ):
     """Creates one upload per file and stores them into TofuPilot"""
     for file_path in paths:
         logger.info("Uploading %s...", file_path)
 
         upload_id = upload_file(headers, url, file_path)
-        notify_server(headers, url, upload_id, run_id)
+        notify_server(headers, url, upload_id, run_id, custom_certificate_path)
 
         logger.success(
             f"Attachment {file_path} successfully uploaded and linked to run."
