@@ -46,9 +46,19 @@ def upload_file(
     headers: dict,
     url: str,
     file_path: str,
-    custom_certificate_path: Optional[str] = None,
+    verify: Optional[str] = None,
 ) -> bool:
-    """Initializes an upload and stores file in it"""
+    """Initializes an upload and stores file in it
+    
+    Args:
+        headers (dict): Request headers including authorization
+        url (str): Base API URL
+        file_path (str): Path to the file to upload
+        verify (Optional[str]): Path to a CA bundle file to verify the server certificate
+    
+    Returns:
+        str: The ID of the created upload
+    """
     # Upload initialization
     initialize_url = f"{url}/uploads/initialize"
     file_name = os.path.basename(file_path)
@@ -59,7 +69,7 @@ def upload_file(
         data=json.dumps(payload),
         headers=headers,
         timeout=SECONDS_BEFORE_TIMEOUT,
-        cert=custom_certificate_path,
+        verify=verify,
     )
 
     response.raise_for_status()
@@ -85,16 +95,27 @@ def notify_server(
     url: str,
     upload_id: str,
     run_id: str,
-    custom_certificate_path: Optional[str] = None,
+    verify: Optional[str] = None,
 ) -> bool:
-    """Tells TP server to sync upload with newly created run"""
+    """Tells TP server to sync upload with newly created run
+    
+    Args:
+        headers (dict): Request headers including authorization
+        url (str): Base API URL
+        upload_id (str): ID of the upload to link
+        run_id (str): ID of the run to link to
+        verify (Optional[str]): Path to a CA bundle file to verify the server certificate
+        
+    Returns:
+        bool: True if successful
+    """
     sync_url = f"{url}/uploads/sync"
     sync_payload = {"upload_id": upload_id, "run_id": run_id}
 
     response = requests.post(
         sync_url,
         data=json.dumps(sync_payload),
-        cert=custom_certificate_path,
+        verify=verify,
         headers=headers,
         timeout=SECONDS_BEFORE_TIMEOUT,
     )
@@ -108,14 +129,23 @@ def upload_attachments(
     url: str,
     paths: List[Dict[str, Optional[str]]],
     run_id: str,
-    custom_certificate_path: Optional[str] = None,
+    verify: Optional[str] = None,
 ):
-    """Creates one upload per file and stores them into TofuPilot"""
+    """Creates one upload per file and stores them into TofuPilot
+    
+    Args:
+        logger (Logger): Logger instance
+        headers (dict): Request headers including authorization
+        url (str): Base API URL
+        paths (List[Dict[str, Optional[str]]]): List of file paths to upload
+        run_id (str): ID of the run to link files to
+        verify (Optional[str]): Path to a CA bundle file to verify the server certificate
+    """
     for file_path in paths:
         logger.info("Uploading %s...", file_path)
 
-        upload_id = upload_file(headers, url, file_path)
-        notify_server(headers, url, upload_id, run_id, custom_certificate_path)
+        upload_id = upload_file(headers, url, file_path, verify)
+        notify_server(headers, url, upload_id, run_id, verify)
 
         logger.success(
             f"Attachment {file_path} successfully uploaded and linked to run."

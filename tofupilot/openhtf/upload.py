@@ -24,6 +24,14 @@ class upload:  # pylint: disable=invalid-name
     This function behaves similarly to manually parsing the OpenHTF JSON test report and calling
     `TofuPilotClient().create_run()` with the parsed data.
 
+    Args:
+        api_key (Optional[str]): API key for authentication with TofuPilot's API.
+        allow_nan (Optional[bool]): Whether to allow NaN values in JSON serialization.
+        url (Optional[str]): Base URL for TofuPilot's API.
+        client (Optional[TofuPilotClient]): An existing TofuPilot client instance to use.
+        verify (Optional[str]): Path to a CA bundle file to verify TofuPilot's server certificate.
+            Useful for connecting to instances with custom/self-signed certificates.
+
     ### Usage Example:
 
     ```python
@@ -48,14 +56,14 @@ class upload:  # pylint: disable=invalid-name
         allow_nan: Optional[bool] = False,
         url: Optional[str] = None,
         client: Optional[TofuPilotClient] = None,
-        custom_certificate_path: Optional[str] = None,
+        verify: Optional[str] = None,
     ):
         self.allow_nan = allow_nan
-        self.client = client or TofuPilotClient(api_key=api_key, url=url)
+        self.client = client or TofuPilotClient(api_key=api_key, url=url, verify=verify)
         self._logger = self.client._logger
         self._url = self.client._url
         self._headers = self.client._headers
-        self._custom_certificate_path = custom_certificate_path
+        self._verify = verify
         self._max_attachments = self.client._max_attachments
         self._max_file_size = self.client._max_file_size
 
@@ -135,7 +143,7 @@ class upload:  # pylint: disable=invalid-name
                         initialize_url,
                         data=json.dumps(payload),
                         headers=self._headers,
-                        cert=self._custom_certificate_path,
+                        verify=self._verify,
                         timeout=SECONDS_BEFORE_TIMEOUT,
                     )
 
@@ -156,7 +164,7 @@ class upload:  # pylint: disable=invalid-name
                         self._url,
                         upload_id,
                         run_id,
-                        self._custom_certificate_path,
+                        self._verify,
                     )
 
                     self._logger.success(
