@@ -3,3 +3,5 @@ setuptools
 packaging
 pytest
 websockets
+livekit
+livekit-api

@@ -8,6 +8,8 @@ from openhtf import Test
 from openhtf.util import data
 from websockets import connect, ConnectionClosedError, InvalidURI
 
+from livekit import rtc
+from livekit import api
 
 from .upload import upload
 from ..client import TofuPilotClient
@@ -176,9 +178,9 @@ class TofuPilot:
         Sends the current state of the test to the WebSocket server.
         """
         try:
-            url = self.client.get_websocket_url()
+            credentials = self.client.get_websocket_url()
 
-            if not url:
+            if not credentials:
                 return  # Exit gracefully if no URL is provided
 
             retry_count = 0
@@ -186,26 +188,37 @@ class TofuPilot:
             backoff_factor = 2  # Exponential backoff base
 
             while retry_count < max_retries and not self.shutdown_event.is_set():
+                room = rtc.Room()
                 try:
-                    async with connect(url) as websocket:
-                        while not self.shutdown_event.is_set():
-                            try:
-                                # Fetch state update from the queue (with timeout to avoid blocking indefinitely)
-                                state_update = await asyncio.wait_for(
-                                    self.update_queue.get(), timeout=1.0
-                                )
-                                # Send the state update to the WebSocket server
-                                await websocket.send(
-                                    json.dumps(
-                                        {"action": "send", "message": state_update}
-                                    )
-                                )
-                            except asyncio.TimeoutError:
-                                continue  # Timeout waiting for an update; loop back
-                            except asyncio.CancelledError:
-                                return  # Exit cleanly on task cancellation
-                            except Exception:  # pylint: disable=broad-exception-caught
-                                break  # Exit WebSocket loop on unexpected errors
+                    # By default, autosubscribe is enabled. The participant will be subscribed to
+                    # all published tracks in the room
+                    url = credentials.get("url")
+                    token = credentials.get("token")
+                    await room.connect(url, token)
+                    print("connected to room %s", room.name)
+
+                    while not self.shutdown_event.is_set():
+                        try:
+                            # Fetch state update from the queue (with timeout to avoid blocking indefinitely)
+                            state_update = await asyncio.wait_for(
+                                self.update_queue.get(), timeout=1.0
+                            )
+                            packet = json.dumps(
+                                {"action": "send", "message": state_update}
+                            )
+
+                            # Send the state update to the LiveKit server
+                            await room.local_participant.send_text(packet, 
+                                topic='test'
+                            )
+
+                        except asyncio.TimeoutError:
+                            continue  # Timeout waiting for an update; loop back
+                        except asyncio.CancelledError:
+                            return  # Exit cleanly on task cancellation
+                        except Exception:  # pylint: disable=broad-exception-caught
+                            break  # Exit WebSocket loop on unexpected errors
+
                 except (ConnectionClosedError, OSError, InvalidURI):
                     retry_count += 1
                     await asyncio.sleep(
@@ -215,6 +228,8 @@ class TofuPilot:
                     return  # Exit cleanly on task cancellation
                 except Exception:  # pylint: disable=broad-exception-caught
                     break  # Exit gracefully on unexpected errors
+                finally:
+                    await room.disconnect()
         except Exception:  # pylint: disable=broad-exception-caught
             pass  # Catch all remaining exceptions to ensure robustness
 

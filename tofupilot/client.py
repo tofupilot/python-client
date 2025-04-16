@@ -482,8 +482,7 @@ class TofuPilotClient:
             )
             response.raise_for_status()
             values = handle_response(self._logger, response)
-            url = values.get("url")
-            return url
+            return values
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
