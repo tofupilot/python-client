@@ -8,6 +8,7 @@ from openhtf import Test
 from openhtf.util import data
 from websockets import connect, ConnectionClosedError, InvalidURI
 
+import paho.mqtt.client as mqtt
 
 from .upload import upload
 from ..client import TofuPilotClient
@@ -172,9 +173,11 @@ class TofuPilot:
         self.update_task = asyncio.create_task(self.process_updates())
 
     async def process_updates(self):
-        """
-        Sends the current state of the test to the WebSocket server.
-        """
+
+        mqttc = mqtt.Client(transport="websockets")
+
+        mqttc.tls_set()
+
         try:
             url = self.client.get_websocket_url()
 
@@ -187,25 +190,27 @@ class TofuPilot:
 
             while retry_count < max_retries and not self.shutdown_event.is_set():
                 try:
-                    async with connect(url) as websocket:
-                        while not self.shutdown_event.is_set():
-                            try:
-                                # Fetch state update from the queue (with timeout to avoid blocking indefinitely)
-                                state_update = await asyncio.wait_for(
-                                    self.update_queue.get(), timeout=1.0
-                                )
-                                # Send the state update to the WebSocket server
-                                await websocket.send(
-                                    json.dumps(
-                                        {"action": "send", "message": state_update}
-                                    )
-                                )
-                            except asyncio.TimeoutError:
-                                continue  # Timeout waiting for an update; loop back
-                            except asyncio.CancelledError:
-                                return  # Exit cleanly on task cancellation
-                            except Exception:  # pylint: disable=broad-exception-caught
-                                break  # Exit WebSocket loop on unexpected errors
+                    mqttc.connect("emqx-fly.fly.dev", 8084) # /mqtt ?
+                    mqttc.loop_start()
+                    while not self.shutdown_event.is_set():
+                        try:
+                            # Fetch state update from the queue (with timeout to avoid blocking indefinitely)
+                            state_update = await asyncio.wait_for(
+                                self.update_queue.get(), timeout=1.0
+                            )
+                            # Send the state update to the WebSocket server
+
+                            mqttc.publish("test", 
+                                json.dumps(
+                                    {"action": "send", "message": state_update}
+                            ))
+                        except asyncio.TimeoutError:
+                            continue  # Timeout waiting for an update; loop back
+                        except asyncio.CancelledError:
+                            return  # Exit cleanly on task cancellation
+                        except Exception:  # pylint: disable=broad-exception-caught
+                            break  # Exit WebSocket loop on unexpected errors
+                    mqttc.loop_stop()
                 except (ConnectionClosedError, OSError, InvalidURI):
                     retry_count += 1
                     await asyncio.sleep(

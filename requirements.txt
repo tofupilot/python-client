@@ -3,3 +3,4 @@ setuptools
 packaging
 pytest
 websockets
+paho-mqtt
