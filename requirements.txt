@@ -4,3 +4,6 @@ packaging
 pytest
 websockets
 pytest
+paho-mqtt
+build
+twine

@@ -1,3 +1,4 @@
+import types
 from typing import Optional
 from time import sleep
 import threading
@@ -6,8 +7,9 @@ import asyncio
 import json
 from openhtf import Test
 from openhtf.util import data
-from websockets import connect, ConnectionClosedError, InvalidURI
 
+import paho.mqtt.client as mqtt
+from paho.mqtt.enums import CallbackAPIVersion
 
 from .upload import upload
 from ..client import TofuPilotClient
@@ -72,7 +74,6 @@ class SimpleStationWatcher(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
-
 class TofuPilot:
     """
     Context manager to automatically add an output callback to the running OpenHTF test
@@ -108,35 +109,67 @@ class TofuPilot:
         self.client = TofuPilotClient(api_key=api_key, url=url)
         self.api_key = api_key
         self.url = url
-        self.loop = None
-        self.update_queue = None
-        self.event_loop_thread = None
         self.watcher = None
         self.shutdown_event = threading.Event()
         self.update_task = None
+        self.mqttClient = None
+        self.publishOptions = None
+        self._logger = self.client._logger
 
     def __enter__(self):
-        # Initialize a thread-safe asyncio.Queue
         self.test.add_output_callbacks(
             upload(api_key=self.api_key, url=self.url, client=self.client)
         )
 
         if self.stream:
-            self.update_queue = asyncio.Queue()
+            try:
+                cred = self.client.get_connection_credentials()
 
-            # Start the event loop in a separate thread
-            self.event_loop_thread = threading.Thread(
-                target=self.run_event_loop, daemon=True
-            )
-            self.event_loop_thread.start()
+                if not cred:
+                    self._logger.warning("Streaming: Failed to connect to the authn server")
+                    return self
 
-            # Wait until the event loop is ready
-            while self.loop is None:
-                sleep(0.1)
+                # Since we control the server, we know these will be set
+                token = cred["token"]
+                operatorPage = cred["operatorPage"]
+                clientOptions = cred["clientOptions"]
+                willOptions = cred["willOptions"]
+                connectOptions = cred["connectOptions"]
+                self.publishOptions = cred["publishOptions"]
+                subscribeOptions = cred["subscribeOptions"]
 
-            # Start the SimpleStationWatcher with a callback to send updates
-            self.watcher = SimpleStationWatcher(self.send_update)
-            self.watcher.start()
+                self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
+
+                self.mqttClient.tls_set()
+
+                self.mqttClient.will_set(**willOptions)
+                
+                self.mqttClient.username_pw_set("pythonClient", token)
+                
+                self.mqttClient.on_message = self._on_message
+                self.mqttClient.on_disconnect = self._on_disconnect
+                self.mqttClient.on_unsubscribe = self._on_unsubscribe
+
+                connect_error_code = self.mqttClient.connect(**connectOptions)
+                if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
+                    self._logger.warning(f"Streaming: Failed to connect with the streaming server {connect_error_code}")
+                    return self
+                
+                subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
+                if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
+                    self._logger.warning(f"Streaming: Failed to connect with the streaming server {subscribe_error_code}")
+                    return self
+
+                self.mqttClient.loop_start()
+
+                self.watcher = SimpleStationWatcher(self._send_update)
+                self.watcher.start()
+                
+                self._logger.success(f"Streaming: Interctive stream successfully started at:\n{operatorPage}")
+                
+            except Exception as e:
+                self._logger.warning(f"Streaming: Error thrown during setup: {e}")
+            
 
         return self
 
@@ -146,87 +179,57 @@ class TofuPilot:
             self.watcher.stop()
             self.watcher.join()
 
-        # Schedule the shutdown coroutine
-        if self.loop and not self.loop.is_closed():
-            asyncio.run_coroutine_threadsafe(self.shutdown(), self.loop)
+        if self.mqttClient:
+            # Doesn't wait for publish operation to stop, this is fine since __exit__ is only called after the run was imported
+            self.mqttClient.loop_stop()
+            self.mqttClient.disconnect()
+            self.mqttClient = None
 
-        # Wait for the event loop thread to finish
-        if self.event_loop_thread:
-            self.event_loop_thread.join()
+    def _send_update(self, message):
+        self.mqttClient.publish(
+            payload=json.dumps(
+                {"action": "send", "source": "python", "message": message}
+            ),
+            **self.publishOptions
+        )
+        
+    def _handle_answer(self, plug_name, method_name, args):
+        _, test_state = _get_executing_test()
 
-    def send_update(self, message):
-        """Thread-safe method to send a message to the event loop."""
-        if self.loop and not self.loop.is_closed():
-            asyncio.run_coroutine_threadsafe(self.update_queue.put(message), self.loop)
+        if test_state is None:
+            self._logger.warning(f"Streaming: Failed to find running test")
+            return
 
-    def run_event_loop(self):
-        """Runs the asyncio event loop in a separate thread."""
-        self.loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.loop)
-        self.loop.run_until_complete(self.setup())
-        self.loop.run_forever()
+        # Find the plug matching `plug_name`.
+        plug = test_state.plug_manager.get_plug_by_class_path(plug_name)
+        if plug is None:
+            self._logger.warning(f"Streaming: Failed to find plug: {plug_name}")
+            return
 
-    async def setup(self):
-        """Starts the update processor."""
-        # Start the coroutine that processes updates
-        self.update_task = asyncio.create_task(self.process_updates())
+        method = getattr(plug, method_name, None)
 
-    async def process_updates(self):
-        """
-        Sends the current state of the test to the WebSocket server.
-        """
+        if not (plug.enable_remote and isinstance(method, types.MethodType) and
+                not method_name.startswith('_') and
+                method_name not in plug.disable_remote_attrs):
+            self._logger.warning(f"Streaming: Failed to find method \"{method_name}\" of plug \"{plug_name}\"")
+            return
+
         try:
-            url = self.client.get_websocket_url()
+            # side-effecting !
+            method(*args)
+        except Exception as e:  # pylint: disable=broad-except
+            self._logger.warning(f"Streaming: Call to {method_name}({', '.join(args)}) threw exception: {e}")
+    
+    def _on_message(self, client, userdata, message):
+        parsed = json.loads(message.payload)
+        
+        if parsed["source"] == "web":
+            self._handle_answer(**parsed["message"])
 
-            if not url:
-                return  # Exit gracefully if no URL is provided
+    def _on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
+        if reason_code != mqtt.MQTT_ERR_SUCCESS:
+            self._logger.warning(f"Streaming: Unexpected disconnection from the streaming server: {reason_code}")
 
-            retry_count = 0
-            max_retries = 5
-            backoff_factor = 2  # Exponential backoff base
-
-            while retry_count < max_retries and not self.shutdown_event.is_set():
-                try:
-                    async with connect(url) as websocket:
-                        while not self.shutdown_event.is_set():
-                            try:
-                                # Fetch state update from the queue (with timeout to avoid blocking indefinitely)
-                                state_update = await asyncio.wait_for(
-                                    self.update_queue.get(), timeout=1.0
-                                )
-                                # Send the state update to the WebSocket server
-                                await websocket.send(
-                                    json.dumps(
-                                        {"action": "send", "message": state_update}
-                                    )
-                                )
-                            except asyncio.TimeoutError:
-                                continue  # Timeout waiting for an update; loop back
-                            except asyncio.CancelledError:
-                                return  # Exit cleanly on task cancellation
-                            except Exception:  # pylint: disable=broad-exception-caught
-                                break  # Exit WebSocket loop on unexpected errors
-                except (ConnectionClosedError, OSError, InvalidURI):
-                    retry_count += 1
-                    await asyncio.sleep(
-                        backoff_factor**retry_count
-                    )  # Exponential backoff
-                except asyncio.CancelledError:
-                    return  # Exit cleanly on task cancellation
-                except Exception:  # pylint: disable=broad-exception-caught
-                    break  # Exit gracefully on unexpected errors
-        except Exception:  # pylint: disable=broad-exception-caught
-            pass  # Catch all remaining exceptions to ensure robustness
-
-    async def shutdown(self):
-        """Cleans up resources and stops the event loop."""
-        # Cancel the update task
-        if self.update_task is not None:
-            self.update_task.cancel()
-            try:
-                await self.update_task
-            except asyncio.CancelledError:
-                pass
-
-        # Stop the event loop
-        self.loop.stop()
+    def _on_unsubscribe(self, client, userdata, mid, reason_code_list, properties):
+        if any(reason_code != mqtt.MQTT_ERR_SUCCESS for reason_code in reason_code_list):
+            self._logger.warning(f"Unexpected partial disconnection from the streaming server: {reason_code_list}")
