@@ -179,10 +179,16 @@ class TofuPilot:
         mqttc.tls_set()
 
         try:
-            url = self.client.get_websocket_url()
 
-            if not url:
-                return  # Exit gracefully if no URL is provided
+            cred = self.client.get_connection_credentials()
+
+            url, topic, token = cred.get("url"), cred.get("topic"), cred.get("token")
+
+            if not url or not topic or not token:
+                print(f"Missing credential(s): {cred}")
+                return  # Exit gracefully if some credential is missing
+            
+            mqttc.username_pw_set("pythonClient", token)
 
             retry_count = 0
             max_retries = 5
@@ -190,7 +196,7 @@ class TofuPilot:
 
             while retry_count < max_retries and not self.shutdown_event.is_set():
                 try:
-                    mqttc.connect("emqx-fly.fly.dev", 8084) # /mqtt ?
+                    mqttc.connect(url, 8084)
                     mqttc.loop_start()
                     while not self.shutdown_event.is_set():
                         try:
@@ -200,7 +206,7 @@ class TofuPilot:
                             )
                             # Send the state update to the WebSocket server
 
-                            mqttc.publish("test", 
+                            mqttc.publish(topic, 
                                 json.dumps(
                                     {"action": "send", "message": state_update}
                             ))

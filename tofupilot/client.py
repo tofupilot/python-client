@@ -464,14 +464,14 @@ class TofuPilotClient:
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
-
-    def get_websocket_url(self) -> dict:
+    
+    def get_connection_credentials(self) -> dict:
         """
-        Fetches websocket connection url associated with API Key.
+        Fetches credentials required to livestream test results.
 
         Returns:
-            str:
-                Websocket connection URL.
+            values:
+                a dict containing the emqx server url, the topic to connect to, and the JWT token required to connect
         """
 
         try:
@@ -482,14 +482,12 @@ class TofuPilotClient:
             )
             response.raise_for_status()
             values = handle_response(self._logger, response)
-            url = values.get("url")
-            return url
+            return values
 
         except requests.exceptions.HTTPError as http_err:
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
-
 
 def print_version_banner(current_version: str):
     """Prints current version of client"""
