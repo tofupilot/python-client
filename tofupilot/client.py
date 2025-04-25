@@ -485,9 +485,11 @@ class TofuPilotClient:
             return values
 
         except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
+            handle_http_error(self._logger, http_err)
+            return None
         except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+            handle_network_error(self._logger, e)
+            return None
 
 def print_version_banner(current_version: str):
     """Prints current version of client"""
