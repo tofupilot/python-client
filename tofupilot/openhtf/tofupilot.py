@@ -273,7 +273,6 @@ class TofuPilot:
                                 ),
                                 **publishOptions
                             )
-                            print("Data sent")
                         except asyncio.TimeoutError:
                             continue  # Timeout waiting for an update; loop back
                         except asyncio.CancelledError:
