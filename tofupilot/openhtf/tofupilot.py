@@ -222,8 +222,14 @@ class TofuPilot:
                 return self
 
             self.mqttClient.loop_start()
-
-            #print(f"Streaming connection established: ")
+            
+            # Print the streaming room topic with colors and full URL
+            topic = subscribeOptions.get('topic', '') if subscribeOptions.get('topic') else 'unknown'
+            # Extract base URL without trailing slashes
+            url_base = self.client._url.split('/api/v1')[0].rstrip('/')
+            room_id = topic.split('/')[-1] if '/' in topic else topic
+            streaming_url = f"{url_base}/test/streaming/{room_id}"
+            print(f"\033[1;36mView test in browser: \033[1;32m{streaming_url}\033[0m")
 
 
         return self
