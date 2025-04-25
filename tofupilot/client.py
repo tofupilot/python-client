@@ -476,7 +476,7 @@ class TofuPilotClient:
 
         try:
             response = requests.get(
-                f"{self._url}/rooms",
+                f"{self._url}/streaming",
                 headers=self._headers,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
