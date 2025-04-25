@@ -1,3 +1,4 @@
+import types
 from typing import Optional
 from time import sleep
 import threading
@@ -73,6 +74,62 @@ class SimpleStationWatcher(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
+def on_message(client, userdata, message):
+    # userdata is the structure we choose to provide, here it's a list()
+    #print(f"received: {message.payload}")
+    parsed = json.loads(message.payload)
+    print(f"{parsed = }")
+    
+    if parsed["source"] == "web":
+        handle_answer(parsed["message"]["plug_name"], parsed["message"]["method_name"], parsed["message"]["args"])
+    else:
+        print(f"received self-sent: {parsed["message"]}")
+
+def handle_answer(plug_name, method_name, args):
+#def post(test_uid, plug_name):
+    #_, test_state = self.get_test(test_uid)
+    _, test_state = _get_executing_test()
+
+    if test_state is None:
+        return
+
+    # Find the plug matching `plug_name`.
+    plug = test_state.plug_manager.get_plug_by_class_path(plug_name)
+    if plug is None:
+        #self.write('Unknown plug %s' % plug_name)
+        #self.set_status(404)
+        return
+
+    """
+    try:
+        #request = json.loads(self.request.body.decode('utf-8'))
+        method_name = request['method']
+        args = request['args']
+    except (KeyError, ValueError):
+        #self.write('Malformed JSON request.')
+        #self.set_status(400)
+        return
+    """
+
+    method = getattr(plug, method_name, None)
+
+    if not (plug.enable_remote and isinstance(method, types.MethodType) and
+            not method_name.startswith('_') and
+            method_name not in plug.disable_remote_attrs):
+        #self.write('Cannot access method %s of plug %s.' %
+        #         (method_name, plug_name))
+        #self.set_status(400)
+        return
+
+    try:
+        response = json.dumps(method(*args)) # calls userInput.respond(*args) !
+    except Exception as e:  # pylint: disable=broad-except
+        ""
+        #self.write('Plug error: %s' % repr(e))
+        #self.set_status(500)
+    else:
+        ""
+        #self.write(response)
 
 class TofuPilot:
     """
@@ -184,11 +241,15 @@ class TofuPilot:
 
             url, topic, token = cred.get("url"), cred.get("topic"), cred.get("token")
 
+            #print(topic)
+
             if not url or not topic or not token:
                 print(f"Missing credential(s): {cred}")
                 return  # Exit gracefully if some credential is missing
             
             mqttc.username_pw_set("pythonClient", token)
+            
+            mqttc.on_message = on_message
 
             retry_count = 0
             max_retries = 5
@@ -197,6 +258,7 @@ class TofuPilot:
             while retry_count < max_retries and not self.shutdown_event.is_set():
                 try:
                     mqttc.connect(url, 8084)
+                    mqttc.subscribe(topic)
                     mqttc.loop_start()
                     while not self.shutdown_event.is_set():
                         try:
@@ -208,8 +270,9 @@ class TofuPilot:
 
                             mqttc.publish(topic, 
                                 json.dumps(
-                                    {"action": "send", "message": state_update}
+                                    {"action": "send", "source": "python", "message": state_update}
                             ))
+                            print("Data sent")
                         except asyncio.TimeoutError:
                             continue  # Timeout waiting for an update; loop back
                         except asyncio.CancelledError:
