@@ -76,14 +76,10 @@ class SimpleStationWatcher(threading.Thread):
 
 def on_message(client, userdata, message):
     # userdata is the structure we choose to provide, here it's a list()
-    #print(f"received: {message.payload}")
     parsed = json.loads(message.payload)
-    print(f"{parsed = }")
     
     if parsed["source"] == "web":
-        handle_answer(parsed["message"]["plug_name"], parsed["message"]["method_name"], parsed["message"]["args"])
-    else:
-        print(f"received self-sent: {parsed["message"]}")
+        handle_answer(**parsed["message"])
 
 def handle_answer(plug_name, method_name, args):
 #def post(test_uid, plug_name):
@@ -239,11 +235,14 @@ class TofuPilot:
 
             cred = self.client.get_connection_credentials()
 
-            url, topic, token = cred.get("url"), cred.get("topic"), cred.get("token")
+            url = cred["url"]
+            token = cred["token"]
+            publishOptions = cred["publishOptions"]
+            subscribeOptions = cred["subscribeOptions"]
 
             #print(topic)
 
-            if not url or not topic or not token:
+            if not url or not token or not publishOptions or not subscribeOptions:
                 print(f"Missing credential(s): {cred}")
                 return  # Exit gracefully if some credential is missing
             
@@ -258,7 +257,7 @@ class TofuPilot:
             while retry_count < max_retries and not self.shutdown_event.is_set():
                 try:
                     mqttc.connect(url, 8084)
-                    mqttc.subscribe(topic)
+                    mqttc.subscribe(**subscribeOptions)
                     mqttc.loop_start()
                     while not self.shutdown_event.is_set():
                         try:
@@ -268,10 +267,12 @@ class TofuPilot:
                             )
                             # Send the state update to the WebSocket server
 
-                            mqttc.publish(topic, 
-                                json.dumps(
+                            mqttc.publish(
+                                payload=json.dumps(
                                     {"action": "send", "source": "python", "message": state_update}
-                            ))
+                                ),
+                                **publishOptions
+                            )
                             print("Data sent")
                         except asyncio.TimeoutError:
                             continue  # Timeout waiting for an update; loop back
