@@ -74,67 +74,6 @@ class SimpleStationWatcher(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
-def on_message(client, userdata, message):
-    # userdata is the structure we choose to provide, here it's a list()
-    parsed = json.loads(message.payload)
-    
-    if parsed["source"] == "web":
-        handle_answer(**parsed["message"])
-
-def on_disconnect(client, userdata, disconnect_flags, reason_code, properties):
-    if reason_code != mqtt.MQTT_ERR_SUCCESS:
-        print(f"Unexpected disconnection from the streaming server: {reason_code}")
-
-def on_unsubscribe(client, userdata, mid, reason_code_list, properties):
-    if any(reason_code != mqtt.MQTT_ERR_SUCCESS for reason_code in reason_code_list):
-        print(f"Unexpected partial disconnection from the streaming server: {reason_code_list}")
-
-def handle_answer(plug_name, method_name, args):
-#def post(test_uid, plug_name):
-    #_, test_state = self.get_test(test_uid)
-    _, test_state = _get_executing_test()
-
-    if test_state is None:
-        return
-
-    # Find the plug matching `plug_name`.
-    plug = test_state.plug_manager.get_plug_by_class_path(plug_name)
-    if plug is None:
-        #self.write('Unknown plug %s' % plug_name)
-        #self.set_status(404)
-        return
-
-    """
-    try:
-        #request = json.loads(self.request.body.decode('utf-8'))
-        method_name = request['method']
-        args = request['args']
-    except (KeyError, ValueError):
-        #self.write('Malformed JSON request.')
-        #self.set_status(400)
-        return
-    """
-
-    method = getattr(plug, method_name, None)
-
-    if not (plug.enable_remote and isinstance(method, types.MethodType) and
-            not method_name.startswith('_') and
-            method_name not in plug.disable_remote_attrs):
-        #self.write('Cannot access method %s of plug %s.' %
-        #         (method_name, plug_name))
-        #self.set_status(400)
-        return
-
-    try:
-        response = json.dumps(method(*args)) # calls userInput.respond(*args) !
-    except Exception as e:  # pylint: disable=broad-except
-        ""
-        #self.write('Plug error: %s' % repr(e))
-        #self.set_status(500)
-    else:
-        ""
-        #self.write(response)
-
 class TofuPilot:
     """
     Context manager to automatically add an output callback to the running OpenHTF test
@@ -175,56 +114,60 @@ class TofuPilot:
         self.update_task = None
         self.mqttClient = None
         self.publishOptions = None
+        self._logger = self.client._logger
 
     def __enter__(self):
-        # Initialize a thread-safe asyncio.Queue
         self.test.add_output_callbacks(
             upload(api_key=self.api_key, url=self.url, client=self.client)
         )
 
         if self.stream:
+            try:
+                # Start the SimpleStationWatcher with a callback to send updates
+                self.watcher = SimpleStationWatcher(self._send_update)
+                self.watcher.start()
+                
+                cred = self.client.get_connection_credentials()
 
-            # Start the SimpleStationWatcher with a callback to send updates
-            self.watcher = SimpleStationWatcher(self.send_update)
-            self.watcher.start()
+                if not cred:
+                    self._logger.warning("Streaming: Failed to connect to the authn server")
+                    return self
+
+                # Since we control the server, we know these will be set
+                token = cred["token"]
+                operatorPage = cred["operatorPage"]
+                clientOptions = cred["clientOptions"]
+                connectOptions = cred["connectOptions"]
+                self.publishOptions = cred["publishOptions"]
+                subscribeOptions = cred["subscribeOptions"]
+
+                self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
+
+                self.mqttClient.tls_set()
+                
+                self.mqttClient.username_pw_set("pythonClient", token)
+                
+                self.mqttClient.on_message = self._on_message
+                self.mqttClient.on_disconnect = self._on_disconnect
+                self.mqttClient.on_unsubscribe = self._on_unsubscribe
+
+                connect_error_code = self.mqttClient.connect(**connectOptions)
+                if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
+                    self._logger.warning(f"Streaming: Failed to connect with the streaming server {connect_error_code}")
+                    return self
+                
+                subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
+                if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
+                    self._logger.warning(f"Streaming: Failed to connect with the streaming server {subscribe_error_code}")
+                    return self
+
+                self.mqttClient.loop_start()
+                
+                self._logger.success(f"Streaming: Interctive stream successfully started at:\n{operatorPage}")
+                
+            except Exception as e:
+                self._logger.warning(f"Streaming: Error thrown during setup: {e}")
             
-            cred = self.client.get_connection_credentials()
-
-            if not cred:
-                print("Failed to connect to the authn server")
-                return self
-
-            # Since we control the server, we know these will be set
-            token = cred["token"]
-            operatorPage = cred["operatorPage"]
-            clientOptions = cred["clientOptions"]
-            connectOptions = cred["connectOptions"]
-            self.publishOptions = cred["publishOptions"]
-            subscribeOptions = cred["subscribeOptions"]
-
-            self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
-
-            self.mqttClient.tls_set()
-            
-            self.mqttClient.username_pw_set("pythonClient", token)
-            
-            self.mqttClient.on_message = on_message
-            self.mqttClient.on_disconnect = on_disconnect
-            self.mqttClient.on_unsubscribe = on_unsubscribe
-
-            connect_error_code = self.mqttClient.connect(**connectOptions)
-            if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
-                print(f"failed to connect with the streaming server {connect_error_code}")
-                return self
-            
-            subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
-            if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
-                print(f"failed to connect with the streaming server {subscribe_error_code}")
-                return self
-
-            self.mqttClient.loop_start()
-
-            print(f"\033[1;36mView test in browser: \033[1;32m{operatorPage}\033[0m")
 
         return self
 
@@ -234,17 +177,57 @@ class TofuPilot:
             self.watcher.stop()
             self.watcher.join()
 
-        if self.mqttClient: # Doesnt wait for publish or other to stop !
+        if self.mqttClient:
             # Doesn't wait for publish operation to stop, this is fine since __exit__ is only called after the run was imported
             self.mqttClient.loop_stop()
             self.mqttClient.disconnect()
             self.mqttClient = None
 
-    def send_update(self, message):
-        """Thread-safe method to send a message to the event loop."""
+    def _send_update(self, message):
         self.mqttClient.publish(
             payload=json.dumps(
                 {"action": "send", "source": "python", "message": message}
             ),
             **self.publishOptions
         )
+        
+    def _handle_answer(self, plug_name, method_name, args):
+        _, test_state = _get_executing_test()
+
+        if test_state is None:
+            self._logger.warning(f"Streaming: Failed to find running test")
+            return
+
+        # Find the plug matching `plug_name`.
+        plug = test_state.plug_manager.get_plug_by_class_path(plug_name)
+        if plug is None:
+            self._logger.warning(f"Streaming: Failed to find plug: {plug_name}")
+            return
+
+        method = getattr(plug, method_name, None)
+
+        if not (plug.enable_remote and isinstance(method, types.MethodType) and
+                not method_name.startswith('_') and
+                method_name not in plug.disable_remote_attrs):
+            self._logger.warning(f"Streaming: Failed to find method \"{method_name}\" of plug \"{plug_name}\"")
+            return
+
+        try:
+            # side-effecting !
+            method(*args)
+        except Exception as e:  # pylint: disable=broad-except
+            self._logger.warning(f"Streaming: Call to {method_name}({', '.join(args)}) threw exception: {e}")
+    
+    def _on_message(self, client, userdata, message):
+        parsed = json.loads(message.payload)
+        
+        if parsed["source"] == "web":
+            self._handle_answer(**parsed["message"])
+
+    def _on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
+        if reason_code != mqtt.MQTT_ERR_SUCCESS:
+            self._logger.warning(f"Streaming: Unexpected disconnection from the streaming server: {reason_code}")
+
+    def _on_unsubscribe(self, client, userdata, mid, reason_code_list, properties):
+        if any(reason_code != mqtt.MQTT_ERR_SUCCESS for reason_code in reason_code_list):
+            self._logger.warning(f"Unexpected partial disconnection from the streaming server: {reason_code_list}")
