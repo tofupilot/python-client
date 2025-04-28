@@ -92,21 +92,22 @@ When the release PR is merged, and a new release is detected by the “Python pu
 
 If you need to test a new version of the Python client before making an official release, you can publish it to TestPyPI, a sandbox version of PyPI used for testing package distributions.
 
-1. Build the package locally using:
+1. If a previous test package with the exact same version was released, update the version in `setup.py`. For instance, change version="X.Y.Z.dev0" to version="X.Y.Z.dev1".
+2. Build the package locally using:
    ```sh
    rm -rf dist/*
    python -m build
    ```
    This will generate distribution files in the dist/ directory.
 
-2. If a previous test package with the exact same version was released, update the version in `setup.py`. For instance, change version="X.Y.Z.dev0" to version="X.Y.Z.dev1".
+3. Get a testpypi API key, for example ask your managment if they have one.
 
    Then run:
    ```sh
    twine upload --repository testpypi dist/
    ```
  
-3. To install the new test package, run:
+4. To install the new test package, run:
    ```sh
    pip install -i https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ tofupilot==<exact-version>
    ```
