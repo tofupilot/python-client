@@ -104,7 +104,7 @@ If you need to test a new version of the Python client before making an official
 
    Then run:
    ```sh
-   twine upload --repository testpypi dist/
+   twine upload --repository testpypi dist/*
    ```
  
 4. To install the new test package, run:
