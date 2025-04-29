@@ -137,6 +137,7 @@ class TofuPilot:
                 token = cred["token"]
                 operatorPage = cred["operatorPage"]
                 clientOptions = cred["clientOptions"]
+                willOptions = cred["willOptions"]
                 connectOptions = cred["connectOptions"]
                 self.publishOptions = cred["publishOptions"]
                 subscribeOptions = cred["subscribeOptions"]
@@ -144,6 +145,8 @@ class TofuPilot:
                 self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
 
                 self.mqttClient.tls_set()
+
+                self.mqttClient.will_set(**willOptions)
                 
                 self.mqttClient.username_pw_set("pythonClient", token)
                 
