@@ -123,10 +123,6 @@ class TofuPilot:
 
         if self.stream:
             try:
-                # Start the SimpleStationWatcher with a callback to send updates
-                self.watcher = SimpleStationWatcher(self._send_update)
-                self.watcher.start()
-                
                 cred = self.client.get_connection_credentials()
 
                 if not cred:
@@ -165,6 +161,9 @@ class TofuPilot:
                     return self
 
                 self.mqttClient.loop_start()
+
+                self.watcher = SimpleStationWatcher(self._send_update)
+                self.watcher.start()
                 
                 self._logger.success(f"Streaming: Interctive stream successfully started at:\n{operatorPage}")
                 
