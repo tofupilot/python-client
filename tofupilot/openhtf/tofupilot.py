@@ -124,6 +124,7 @@ class TofuPilot:
         if self.stream:
             self._setup_streaming()
         
+        self._logger.handlers[0].pause()
         return self
     
     def _setup_streaming(self):
@@ -176,6 +177,8 @@ class TofuPilot:
             self._logger.warning(f"Streaming: Error thrown during setup: {e}")
 
     def __exit__(self, exc_type, exc_value, traceback):
+        self._logger.handlers[0].unpause()
+
         # Stop the StationWatcher
         if self.watcher:
             self.watcher.stop()
