@@ -165,7 +165,7 @@ class TofuPilot:
                 self.watcher = SimpleStationWatcher(self._send_update)
                 self.watcher.start()
                 
-                self._logger.success(f"Streaming: Interctive stream successfully started at:\n{operatorPage}")
+                self._logger.success(f"Streaming: Interactive stream successfully started at:\n{operatorPage}")
                 
             except Exception as e:
                 self._logger.warning(f"Streaming: Error thrown during setup: {e}")
