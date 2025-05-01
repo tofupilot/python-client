@@ -122,56 +122,58 @@ class TofuPilot:
         )
 
         if self.stream:
-            try:
-                cred = self.client.get_connection_credentials()
-
-                if not cred:
-                    self._logger.warning("Streaming: Failed to connect to the authn server")
-                    return self
-
-                # Since we control the server, we know these will be set
-                token = cred["token"]
-                operatorPage = cred["operatorPage"]
-                clientOptions = cred["clientOptions"]
-                willOptions = cred["willOptions"]
-                connectOptions = cred["connectOptions"]
-                self.publishOptions = cred["publishOptions"]
-                subscribeOptions = cred["subscribeOptions"]
-
-                self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
-
-                self.mqttClient.tls_set()
-
-                self.mqttClient.will_set(**willOptions)
-                
-                self.mqttClient.username_pw_set("pythonClient", token)
-                
-                self.mqttClient.on_message = self._on_message
-                self.mqttClient.on_disconnect = self._on_disconnect
-                self.mqttClient.on_unsubscribe = self._on_unsubscribe
-
-                connect_error_code = self.mqttClient.connect(**connectOptions)
-                if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
-                    self._logger.warning(f"Streaming: Failed to connect with the streaming server {connect_error_code}")
-                    return self
-                
-                subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
-                if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
-                    self._logger.warning(f"Streaming: Failed to connect with the streaming server {subscribe_error_code}")
-                    return self
-
-                self.mqttClient.loop_start()
-
-                self.watcher = SimpleStationWatcher(self._send_update)
-                self.watcher.start()
-                
-                self._logger.success(f"Streaming: Interactive stream successfully started at:\n{operatorPage}")
-                
-            except Exception as e:
-                self._logger.warning(f"Streaming: Error thrown during setup: {e}")
-            
-
+            self._setup_streaming()
+        
         return self
+    
+    def _setup_streaming(self):
+        try:
+            cred = self.client.get_connection_credentials()
+
+            if not cred:
+                self._logger.warning("Streaming: Failed to connect to the authn server")
+                return self
+
+            # Since we control the server, we know these will be set
+            token = cred["token"]
+            operatorPage = cred["operatorPage"]
+            clientOptions = cred["clientOptions"]
+            willOptions = cred["willOptions"]
+            connectOptions = cred["connectOptions"]
+            self.publishOptions = cred["publishOptions"]
+            subscribeOptions = cred["subscribeOptions"]
+
+            self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
+
+            self.mqttClient.tls_set()
+
+            self.mqttClient.will_set(**willOptions)
+            
+            self.mqttClient.username_pw_set("pythonClient", token)
+            
+            self.mqttClient.on_message = self._on_message
+            self.mqttClient.on_disconnect = self._on_disconnect
+            self.mqttClient.on_unsubscribe = self._on_unsubscribe
+
+            connect_error_code = self.mqttClient.connect(**connectOptions)
+            if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
+                self._logger.warning(f"Streaming: Failed to connect with the streaming server {connect_error_code}")
+                return self
+            
+            subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
+            if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
+                self._logger.warning(f"Streaming: Failed to connect with the streaming server {subscribe_error_code}")
+                return self
+
+            self.mqttClient.loop_start()
+
+            self.watcher = SimpleStationWatcher(self._send_update)
+            self.watcher.start()
+            
+            self._logger.success(f"Streaming: Interactive stream successfully started at:\n{operatorPage}")
+            
+        except Exception as e:
+            self._logger.warning(f"Streaming: Error thrown during setup: {e}")
 
     def __exit__(self, exc_type, exc_value, traceback):
         # Stop the StationWatcher
