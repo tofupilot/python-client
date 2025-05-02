@@ -129,7 +129,11 @@ class TofuPilot:
     
     def _setup_streaming(self):
         try:
-            cred = self.client.get_connection_credentials()
+            try:
+                cred = self.client.get_connection_credentials()
+            except Exception as e:
+                self._logger.warning(f"Streaming: JWT error: {e}")
+                return
 
             if not cred:
                 self._logger.warning("Streaming: Failed to connect to the authn server")
@@ -155,15 +159,25 @@ class TofuPilot:
             self.mqttClient.on_message = self._on_message
             self.mqttClient.on_disconnect = self._on_disconnect
             self.mqttClient.on_unsubscribe = self._on_unsubscribe
-
-            connect_error_code = self.mqttClient.connect(**connectOptions)
+            
+            try:
+                connect_error_code = self.mqttClient.connect(**connectOptions)
+            except Exception as e:
+                self._logger.warning(f"Streaming: Failed to connect with the streaming server (exception): {e}")
+                return
+            
             if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
-                self._logger.warning(f"Streaming: Failed to connect with the streaming server {connect_error_code}")
+                self._logger.warning(f"Streaming: Failed to connect with the streaming server (error code): {connect_error_code}")
                 return self
             
-            subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
+            try:
+                subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
+            except Exception as e:
+                self._logger.warning(f"Streaming: Failed to subscribe to the streaming server (exception): {e}")
+                return
+            
             if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
-                self._logger.warning(f"Streaming: Failed to connect with the streaming server {subscribe_error_code}")
+                self._logger.warning(f"Streaming: Failed to subscribe to the streaming server (error code): {subscribe_error_code}")
                 return self
 
             self.mqttClient.loop_start()
@@ -191,12 +205,16 @@ class TofuPilot:
             self.mqttClient = None
 
     def _send_update(self, message):
-        self.mqttClient.publish(
-            payload=json.dumps(
-                {"action": "send", "source": "python", "message": message}
-            ),
-            **self.publishOptions
-        )
+        try:
+            self.mqttClient.publish(
+                payload=json.dumps(
+                    {"action": "send", "source": "python", "message": message}
+                ),
+                **self.publishOptions
+            )
+        except Exception as e:
+            self._logger.warning(f"Streaming: Failed to publish to the streaming server (exception): {e}")
+            return
         
     def _handle_answer(self, plug_name, method_name, args):
         _, test_state = _get_executing_test()
