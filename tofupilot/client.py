@@ -10,6 +10,7 @@ from importlib.metadata import version
 import json
 import base64
 import requests
+import certifi
 
 from .constants import (
     ENDPOINT,
@@ -55,6 +56,9 @@ class TofuPilotClient:
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
 
+        # Configure SSL certificate validation
+        self._setup_ssl_certificates()
+
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
             error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."  # pylint: disable=line-too-long
@@ -70,6 +74,17 @@ class TofuPilotClient:
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
+        
+    def _setup_ssl_certificates(self):
+        """Configure SSL certificate validation using certifi if needed."""
+        # Check if SSL_CERT_FILE is already set to a valid path
+        cert_file = os.environ.get('SSL_CERT_FILE')
+        if not cert_file or not os.path.isfile(cert_file):
+            # Use certifi's certificate bundle
+            certifi_path = certifi.where()
+            if os.path.isfile(certifi_path):
+                os.environ['SSL_CERT_FILE'] = certifi_path
+                self._logger.debug(f"Set SSL_CERT_FILE to certifi's path: {certifi_path}")
 
     def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
         """Logs the details of the HTTP request."""

@@ -74,11 +74,22 @@ def handle_http_error(
 
 def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]:
     """Handles network errors and logs them."""
-    logger.error(f"Network error: {e}")
+    error_message = str(e)
+    logger.error(f"Network error: {error_message}")
+    
+    # Provide specific guidance for SSL certificate errors
+    if isinstance(e, requests.exceptions.SSLError) or "SSL" in error_message or "certificate verify failed" in error_message:
+        logger.warning("SSL certificate verification error detected")
+        logger.warning("This is typically caused by missing or invalid SSL certificates")
+        logger.warning("Try the following solutions:")
+        logger.warning("1. Ensure the certifi package is installed: pip install certifi")
+        logger.warning("2. If you're on macOS, run: /Applications/Python*/Install Certificates.command")
+        logger.warning("3. You can manually set the SSL_CERT_FILE environment variable: export SSL_CERT_FILE=/path/to/cacert.pem")
+    
     return {
         "success": False,
         "message": None,
         "warnings": None,
         "status_code": None,
-        "error": {"message": str(e)},
+        "error": {"message": error_message},
     }
