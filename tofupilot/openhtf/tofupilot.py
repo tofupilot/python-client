@@ -10,6 +10,8 @@ from openhtf.util import data
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
+from openhtf.core.test_record import TestRecord
+from openhtf.core.test_state import TestState
 
 from .upload import upload
 from ..client import TofuPilotClient
@@ -34,7 +36,7 @@ def _get_executing_test():
     return test, test_state
 
 
-def _to_dict_with_event(test_state):
+def _to_dict_with_event(test_state: TestState):
     """Process a test state into the format we want to send to the frontend."""
     original_dict, event = test_state.asdict_with_event()
 
@@ -119,7 +121,8 @@ class TofuPilot:
 
     def __enter__(self):
         self.test.add_output_callbacks(
-            upload(api_key=self.api_key, url=self.url, client=self.client)
+            upload(api_key=self.api_key, url=self.url, client=self.client),
+            self._final_update,
         )
 
         if self.stream:
@@ -253,7 +256,27 @@ class TofuPilot:
             method(*args)
         except Exception as e:  # pylint: disable=broad-except
             self._logger.warning(f"Streaming: Call to {method_name}({', '.join(args)}) threw exception: {e}")
-    
+
+    def _final_update(self, testRecord: TestRecord):
+        """
+        If the test is fast enough, the watcher never triggers, to avoid the UI being out of sync,
+        we force send at least once at the very end of the test
+        """
+
+        if not self.stream:
+            return
+
+        test_record_dict = testRecord.as_base_types()
+
+        test_state_dict = {
+            'status': 'COMPLETED',
+            'test_record': test_record_dict,
+            'plugs': {'plug_states': {}},
+            'running_phase_state': {},
+        }
+
+        self._send_update(test_state_dict)
+
     def _on_message(self, client, userdata, message):
         parsed = json.loads(message.payload)
         
