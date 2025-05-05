@@ -16,70 +16,89 @@ def success(self, message, *args, **kws):
 logging.Logger.success = success
 
 class PausableHandler(logging.Handler):
-    def __init__(self, wrapped_handler):
-        super().__init__()
-        self._wrapped_handler = wrapped_handler
+
+    def __init__(self, handler: logging.Handler):
+        #super().__init__()
+        self._wrapped = handler
         self._paused = False
-        self._buffer = []
+        self._buffer = queue.Queue()
 
     def emit(self, record):
+        print("emitting")
         if self._paused:
-            self._buffer.append(record)
+            self._buffer.put(record)
         else:
-            self._wrapped_handler.emit(record)
+            self._wrapped.emit(record)
 
     def pause(self):
+        print("paused")
         self._paused = True
 
     def resume(self):
+        print("resumed")
         self._paused = False
-        while self._buffer:
-            record = self._buffer.pop(0)
-            self._wrapped_handler.emit(record)
-
-    def setFormatter(self, fmt):
-        self._wrapped_handler.setFormatter(fmt)
-
-    def flush(self):
-        self._wrapped_handler.flush()
+        while not self._buffer.empty():
+            self._wrapped(self._buffer.get())
 
     def close(self):
-        self._wrapped_handler.close()
-        super().close()
+        self._wrapped.close()
+        # super().close()
+
+    @property
+    def level(self):
+        return self._wrapped.level
+    
+    @property
+    def name(self):
+        return self._wrapped.name
+
+    @name.setter
+    def name(self, value):
+        self._wrapped.name = value
+
+    def createLock(self):
+        self._wrapped.createLock()
+
+    def acquire(self):
+        self._wrapped.acquire()
+
+    def release(self):
+        self._wrapped.release()
+
+    def setLevel(self, level):
+        self._wrapped.setLevel(level)
+
+    def format(self, record):
+        return self._wrapped.format(record)
+
+    def handle(self, record):
+        return self._wrapped.handle(record)
+
+    def setFormatter(self, fmt):
+        self._wrapped.setFormatter(fmt)
+
+    def flush(self):
+        self._wrapped.flush()
+
+    def close(self):
+        self._wrapped.close()
+
+    def handleError(self, record):
+        self._wrapped.handleError(record)
+
+    def __repr__(self):
+        return repr(self._wrapped)
+    
+    def addFilter(self, filter):
+        self._wrapped.addFilter(filter)
+
+    def removeFilter(self, filter):
+        self._wrapped.removeFilter(filter)
+
+    def filter(self, record):
+        return self._wrapped.filter(record)
 
 
-def pausable(underlying: logging.Handler):
-    oldEmit = underlying.emit
-
-    underlying.paused = False
-
-
-    underlying.paused_record_queue = queue.Queue()
-
-    def pause():
-        print("paused")
-        underlying.paused = True
-
-    underlying.pause = pause
-
-    def unpause():
-        print("unpaused")
-        if (underlying.paused):
-            while not underlying.paused_record_queue.empty():
-                oldEmit(underlying.paused_record_queue.get())
-
-    underlying.unpause = unpause
-
-    def newEmit(record: logging.LogRecord):
-
-        if (underlying.paused):
-            underlying.paused_record_queue.put(record)
-        else:
-            return oldEmit(record)
-
-    underlying.emit = newEmit
-
-    return underlying
 
 class CustomFormatter(logging.Formatter):
     """Custom formatter to add symbols and colors to the log messages."""
@@ -112,10 +131,13 @@ def setup_logger(log_level: int):
     """Set up the logger with a custom formatter and stream handler."""
     logger = logging.getLogger(__name__)
     logger.setLevel(log_level)
-    handler = pausable(logging.StreamHandler(sys.stdout))
+    handler = PausableHandler(logging.StreamHandler(sys.stdout))
     handler.setLevel(log_level)
     handler.setFormatter(CustomFormatter())
     if not logger.handlers:
         logger.addHandler(handler)
+
+    logger.pause = handler.pause
+    logger.resume = handler.resume
 
     return logger
