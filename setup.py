@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as file:
 
 setup(
     name="tofupilot",
-    version="1.9.4",
+    version="1.10.0dev0",
     packages=find_packages(),
     install_requires=["requests", "setuptools", "packaging", "pytest", "websockets"],
     entry_points={
@@ -13,8 +13,8 @@ setup(
             "tofupilot = tofupilot.plugin",  # Registering the pytest plugin
         ],
     },
-    author="Félix Berthier",
-    author_email="felix.berthier@tofupilot.com",
+    author="TofuPilot",
+    author_email="hello@tofupilot.com",
     description="The official Python client for the TofuPilot API",
     license="MIT",
     keywords="automatic hardware testing tofupilot",
