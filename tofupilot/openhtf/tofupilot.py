@@ -153,6 +153,10 @@ class TofuPilot:
 
             self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
 
+            # This is not 100% reliable, hence the need to put the setup in the background
+            # See https://github.com/eclipse-paho/paho.mqtt.python/issues/890
+            self.mqttClient.connect_timeout = 1.0
+
             self.mqttClient.tls_set()
 
             self.mqttClient.will_set(**willOptions)
