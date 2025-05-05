@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as file:
 
 setup(
     name="tofupilot",
-    version="1.10.0dev0",
+    version="1.10.0",
     packages=find_packages(),
     install_requires=["requests", "setuptools", "packaging", "pytest", "websockets"],
     entry_points={
