@@ -59,8 +59,8 @@ class Log(TypedDict):
     level: LogLevel
     timestamp: int
     message: str
-    source_file: Optional[str]
-    line_number: Optional[int]
+    source_file: str
+    line_number: int
 
 
 class SubUnit(TypedDict):
