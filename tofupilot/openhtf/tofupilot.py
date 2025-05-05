@@ -115,6 +115,7 @@ class TofuPilot:
         self.mqttClient = None
         self.publishOptions = None
         self._logger = self.client._logger
+        self._streaming_setup_thread = None
 
     def __enter__(self):
         self.test.add_output_callbacks(
@@ -122,7 +123,9 @@ class TofuPilot:
         )
 
         if self.stream:
-            self._setup_streaming()
+            self._streaming_setup_thread = threading.Thread(target=self._setup_streaming)
+            self._streaming_setup_thread.start()
+            self._streaming_setup_thread.join(1)
         
         self._logger.pause()
         return self
@@ -192,6 +195,10 @@ class TofuPilot:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._logger.resume()
+
+        if self._streaming_setup_thread and self._streaming_setup_thread.is_alive():
+            self._logger.warning(f"Streaming: Setup still ongoing, waiting for it to time-out (max 10s)")
+            self._streaming_setup_thread.join()
 
         # Stop the StationWatcher
         if self.watcher:
