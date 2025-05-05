@@ -12,7 +12,6 @@ setup(
         "setuptools",
         "packaging",
         "pytest",
-        "websockets",
         "paho-mqtt",
     ],
     entry_points={
