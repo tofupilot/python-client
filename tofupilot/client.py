@@ -540,8 +540,13 @@ class TofuPilotClient:
 
 def print_version_banner(current_version: str):
     """Prints current version of client with tofu art"""
-    banner = f"""
-    ╭ ✈ ╮
-    [•ᴗ•] TofuPilot Python Client {current_version}
+    # Colors for the tofu art
+    yellow = "\033[33m"  # Yellow for the plane
+    blue = "\033[34m"    # Blue for the cap border
+    reset = "\033[0m"    # Reset color
+    
+    banner = f"""{blue}╭{reset} {yellow}✈{reset} {blue}╮{reset}
+│•ᴗ•│ TofuPilot Python Client {current_version}
+╰───╯
     """
     print(banner.strip())
