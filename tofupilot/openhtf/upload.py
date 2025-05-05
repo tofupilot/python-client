@@ -115,17 +115,17 @@ class upload:  # pylint: disable=invalid-name
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
                     self._logger.warning(
-                        "Too many attachments, trimming to %d attachments.",
-                        self._max_attachments,
+                        "Attachment limit (%d) reached",
+                        self._max_attachments
                     )
                     break
                 for attachment_name, attachment in phase.attachments.items():
                     # Remove attachments that exceed the max file size
                     if attachment.size > self._max_file_size:
                         self._logger.warning(
-                            "File size exceeds the maximum allowed size of %d bytes: %s",
+                            "File too large (%d bytes): %s",
                             self._max_file_size,
-                            attachment.name,
+                            attachment.name
                         )
                         continue
                     if number_of_attachments >= self._max_attachments:
@@ -133,7 +133,7 @@ class upload:  # pylint: disable=invalid-name
 
                     number_of_attachments += 1
 
-                    self._logger.info("Uploading %s...", attachment_name)
+                    self._logger.info("Uploading: %s", attachment_name)
 
                     # Upload initialization
                     initialize_url = f"{self._url}/uploads/initialize"
@@ -167,7 +167,4 @@ class upload:  # pylint: disable=invalid-name
                         self._verify,
                     )
 
-                    self._logger.success(
-                        "Attachment %s successfully uploaded and linked to run.",
-                        attachment_name,
-                    )
+                    self._logger.success("Uploaded: %s", attachment_name)

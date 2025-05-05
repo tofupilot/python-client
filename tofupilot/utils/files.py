@@ -142,11 +142,9 @@ def upload_attachments(
         verify (Optional[str]): Path to a CA bundle file to verify the server certificate
     """
     for file_path in paths:
-        logger.info("Uploading %s...", file_path)
+        logger.info("Uploading: %s", file_path)
 
         upload_id = upload_file(headers, url, file_path, verify)
         notify_server(headers, url, upload_id, run_id, verify)
 
-        logger.success(
-            f"Attachment {file_path} successfully uploaded and linked to run."
-        )
+        logger.success(f"Uploaded: {file_path}")

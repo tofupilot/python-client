@@ -62,7 +62,7 @@ class TofuPilotClient:
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
             error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."  # pylint: disable=line-too-long
-            self._logger.error(error)
+            self._logger.error(f"API key error: {error}")
             sys.exit(1)
 
         self._url = f"{url or os.environ.get('TOFUPILOT_URL') or ENDPOINT}/api/v1"
@@ -84,12 +84,12 @@ class TofuPilotClient:
             certifi_path = certifi.where()
             if os.path.isfile(certifi_path):
                 os.environ['SSL_CERT_FILE'] = certifi_path
-                self._logger.debug(f"Set SSL_CERT_FILE to certifi's path: {certifi_path}")
+                self._logger.debug(f"SSL: Using certifi path {certifi_path}")
 
     def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
         """Logs the details of the HTTP request."""
         self._logger.debug(
-            "%s %s%s with payload: %s", method, self._url, endpoint, payload
+            "Request: %s %s%s payload=%s", method, self._url, endpoint, payload
         )
 
     def create_run(  # pylint: disable=too-many-arguments,too-many-locals
@@ -142,7 +142,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#create-a-run
         """
-        self._logger.info("Starting run creation...")
+        self._logger.info("Creating run...")
 
         if attachments is not None:
             validate_files(
@@ -236,7 +236,7 @@ class TofuPilotClient:
         
         # If run_id is not a string, it's an error response dictionary
         if not isinstance(run_id, str):
-            self._logger.error("Failed to create run from OpenHTF report")
+            self._logger.error("OpenHTF import failed")
             return run_id
 
         # Only continue with attachment upload if run_id is valid
@@ -245,21 +245,21 @@ class TofuPilotClient:
             with open(file_path, "r", encoding="utf-8") as file:
                 test_record = json.load(file)
         except FileNotFoundError:
-            self._logger.error(f"Error: The file '{file_path}' was not found.")
+            self._logger.error(f"File not found: {file_path}")
             return run_id
         except json.JSONDecodeError:
-            self._logger.error(f"Error: The file '{file_path}' contains invalid JSON.")
+            self._logger.error(f"Invalid JSON: {file_path}")
             return run_id
         except PermissionError:
-            self._logger.error(f"Error: Insufficient permissions to read '{file_path}'.")
+            self._logger.error(f"Permission denied: {file_path}")
             return run_id
         except Exception as e:
-            self._logger.error(f"Unexpected error: {e}")
+            self._logger.error(f"Error: {e}")
             return run_id
 
         # Now safely proceed with attachment upload
         if run_id and test_record and "phases" in test_record:
-            self._logger.info("Run created successfully, uploading attachments...")
+            self._logger.info("Run created, uploading attachments")
             number_of_attachments = 0
             
             for phase in test_record.get("phases", []):
@@ -270,14 +270,14 @@ class TofuPilotClient:
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
                     self._logger.warning(
-                        "Too many attachments, trimming to %d attachments.",
-                        self._max_attachments,
+                        "Attachment limit (%d) reached",
+                        self._max_attachments
                     )
                     break
                     
                 for attachment_name, attachment in phase.get("attachments", {}).items():
                     number_of_attachments += 1
-                    self._logger.info("Uploading %s...", attachment_name)
+                    self._logger.info("Uploading: %s", attachment_name)
 
                     try:
                         # Upload initialization
@@ -299,7 +299,7 @@ class TofuPilotClient:
 
                         # Ensure attachment data exists and is valid
                         if not attachment.get("data"):
-                            self._logger.warning(f"Attachment {attachment_name} has no data, skipping")
+                            self._logger.warning(f"No data in: {attachment_name}")
                             continue
 
                         data = base64.b64decode(attachment["data"])
@@ -315,19 +315,16 @@ class TofuPilotClient:
                         # Notify server to link attachment to run
                         notify_server(self._headers, self._url, upload_id, run_id)
 
-                        self._logger.success(
-                            "Attachment %s successfully uploaded and linked to run.",
-                            attachment_name,
-                        )
+                        self._logger.success("Uploaded: %s", attachment_name)
                     except requests.exceptions.RequestException as e:
-                        self._logger.error(f"Failed to upload attachment {attachment_name}: {str(e)}")
+                        self._logger.error(f"Upload failed: {attachment_name} - {str(e)}")
                         # Continue with other attachments even if one fails
                         continue
         else:
             if not test_record:
-                self._logger.error("Test record could not be loaded")
+                self._logger.error("Test record load failed")
             elif "phases" not in test_record:
-                self._logger.error("Test record has no phases")
+                self._logger.error("No phases in test record")
                 
         return run_id
 
@@ -357,9 +354,7 @@ class TofuPilotClient:
                 "error": {"message": error_message},
             }
 
-        self._logger.info(
-            "Fetching runs for unit with serial number %s...", serial_number
-        )
+        self._logger.info("Fetching runs for: %s", serial_number)
         params = {"serial_number": serial_number}
 
         self._log_request("GET", "/runs", params)
@@ -394,7 +389,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#delete-a-run
         """
-        self._logger.info('Starting deletion of run "%s"...', run_id)
+        self._logger.info('Deleting run: %s', run_id)
 
         self._log_request("DELETE", f"/runs/{run_id}")
 
@@ -432,7 +427,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#update-a-unit
         """
-        self._logger.info('Starting update of unit "%s"...', serial_number)
+        self._logger.info('Updating unit: %s', serial_number)
 
         payload = {"sub_units": sub_units}
 
@@ -469,7 +464,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#delete-a-unit
         """
-        self._logger.info('Starting deletion of unit "%s"...', serial_number)
+        self._logger.info('Deleting unit: %s', serial_number)
 
         self._log_request("DELETE", f"/units/{serial_number}")
 
@@ -500,7 +495,7 @@ class TofuPilotClient:
                 Id of the newly created run
         """
 
-        self._logger.info("Starting run creation...")
+        self._logger.info("Creating run...")
 
         # Validate report
         validate_files(
