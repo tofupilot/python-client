@@ -12,6 +12,7 @@ import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
 
 from .upload import upload
+from .custom_prompt import patch_openhtf_prompts
 from ..client import TofuPilotClient
 
 
@@ -164,6 +165,9 @@ class TofuPilot:
 
                 self.watcher = SimpleStationWatcher(self._send_update)
                 self.watcher.start()
+                
+                # Apply the patch to OpenHTF prompts to include the TofuPilot URL
+                patch_openhtf_prompts(operatorPage)
                 
                 self._logger.success(f"Stream: Started at:\n{operatorPage}")
                 
