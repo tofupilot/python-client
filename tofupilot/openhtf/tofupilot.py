@@ -133,6 +133,26 @@ class TofuPilot:
         self._logger.pause()
         return self
     
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._logger.resume()
+
+        if self._streaming_setup_thread and self._streaming_setup_thread.is_alive():
+            self._logger.warning(f"Streaming: Setup still ongoing, waiting for it to time-out (max 10s)")
+            self._streaming_setup_thread.join()
+
+        # Stop the StationWatcher
+        if self.watcher:
+            self.watcher.stop()
+            self.watcher.join()
+
+        if self.mqttClient:
+            # Doesn't wait for publish operation to stop, this is fine since __exit__ is only called after the run was imported
+            self.mqttClient.loop_stop()
+            self.mqttClient.disconnect()
+            self.mqttClient = None
+
+    # Streaming-related methods
+
     def _setup_streaming(self):
         try:
             try:
@@ -200,23 +220,6 @@ class TofuPilot:
         except Exception as e:
             self._logger.warning(f"Streaming: Error thrown during setup: {e}")
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self._logger.resume()
-
-        if self._streaming_setup_thread and self._streaming_setup_thread.is_alive():
-            self._logger.warning(f"Streaming: Setup still ongoing, waiting for it to time-out (max 10s)")
-            self._streaming_setup_thread.join()
-
-        # Stop the StationWatcher
-        if self.watcher:
-            self.watcher.stop()
-            self.watcher.join()
-
-        if self.mqttClient:
-            # Doesn't wait for publish operation to stop, this is fine since __exit__ is only called after the run was imported
-            self.mqttClient.loop_stop()
-            self.mqttClient.disconnect()
-            self.mqttClient = None
 
     def _send_update(self, message):
         try:
@@ -276,6 +279,8 @@ class TofuPilot:
         }
 
         self._send_update(test_state_dict)
+
+    # Streaming-related callbacks
 
     def _on_message(self, client, userdata, message):
         parsed = json.loads(message.payload)
