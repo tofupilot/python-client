@@ -24,18 +24,15 @@ class PausableHandler(logging.Handler):
         self._buffer = queue.Queue()
 
     def emit(self, record):
-        print("emitting")
         if self._paused:
             self._buffer.put(record)
         else:
             self._wrapped.emit(record)
 
     def pause(self):
-        print("paused")
         self._paused = True
 
     def resume(self):
-        print("resumed")
         self._paused = False
         while not self._buffer.empty():
             self._wrapped(self._buffer.get())
