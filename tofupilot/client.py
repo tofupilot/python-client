@@ -570,8 +570,9 @@ class TofuPilotClient:
             return None
 
 def print_version_banner(current_version: str):
-    """Prints current version of client"""
+    """Prints current version of client with tofu art"""
     banner = f"""
-    TofuPilot Python Client {current_version}
+    ╭ ✈ ╮
+    [•ᴗ•] TofuPilot Python Client {current_version}
     """
     print(banner.strip())
