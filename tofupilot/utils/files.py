@@ -102,11 +102,9 @@ def upload_attachments(
 ):
     """Creates one upload per file and stores them into TofuPilot"""
     for file_path in paths:
-        logger.info("Uploading %s...", file_path)
+        logger.info("Uploading: %s", file_path)
 
         upload_id = upload_file(headers, url, file_path)
         notify_server(headers, url, upload_id, run_id)
 
-        logger.success(
-            f"Attachment {file_path} successfully uploaded and linked to run."
-        )
+        logger.success(f"Uploaded: {file_path}")
