@@ -233,22 +233,40 @@ class TofuPilotClient:
         """
         # Upload report and create run from file_path
         run_id = self.upload_and_create_from_openhtf_report(file_path)
+        
+        # If run_id is not a string, it's an error response dictionary
+        if not isinstance(run_id, str):
+            self._logger.error("Failed to create run from OpenHTF report")
+            return run_id
 
+        # Only continue with attachment upload if run_id is valid
+        test_record = None
         try:
             with open(file_path, "r", encoding="utf-8") as file:
                 test_record = json.load(file)
         except FileNotFoundError:
-            print(f"Error: The file '{file_path}' was not found.")
+            self._logger.error(f"Error: The file '{file_path}' was not found.")
+            return run_id
         except json.JSONDecodeError:
-            print(f"Error: The file '{file_path}' contains invalid JSON.")
+            self._logger.error(f"Error: The file '{file_path}' contains invalid JSON.")
+            return run_id
         except PermissionError:
-            print(f"Error: Insufficient permissions to read '{file_path}'.")
+            self._logger.error(f"Error: Insufficient permissions to read '{file_path}'.")
+            return run_id
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            self._logger.error(f"Unexpected error: {e}")
+            return run_id
 
-        if run_id and test_record:
+        # Now safely proceed with attachment upload
+        if run_id and test_record and "phases" in test_record:
+            self._logger.info("Run created successfully, uploading attachments...")
             number_of_attachments = 0
-            for phase in test_record.get("phases"):
+            
+            for phase in test_record.get("phases", []):
+                # Skip if phase has no attachments
+                if not phase.get("attachments"):
+                    continue
+                
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
                     self._logger.warning(
@@ -256,52 +274,62 @@ class TofuPilotClient:
                         self._max_attachments,
                     )
                     break
-                for attachment_name, attachment in phase.get("attachments").items():
+                    
+                for attachment_name, attachment in phase.get("attachments", {}).items():
                     number_of_attachments += 1
-
                     self._logger.info("Uploading %s...", attachment_name)
 
-                    # Upload initialization
-                    initialize_url = f"{self._url}/uploads/initialize"
-                    payload = {"name": attachment_name}
+                    try:
+                        # Upload initialization
+                        initialize_url = f"{self._url}/uploads/initialize"
+                        payload = {"name": attachment_name}
 
-                    response = requests.post(
-                        initialize_url,
-                        data=json.dumps(payload),
-                        headers=self._headers,
-                        verify=self._verify,
-                        timeout=SECONDS_BEFORE_TIMEOUT,
-                    )
+                        response = requests.post(
+                            initialize_url,
+                            data=json.dumps(payload),
+                            headers=self._headers,
+                            verify=self._verify,  
+                            timeout=SECONDS_BEFORE_TIMEOUT,
+                        )
 
-                    response.raise_for_status()
-                    response_json = response.json()
-                    upload_url = response_json.get("uploadUrl")
-                    upload_id = response_json.get("id")
+                        response.raise_for_status()
+                        response_json = response.json()
+                        upload_url = response_json.get("uploadUrl")
+                        upload_id = response_json.get("id")
 
-                    data = base64.b64decode(attachment["data"])
+                        # Ensure attachment data exists and is valid
+                        if not attachment.get("data"):
+                            self._logger.warning(f"Attachment {attachment_name} has no data, skipping")
+                            continue
 
-                    requests.put(
-                        upload_url,
-                        data=data,
-                        headers={
-                            "Content-Type": attachment["mimetype"]
-                            or "application/octet-stream",  # Default to binary if mimetype is missing
-                        },
-                        timeout=SECONDS_BEFORE_TIMEOUT,
-                    )
+                        data = base64.b64decode(attachment["data"])
 
-                    notify_server(
-                        self._headers,
-                        self._url,
-                        upload_id,
-                        run_id,
-                        self._verify,
-                    )
+                        notify_server(
+                            self._headers,
+                            self._url,
+                            upload_id,
+                            run_id,
+                            self._verify,
+                        )
 
-                    self._logger.success(
-                        "Attachment %s successfully uploaded and linked to run.",
-                        attachment_name,
-                    )
+                        # Notify server to link attachment to run
+                        notify_server(self._headers, self._url, upload_id, run_id)
+
+                        self._logger.success(
+                            "Attachment %s successfully uploaded and linked to run.",
+                            attachment_name,
+                        )
+                    except requests.exceptions.RequestException as e:
+                        self._logger.error(f"Failed to upload attachment {attachment_name}: {str(e)}")
+                        # Continue with other attachments even if one fails
+                        continue
+        else:
+            if not test_record:
+                self._logger.error("Test record could not be loaded")
+            elif "phases" not in test_record:
+                self._logger.error("Test record has no phases")
+                
+        return run_id
 
     def get_runs(self, serial_number: str) -> dict:
         """
