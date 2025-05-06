@@ -59,13 +59,13 @@ def prompt_with_tofupilot_url(
             clickable_text = f"\033]8;;{operator_page_url}\033\\TofuPilot Operator UI\033]8;;\033\\"
             sys.stdout.write(f"\n[User Input] \033[1m{message}\033[0m\n")
             sys.stdout.write(f"Waiting for user input on {clickable_text} or in terminal below.\n")
-            sys.stdout.write("\033[2mPress Ctrl+C to cancel and upload results.\033[0m\n\n")
+            # sys.stdout.write("\033[2mPress Ctrl+C to cancel and upload results.\033[0m\n\n")
             sys.stdout.flush()
         except:
             # Fallback if terminal doesn't support ANSI sequences
             print(f"\n[User Input] {message}")
             print(f"Waiting for user input on TofuPilot Operator UI or in terminal below.")
-            print("Press Ctrl+C to cancel and upload results.\n")
+            # print("Press Ctrl+C to cancel and upload results.\n")
     
     # Store original message and use it for web UI compatibility
     original_msg = message
@@ -120,7 +120,7 @@ def enhanced_prompt_for_test_start(
                 # Fallback if terminal doesn't support ANSI sequences
                 print(f"\n[User Input] {message}")
                 print(f"Waiting for user input on TofuPilot Operator UI or in terminal below.")
-                print("Press Ctrl+C to cancel and upload results.\n")
+                # print("Press Ctrl+C to cancel and upload results.\n")
         
         # Store original message and use it for web UI compatibility
         original_msg = message
@@ -169,7 +169,7 @@ def patched_prompt(self, message, text_input=False, timeout_s=None, cli_color=''
             # Fallback if terminal doesn't support ANSI sequences
             print(f"\n[User Input] {message}")
             print(f"Waiting for user input on TofuPilot Operator UI or in terminal below.")
-            print("Press Ctrl+C to cancel and upload results.\n")
+            # print("Press Ctrl+C to cancel and upload results.\n")
     
     # Override cli_color to make the OpenHTF prompt appear dimmed
     # This works because the cli_color is applied to the prompt arrow
