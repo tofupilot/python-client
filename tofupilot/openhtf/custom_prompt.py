@@ -1,4 +1,19 @@
-"""Module for custom OpenHTF user prompt integration with TofuPilot."""
+"""Custom OpenHTF prompt integration with TofuPilot.
+
+Enhances OpenHTF prompts with TofuPilot features:
+- Clickable URLs in the console
+- Bold question text
+- Consistent visual formatting
+- Compatible with TofuPilot web UI streaming
+
+Prompt format:
+- [User Input] QUESTION TEXT (bold)
+- Waiting for user input on TofuPilot Operator UI (clickable) or in terminal below.
+- Press Ctrl+C to cancel and upload results. (muted)
+- Standard OpenHTF prompt (-->)
+
+Note: The message appears twice in the console to ensure web UI compatibility.
+"""
 
 import logging
 from typing import Text, Optional, Union, Callable
@@ -29,16 +44,36 @@ def prompt_with_tofupilot_url(
     Returns:
       A string response, or the empty string if text_input was False.
     """
+    import sys
+    
     # Get the UserInput plug instance
     prompts = plugs.get_plug_instance(UserInput)
     
-    # Log the operator page URL to the console with clean formatting
+    # Print URL and instructions directly to console before the prompt
+    # This way they won't appear in the web UI
     if operator_page_url:
-        print(f"\n📱 View live test results: {operator_page_url}")
+        # Create clickable URL if in terminal that supports it
+        try:
+            # Create clickable URL with ANSI escape sequences
+            clickable_text = f"\033]8;;{operator_page_url}\033\\Operator UI\033]8;;\033\\"
+            sys.stdout.write(f"\n[User Input] \033[1m{message}\033[0m\n")
+            sys.stdout.write(f"Waiting for user input on TofuPilot {clickable_text} or in terminal below.\n")
+            sys.stdout.write("\033[2mPress Ctrl+C to cancel and upload results.\033[0m\n\n")
+            sys.stdout.flush()
+        except:
+            # Fallback if terminal doesn't support ANSI sequences
+            print(f"\n[User Input] {message}")
+            print(f"Waiting for user input on TofuPilot Operator UI: {operator_page_url[:30]}... or in terminal below.")
+            print("Press Ctrl+C to cancel and upload results.\n")
     
-    # Use the standard prompt method with original message
+    # Store original message and use it for web UI compatibility
+    original_msg = message
+    
+    # Use dim/muted text for the prompt
+    if not cli_color:
+        cli_color = '\033[2m'
     return prompts.prompt(
-        message, 
+        original_msg, 
         text_input=text_input,
         timeout_s=timeout_s, 
         cli_color=cli_color, 
@@ -66,13 +101,33 @@ def enhanced_prompt_for_test_start(
     @plugs.plug(prompts=UserInput)
     def trigger_phase(test: openhtf.TestApi, prompts: UserInput) -> None:
         """Test start trigger with TofuPilot URL displayed in console."""
-        # Log the operator page URL to the console
-        if operator_page_url:
-            print(f"\n📱 View live test results: {operator_page_url}")
+        import sys
         
-        # Standard OpenHTF prompt
+        # Print URL and instructions directly to console before the prompt
+        # This way they won't appear in the web UI
+        if operator_page_url:
+            # Create clickable URL if in terminal that supports it
+            try:
+                # Create clickable URL with ANSI escape sequences
+                clickable_text = f"\033]8;;{operator_page_url}\033\\Operator UI\033]8;;\033\\"
+                sys.stdout.write(f"\n[User Input] \033[1m{message}\033[0m\n")
+                sys.stdout.write(f"Waiting for user input on TofuPilot {clickable_text} or in terminal below.\n")
+                sys.stdout.write("\033[2mPress Ctrl+C to cancel and upload results.\033[0m\n\n")
+                sys.stdout.flush()
+            except:
+                # Fallback if terminal doesn't support ANSI sequences
+                print(f"\n[User Input] {message}")
+                print(f"Waiting for user input on TofuPilot Operator UI: {operator_page_url[:30]}... or in terminal below.")
+                print("Press Ctrl+C to cancel and upload results.\n")
+        
+        # Store original message and use it for web UI compatibility
+        original_msg = message
+        
+        # Use dim/muted text for the prompt
+        if not cli_color:
+            cli_color = '\033[2m'
         dut_id = prompts.prompt(
-            message,
+            original_msg,
             text_input=True, 
             timeout_s=timeout_s, 
             cli_color=cli_color
@@ -90,12 +145,36 @@ original_prompt = UserInput.prompt
 def patched_prompt(self, message, text_input=False, timeout_s=None, cli_color='', image_url=None, 
                   tofupilot_url=None):
     """Patched prompt method that displays TofuPilot URL in console."""
-    # Display TofuPilot URL if available
-    if tofupilot_url:
-        print(f"\n📱 View live test results: {tofupilot_url}")
+    import sys
     
-    # Call the original prompt method
-    return original_prompt(self, message, text_input, timeout_s, cli_color, image_url)
+    # Store original message to use in web UI
+    original_msg = message
+    
+    # Print URL and instructions directly to console before the prompt
+    # This way they won't appear in the web UI
+    if tofupilot_url:
+        # Create clickable URL if in terminal that supports it
+        try:
+            # Create clickable URL with ANSI escape sequences
+            clickable_text = f"\033]8;;{tofupilot_url}\033\\Operator UI\033]8;;\033\\"
+            sys.stdout.write(f"\n[User Input] \033[1m{message}\033[0m\n")
+            sys.stdout.write(f"Waiting for user input on TofuPilot {clickable_text} or in terminal below.\n")
+            sys.stdout.write("\033[2mPress Ctrl+C to stop and upload run.\033[0m\n\n")
+            sys.stdout.flush()
+            
+        except:
+            # Fallback if terminal doesn't support ANSI sequences
+            print(f"\n[User Input] {message}")
+            print(f"Waiting for user input on TofuPilot Operator UI: {tofupilot_url[:30]}... or in terminal below.")
+            print("Press Ctrl+C to cancel and upload results.\n")
+    
+    # Override cli_color to make the OpenHTF prompt appear dimmed
+    # This works because the cli_color is applied to the prompt arrow
+    if not cli_color:
+        cli_color = '\033[2m'  # Use dim/muted text if no color specified
+    
+    # Use original message for web UI compatibility
+    return original_prompt(self, original_msg, text_input, timeout_s, cli_color, image_url)
 
 
 def patch_openhtf_prompts(tofupilot_url=None):
