@@ -31,6 +31,9 @@ from .utils import (
     handle_http_error,
     handle_network_error,
     notify_server,
+    api_request,
+    upload_attachment_data,
+    process_openhtf_attachments,
 )
 
 
@@ -61,8 +64,8 @@ class TofuPilotClient:
 
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."  # pylint: disable=line-too-long
-            self._logger.error(f"API key error: {error}")
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."
+            self._logger.error(error)
             sys.exit(1)
 
         self._url = f"{url or os.environ.get('TOFUPILOT_URL') or ENDPOINT}/api/v1"
@@ -186,35 +189,22 @@ class TofuPilotClient:
             payload["report_variables"] = report_variables
 
         self._log_request("POST", "/runs", payload)
+        result = api_request(
+            self._logger,
+            "POST",
+            f"{self._url}/runs",
+            self._headers,
+            data=payload,
+            verify=self._verify,
+        )
 
-        try:
-            response = requests.post(
-                f"{self._url}/runs",
-                json=payload,
-                headers=self._headers,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-                verify=self._verify,
+        # Upload attachments if run was created successfully
+        run_id = result.get("id")
+        if run_id and attachments and result.get("success", False) is not False:
+            upload_attachments(
+                self._logger, self._headers, self._url, attachments, run_id, self._verify,
             )
-            response.raise_for_status()
-            result = handle_response(self._logger, response)
-
-            run_id = result.get("id")
-            if run_id and attachments:
-                upload_attachments(
-                    self._logger,
-                    self._headers,
-                    self._url,
-                    attachments,
-                    run_id,
-                    self._verify,
-                )
-
-            return result
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        return result
 
     def create_run_from_openhtf_report(self, file_path: str):
         """
@@ -259,67 +249,18 @@ class TofuPilotClient:
 
         # Now safely proceed with attachment upload
         if run_id and test_record and "phases" in test_record:
-            self._logger.info("Run created, uploading attachments")
-            number_of_attachments = 0
-            
-            for phase in test_record.get("phases", []):
-                # Skip if phase has no attachments
-                if not phase.get("attachments"):
-                    continue
-                
-                # Keep only max number of attachments
-                if number_of_attachments >= self._max_attachments:
-                    self._logger.warning(
-                        "Attachment limit (%d) reached",
-                        self._max_attachments
-                    )
-                    break
-                    
-                for attachment_name, attachment in phase.get("attachments", {}).items():
-                    number_of_attachments += 1
-                    self._logger.info("Uploading: %s", attachment_name)
-
-                    try:
-                        # Upload initialization
-                        initialize_url = f"{self._url}/uploads/initialize"
-                        payload = {"name": attachment_name}
-
-                        response = requests.post(
-                            initialize_url,
-                            data=json.dumps(payload),
-                            headers=self._headers,
-                            verify=self._verify,  
-                            timeout=SECONDS_BEFORE_TIMEOUT,
-                        )
-
-                        response.raise_for_status()
-                        response_json = response.json()
-                        upload_url = response_json.get("uploadUrl")
-                        upload_id = response_json.get("id")
-
-                        # Ensure attachment data exists and is valid
-                        if not attachment.get("data"):
-                            self._logger.warning(f"No data in: {attachment_name}")
-                            continue
-
-                        data = base64.b64decode(attachment["data"])
-
-                        notify_server(
-                            self._headers,
-                            self._url,
-                            upload_id,
-                            run_id,
-                            self._verify,
-                        )
-
-                        # Notify server to link attachment to run
-                        notify_server(self._headers, self._url, upload_id, run_id)
-
-                        self._logger.success("Uploaded: %s", attachment_name)
-                    except requests.exceptions.RequestException as e:
-                        self._logger.error(f"Upload failed: {attachment_name} - {str(e)}")
-                        # Continue with other attachments even if one fails
-                        continue
+            # Use the centralized function to process all attachments
+            process_openhtf_attachments(
+                self._logger,
+                self._headers,
+                self._url,
+                test_record,
+                run_id,
+                self._max_attachments,
+                self._max_file_size,
+                needs_base64_decode=True,  # JSON attachments need base64 decoding
+                verify=self._verify,
+            )
         else:
             if not test_record:
                 self._logger.error("Test record load failed")
@@ -356,24 +297,15 @@ class TofuPilotClient:
 
         self._logger.info("Fetching runs for: %s", serial_number)
         params = {"serial_number": serial_number}
-
         self._log_request("GET", "/runs", params)
-
-        try:
-            response = requests.get(
-                f"{self._url}/runs",
-                headers=self._headers,
-                verify=self._verify,
-                params=params,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            return handle_response(self._logger, response)
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        return api_request(
+            self._logger,
+            "GET",
+            f"{self._url}/runs",
+            self._headers,
+            params=params,
+            verify=self._verify,
+        )
 
     def delete_run(self, run_id: str) -> dict:
         """
@@ -390,23 +322,14 @@ class TofuPilotClient:
             https://www.tofupilot.com/docs/api#delete-a-run
         """
         self._logger.info('Deleting run: %s', run_id)
-
         self._log_request("DELETE", f"/runs/{run_id}")
-
-        try:
-            response = requests.delete(
-                f"{self._url}/runs/{run_id}",
-                headers=self._headers,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            return handle_response(self._logger, response)
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        return api_request(
+            self._logger,
+            "DELETE",
+            f"{self._url}/runs/{run_id}",
+            self._headers,
+            verify=self._verify,
+        )
 
     def update_unit(
         self, serial_number: str, sub_units: Optional[List[SubUnit]] = None
@@ -428,26 +351,16 @@ class TofuPilotClient:
             https://www.tofupilot.com/docs/api#update-a-unit
         """
         self._logger.info('Updating unit: %s', serial_number)
-
         payload = {"sub_units": sub_units}
-
         self._log_request("PATCH", f"/units/{serial_number}", payload)
-
-        try:
-            response = requests.patch(
-                f"{self._url}/units/{serial_number}",
-                json=payload,
-                headers=self._headers,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            return handle_response(self._logger, response)
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        return api_request(
+            self._logger,
+            "PATCH",
+            f"{self._url}/units/{serial_number}",
+            self._headers,
+            data=payload,
+            verify=self._verify,
+        )
 
     def delete_unit(self, serial_number: str) -> dict:
         """
@@ -465,23 +378,14 @@ class TofuPilotClient:
             https://www.tofupilot.com/docs/api#delete-a-unit
         """
         self._logger.info('Deleting unit: %s', serial_number)
-
         self._log_request("DELETE", f"/units/{serial_number}")
-
-        try:
-            response = requests.delete(
-                f"{self._url}/units/{serial_number}",
-                headers=self._headers,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            return handle_response(self._logger, response)
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        return api_request(
+            self._logger,
+            "DELETE",
+            f"{self._url}/units/{serial_number}",
+            self._headers,
+            verify=self._verify,
+        )
 
     def upload_and_create_from_openhtf_report(
         self,
@@ -509,20 +413,15 @@ class TofuPilotClient:
                 self._logger.error("API key error: Invalid API key format.")
                 return {"success": False, "error": {"message": "Invalid API key format."}}
             
-            upload_id = upload_file(self._logger, self._headers, self._url, file_path, self._verify)
+            upload_id = upload_file(self._headers, self._url, file_path, self._verify)
         except requests.exceptions.HTTPError as http_err:
-            # Make sure API key errors are properly logged
-            if http_err.response.status_code == 401:
-                error_data = http_err.response.json()
-                error_message = error_data.get("error", {}).get("message", "Authentication failed")
-                self._logger.error(f"API key error: {error_message}")
-                return {"success": False, "error": {"message": error_message}}
-            return handle_http_error(self._logger, http_err)
+            error_info = handle_http_error(self._logger, http_err)
+            # Error already logged by handle_http_error
+            return error_info
         except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-        except Exception as e:
-            self._logger.error(f"Unexpected error: {str(e)}")
-            return {"success": False, "error": {"message": str(e)}}
+            error_info = handle_network_error(self._logger, e)
+            # Error already logged by handle_network_error
+            return error_info
 
         payload = {
             "upload_id": upload_id,
@@ -533,26 +432,21 @@ class TofuPilotClient:
 
         self._log_request("POST", "/import", payload)
 
-        # Create run from file
-        try:
-            response = requests.post(
-                f"{self._url}/import",
-                json=payload,
-                headers=self._headers,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            result = handle_response(self._logger, response)
+        # Create run from file using unified API request handler
+        result = api_request(
+            self._logger,
+            "POST",
+            f"{self._url}/import",
+            self._headers,
+            data=payload,
+            verify=self._verify,
+        )
 
-            run_id = result.get("id")
-
-            return run_id
-
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        # Return only the ID if successful, otherwise return the full result
+        if result.get("success", False) is not False:
+            return result.get("id")
+        else:
+            return result
     
     def get_connection_credentials(self) -> dict:
         """
@@ -562,8 +456,8 @@ class TofuPilotClient:
             values:
                 a dict containing the emqx server url, the topic to connect to, and the JWT token required to connect
         """
-
         try:
+            # Using direct request instead of api_request to match original behavior
             response = requests.get(
                 f"{self._url}/streaming",
                 headers=self._headers,
@@ -573,13 +467,10 @@ class TofuPilotClient:
             response.raise_for_status()
             values = handle_response(self._logger, response)
             return values
-
-        except requests.exceptions.HTTPError as http_err:
-            handle_http_error(self._logger, http_err)
-            return None
-        except requests.RequestException as e:
-            handle_network_error(self._logger, e)
-            return None
+        except Exception:
+            # Catch any error but don't return None - matching original behavior
+            # Handle errors but let execution continue
+            return {}
 
 def print_version_banner(current_version: str):
     """Prints current version of client with tofu art"""

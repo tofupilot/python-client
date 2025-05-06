@@ -21,25 +21,16 @@ logging.Logger.success = success
 
 
 def add_pause_methods_to_logger(logger):
-    """
-    Simple function to add pause/resume functionality to a logger without modifying handlers.
-    
-    Args:
-        logger: The logger to enhance
-    """
-    # Create buffer for storing messages while paused
-    message_buffer = queue.Queue()
+    """Add pause/resume functionality to a logger"""
     original_handlers = list(logger.handlers)
     
-    # Save the original handlers' handles and emits
     def pause():
-        """Temporarily disable all handlers to pause logging"""
+        """Temporarily disable all handlers"""
         for handler in logger.handlers:
             logger.removeHandler(handler)
     
     def resume():
-        """Re-enable handlers and process any buffered messages"""
-        # Restore original handlers
+        """Re-enable handlers"""
         for handler in original_handlers:
             if handler not in logger.handlers:
                 logger.addHandler(handler)
@@ -49,6 +40,26 @@ def add_pause_methods_to_logger(logger):
     logger.resume = resume
     
     return logger
+
+
+class LoggerStateManager:
+    """Context manager for temporarily ensuring logger is active"""
+    
+    def __init__(self, logger):
+        self.logger = logger
+        self.was_resumed = False
+        
+    def __enter__(self):
+        # Ensure logger is active for this block
+        if hasattr(self.logger, 'resume'):
+            self.logger.resume()
+            self.was_resumed = True
+        return self
+        
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # If we resumed the logger, restore to paused state
+        if self.was_resumed and hasattr(self.logger, 'pause'):
+            self.logger.pause()
 
 
 class TofupilotFormatter(logging.Formatter):

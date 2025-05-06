@@ -14,6 +14,9 @@ from ..constants import (
 )
 from ..utils import (
     notify_server,
+    LoggerStateManager,
+    upload_attachment_data,
+    process_openhtf_attachments,
 )
 
 
@@ -68,115 +71,68 @@ class upload:  # pylint: disable=invalid-name
         self._max_file_size = self.client._max_file_size
 
     def __call__(self, test_record: TestRecord):
-
-        # Extract relevant details from the test record
-        dut_id = test_record.dut_id
-        test_name = test_record.metadata.get("test_name")
-
-        # Convert milliseconds to a datetime object
-        start_time = datetime.datetime.fromtimestamp(
-            test_record.start_time_millis / 1000.0
-        )
-
-        # Format the timestamp as YYYY-MM-DD_HH_MM_SS_SSS
-        start_time_formatted = start_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
-
-        temp_dir = tempfile.gettempdir()
-
-        # Craft system-agnostic temporary filename
-        filename = os.path.join(
-            temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json"
-        )
-
-        # Use the existing OutputToJSON callback to write to the custom file
-        output_callback = json_factory.OutputToJSON(
-            filename,
-            inline_attachments=False,  # Exclude raw attachments
-            allow_nan=self.allow_nan,
-            indent=4,
-        )
-
-        # Open the custom file and write serialized test record to it
-        with open(filename, "w", encoding="utf-8") as file:
-            for json_line in output_callback.serialize_test_record(test_record):
-                file.write(json_line)
-
-        try:
-            # Call create_run_from_report with the generated file path
-            run_id = self.client.upload_and_create_from_openhtf_report(filename)
+        # Use context manager to handle logger state
+        with LoggerStateManager(self._logger):
+            # Extract test metadata
+            dut_id = test_record.dut_id
+            test_name = test_record.metadata.get("test_name")
             
-            # Check if run_id is actually an error response (returned as a dict)
-            if isinstance(run_id, dict) and not run_id.get('success', True):
-                # Error already logged by client methods
-                return
-                
-        except Exception as e:
-            # Error already logged by client methods
-            return
-        finally:
-            # Ensure the file is deleted after processing
-            if os.path.exists(filename):
-                os.remove(filename)
+            # Create timestamp for filename
+            start_time = datetime.datetime.fromtimestamp(
+                test_record.start_time_millis / 1000.0
+            )
+            start_time_formatted = start_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
 
-        # Skip attachment upload if run_id is not a valid string
+            # Create temp file for the report
+            fd, filename = tempfile.mkstemp(
+                suffix=".json",
+                prefix=f"{dut_id}.{test_name}.{start_time_formatted}.",
+                dir=tempfile.gettempdir()
+            )
+            try:
+                os.close(fd)  # Close file descriptor
+                
+                # Use OpenHTF JSON callback to serialize test record
+                output_callback = json_factory.OutputToJSON(
+                    filename,
+                    inline_attachments=False,
+                    allow_nan=self.allow_nan,
+                    indent=4,
+                )
+                
+                # Write test record to file
+                with open(filename, "w", encoding="utf-8") as file:
+                    for json_line in output_callback.serialize_test_record(test_record):
+                        file.write(json_line)
+                
+                # Upload report to server
+                run_id = self.client.upload_and_create_from_openhtf_report(filename)
+                
+                # Check if response indicates error
+                if isinstance(run_id, dict) and not run_id.get('success', True):
+                    return
+            except Exception as e:
+                self._logger.error(str(e))
+                return
+            finally:
+                # Clean up temp file
+                if os.path.exists(filename):
+                    os.remove(filename)
+                    
+        # Skip attachment upload if run_id is invalid
         if not run_id or not isinstance(run_id, str):
             return
             
-        number_of_attachments = 0
-        for phase in test_record.phases:
-                # Keep only max number of attachments
-                if number_of_attachments >= self._max_attachments:
-                    self._logger.warning(
-                        "Attachment limit (%d) reached",
-                        self._max_attachments
-                    )
-                    break
-                for attachment_name, attachment in phase.attachments.items():
-                    # Remove attachments that exceed the max file size
-                    if attachment.size > self._max_file_size:
-                        self._logger.warning(
-                            "File too large (%d bytes): %s",
-                            self._max_file_size,
-                            attachment.name
-                        )
-                        continue
-                    if number_of_attachments >= self._max_attachments:
-                        break
-
-                    number_of_attachments += 1
-
-                    self._logger.info("Uploading: %s", attachment_name)
-
-                    # Upload initialization
-                    initialize_url = f"{self._url}/uploads/initialize"
-                    payload = {"name": attachment_name}
-
-                    response = requests.post(
-                        initialize_url,
-                        data=json.dumps(payload),
-                        headers=self._headers,
-                        verify=self._verify,
-                        timeout=SECONDS_BEFORE_TIMEOUT,
-                    )
-
-                    response.raise_for_status()
-                    response_json = response.json()
-                    upload_url = response_json.get("uploadUrl")
-                    upload_id = response_json.get("id")
-
-                    requests.put(
-                        upload_url,
-                        data=attachment.data,
-                        headers={"Content-Type": attachment.mimetype},
-                        timeout=SECONDS_BEFORE_TIMEOUT,
-                    )
-
-                    notify_server(
-                        self._headers,
-                        self._url,
-                        upload_id,
-                        run_id,
-                        self._verify,
-                    )
-
-                    self._logger.success("Uploaded: %s", attachment_name)
+        # Use the centralized function to process all attachments
+        # OpenHTF test record is directly passed as an object, not JSON
+        process_openhtf_attachments(
+            self._logger,
+            self._headers,
+            self._url,
+            test_record,
+            run_id,
+            self._max_attachments,
+            self._max_file_size,
+            needs_base64_decode=False,  # Direct object attachments don't need base64 decoding
+            verify=self.verify,
+        )
