@@ -20,82 +20,35 @@ def success(self, message, *args, **kws):
 logging.Logger.success = success
 
 
-class PausableHandler(logging.Handler):
-    """Handler that can pause and buffer logging messages."""
-
-    def __init__(self, handler: logging.Handler):
-        super().__init__()
-        self._wrapped = handler
-        self._paused = False
-        self._buffer = queue.Queue()
-        # Copy initial level from wrapped handler
-        self.setLevel(handler.level)
-
-    def emit(self, record):
-        if self._paused:
-            self._buffer.put(record)
-        else:
-            self._wrapped.emit(record)
-
-    def pause(self):
-        """Pause logging by buffering messages."""
-        self._paused = True
-
-    def resume(self):
-        """Resume logging and flush buffered messages."""
-        self._paused = False
-        while not self._buffer.empty():
-            self._wrapped.emit(self._buffer.get())
-
-    def close(self):
-        self._wrapped.close()
-        super().close()
-
-    def createLock(self):
-        self._wrapped.createLock()
-
-    def acquire(self):
-        self._wrapped.acquire()
-
-    def release(self):
-        self._wrapped.release()
-
-    def setLevel(self, level):
-        super().setLevel(level)  # Set level on self
-        self._wrapped.setLevel(level)  # Also set level on wrapped handler
-
-    def setFormatter(self, fmt):
-        self._wrapped.setFormatter(fmt)
-
-    def format(self, record):
-        return self._wrapped.format(record)
-
-    def handle(self, record):
-        super().handle(record)  # Use parent's handle which calls emit
-        return True
-
-    def flush(self):
-        self._wrapped.flush()
-
-    def handleError(self, record):
-        self._wrapped.handleError(record)
-
-    def __repr__(self):
-        return f"PausableHandler({repr(self._wrapped)})"
+def add_pause_methods_to_logger(logger):
+    """
+    Simple function to add pause/resume functionality to a logger without modifying handlers.
     
-    def addFilter(self, filter):
-        super().addFilter(filter)  # Add to parent handler
-        self._wrapped.addFilter(filter)  # Add to wrapped handler
-
-    def removeFilter(self, filter):
-        super().removeFilter(filter)  # Remove from parent
-        self._wrapped.removeFilter(filter)  # Remove from wrapped handler
-
-    def filter(self, record):
-        # Use both parent and wrapped handler's filters
-        if not super().filter(record):
-            return False
-        return self._wrapped.filter(record)
+    Args:
+        logger: The logger to enhance
+    """
+    # Create buffer for storing messages while paused
+    message_buffer = queue.Queue()
+    original_handlers = list(logger.handlers)
+    
+    # Save the original handlers' handles and emits
+    def pause():
+        """Temporarily disable all handlers to pause logging"""
+        for handler in logger.handlers:
+            logger.removeHandler(handler)
+    
+    def resume():
+        """Re-enable handlers and process any buffered messages"""
+        # Restore original handlers
+        for handler in original_handlers:
+            if handler not in logger.handlers:
+                logger.addHandler(handler)
+    
+    # Add methods to logger
+    logger.pause = pause
+    logger.resume = resume
+    
+    return logger
 
 
 class TofupilotFormatter(logging.Formatter):
@@ -238,26 +191,22 @@ def setup_logger(log_level=None, advanced_format=True):
     log_level = log_level or level_filter.level
     logger.setLevel(log_level)
     
-    # Create stdout handler with pausable wrapper
-    base_handler = logging.StreamHandler(sys.stdout)
-    base_handler.setLevel(log_level)  # Set level on base handler
+    # Create handler
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(log_level)
     
     # Choose formatter based on preference
     if advanced_format:
-        base_handler.setFormatter(TofupilotFormatter())
+        handler.setFormatter(TofupilotFormatter())
     else:
-        base_handler.setFormatter(CustomFormatter())
+        handler.setFormatter(CustomFormatter())
         
-    base_handler.addFilter(level_filter)
-    
-    # Create pausable wrapper
-    handler = PausableHandler(base_handler)
+    handler.addFilter(level_filter)
     
     # Add handler to logger
     logger.addHandler(handler)
     
-    # Add pause/resume methods to logger as attributes
-    setattr(logger, 'pause', handler.pause)
-    setattr(logger, 'resume', handler.resume)
+    # Add pause/resume functionality
+    logger = add_pause_methods_to_logger(logger)
     
     return logger
