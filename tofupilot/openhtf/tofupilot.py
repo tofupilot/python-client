@@ -122,7 +122,7 @@ def execute_with_graceful_exit(test, test_start=None):
 class TofuPilot:
     """
     Context manager to automatically add an output callback to the running OpenHTF test
-    and live stream it's execution.
+    and live stream it's execution to the Operator UI.
 
 
     ### Usage Example:
@@ -136,7 +136,7 @@ class TofuPilot:
     def main():
         test = Test(*your_phases, procedure_id="FVT1")
 
-        # Stream real-time test execution data to TofuPilot
+        # Stream real-time test execution data to TofuPilot Operator UI
         with TofuPilot(test):
             # For more reliable Ctrl+C handling, use the helper function:
             execute_with_graceful_exit(test, test_start=lambda: "SN15")
@@ -149,7 +149,7 @@ class TofuPilot:
     def __init__(
         self,
         test: Test,
-        stream: Optional[bool] = True,
+        stream: Optional[bool] = True,  # Controls connection to Operator UI
         api_key: Optional[str] = None,
         url: Optional[str] = None,
     ):
@@ -175,7 +175,7 @@ class TofuPilot:
                 cred = self.client.get_connection_credentials()
 
                 if not cred:
-                    self._logger.warning("Stream: Auth server connection failed")
+                    self._logger.warning("Operator UI: Auth server connection failed")
                     return self
 
                 # Since we control the server, we know these will be set
@@ -201,12 +201,12 @@ class TofuPilot:
 
                 connect_error_code = self.mqttClient.connect(**connectOptions)
                 if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
-                    self._logger.warning(f"Stream: Connect failed (code {connect_error_code})")
+                    self._logger.warning(f"Operator UI: Connect failed (code {connect_error_code})")
                     return self
                 
                 subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
                 if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
-                    self._logger.warning(f"Stream: Subscribe failed (code {subscribe_error_code})")
+                    self._logger.warning(f"Operator UI: Subscribe failed (code {subscribe_error_code})")
                     return self
 
                 self.mqttClient.loop_start()
@@ -229,7 +229,7 @@ class TofuPilot:
                     self._logger.success(f"Connected to TofuPilot: {operatorPage}")
                 
             except Exception as e:
-                self._logger.warning(f"Stream: Setup error - {e}")
+                self._logger.warning(f"Operator UI: Setup error - {e}")
             
 
         return self
@@ -283,13 +283,13 @@ class TofuPilot:
         _, test_state = _get_executing_test()
 
         if test_state is None:
-            self._logger.warning("Stream: No running test found")
+            self._logger.warning("Operator UI: No running test found")
             return
 
         # Find the plug matching `plug_name`.
         plug = test_state.plug_manager.get_plug_by_class_path(plug_name)
         if plug is None:
-            self._logger.warning(f"Stream: Plug not found - {plug_name}")
+            self._logger.warning(f"Operator UI: Plug not found - {plug_name}")
             return
 
         method = getattr(plug, method_name, None)
@@ -297,14 +297,14 @@ class TofuPilot:
         if not (plug.enable_remote and isinstance(method, types.MethodType) and
                 not method_name.startswith('_') and
                 method_name not in plug.disable_remote_attrs):
-            self._logger.warning(f"Stream: Method not found - {plug_name}.{method_name}")
+            self._logger.warning(f"Operator UI: Method not found - {plug_name}.{method_name}")
             return
 
         try:
             # side-effecting !
             method(*args)
         except Exception as e:  # pylint: disable=broad-except
-            self._logger.warning(f"Stream: Method call failed - {method_name}({', '.join(args)}) - {e}")
+            self._logger.warning(f"Operator UI: Method call failed - {method_name}({', '.join(args)}) - {e}")
     
     def _on_message(self, client, userdata, message):
         parsed = json.loads(message.payload)
@@ -314,8 +314,8 @@ class TofuPilot:
 
     def _on_disconnect(self, client, userdata, disconnect_flags, reason_code, properties):
         if reason_code != mqtt.MQTT_ERR_SUCCESS:
-            self._logger.warning(f"Stream: Unexpected disconnect (code {reason_code})")
+            self._logger.warning(f"Operator UI: Unexpected disconnect (code {reason_code})")
 
     def _on_unsubscribe(self, client, userdata, mid, reason_code_list, properties):
         if any(reason_code != mqtt.MQTT_ERR_SUCCESS for reason_code in reason_code_list):
-            self._logger.warning(f"Stream: Partial disconnect (codes {reason_code_list})")
+            self._logger.warning(f"Operator UI: Partial disconnect (codes {reason_code_list})")
