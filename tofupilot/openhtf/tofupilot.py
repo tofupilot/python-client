@@ -77,48 +77,6 @@ class SimpleStationWatcher(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
-def execute_with_graceful_exit(test, test_start=None):
-    """Execute a test with graceful handling of KeyboardInterrupt.
-    
-    This is a helper function that wraps the OpenHTF test.execute method
-    to ensure clean termination when Ctrl+C is pressed.
-    
-    Args:
-        test: The OpenHTF test to execute
-        test_start: The test_start parameter to pass to test.execute
-        
-    Returns:
-        The test result from test.execute, or None if interrupted
-    """
-    try:
-        # Set up Ctrl+C handler to show message immediately
-        import signal
-        
-        def immediate_interrupt_handler(sig, frame):
-            print("\nTest execution interrupted by user.")
-            print("Test was interrupted. Exiting gracefully.")
-            # Let the KeyboardInterrupt propagate
-            raise KeyboardInterrupt()
-            
-        # Store the original handler to restore later
-        original_handler = signal.getsignal(signal.SIGINT)
-        # Set our immediate message handler
-        signal.signal(signal.SIGINT, immediate_interrupt_handler)
-        
-        try:
-            return test.execute(test_start=test_start)
-        finally:
-            # Restore the original handler
-            signal.signal(signal.SIGINT, original_handler)
-    except KeyboardInterrupt:
-        # KeyboardInterrupt has already been handled with immediate message
-        return None
-    except AttributeError as e:
-        if "'NoneType' object has no attribute 'name'" in str(e):
-            # This happens when KeyboardInterrupt is caught by OpenHTF
-            # but the test state isn't properly set
-            return None
-        raise  # Re-raise any other AttributeError
 
 
 class TofuPilot:

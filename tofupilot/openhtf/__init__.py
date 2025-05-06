@@ -8,11 +8,10 @@ Core functionality:
    - Clickable TofuPilot URLs in the terminal
    - Instructions for terminal and web UI input options
    - Graceful Ctrl+C handling with result upload
-4. execute_with_graceful_exit(): Run tests with clean interrupt handling
 """
 
 from .upload import upload
-from .tofupilot import TofuPilot, execute_with_graceful_exit
+from .tofupilot import TofuPilot
 from .custom_prompt import (
     patch_openhtf_prompts,
     prompt_with_tofupilot_url,
@@ -25,5 +24,4 @@ __all__ = [
     'patch_openhtf_prompts',
     'prompt_with_tofupilot_url',
     'enhanced_prompt_for_test_start',
-    'execute_with_graceful_exit',
 ]
