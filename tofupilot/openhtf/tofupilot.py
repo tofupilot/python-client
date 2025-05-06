@@ -217,7 +217,16 @@ class TofuPilot:
                 # Apply the patch to OpenHTF prompts to include the TofuPilot URL
                 patch_openhtf_prompts(operatorPage)
                 
-                self._logger.success(f"Stream: Started at:\n{operatorPage}")
+                # Create clickable URL similar to the prompt format
+                import sys
+                try:
+                    # Use ANSI escape sequence for clickable link
+                    clickable_url = f"\033]8;;{operatorPage}\033\\TofuPilot Operator UI\033]8;;\033\\"
+                    sys.stdout.write(f"\033[0;32mConnected to {clickable_url}\033[0m\n")
+                    sys.stdout.flush()
+                except:
+                    # Fallback for terminals that don't support ANSI
+                    self._logger.success(f"Connected to TofuPilot: {operatorPage}")
                 
             except Exception as e:
                 self._logger.warning(f"Stream: Setup error - {e}")

@@ -20,7 +20,7 @@ logging.Logger.success = success
 
 
 class TofupilotFormatter(logging.Formatter):
-    """Dev-friendly formatter with colors, timing, and thread info."""
+    """Minimal formatter with colors and no timestamp."""
 
     # ANSI color codes
     RESET = "\033[0m"
@@ -53,47 +53,26 @@ class TofupilotFormatter(logging.Formatter):
     }
     
     def __init__(self):
-        """Init with timing trackers."""
+        """Initialize formatter."""
         super().__init__()
-        self.start_time = time.time()
-        self.lock = threading.Lock()
-        # Thread local storage for timing information
-        self.local = threading.local()
-        self.local.last_time = self.start_time
         
     def format(self, record):
-        """Format log with timing, colors and thread info."""
-        # Calculate timing information - thread safe
-        current_time = time.time()
-        
-        # Initialize thread-local storage for first access
-        if not hasattr(self.local, 'last_time'):
-            self.local.last_time = self.start_time
-            
-        # Calculate elapsed times
-        elapsed_total = current_time - self.start_time
-        elapsed_since_last = current_time - self.local.last_time
-        self.local.last_time = current_time
-        
+        """Format log with minimal prefix and colors."""
         # Get log level color and short name
         level_color = self.LEVEL_COLORS.get(record.levelno, self.RESET)
         level_name = self.LEVEL_NAMES.get(record.levelno, "???")
         
-        # Get thread name/id for concurrent operations
+        # Get thread name for concurrent operations (only non-main threads)
         thread_info = ""
         if threading.active_count() > 1:
             current_thread = threading.current_thread()
             if current_thread.name != "MainThread":
                 thread_info = f"[{current_thread.name}] "
         
-        # Format time as HH:MM:SS.mmm
-        time_str = datetime.fromtimestamp(record.created).strftime("%H:%M:%S.%f")[:-3]
+        # Create minimal prefix with no timestamp
+        prefix = f"{level_color}{self.BOLD}TP{self.RESET}{level_color}:{level_name} {thread_info}"
         
-        # Construct log message with contextual information
-        elapsed_str = f"+{elapsed_since_last:.3f}s"
-        prefix = f"{level_color}{time_str} {self.BOLD}TP{self.RESET}{level_color}:{level_name} {elapsed_str} {thread_info}"
-        
-        # Add log message
+        # Add log message with color
         message = record.getMessage()
         formatted_message = f"{prefix}{message}{self.RESET}"
         
@@ -105,25 +84,25 @@ class TofupilotFormatter(logging.Formatter):
         return formatted_message
 
 
-# Legacy formatter for backward compatibility
+# Simple formatter for backward compatibility
 class CustomFormatter(logging.Formatter):
-    """Custom formatter with minimal styling."""
+    """Simple formatter with no timestamp."""
 
     reset_code = "\033[0m"
 
     format_dict = {
-        logging.DEBUG: "\033[0;37m%(asctime)s - DEBUG: %(message)s" + reset_code,
-        logging.INFO: "\033[0;34m%(asctime)s - INFO: %(message)s" + reset_code,
-        logging.WARNING: "\033[0;33m%(asctime)s - WARN: %(message)s" + reset_code,
-        logging.ERROR: "\033[0;31m%(asctime)s - ERROR: %(message)s" + reset_code,
-        logging.CRITICAL: "\033[1;41m%(asctime)s - CRIT: %(message)s" + reset_code,
-        SUCCESS_LEVEL_NUM: "\033[0;32m%(asctime)s - SUCCESS: %(message)s" + reset_code,
+        logging.DEBUG: "\033[0;37mDEBUG: %(message)s" + reset_code,
+        logging.INFO: "\033[0;34mINFO: %(message)s" + reset_code,
+        logging.WARNING: "\033[0;33mWARN: %(message)s" + reset_code,
+        logging.ERROR: "\033[0;31mERROR: %(message)s" + reset_code,
+        logging.CRITICAL: "\033[1;41mCRIT: %(message)s" + reset_code,
+        SUCCESS_LEVEL_NUM: "\033[0;32mSUCCESS: %(message)s" + reset_code,
     }
 
     def format(self, record):
-        """Format the specified record as text."""
+        """Format record with minimal prefix."""
         log_fmt = self.format_dict.get(record.levelno, self._fmt)
-        formatter = logging.Formatter(log_fmt, datefmt="%Y-%m-%d %H:%M:%S")
+        formatter = logging.Formatter(log_fmt)
         return formatter.format(record)
 
 
@@ -158,11 +137,11 @@ class LogLevelFilter(logging.Filter):
 
 
 def setup_logger(log_level=None, advanced_format=True):
-    """Configure logger with timing, thread tracking and color support.
+    """Configure logger with minimal formatting and color support.
     
     Args:
         log_level: Override env var TOFUPILOT_LOG_LEVEL
-        advanced_format: Use advanced formatting (default True)
+        advanced_format: Use TofupilotFormatter (default) or CustomFormatter
     
     Returns:
         Configured logger instance
