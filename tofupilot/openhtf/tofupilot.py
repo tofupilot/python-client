@@ -183,10 +183,12 @@ class TofuPilot:
                 cred = self.client.get_connection_credentials()
             except Exception as e:
                 self._logger.warning(f"Operator UI: JWT error: {e}")
+                self.stream = False  # Disable streaming on auth failure
                 return
 
             if not cred:
                 self._logger.warning("Operator UI: Auth server connection failed")
+                self.stream = False  # Disable streaming on auth failure
                 return self
 
             # Since we control the server, we know these will be set
@@ -218,20 +220,24 @@ class TofuPilot:
                 connect_error_code = self.mqttClient.connect(**connectOptions)
             except Exception as e:
                 self._logger.warning(f"Operator UI: Failed to connect with server (exception): {e}")
+                self.stream = False  # Disable streaming on connection failure
                 return
             
             if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
                 self._logger.warning(f"Operator UI: Failed to connect with server (error code): {connect_error_code}")
+                self.stream = False  # Disable streaming on connection failure
                 return self
             
             try:
                 subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
             except Exception as e:
                 self._logger.warning(f"Operator UI: Failed to subscribe to server (exception): {e}")
+                self.stream = False  # Disable streaming on subscription failure
                 return
             
             if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
                 self._logger.warning(f"Operator UI: Failed to subscribe to server (error code): {subscribe_error_code}")
+                self.stream = False  # Disable streaming on subscription failure
                 return self
 
             self.mqttClient.loop_start()
@@ -255,9 +261,14 @@ class TofuPilot:
             
         except Exception as e:
             self._logger.warning(f"Operator UI: Setup error - {e}")
+            self.stream = False  # Disable streaming on any setup error
 
 
     def _send_update(self, message):
+        # Skip publishing if streaming is disabled or client is None
+        if not self.stream or self.mqttClient is None:
+            return
+            
         try:
             self.mqttClient.publish(
                 payload=json.dumps(
@@ -267,6 +278,7 @@ class TofuPilot:
             )
         except Exception as e:
             self._logger.warning(f"Operator UI: Failed to publish to server (exception): {e}")
+            self.stream = False  # Disable streaming on publish failure
             return
         
     def _handle_answer(self, plug_name, method_name, args):
@@ -302,7 +314,8 @@ class TofuPilot:
         we force send at least once at the very end of the test
         """
 
-        if not self.stream:
+        # Skip if streaming is disabled or MQTT client doesn't exist
+        if not self.stream or self.mqttClient is None:
             return
 
         test_record_dict = testRecord.as_base_types()
