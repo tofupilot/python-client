@@ -104,14 +104,28 @@ class upload:  # pylint: disable=invalid-name
         try:
             # Call create_run_from_report with the generated file path
             run_id = self.client.upload_and_create_from_openhtf_report(filename)
+            
+            # Check if run_id is actually an error response (returned as a dict)
+            if isinstance(run_id, dict) and not run_id.get('success', True):
+                error_msg = run_id.get('error', {}).get('message')
+                if error_msg:
+                    self._logger.error(f"Upload failed: {error_msg}")
+                return
+                
+        except Exception as e:
+            self._logger.error(f"Upload failed: {str(e)}")
+            return
         finally:
             # Ensure the file is deleted after processing
             if os.path.exists(filename):
                 os.remove(filename)
 
-        if run_id:
-            number_of_attachments = 0
-            for phase in test_record.phases:
+        # Skip attachment upload if run_id is not a valid string
+        if not run_id or not isinstance(run_id, str):
+            return
+            
+        number_of_attachments = 0
+        for phase in test_record.phases:
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
                     self._logger.warning(
