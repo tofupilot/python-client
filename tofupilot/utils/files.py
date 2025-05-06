@@ -3,7 +3,7 @@ import mimetypes
 from logging import Logger
 import os
 import sys
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Union
 import requests
 
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
@@ -43,39 +43,53 @@ def validate_files(
 
 
 def upload_file(
+    logger: Logger,
     headers: dict,
     url: str,
     file_path: str,
-) -> bool:
+) -> str:
     """Initializes an upload and stores file in it"""
     # Upload initialization
     initialize_url = f"{url}/uploads/initialize"
     file_name = os.path.basename(file_path)
     payload = {"name": file_name}
 
-    response = requests.post(
-        initialize_url,
-        data=json.dumps(payload),
-        headers=headers,
-        timeout=SECONDS_BEFORE_TIMEOUT,
-    )
-
-    response.raise_for_status()
-    response_json = response.json()
-    upload_url = response_json.get("uploadUrl")
-    upload_id = response_json.get("id")
-
-    # File storing
-    with open(file_path, "rb") as file:
-        content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
-        requests.put(
-            upload_url,
-            data=file,
-            headers={"Content-Type": content_type},
+    try:
+        response = requests.post(
+            initialize_url,
+            data=json.dumps(payload),
+            headers=headers,
             timeout=SECONDS_BEFORE_TIMEOUT,
         )
+        
+        # Check for API key errors before raising for status
+        if response.status_code == 401:
+            error_data = response.json()
+            error_message = error_data.get("error", {}).get("message", "Authentication failed")
+            # Use the logger directly here instead of throwing an exception
+            logger.error(f"API key error: {error_message}")
+            raise requests.exceptions.HTTPError(response=response)
+            
+        response.raise_for_status()
+        response_json = response.json()
+        upload_url = response_json.get("uploadUrl")
+        upload_id = response_json.get("id")
 
-    return upload_id
+        # File storing
+        with open(file_path, "rb") as file:
+            content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
+            requests.put(
+                upload_url,
+                data=file,
+                headers={"Content-Type": content_type},
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+
+        return upload_id
+    except Exception as e:
+        # Log exception but let it propagate for the caller to handle
+        logger.error(f"Upload failed: {str(e)}")
+        raise
 
 
 def notify_server(headers: dict, url: str, upload_id: str, run_id: str) -> bool:

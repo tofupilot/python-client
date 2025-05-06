@@ -477,11 +477,17 @@ class TofuPilotClient:
 
         # Upload report
         try:
-            upload_id = upload_file(self._headers, self._url, file_path)
+            upload_id = upload_file(self._logger, self._headers, self._url, file_path)
         except requests.exceptions.HTTPError as http_err:
+            # HTTP errors like Invalid API key have already been logged by upload_file
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
+            # Network errors have already been logged by upload_file
             return handle_network_error(self._logger, e)
+        except Exception as e:
+            # Catch any other exceptions
+            self._logger.error(f"Unexpected error: {str(e)}")
+            return {"success": False, "error": {"message": str(e)}}
 
         payload = {
             "upload_id": upload_id,

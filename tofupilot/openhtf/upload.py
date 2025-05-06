@@ -97,13 +97,11 @@ class upload:  # pylint: disable=invalid-name
             
             # Check if run_id is actually an error response (returned as a dict)
             if isinstance(run_id, dict) and not run_id.get('success', True):
-                error_msg = run_id.get('error', {}).get('message')
-                if error_msg:
-                    self._logger.error(f"Upload failed: {error_msg}")
+                # Error already logged by client methods
                 return
                 
         except Exception as e:
-            self._logger.error(f"Upload failed: {str(e)}")
+            # Error already logged by client methods
             return
         finally:
             # Ensure the file is deleted after processing
