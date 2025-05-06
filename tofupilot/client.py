@@ -477,15 +477,23 @@ class TofuPilotClient:
 
         # Upload report
         try:
+            # First, check if we have a valid API key directly (avoids cryptic errors)
+            if not self._api_key or len(self._api_key) < 10:
+                self._logger.error("API key error: Invalid API key format.")
+                return {"success": False, "error": {"message": "Invalid API key format."}}
+            
             upload_id = upload_file(self._logger, self._headers, self._url, file_path)
         except requests.exceptions.HTTPError as http_err:
-            # HTTP errors like Invalid API key have already been logged by upload_file
+            # Make sure API key errors are properly logged
+            if http_err.response.status_code == 401:
+                error_data = http_err.response.json()
+                error_message = error_data.get("error", {}).get("message", "Authentication failed")
+                self._logger.error(f"API key error: {error_message}")
+                return {"success": False, "error": {"message": error_message}}
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
-            # Network errors have already been logged by upload_file
             return handle_network_error(self._logger, e)
         except Exception as e:
-            # Catch any other exceptions
             self._logger.error(f"Unexpected error: {str(e)}")
             return {"success": False, "error": {"message": str(e)}}
 
