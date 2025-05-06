@@ -74,6 +74,50 @@ class SimpleStationWatcher(threading.Thread):
     def stop(self):
         self.stop_event.set()
 
+def execute_with_graceful_exit(test, test_start=None):
+    """Execute a test with graceful handling of KeyboardInterrupt.
+    
+    This is a helper function that wraps the OpenHTF test.execute method
+    to ensure clean termination when Ctrl+C is pressed.
+    
+    Args:
+        test: The OpenHTF test to execute
+        test_start: The test_start parameter to pass to test.execute
+        
+    Returns:
+        The test result from test.execute, or None if interrupted
+    """
+    try:
+        # Set up Ctrl+C handler to show message immediately
+        import signal
+        
+        def immediate_interrupt_handler(sig, frame):
+            print("\nTest execution interrupted by user.")
+            print("Test was interrupted. Exiting gracefully.")
+            # Let the KeyboardInterrupt propagate
+            raise KeyboardInterrupt()
+            
+        # Store the original handler to restore later
+        original_handler = signal.getsignal(signal.SIGINT)
+        # Set our immediate message handler
+        signal.signal(signal.SIGINT, immediate_interrupt_handler)
+        
+        try:
+            return test.execute(test_start=test_start)
+        finally:
+            # Restore the original handler
+            signal.signal(signal.SIGINT, original_handler)
+    except KeyboardInterrupt:
+        # KeyboardInterrupt has already been handled with immediate message
+        return None
+    except AttributeError as e:
+        if "'NoneType' object has no attribute 'name'" in str(e):
+            # This happens when KeyboardInterrupt is caught by OpenHTF
+            # but the test state isn't properly set
+            return None
+        raise  # Re-raise any other AttributeError
+
+
 class TofuPilot:
     """
     Context manager to automatically add an output callback to the running OpenHTF test
@@ -93,7 +137,11 @@ class TofuPilot:
 
         # Stream real-time test execution data to TofuPilot
         with TofuPilot(test):
-            test.execute(lambda: "SN15")
+            # For more reliable Ctrl+C handling, use the helper function:
+            execute_with_graceful_exit(test, test_start=lambda: "SN15")
+            
+            # Or use the standard method (may show errors on Ctrl+C):
+            # test.execute(lambda: "SN15")
     ```
     """
 
@@ -174,16 +222,41 @@ class TofuPilot:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """Clean up resources when exiting the context manager.
+        
+        This method handles proper cleanup even in the case of KeyboardInterrupt
+        or other exceptions to ensure resources are released properly.
+        """
+        # Log the exit reason if it's due to an exception
+        if exc_type is not None:
+            self._logger.info(f"Exiting TofuPilot context due to {exc_type.__name__}")
+            
+            # Handle KeyboardInterrupt specifically
+            if exc_type is KeyboardInterrupt:
+                self._logger.info("Test execution interrupted by user (Ctrl+C)")
+        
         # Stop the StationWatcher
         if self.watcher:
-            self.watcher.stop()
-            self.watcher.join()
+            try:
+                self.watcher.stop()
+                self.watcher.join(timeout=2.0)  # Add timeout to prevent hanging
+            except Exception as e:
+                self._logger.warning(f"Error stopping watcher: {e}")
 
+        # Clean up MQTT connection
         if self.mqttClient:
-            # Doesn't wait for publish operation to stop, this is fine since __exit__ is only called after the run was imported
-            self.mqttClient.loop_stop()
-            self.mqttClient.disconnect()
-            self.mqttClient = None
+            try:
+                # Doesn't wait for publish operation to stop, this is fine since __exit__ is only called after the run was imported
+                self.mqttClient.loop_stop()
+                self.mqttClient.disconnect()
+            except Exception as e:
+                self._logger.warning(f"Error disconnecting MQTT client: {e}")
+            finally:
+                self.mqttClient = None
+        
+        # Return False to allow any exception to propagate, unless it's a KeyboardInterrupt
+        # In case of KeyboardInterrupt, return True to suppress the exception
+        return exc_type is KeyboardInterrupt
 
     def _send_update(self, message):
         self.mqttClient.publish(
