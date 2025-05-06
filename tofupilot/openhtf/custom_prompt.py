@@ -1,13 +1,10 @@
 """Module for custom OpenHTF user prompt integration with TofuPilot."""
 
-import functools
 import logging
-import os
 from typing import Text, Optional, Union, Callable
 
 import openhtf
 from openhtf import plugs
-from openhtf.plugs import user_input
 from openhtf.plugs.user_input import UserInput
 
 _LOG = logging.getLogger(__name__)
@@ -19,7 +16,7 @@ def prompt_with_tofupilot_url(
     timeout_s: Union[int, float, None] = None,
     cli_color: Text = '',
     image_url: Optional[Text] = None) -> Text:
-    """Enhanced prompt that includes TofuPilot URL in the message.
+    """Enhanced prompt that displays TofuPilot URL in the console.
     
     Args:
       message: A string to be presented to the user.
@@ -35,15 +32,14 @@ def prompt_with_tofupilot_url(
     # Get the UserInput plug instance
     prompts = plugs.get_plug_instance(UserInput)
     
-    # Add TofuPilot URL to the message
-    enhanced_message = message
+    # Log the operator page URL to the console with clean formatting
     if operator_page_url:
-        enhanced_message = f"{message}\n\n🔍 Live test view: {operator_page_url}"
+        print(f"\n📱 View live test results: {operator_page_url}")
     
-    # Call the standard prompt method with enhanced message
+    # Use the standard prompt method with original message
     return prompts.prompt(
-        enhanced_message, 
-        text_input=text_input, 
+        message, 
+        text_input=text_input,
         timeout_s=timeout_s, 
         cli_color=cli_color, 
         image_url=image_url
@@ -56,7 +52,7 @@ def enhanced_prompt_for_test_start(
     timeout_s: Union[int, float, None] = 60 * 60 * 24,
     validator: Callable[[Text], Text] = lambda sn: sn,
     cli_color: Text = '') -> openhtf.PhaseDescriptor:
-    """Returns an OpenHTF phase that includes TofuPilot URL in the prompt.
+    """Returns an OpenHTF phase that displays TofuPilot URL in the console.
     
     Args:
       operator_page_url: URL to the TofuPilot operator page.
@@ -69,40 +65,44 @@ def enhanced_prompt_for_test_start(
     @openhtf.PhaseOptions(timeout_s=timeout_s)
     @plugs.plug(prompts=UserInput)
     def trigger_phase(test: openhtf.TestApi, prompts: UserInput) -> None:
-        """Test start trigger with TofuPilot URL in prompt."""
-        enhanced_message = message
+        """Test start trigger with TofuPilot URL displayed in console."""
+        # Log the operator page URL to the console
         if operator_page_url:
-            enhanced_message = f"{message}\n\n🔍 Live test view: {operator_page_url}"
-            
+            print(f"\n📱 View live test results: {operator_page_url}")
+        
+        # Standard OpenHTF prompt
         dut_id = prompts.prompt(
-            enhanced_message, 
+            message,
             text_input=True, 
             timeout_s=timeout_s, 
             cli_color=cli_color
         )
+        
+        # Apply validator and set DUT ID
         test.test_record.dut_id = validator(dut_id)
     
     return trigger_phase
 
 
-# Monkey-patching the original UserInput prompt method to include TofuPilot URL
+# Monkey-patching function to include TofuPilot URL in prompts
 original_prompt = UserInput.prompt
 
 def patched_prompt(self, message, text_input=False, timeout_s=None, cli_color='', image_url=None, 
                   tofupilot_url=None):
-    """Patched prompt method that includes TofuPilot URL in the message."""
-    enhanced_message = message
+    """Patched prompt method that displays TofuPilot URL in console."""
+    # Display TofuPilot URL if available
     if tofupilot_url:
-        enhanced_message = f"{message}\n\n🔍 Live test view: {tofupilot_url}"
+        print(f"\n📱 View live test results: {tofupilot_url}")
     
-    return original_prompt(self, enhanced_message, text_input, timeout_s, cli_color, image_url)
+    # Call the original prompt method
+    return original_prompt(self, message, text_input, timeout_s, cli_color, image_url)
 
 
 def patch_openhtf_prompts(tofupilot_url=None):
-    """Monkey-patch OpenHTF's UserInput class to include TofuPilot URL in all prompts.
+    """Monkey-patch OpenHTF's UserInput class to display TofuPilot URL.
     
     This function should be called early in your application to ensure all prompts
-    show the TofuPilot URL.
+    show the TofuPilot URL in the console (not in the prompt text itself).
     
     Args:
         tofupilot_url: URL to the TofuPilot operator page.
@@ -116,3 +116,5 @@ def patch_openhtf_prompts(tofupilot_url=None):
             patched_prompt(self, message, text_input, timeout_s, cli_color, image_url, tofupilot_url)
         
         _LOG.info(f"Enhanced OpenHTF prompts with TofuPilot URL: {tofupilot_url}")
+    else:
+        _LOG.warning("No TofuPilot URL provided for prompt enhancement")
