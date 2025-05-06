@@ -2,7 +2,6 @@ import types
 from typing import Optional
 from time import sleep
 import threading
-import asyncio
 
 import json
 from openhtf import Test
