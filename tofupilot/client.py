@@ -575,9 +575,11 @@ def print_version_banner(current_version: str):
     yellow = "\033[33m"  # Yellow for the plane
     blue = "\033[34m"    # Blue for the cap border
     reset = "\033[0m"    # Reset color
-    
-    banner = f"""{blue}╭{reset} {yellow}✈{reset} {blue}╮{reset}
-│•ᴗ•│ TofuPilot Python Client {current_version}
-╰───╯
-    """
-    print(banner.strip())
+
+    banner = (
+        f"{blue}╭{reset} {yellow}✈{reset} {blue}╮{reset}\n"
+        f"[•ᴗ•] TofuPilot Python Client {current_version}\n"
+        "\n"
+    )
+
+    print(banner, end="")
