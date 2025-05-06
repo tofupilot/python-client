@@ -1,5 +1,4 @@
-"""
-This module handles all TofuPilot methods related to integration with OpenHTF.
+"""TofuPilot integration with OpenHTF.
 
 It provides two main classes:
 1. tofupilot.upload(): A way to interface with OpenHTF test scripts to automatically upload test results to the TofuPilot server.
