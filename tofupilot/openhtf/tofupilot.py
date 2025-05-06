@@ -10,6 +10,8 @@ from openhtf.util import data
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
+from openhtf.core.test_record import TestRecord
+from openhtf.core.test_state import TestState
 
 from .upload import upload
 from ..client import TofuPilotClient
@@ -34,7 +36,7 @@ def _get_executing_test():
     return test, test_state
 
 
-def _to_dict_with_event(test_state):
+def _to_dict_with_event(test_state: TestState):
     """Process a test state into the format we want to send to the frontend."""
     original_dict, event = test_state.asdict_with_event()
 
@@ -163,87 +165,34 @@ class TofuPilot:
         self.mqttClient = None
         self.publishOptions = None
         self._logger = self.client._logger
+        self._streaming_setup_thread = None
 
     def __enter__(self):
         self.test.add_output_callbacks(
-            upload(api_key=self.api_key, url=self.url, client=self.client)
+            upload(api_key=self.api_key, url=self.url, client=self.client),
+            self._final_update,
         )
 
         if self.stream:
-            try:
-                cred = self.client.get_connection_credentials()
-
-                if not cred:
-                    self._logger.warning("Operator UI: Auth server connection failed")
-                    return self
-
-                # Since we control the server, we know these will be set
-                token = cred["token"]
-                operatorPage = cred["operatorPage"]
-                clientOptions = cred["clientOptions"]
-                willOptions = cred["willOptions"]
-                connectOptions = cred["connectOptions"]
-                self.publishOptions = cred["publishOptions"]
-                subscribeOptions = cred["subscribeOptions"]
-
-                self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
-
-                self.mqttClient.tls_set()
-
-                self.mqttClient.will_set(**willOptions)
-                
-                self.mqttClient.username_pw_set("pythonClient", token)
-                
-                self.mqttClient.on_message = self._on_message
-                self.mqttClient.on_disconnect = self._on_disconnect
-                self.mqttClient.on_unsubscribe = self._on_unsubscribe
-
-                connect_error_code = self.mqttClient.connect(**connectOptions)
-                if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
-                    self._logger.warning(f"Operator UI: Connect failed (code {connect_error_code})")
-                    return self
-                
-                subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
-                if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
-                    self._logger.warning(f"Operator UI: Subscribe failed (code {subscribe_error_code})")
-                    return self
-
-                self.mqttClient.loop_start()
-
-                self.watcher = SimpleStationWatcher(self._send_update)
-                self.watcher.start()
-                
-                # Create clickable URL similar to the prompt format
-                import sys
-                try:
-                    # Use ANSI escape sequence for clickable link
-                    clickable_url = f"\033]8;;{operatorPage}\033\\TofuPilot Operator UI\033]8;;\033\\"
-                    sys.stdout.write(f"\033[0;32mConnected to {clickable_url}\033[0m\n")
-                    sys.stdout.flush()
-                except:
-                    # Fallback for terminals that don't support ANSI
-                    self._logger.success(f"Connected to TofuPilot: {operatorPage}")
-                
-            except Exception as e:
-                self._logger.warning(f"Operator UI: Setup error - {e}")
-            
-
+            self._streaming_setup_thread = threading.Thread(target=self._setup_streaming)
+            self._streaming_setup_thread.start()
+            self._streaming_setup_thread.join(1)
+        
+        self._logger.pause()
         return self
-
+    
     def __exit__(self, exc_type, exc_value, traceback):
         """Clean up resources when exiting the context manager.
         
         This method handles proper cleanup even in the case of KeyboardInterrupt
         or other exceptions to ensure resources are released properly.
         """
-        # Log the exit reason if it's due to an exception
-        if exc_type is not None:
-            self._logger.info(f"Exiting TofuPilot context due to {exc_type.__name__}")
-            
-            # Handle KeyboardInterrupt specifically
-            if exc_type is KeyboardInterrupt:
-                self._logger.info("Test execution interrupted by user (Ctrl+C)")
-        
+        self._logger.resume()
+
+        if self._streaming_setup_thread and self._streaming_setup_thread.is_alive():
+            self._logger.warning(f"Operator UI: Setup still ongoing, waiting for it to time-out (max 10s)")
+            self._streaming_setup_thread.join()
+
         # Stop the StationWatcher
         if self.watcher:
             try:
@@ -267,13 +216,96 @@ class TofuPilot:
         # In case of KeyboardInterrupt, return True to suppress the exception
         return exc_type is KeyboardInterrupt
 
+    # Operator UI-related methods
+
+    def _setup_streaming(self):
+        try:
+            try:
+                cred = self.client.get_connection_credentials()
+            except Exception as e:
+                self._logger.warning(f"Operator UI: JWT error: {e}")
+                return
+
+            if not cred:
+                self._logger.warning("Operator UI: Auth server connection failed")
+                return self
+
+            # Since we control the server, we know these will be set
+            token = cred["token"]
+            operatorPage = cred["operatorPage"]
+            clientOptions = cred["clientOptions"]
+            willOptions = cred["willOptions"]
+            connectOptions = cred["connectOptions"]
+            self.publishOptions = cred["publishOptions"]
+            subscribeOptions = cred["subscribeOptions"]
+
+            self.mqttClient = mqtt.Client(callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions)
+
+            # This is not 100% reliable, hence the need to put the setup in the background
+            # See https://github.com/eclipse-paho/paho.mqtt.python/issues/890
+            self.mqttClient.connect_timeout = 1.0
+
+            self.mqttClient.tls_set()
+
+            self.mqttClient.will_set(**willOptions)
+            
+            self.mqttClient.username_pw_set("pythonClient", token)
+            
+            self.mqttClient.on_message = self._on_message
+            self.mqttClient.on_disconnect = self._on_disconnect
+            self.mqttClient.on_unsubscribe = self._on_unsubscribe
+            
+            try:
+                connect_error_code = self.mqttClient.connect(**connectOptions)
+            except Exception as e:
+                self._logger.warning(f"Operator UI: Failed to connect with server (exception): {e}")
+                return
+            
+            if(connect_error_code != mqtt.MQTT_ERR_SUCCESS):
+                self._logger.warning(f"Operator UI: Failed to connect with server (error code): {connect_error_code}")
+                return self
+            
+            try:
+                subscribe_error_code, messageId = self.mqttClient.subscribe(**subscribeOptions)
+            except Exception as e:
+                self._logger.warning(f"Operator UI: Failed to subscribe to server (exception): {e}")
+                return
+            
+            if(subscribe_error_code != mqtt.MQTT_ERR_SUCCESS):
+                self._logger.warning(f"Operator UI: Failed to subscribe to server (error code): {subscribe_error_code}")
+                return self
+
+            self.mqttClient.loop_start()
+
+            self.watcher = SimpleStationWatcher(self._send_update)
+            self.watcher.start()
+            
+            # Create clickable URL similar to the prompt format
+            import sys
+            try:
+                # Use ANSI escape sequence for clickable link
+                clickable_url = f"\033]8;;{operatorPage}\033\\TofuPilot Operator UI\033]8;;\033\\"
+                sys.stdout.write(f"\033[0;32mConnected to {clickable_url}\033[0m\n")
+                sys.stdout.flush()
+            except:
+                # Fallback for terminals that don't support ANSI
+                self._logger.success(f"Connected to TofuPilot: {operatorPage}")
+            
+        except Exception as e:
+            self._logger.warning(f"Operator UI: Setup error - {e}")
+
+
     def _send_update(self, message):
-        self.mqttClient.publish(
-            payload=json.dumps(
-                {"action": "send", "source": "python", "message": message}
-            ),
-            **self.publishOptions
-        )
+        try:
+            self.mqttClient.publish(
+                payload=json.dumps(
+                    {"action": "send", "source": "python", "message": message}
+                ),
+                **self.publishOptions
+            )
+        except Exception as e:
+            self._logger.warning(f"Operator UI: Failed to publish to server (exception): {e}")
+            return
         
     def _handle_answer(self, plug_name, method_name, args):
         _, test_state = _get_executing_test()
@@ -301,7 +333,29 @@ class TofuPilot:
             method(*args)
         except Exception as e:  # pylint: disable=broad-except
             self._logger.warning(f"Operator UI: Method call failed - {method_name}({', '.join(args)}) - {e}")
-    
+
+    def _final_update(self, testRecord: TestRecord):
+        """
+        If the test is fast enough, the watcher never triggers, to avoid the UI being out of sync,
+        we force send at least once at the very end of the test
+        """
+
+        if not self.stream:
+            return
+
+        test_record_dict = testRecord.as_base_types()
+
+        test_state_dict = {
+            'status': 'COMPLETED',
+            'test_record': test_record_dict,
+            'plugs': {'plug_states': {}},
+            'running_phase_state': {},
+        }
+
+        self._send_update(test_state_dict)
+
+    # Operator UI-related callbacks
+
     def _on_message(self, client, userdata, message):
         parsed = json.loads(message.payload)
         
