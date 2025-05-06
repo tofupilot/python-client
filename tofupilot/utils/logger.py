@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import threading
+import queue
 from datetime import datetime
 
 # Define a custom log level for success messages
@@ -17,6 +18,87 @@ def success(self, message, *args, **kws):
 
 
 logging.Logger.success = success
+
+
+class PausableHandler(logging.Handler):
+    """Handler that can pause and buffer logging messages."""
+
+    def __init__(self, handler: logging.Handler):
+        super().__init__()
+        self._wrapped = handler
+        self._paused = False
+        self._buffer = queue.Queue()
+
+    def emit(self, record):
+        if self._paused:
+            self._buffer.put(record)
+        else:
+            self._wrapped.emit(record)
+
+    def pause(self):
+        """Pause logging by buffering messages."""
+        self._paused = True
+
+    def resume(self):
+        """Resume logging and flush buffered messages."""
+        self._paused = False
+        while not self._buffer.empty():
+            self._wrapped.emit(self._buffer.get())
+
+    def close(self):
+        self._wrapped.close()
+        super().close()
+
+    @property
+    def level(self):
+        return self._wrapped.level
+    
+    @property
+    def name(self):
+        return self._wrapped.name
+
+    @name.setter
+    def name(self, value):
+        self._wrapped.name = value
+
+    def createLock(self):
+        self._wrapped.createLock()
+
+    def acquire(self):
+        self._wrapped.acquire()
+
+    def release(self):
+        self._wrapped.release()
+
+    def setLevel(self, level):
+        self._wrapped.setLevel(level)
+
+    def format(self, record):
+        return self._wrapped.format(record)
+
+    def handle(self, record):
+        return self._wrapped.handle(record)
+
+    def setFormatter(self, fmt):
+        self._wrapped.setFormatter(fmt)
+
+    def flush(self):
+        self._wrapped.flush()
+
+    def handleError(self, record):
+        self._wrapped.handleError(record)
+
+    def __repr__(self):
+        return repr(self._wrapped)
+    
+    def addFilter(self, filter):
+        self._wrapped.addFilter(filter)
+
+    def removeFilter(self, filter):
+        self._wrapped.removeFilter(filter)
+
+    def filter(self, record):
+        return self._wrapped.filter(record)
 
 
 class TofupilotFormatter(logging.Formatter):
@@ -161,8 +243,9 @@ def setup_logger(log_level=None, advanced_format=True):
     else:
         logger.setLevel(level_filter.level)
     
-    # Create stdout handler
-    handler = logging.StreamHandler(sys.stdout)
+    # Create stdout handler with pausable wrapper
+    base_handler = logging.StreamHandler(sys.stdout)
+    handler = PausableHandler(base_handler)
     
     # Choose formatter based on preference
     if advanced_format:
@@ -174,5 +257,9 @@ def setup_logger(log_level=None, advanced_format=True):
     
     # Add handler to logger
     logger.addHandler(handler)
+    
+    # Add pause/resume methods to logger
+    logger.pause = handler.pause
+    logger.resume = handler.resume
     
     return logger
