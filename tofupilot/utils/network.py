@@ -1,9 +1,11 @@
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Union
 
 import requests
+from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 
 
 def parse_error_message(response: requests.Response) -> str:
+    """Extract error message from response"""
     try:
         error_data = response.json()
         return error_data.get("error", {}).get(
@@ -11,6 +13,29 @@ def parse_error_message(response: requests.Response) -> str:
         )
     except ValueError:
         return f"HTTP error occurred: {response.text}"
+
+
+def api_request(
+    logger, method: str, url: str, headers: Dict, 
+    data: Optional[Dict] = None, 
+    params: Optional[Dict] = None,
+    timeout: int = SECONDS_BEFORE_TIMEOUT
+) -> Dict:
+    """Unified API request handler with consistent error handling"""
+    try:
+        response = requests.request(
+            method, url, 
+            json=data,
+            headers=headers,
+            params=params,
+            timeout=timeout
+        )
+        response.raise_for_status()
+        return handle_response(logger, response)
+    except requests.exceptions.HTTPError as http_err:
+        return handle_http_error(logger, http_err)
+    except requests.RequestException as e:
+        return handle_network_error(logger, e)
 
 
 def handle_response(
@@ -42,34 +67,27 @@ def handle_http_error(
     logger, http_err: requests.exceptions.HTTPError
 ) -> Dict[str, Any]:
     """Handles HTTP errors and logs them."""
-
-    warnings = None  # Initialize warnings to None
-
-    # Check if the response body is not empty and Content-Type is application/json
-    if (
-        http_err.response.text.strip()
-        and http_err.response.headers.get("Content-Type") == "application/json"
-    ):
-        # Parse JSON safely
-        response_json = http_err.response.json()
-        warnings = response_json.get("warnings")
-        if warnings is not None:
-            for warning in warnings:
-                logger.warning(warning)
-        
-        # Get the error message
-        error_message = parse_error_message(http_err.response)
-        
-        # Special handling for auth errors
-        if http_err.response.status_code == 401:
-            error_message = f"API key error: {error_message}"
+    warnings = None
+    
+    # Extract error details from JSON response when available
+    if (http_err.response.text.strip() and 
+        http_err.response.headers.get("Content-Type") == "application/json"):
+        try:
+            response_json = http_err.response.json()
+            warnings = response_json.get("warnings")
+            if warnings:
+                for warning in warnings:
+                    logger.warning(warning)
+            error_message = parse_error_message(http_err.response)
+        except ValueError:
+            error_message = str(http_err)
     else:
-        # Handle cases where response is empty or non-JSON
         error_message = str(http_err)
 
-    # Use the logger to log the error message
+    # Log the error through the logger for proper formatting
     logger.error(error_message)
 
+    # Return structured error info
     return {
         "success": False,
         "message": None,
@@ -81,22 +99,20 @@ def handle_http_error(
 
 def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]:
     """Handles network errors and logs them."""
-    error_message = str(e)
-    logger.error(f"Network error: {error_message}")
+    error_message = f"Network error: {str(e)}"
+    logger.error(error_message)
     
-    # Provide specific guidance for SSL certificate errors
-    if isinstance(e, requests.exceptions.SSLError) or "SSL" in error_message or "certificate verify failed" in error_message:
+    # Provide SSL-specific guidance
+    if isinstance(e, requests.exceptions.SSLError) or "SSL" in str(e) or "certificate verify failed" in str(e):
         logger.warning("SSL certificate verification error detected")
         logger.warning("This is typically caused by missing or invalid SSL certificates")
-        logger.warning("Try the following solutions:")
-        logger.warning("1. Ensure the certifi package is installed: pip install certifi")
-        logger.warning("2. If you're on macOS, run: /Applications/Python*/Install Certificates.command")
-        logger.warning("3. You can manually set the SSL_CERT_FILE environment variable: export SSL_CERT_FILE=/path/to/cacert.pem")
+        logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
     
+    # Return structured error info
     return {
         "success": False,
         "message": None,
         "warnings": None,
         "status_code": None,
-        "error": {"message": error_message},
+        "error": {"message": str(e)},
     }
