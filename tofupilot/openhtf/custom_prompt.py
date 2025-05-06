@@ -86,8 +86,7 @@ def enhanced_prompt_for_test_start(
     operator_page_url: Optional[Text] = None,
     message: Text = 'Enter a DUT ID in order to start the test.',
     timeout_s: Union[int, float, None] = 60 * 60 * 24,
-    validator: Callable[[Text], Text] = lambda sn: sn,
-    cli_color: Text = '') -> openhtf.PhaseDescriptor:
+    validator: Callable[[Text], Text] = lambda sn: sn) -> openhtf.PhaseDescriptor:
     """Returns an OpenHTF phase that displays TofuPilot URL in the console.
     
     Args:
@@ -162,7 +161,7 @@ def patched_prompt(self, message, text_input=False, timeout_s=None, cli_color=''
             clickable_text = f"\033]8;;{tofupilot_url}\033\\TofuPilot Operator UI\033]8;;\033\\"
             sys.stdout.write(f"\n[User Input] \033[1m{message}\033[0m\n")
             sys.stdout.write(f"Waiting for user input on {clickable_text} or in terminal below.\n")
-            sys.stdout.write("\033[2mPress Ctrl+C to stop and upload run.\033[0m\n\n")
+            # sys.stdout.write("\033[2mPress Ctrl+C to stop and upload run.\033[0m\n\n")
             sys.stdout.flush()
             
         except:

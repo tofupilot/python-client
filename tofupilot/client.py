@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 from importlib.metadata import version
 
 import json
-import base64
 import requests
 import certifi
 
@@ -30,9 +29,7 @@ from .utils import (
     handle_response,
     handle_http_error,
     handle_network_error,
-    notify_server,
     api_request,
-    upload_attachment_data,
     process_openhtf_attachments,
 )
 
@@ -427,7 +424,6 @@ class TofuPilotClient:
                 a dict containing the emqx server url, the topic to connect to, and the JWT token required to connect
         """
         try:
-            # Using direct request instead of api_request to match original behavior
             response = requests.get(
                 f"{self._url}/streaming",
                 headers=self._headers,
@@ -436,10 +432,12 @@ class TofuPilotClient:
             response.raise_for_status()
             values = handle_response(self._logger, response)
             return values
-        except Exception:
-            # Catch any error but don't return None - matching original behavior
-            # Handle errors but let execution continue
-            return {}
+        except requests.exceptions.HTTPError as http_err:
+            handle_http_error(self._logger, http_err)
+            return None
+        except requests.RequestException as e:
+            handle_network_error(self._logger, e)
+            return None
 
 def print_version_banner(current_version: str):
     """Prints current version of client with tofu art"""

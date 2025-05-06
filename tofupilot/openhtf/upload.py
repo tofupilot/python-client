@@ -1,21 +1,14 @@
 import os
-import json
 import datetime
 import tempfile
 from typing import Optional
 
 from openhtf.core.test_record import TestRecord
 from openhtf.output.callbacks import json_factory
-import requests
 
 from ..client import TofuPilotClient
-from ..constants import (
-    SECONDS_BEFORE_TIMEOUT,
-)
 from ..utils import (
-    notify_server,
     LoggerStateManager,
-    upload_attachment_data,
     process_openhtf_attachments,
 )
 
