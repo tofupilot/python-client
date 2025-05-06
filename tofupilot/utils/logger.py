@@ -28,6 +28,8 @@ class PausableHandler(logging.Handler):
         self._wrapped = handler
         self._paused = False
         self._buffer = queue.Queue()
+        # Copy initial level from wrapped handler
+        self.setLevel(handler.level)
 
     def emit(self, record):
         if self._paused:
@@ -49,18 +51,6 @@ class PausableHandler(logging.Handler):
         self._wrapped.close()
         super().close()
 
-    @property
-    def level(self):
-        return self._wrapped.level
-    
-    @property
-    def name(self):
-        return self._wrapped.name
-
-    @name.setter
-    def name(self, value):
-        self._wrapped.name = value
-
     def createLock(self):
         self._wrapped.createLock()
 
@@ -71,16 +61,18 @@ class PausableHandler(logging.Handler):
         self._wrapped.release()
 
     def setLevel(self, level):
-        self._wrapped.setLevel(level)
+        super().setLevel(level)  # Set level on self
+        self._wrapped.setLevel(level)  # Also set level on wrapped handler
+
+    def setFormatter(self, fmt):
+        self._wrapped.setFormatter(fmt)
 
     def format(self, record):
         return self._wrapped.format(record)
 
     def handle(self, record):
-        return self._wrapped.handle(record)
-
-    def setFormatter(self, fmt):
-        self._wrapped.setFormatter(fmt)
+        super().handle(record)  # Use parent's handle which calls emit
+        return True
 
     def flush(self):
         self._wrapped.flush()
@@ -89,15 +81,20 @@ class PausableHandler(logging.Handler):
         self._wrapped.handleError(record)
 
     def __repr__(self):
-        return repr(self._wrapped)
+        return f"PausableHandler({repr(self._wrapped)})"
     
     def addFilter(self, filter):
-        self._wrapped.addFilter(filter)
+        super().addFilter(filter)  # Add to parent handler
+        self._wrapped.addFilter(filter)  # Add to wrapped handler
 
     def removeFilter(self, filter):
-        self._wrapped.removeFilter(filter)
+        super().removeFilter(filter)  # Remove from parent
+        self._wrapped.removeFilter(filter)  # Remove from wrapped handler
 
     def filter(self, record):
+        # Use both parent and wrapped handler's filters
+        if not super().filter(record):
+            return False
         return self._wrapped.filter(record)
 
 
@@ -238,28 +235,29 @@ def setup_logger(log_level=None, advanced_format=True):
     
     # Set level from arg or environment
     level_filter = LogLevelFilter()
-    if log_level is not None:
-        logger.setLevel(log_level)
-    else:
-        logger.setLevel(level_filter.level)
+    log_level = log_level or level_filter.level
+    logger.setLevel(log_level)
     
     # Create stdout handler with pausable wrapper
     base_handler = logging.StreamHandler(sys.stdout)
-    handler = PausableHandler(base_handler)
+    base_handler.setLevel(log_level)  # Set level on base handler
     
     # Choose formatter based on preference
     if advanced_format:
-        handler.setFormatter(TofupilotFormatter())
+        base_handler.setFormatter(TofupilotFormatter())
     else:
-        handler.setFormatter(CustomFormatter())
+        base_handler.setFormatter(CustomFormatter())
         
-    handler.addFilter(level_filter)
+    base_handler.addFilter(level_filter)
+    
+    # Create pausable wrapper
+    handler = PausableHandler(base_handler)
     
     # Add handler to logger
     logger.addHandler(handler)
     
-    # Add pause/resume methods to logger
-    logger.pause = handler.pause
-    logger.resume = handler.resume
+    # Add pause/resume methods to logger as attributes
+    setattr(logger, 'pause', handler.pause)
+    setattr(logger, 'resume', handler.resume)
     
     return logger
