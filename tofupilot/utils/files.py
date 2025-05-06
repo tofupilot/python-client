@@ -78,9 +78,10 @@ def upload_file(
         if response.status_code == 401:
             error_data = response.json()
             error_message = error_data.get("error", {}).get("message", "Authentication failed")
-            # Use the logger directly here instead of throwing an exception
-            logger.error(f"API key error: {error_message}")
-            raise requests.exceptions.HTTPError(response=response)
+            # Create a proper HTTPError with the response
+            http_error = requests.exceptions.HTTPError(response=response)
+            http_error.response = response
+            raise http_error
             
         response.raise_for_status()
         response_json = response.json()

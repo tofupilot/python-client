@@ -56,11 +56,18 @@ def handle_http_error(
         if warnings is not None:
             for warning in warnings:
                 logger.warning(warning)
+        
+        # Get the error message
         error_message = parse_error_message(http_err.response)
+        
+        # Special handling for auth errors
+        if http_err.response.status_code == 401:
+            error_message = f"API key error: {error_message}"
     else:
         # Handle cases where response is empty or non-JSON
-        error_message = http_err
+        error_message = str(http_err)
 
+    # Use the logger to log the error message
     logger.error(error_message)
 
     return {
