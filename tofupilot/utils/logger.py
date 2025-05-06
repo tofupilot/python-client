@@ -94,15 +94,8 @@ class TofupilotFormatter(logging.Formatter):
         level_color = self.LEVEL_COLORS.get(record.levelno, self.RESET)
         level_name = self.LEVEL_NAMES.get(record.levelno, "???")
         
-        # Get thread name for concurrent operations (only non-main threads)
-        thread_info = ""
-        if threading.active_count() > 1:
-            current_thread = threading.current_thread()
-            if current_thread.name != "MainThread":
-                thread_info = f"[{current_thread.name}] "
-        
         # Create minimal prefix with no timestamp
-        prefix = f"{level_color}{self.BOLD}TP{self.RESET}{level_color}:{level_name} {thread_info}"
+        prefix = f"{level_color}{self.BOLD}TP{self.RESET}{level_color}:{level_name} "
         
         # Add log message with color
         message = record.getMessage()
