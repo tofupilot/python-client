@@ -5,14 +5,13 @@ with open("README.md", "r", encoding="utf-8") as file:
 
 setup(
     name="tofupilot",
-    version="1.9.4",
+    version="1.11.0.dev0",
     packages=find_packages(),
     install_requires=[
         "requests",
         "setuptools",
         "packaging",
         "pytest",
-        "websockets",
         "paho-mqtt",
     ],
     entry_points={

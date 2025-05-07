@@ -126,16 +126,20 @@ class TofuPilot:
         self._streaming_setup_thread = None
 
     def __enter__(self):
+        # Add upload callback without pausing the logger yet
         self.test.add_output_callbacks(
             upload(api_key=self.api_key, url=self.url, client=self.client),
             self._final_update,
         )
 
+        # Start streaming setup before pausing the logger
         if self.stream:
             self._streaming_setup_thread = threading.Thread(target=self._setup_streaming)
             self._streaming_setup_thread.start()
+            # Give the streaming setup a chance to connect and log its messages
             self._streaming_setup_thread.join(1)
         
+        # Now pause the logger - this happens after MQTT setup has started
         self._logger.pause()
         return self
     
