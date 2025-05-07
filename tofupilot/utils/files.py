@@ -111,7 +111,8 @@ def upload_attachment_data(
     """Uploads binary data as an attachment and links it to a run"""
     try:
         # Initialize upload
-        logger.info(f"Uploading: {name}")
+        # Make this more visible and consistent with other logs
+        logger.info(f"Uploading attachment: {name}")
         initialize_url = f"{url}/uploads/initialize"
         payload = {"name": name}
         
@@ -141,7 +142,7 @@ def upload_attachment_data(
         # Link attachment to run
         notify_server(headers, url, upload_id, run_id, logger)
         
-        logger.success(f"Uploaded: {name}")
+        logger.success(f"Uploaded attachment: {name}")
         return True
     except Exception as e:
         logger.error(f"Upload failed: {name} - {str(e)}")
@@ -157,7 +158,7 @@ def upload_attachments(
 ):
     """Creates one upload per file path and stores them into TofuPilot"""
     for file_path in paths:
-        logger.info(f"Uploading: {file_path}")
+        logger.info(f"Uploading attachment: {file_path}")
         
         try:
             # Open file and prepare for upload
@@ -199,11 +200,13 @@ def process_openhtf_attachments(
         max_file_size: Maximum size per attachment
         needs_base64_decode: Whether attachment data is base64 encoded (true for dict format)
     """
-    # Resume logger if it was paused
+    # Resume logger if it was paused - force it to be active for the attachment uploads
     was_resumed = False
     if hasattr(logger, 'resume'):
+        # Resume forcefully to ensure messages are visible
         logger.resume()
         was_resumed = True
+        logger.info("Starting attachment processing - logger resumed")
     
     try:
         logger.info("Processing attachments")
@@ -244,12 +247,12 @@ def process_openhtf_attachments(
                 if attachment_count >= max_attachments:
                     break
                     
-                # Log attachment details
+                # Debug attachment details (using debug level to avoid cluttering the console)
                 if isinstance(test_record, dict):
-                    logger.info(f"Attachment: {name}, Type: JSON format")
+                    logger.debug(f"Attachment: {name}, Type: JSON format")
                 else:
                     attrs = [attr for attr in dir(attachment) if not attr.startswith('_')]
-                    logger.info(f"Attachment: {name}, Type: Object, Attributes: {attrs}")
+                    logger.debug(f"Attachment: {name}, Type: Object, Attributes: {attrs}")
                     
                 # Get attachment data and size based on record type
                 if isinstance(test_record, dict):
@@ -324,9 +327,8 @@ def process_openhtf_attachments(
                     
                 # Increment counter and process the attachment
                 attachment_count += 1
-                logger.info(f"Uploading: {name}")
                 
-                # Use unified attachment upload function
+                # Use unified attachment upload function - logging is handled inside this function
                 try:
                     success = upload_attachment_data(
                         logger,
@@ -338,10 +340,7 @@ def process_openhtf_attachments(
                         run_id
                     )
                     
-                    if success:
-                        logger.success(f"Successfully uploaded attachment: {name}")
-                    else:
-                        logger.error(f"Failed to upload attachment: {name}")
+                    # Don't log success/failure here as it's already logged in upload_attachment_data
                 except Exception as e:
                     logger.error(f"Exception during attachment upload: {name} - {str(e)}")
                 # Continue with other attachments regardless of success/failure

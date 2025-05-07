@@ -15,6 +15,7 @@ from ..constants import (
 from ..utils import (
     notify_server,
 )
+from ..utils.logger import LoggerStateManager
 
 
 class upload:  # pylint: disable=invalid-name
@@ -68,14 +69,13 @@ class upload:  # pylint: disable=invalid-name
         self._max_file_size = self.client._max_file_size
 
     def __call__(self, test_record: TestRecord):
-        # Make sure logger is active
+        # Resume logger to ensure it's active during attachment processing
         was_logger_resumed = False
-        if hasattr(self._logger, 'resume'):
+        if hasattr(self._logger, "resume"):
             self._logger.resume()
             was_logger_resumed = True
-        
-        try:
 
+        try:
             # Extract relevant details from the test record
             dut_id = test_record.dut_id
             test_name = test_record.metadata.get("test_name")
@@ -111,29 +111,28 @@ class upload:  # pylint: disable=invalid-name
             try:
                 # Call create_run_from_report with the generated file path
                 result = self.client.upload_and_create_from_openhtf_report(filename)
-                
+
                 # Extract run_id from response - it could be a string (id) or a dict (result with id field)
                 run_id = None
-                
+
                 if isinstance(result, dict):
                     # It's a dictionary response
-                    if not result.get('success', True):
+                    if not result.get("success", True):
                         self._logger.error("Run creation failed, skipping attachments")
                         return
-                        
+
                     # Try to get the ID from the dictionary
-                    run_id = result.get('id')
+                    run_id = result.get("id")
                 else:
                     # Direct ID string
                     run_id = result
-                    
+
                 # Final validation of run_id
                 if not run_id or not isinstance(run_id, str):
-                    self._logger.error(f"Invalid run ID received: {run_id}, skipping attachments")
+                    self._logger.error(
+                        f"Invalid run ID received: {run_id}, skipping attachments"
+                    )
                     return
-                    
-                # We don't need to log anything here as client.py will log the success message
-                    
             except Exception as e:
                 self._logger.error(f"Error creating run: {str(e)}")
                 return
@@ -141,15 +140,20 @@ class upload:  # pylint: disable=invalid-name
                 # Ensure the file is deleted after processing
                 if os.path.exists(filename):
                     os.remove(filename)
-                    
+
             # Process attachments
             number_of_attachments = 0
-            for phase in test_record.phases:
+            for phase_idx, phase in enumerate(test_record.phases):
+                # Count attachments silently
+                attachment_count = len(phase.attachments)
+
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
-                    self._logger.warning(f"Attachment limit ({self._max_attachments}) reached")
+                    self._logger.warning(
+                        f"Attachment limit ({self._max_attachments}) reached"
+                    )
                     break
-                
+
                 # Process each attachment in the phase
                 for attachment_name, attachment in phase.attachments.items():
                     # Remove attachments that exceed the max file size
@@ -161,7 +165,9 @@ class upload:  # pylint: disable=invalid-name
 
                     number_of_attachments += 1
 
-                    self._logger.info(f"Uploading: {attachment_name}")
+                    # Use LoggerStateManager to temporarily activate the logger
+                    with LoggerStateManager(self._logger):
+                        self._logger.info(f"Uploading attachment...")
 
                     # Upload initialization
                     initialize_url = f"{self._url}/uploads/initialize"
@@ -184,17 +190,25 @@ class upload:  # pylint: disable=invalid-name
                         # Handle file attachments created with test.attach_from_file
                         try:
                             attachment_data = attachment.data
-                            
+
                             # Some OpenHTF implementations have file path in the attachment object
-                            if hasattr(attachment, "file_path") and getattr(attachment, "file_path"):
+                            if hasattr(attachment, "file_path") and getattr(
+                                attachment, "file_path"
+                            ):
                                 try:
-                                    with open(getattr(attachment, "file_path"), "rb") as f:
+                                    with open(
+                                        getattr(attachment, "file_path"), "rb"
+                                    ) as f:
                                         attachment_data = f.read()
-                                        self._logger.info(f"Read file data from {attachment.file_path}")
+                                        self._logger.info(
+                                            f"Read file data from {attachment.file_path}"
+                                        )
                                 except Exception as e:
-                                    self._logger.warning(f"Could not read from file_path: {str(e)}")
+                                    self._logger.warning(
+                                        f"Could not read from file_path: {str(e)}"
+                                    )
                                     # Continue with attachment.data
-                                    
+
                             requests.put(
                                 upload_url,
                                 data=attachment_data,
@@ -213,11 +227,19 @@ class upload:  # pylint: disable=invalid-name
                             logger=self._logger,
                         )
 
-                        self._logger.success(f"Uploaded: {attachment_name}")
+                        # Use LoggerStateManager to temporarily activate the logger
+                        with LoggerStateManager(self._logger):
+                            self._logger.success(
+                                f"Uploaded attachment: {attachment_name}"
+                            )
                     except Exception as e:
-                        self._logger.error(f"Failed to process attachment: {str(e)}")
+                        # Use LoggerStateManager to temporarily activate the logger
+                        with LoggerStateManager(self._logger):
+                            self._logger.error(
+                                f"Failed to process attachment: {str(e)}"
+                            )
                         continue
         finally:
-            # Restore logger state if it was resumed
-            if was_logger_resumed and hasattr(self._logger, 'pause'):
-                self._logger.pause()
+            # For attachment logs to be visible, we intentionally don't pause the logger here
+            # Instead, we'll let the TofuPilot class's __exit__ method handle the logger state
+            pass
