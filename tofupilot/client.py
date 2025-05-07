@@ -198,7 +198,11 @@ class TofuPilotClient:
 
         # Upload attachments if run was created successfully
         run_id = result.get("id")
-        if run_id and attachments and result.get("success", False) is not False:
+        if run_id and attachments:
+            # Ensure logger is active for attachment uploads
+            if hasattr(self._logger, 'resume'):
+                self._logger.resume()
+                
             upload_attachments(
                 self._logger, self._headers, self._url, attachments, run_id, self._verify,
             )
