@@ -48,16 +48,42 @@ def handle_response(
     """
     data = response.json()
 
-    # Logging warnings if present
-    warnings: Optional[List[str]] = data.get("warnings")
-    if warnings is not None:
-        for warning in warnings:
-            logger.warning(warning)
-
-    # Logging success message if the JSON has one
-    message = data.get("message")
-    if message is not None:
-        logger.success(message)
+    # Ensure logger is active to process messages
+    was_resumed = False
+    if hasattr(logger, 'resume'):
+        logger.resume()
+        was_resumed = True
+    
+    try:
+        # Process warnings
+        warnings: Optional[List[str]] = data.get("warnings")
+        if warnings is not None:
+            for warning in warnings:
+                logger.warning(warning)
+        
+        # Process errors
+        errors = data.get("errors") or data.get("error")
+        if errors:
+            # Handle both array and single object formats
+            if isinstance(errors, list):
+                for error in errors:
+                    if isinstance(error, dict) and "message" in error:
+                        logger.error(error["message"])
+                    else:
+                        logger.error(str(error))
+            elif isinstance(errors, dict) and "message" in errors:
+                logger.error(errors["message"])
+            elif isinstance(errors, str):
+                logger.error(errors)
+        
+        # Process success message
+        message = data.get("message")
+        if message is not None:
+            logger.success(message)
+    finally:
+        # Restore logger state if needed
+        if was_resumed and hasattr(logger, 'pause'):
+            logger.pause()
 
     # Returning the parsed JSON to the caller
     return data
@@ -69,23 +95,38 @@ def handle_http_error(
     """Handles HTTP errors and logs them."""
     warnings = None
     
-    # Extract error details from JSON response when available
-    if (http_err.response.text.strip() and 
-        http_err.response.headers.get("Content-Type") == "application/json"):
-        try:
-            response_json = http_err.response.json()
-            warnings = response_json.get("warnings")
-            if warnings:
-                for warning in warnings:
-                    logger.warning(warning)
-            error_message = parse_error_message(http_err.response)
-        except ValueError:
+    # Ensure logger is active to process messages
+    was_resumed = False
+    if hasattr(logger, 'resume'):
+        logger.resume()
+        was_resumed = True
+    
+    try:
+        # Extract error details from JSON response when available
+        if (http_err.response.text.strip() and 
+            http_err.response.headers.get("Content-Type") == "application/json"):
+            try:
+                response_json = http_err.response.json()
+                
+                # Process warnings if present
+                warnings = response_json.get("warnings")
+                if warnings:
+                    for warning in warnings:
+                        logger.warning(warning)
+                        
+                # Get error message
+                error_message = parse_error_message(http_err.response)
+            except ValueError:
+                error_message = str(http_err)
+        else:
             error_message = str(http_err)
-    else:
-        error_message = str(http_err)
 
-    # Log the error through the logger for proper formatting
-    logger.error(error_message)
+        # Log the error through the logger for proper formatting
+        logger.error(error_message)
+    finally:
+        # Restore logger state if needed
+        if was_resumed and hasattr(logger, 'pause'):
+            logger.pause()
 
     # Return structured error info
     return {
@@ -99,14 +140,25 @@ def handle_http_error(
 
 def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]:
     """Handles network errors and logs them."""
-    error_message = f"Network error: {str(e)}"
-    logger.error(error_message)
+    # Ensure logger is active to process messages
+    was_resumed = False
+    if hasattr(logger, 'resume'):
+        logger.resume()
+        was_resumed = True
     
-    # Provide SSL-specific guidance
-    if isinstance(e, requests.exceptions.SSLError) or "SSL" in str(e) or "certificate verify failed" in str(e):
-        logger.warning("SSL certificate verification error detected")
-        logger.warning("This is typically caused by missing or invalid SSL certificates")
-        logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
+    try:
+        error_message = f"Network error: {str(e)}"
+        logger.error(error_message)
+        
+        # Provide SSL-specific guidance
+        if isinstance(e, requests.exceptions.SSLError) or "SSL" in str(e) or "certificate verify failed" in str(e):
+            logger.warning("SSL certificate verification error detected")
+            logger.warning("This is typically caused by missing or invalid SSL certificates")
+            logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
+    finally:
+        # Restore logger state if needed
+        if was_resumed and hasattr(logger, 'pause'):
+            logger.pause()
     
     # Return structured error info
     return {

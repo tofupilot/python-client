@@ -251,16 +251,25 @@ class TofuPilot:
             # Apply the patch to OpenHTF prompts to include the TofuPilot URL
             patch_openhtf_prompts(operatorPage)
             
-            # Create clickable URL similar to the prompt format
+            # Create clickable URL with improved message format
             import sys
             try:
-                # Use ANSI escape sequence for clickable link
-                clickable_url = f"\033]8;;{operatorPage}\033\\TofuPilot Operator UI\033]8;;\033\\"
-                sys.stdout.write(f"\033[0;32mConnected to {clickable_url}\033[0m\n")
+                # Use ANSI escape sequence for clickable link with improved message
+                green = "\033[0;32m"
+                bold = "\033[1m"
+                reset = "\033[0m"
+                
+                # Create clickable URL
+                clickable_url = f"\033]8;;{operatorPage}\033\\{operatorPage}\033]8;;\033\\"
+                
+                # Print connection status and URL on separate lines
+                sys.stdout.write(f"\n{green}Connected and authenticated to TofuPilot real-time server{reset}\n")
+                sys.stdout.write(f"{green}Open Operator UI: {bold}{clickable_url}{reset}\n\n")
                 sys.stdout.flush()
             except:
                 # Fallback for terminals that don't support ANSI
-                self._logger.success(f"Connected to TofuPilot: {operatorPage}")
+                self._logger.success(f"Connected to TofuPilot real-time server")
+                self._logger.success(f"Open Operator UI: {operatorPage}")
             
         except Exception as e:
             self._logger.warning(f"Operator UI: Setup error - {e}")

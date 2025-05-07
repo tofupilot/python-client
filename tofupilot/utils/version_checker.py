@@ -16,13 +16,16 @@ def check_latest_version(logger, current_version, package_name: str):
 
         try:
             if version.parse(current_version) < version.parse(latest_version):
-                warning_message = (
-                    f"You are using {package_name} version {current_version}, however version {latest_version} is available. "
-                    f'You should consider upgrading via the "pip install --upgrade {package_name}" command.'
-                )
-                logger.warning(warning_message)
+                # Direct printing with warning color (yellow) but without the TP:WRN prefix
+                yellow = "\033[0;33m"
+                reset = "\033[0m"
+                print(f"\n{yellow}Update available: {package_name} {current_version} → {latest_version}{reset}")
+                print(f"{yellow}Run: pip install --upgrade {package_name}{reset}\n")
+                
+                # We don't use logger.warning here to avoid the colored TP:WRN prefix
         except PackageNotFoundError:
             logger.info(f"Package not installed: {package_name}")
 
     except requests.RequestException as e:
-        logger.warning(f"Version check failed: {e}")
+        # Use info level so it's not as prominent
+        logger.info(f"Version check skipped: {e}")
