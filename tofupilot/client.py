@@ -396,7 +396,7 @@ class TofuPilotClient:
                 Id of the newly created run
         """
 
-        self._logger.info("Creating run...")
+        self._logger.info("Importing run...")
 
         # Validate report
         validate_files(
@@ -441,7 +441,16 @@ class TofuPilotClient:
 
         # Return only the ID if successful, otherwise return the full result
         if result.get("success", False) is not False:
-            return result.get("id")
+            run_id = result.get("id")
+            run_url = result.get("url")
+            
+            # Explicitly log success with URL if available
+            if run_url:
+                self._logger.success(f"Run imported successfully: {run_url}")
+            elif run_id:
+                self._logger.success(f"Run imported successfully with ID: {run_id}")
+                
+            return run_id
         else:
             return result
     
