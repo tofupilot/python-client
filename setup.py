@@ -13,6 +13,7 @@ setup(
         "packaging",
         "pytest",
         "paho-mqtt",
+        "sentry-sdk",
     ],
     entry_points={
         "pytest11": [

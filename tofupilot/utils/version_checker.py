@@ -24,8 +24,9 @@ def check_latest_version(logger, current_version, package_name: str):
                 
                 # We don't use logger.warning here to avoid the colored TP:WRN prefix
         except PackageNotFoundError:
-            logger.info(f"Package not installed: {package_name}")
+            # Silently ignore package not found errors
+            pass
 
-    except requests.RequestException as e:
-        # Use info level so it's not as prominent
-        logger.info(f"Version check skipped: {e}")
+    except requests.RequestException:
+        # Silently ignore connection errors during version check
+        pass

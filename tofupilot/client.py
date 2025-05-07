@@ -74,16 +74,16 @@ class TofuPilotClient:
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
-        
+
     def _setup_ssl_certificates(self):
         """Configure SSL certificate validation using certifi if needed."""
         # Check if SSL_CERT_FILE is already set to a valid path
-        cert_file = os.environ.get('SSL_CERT_FILE')
+        cert_file = os.environ.get("SSL_CERT_FILE")
         if not cert_file or not os.path.isfile(cert_file):
             # Use certifi's certificate bundle
             certifi_path = certifi.where()
             if os.path.isfile(certifi_path):
-                os.environ['SSL_CERT_FILE'] = certifi_path
+                os.environ["SSL_CERT_FILE"] = certifi_path
                 self._logger.debug(f"SSL: Using certifi path {certifi_path}")
 
     def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
@@ -142,6 +142,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#create-a-run
         """
+        print("")
         self._logger.info("Creating run...")
 
         if attachments is not None:
@@ -220,7 +221,7 @@ class TofuPilotClient:
         """
         # Upload report and create run from file_path
         run_id = self.upload_and_create_from_openhtf_report(file_path)
-        
+
         # If run_id is not a string, it's an error response dictionary
         if not isinstance(run_id, str):
             self._logger.error("OpenHTF import failed")
@@ -246,6 +247,10 @@ class TofuPilotClient:
 
         # Now safely proceed with attachment upload
         if run_id and test_record and "phases" in test_record:
+            # Add a visual separator after the run success message
+            print("")
+            self._logger.info("Processing attachments from OpenHTF test record")
+
             # Use the centralized function to process all attachments
             process_openhtf_attachments(
                 self._logger,
@@ -263,7 +268,7 @@ class TofuPilotClient:
                 self._logger.error("Test record load failed")
             elif "phases" not in test_record:
                 self._logger.error("No phases in test record")
-                
+
         return run_id
 
     def get_runs(self, serial_number: str) -> dict:
@@ -318,7 +323,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#delete-a-run
         """
-        self._logger.info('Deleting run: %s', run_id)
+        self._logger.info("Deleting run: %s", run_id)
         self._log_request("DELETE", f"/runs/{run_id}")
         return api_request(
             self._logger,
@@ -347,7 +352,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#update-a-unit
         """
-        self._logger.info('Updating unit: %s', serial_number)
+        self._logger.info("Updating unit: %s", serial_number)
         payload = {"sub_units": sub_units}
         self._log_request("PATCH", f"/units/{serial_number}", payload)
         return api_request(
@@ -374,7 +379,7 @@ class TofuPilotClient:
         References:
             https://www.tofupilot.com/docs/api#delete-a-unit
         """
-        self._logger.info('Deleting unit: %s', serial_number)
+        self._logger.info("Deleting unit: %s", serial_number)
         self._log_request("DELETE", f"/units/{serial_number}")
         return api_request(
             self._logger,
@@ -396,6 +401,7 @@ class TofuPilotClient:
                 Id of the newly created run
         """
 
+        print("")
         self._logger.info("Importing run...")
 
         # Validate report
@@ -443,17 +449,17 @@ class TofuPilotClient:
         if result.get("success", False) is not False:
             run_id = result.get("id")
             run_url = result.get("url")
-            
+
             # Explicitly log success with URL if available
             if run_url:
                 self._logger.success(f"Run imported successfully: {run_url}")
             elif run_id:
                 self._logger.success(f"Run imported successfully with ID: {run_id}")
-                
+
             return run_id
         else:
             return result
-    
+
     def get_connection_credentials(self) -> dict:
         """
         Fetches credentials required to livestream test results.
@@ -479,12 +485,13 @@ class TofuPilotClient:
             handle_network_error(self._logger, e)
             return None
 
+
 def print_version_banner(current_version: str):
     """Prints current version of client with tofu art"""
     # Colors for the tofu art
     yellow = "\033[33m"  # Yellow for the plane
-    blue = "\033[34m"    # Blue for the cap border
-    reset = "\033[0m"    # Reset color
+    blue = "\033[34m"  # Blue for the cap border
+    reset = "\033[0m"  # Reset color
 
     banner = (
         f"{blue}╭{reset} {yellow}✈{reset} {blue}╮{reset}\n"
