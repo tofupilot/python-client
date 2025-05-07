@@ -233,10 +233,10 @@ def upload_attachments(
             with open(file_path, "rb") as file:
                 name = os.path.basename(file_path)
                 data = file.read()
-                content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
+                mimetype, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
                 
                 # Use shared upload function
-                upload_attachment_data(logger, headers, url, name, data, content_type, run_id, verify)
+                upload_attachment_data(logger, headers, url, name, data, mimetype, run_id, verify)
         except Exception as e:
             logger.error(f"Upload failed: {file_path} - {str(e)}")
             continue
@@ -282,11 +282,13 @@ def process_openhtf_attachments(
         # Extract phases from test record based on type
         if isinstance(test_record, dict):
             phases = test_record.get("phases", [])
+            logger.info(f"Found {len(phases)} phases in JSON test record")
         else:
             phases = getattr(test_record, "phases", [])
+            logger.info(f"Found {len(phases)} phases in object test record")
         
         # Iterate through phases and their attachments
-        for phase in phases:
+        for i, phase in enumerate(phases):
             # Skip if we've reached attachment limit
             if attachment_count >= max_attachments:
                 logger.warning(f"Attachment limit ({max_attachments}) reached")
@@ -295,18 +297,29 @@ def process_openhtf_attachments(
             # Get attachments based on record type
             if isinstance(test_record, dict):
                 phase_attachments = phase.get("attachments", {})
+                phase_name = phase.get("name", f"Phase {i}")
             else:
                 phase_attachments = getattr(phase, "attachments", {})
-                
+                phase_name = getattr(phase, "name", f"Phase {i}")
+            
             # Skip if phase has no attachments
             if not phase_attachments:
                 continue
+                
+            logger.info(f"Processing {len(phase_attachments)} attachments in {phase_name}")
                 
             # Process each attachment in the phase
             for name, attachment in phase_attachments.items():
                 # Skip if we've reached attachment limit
                 if attachment_count >= max_attachments:
                     break
+                    
+                # Log attachment details
+                if isinstance(test_record, dict):
+                    logger.info(f"Attachment: {name}, Type: JSON format")
+                else:
+                    attrs = [attr for attr in dir(attachment) if not attr.startswith('_')]
+                    logger.info(f"Attachment: {name}, Type: Object, Attributes: {attrs}")
                     
                 # Get attachment data and size based on record type
                 if isinstance(test_record, dict):
@@ -331,11 +344,46 @@ def process_openhtf_attachments(
                 else:
                     # Object format (from callback)
                     attachment_data = getattr(attachment, "data", None)
+                    
+                    # Handle different attachment types in OpenHTF
                     if attachment_data is None:
                         logger.warning(f"No data in: {name}")
                         continue
+                    
+                    # Handle file-based attachments in different formats
+                    data = None
+                    
+                    # Option 1: Check for direct file_path attribute
+                    if hasattr(attachment, "file_path") and getattr(attachment, "file_path"):
+                        try:
+                            file_path = getattr(attachment, "file_path")
+                            logger.info(f"Found file_path attribute: {file_path}")
+                            with open(file_path, "rb") as f:
+                                data = f.read()
+                        except Exception as e:
+                            logger.error(f"Failed to read from file_path: {str(e)}")
+                    
+                    # Option 2: Check for filename attribute (used in some OpenHTF versions)
+                    elif hasattr(attachment, "filename") and getattr(attachment, "filename"):
+                        try:
+                            file_path = getattr(attachment, "filename")
+                            logger.info(f"Found filename attribute: {file_path}")
+                            with open(file_path, "rb") as f:
+                                data = f.read()
+                        except Exception as e:
+                            logger.error(f"Failed to read from filename: {str(e)}")
+                            
+                    # Option 3: Use the data attribute directly
+                    else:
+                        logger.info("Using data attribute directly")
+                        data = attachment_data
                         
-                    data = attachment_data
+                    # Verify we have valid data
+                    if data is None:
+                        logger.error(f"No valid data found for attachment: {name}")
+                        continue
+                    
+                    # Get size from attribute or calculate it
                     attachment_size = getattr(attachment, "size", len(data))
                     mimetype = getattr(attachment, "mimetype", "application/octet-stream")
                 
@@ -349,16 +397,24 @@ def process_openhtf_attachments(
                 logger.info(f"Uploading: {name}")
                 
                 # Use unified attachment upload function
-                upload_attachment_data(
-                    logger,
-                    headers,
-                    url,
-                    name,
-                    data,
-                    mimetype,
-                    run_id,
-                    verify
-                )
+                try:
+                    success = upload_attachment_data(
+                        logger,
+                        headers,
+                        url,
+                        name,
+                        data,
+                        mimetype,
+                        run_id,
+                        verify
+                    )
+                    
+                    if success:
+                        logger.success(f"Successfully uploaded attachment: {name}")
+                    else:
+                        logger.error(f"Failed to upload attachment: {name}")
+                except Exception as e:
+                    logger.error(f"Exception during attachment upload: {name} - {str(e)}")
                 # Continue with other attachments regardless of success/failure
     finally:
         # If we resumed the logger and it has a pause method, pause it again
