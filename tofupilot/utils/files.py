@@ -59,6 +59,7 @@ def upload_file(
         data=json.dumps(payload),
         headers=headers,
         timeout=SECONDS_BEFORE_TIMEOUT,
+        verify=verify,
     )
 
     response.raise_for_status()
@@ -159,6 +160,7 @@ def upload_attachments(
     url: str,
     paths: List[str],
     run_id: str,
+    verify: Optional[str] = None,
 ):
     """
     Creates one upload per file path and stores them into TofuPilot

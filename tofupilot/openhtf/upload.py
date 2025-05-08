@@ -60,7 +60,7 @@ class upload:  # pylint: disable=invalid-name
         verify: Optional[str] = None,
     ):
         self.allow_nan = allow_nan
-        self.client = client or TofuPilotClient(api_key=api_key, url=url)
+        self.client = client or TofuPilotClient(api_key=api_key, url=url, verify=verify)
         self._logger = self.client._logger
         self._url = self.client._url
         self._headers = self.client._headers

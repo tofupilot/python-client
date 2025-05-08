@@ -5,6 +5,7 @@ from .models import (
     Phase,
     MeasurementOutcome,
     PhaseOutcome,
+    Log,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "Phase",
     "MeasurementOutcome",
     "PhaseOutcome",
+    "Log",
 ]

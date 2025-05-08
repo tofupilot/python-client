@@ -17,7 +17,7 @@ from .constants import (
     CLIENT_MAX_ATTACHMENTS,
     SECONDS_BEFORE_TIMEOUT,
 )
-from .models import SubUnit, UnitUnderTest, Step, Phase
+from .models import SubUnit, UnitUnderTest, Step, Phase, Log
 from .utils import (
     check_latest_version,
     validate_files,
@@ -35,9 +35,23 @@ from .utils import (
 
 
 class TofuPilotClient:
-    """Wrapper for TofuPilot's API that provides additional support for handling attachments."""
+    """Wrapper for TofuPilot's API that provides additional support for handling attachments.
+    
+    Args:
+        api_key (Optional[str]): API key for authentication with TofuPilot's API.
+            If not provided, the TOFUPILOT_API_KEY environment variable will be used.
+        url (Optional[str]): Base URL for TofuPilot's API.
+            If not provided, the TOFUPILOT_URL environment variable or the default endpoint will be used.
+        verify (Optional[str]): Path to a CA bundle file to verify TofuPilot's server certificate.
+            Useful for connecting to instances with custom/self-signed certificates.
+    """
 
-    def __init__(self, api_key: Optional[str] = None, url: Optional[str] = None):
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        url: Optional[str] = None,
+        verify: Optional[str] = None,
+    ):
         self._current_version = version("tofupilot")
         print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
@@ -56,6 +70,7 @@ class TofuPilotClient:
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self._api_key}",
         }
+        self._verify = verify
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
         check_latest_version(self._logger, self._current_version, "tofupilot")
@@ -91,6 +106,7 @@ class TofuPilotClient:
         sub_units: Optional[List[SubUnit]] = None,
         report_variables: Optional[Dict[str, str]] = None,
         attachments: Optional[List[str]] = None,
+        logs: Optional[List[Log]] = None,
     ) -> dict:
         """
         Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
@@ -154,6 +170,9 @@ class TofuPilotClient:
 
         if phases is not None:
             payload["phases"] = phases
+
+        if logs is not None:
+            payload["logs"] = logs
 
         if started_at is not None:
             payload["started_at"] = datetime_to_iso(started_at)
@@ -377,7 +396,9 @@ class TofuPilotClient:
 
         # Upload report
         try:
-            upload_id = upload_file(self._headers, self._url, file_path)
+            upload_id = upload_file(
+                self._headers, self._url, file_path, self._verify
+            )
         except requests.exceptions.HTTPError as http_err:
             error_info = handle_http_error(self._logger, http_err)
             # Error already logged by handle_http_error
@@ -428,6 +449,7 @@ class TofuPilotClient:
             response = requests.get(
                 f"{self._url}/streaming",
                 headers=self._headers,
+                verify=self._verify,
                 timeout=SECONDS_BEFORE_TIMEOUT,
             )
             response.raise_for_status()
