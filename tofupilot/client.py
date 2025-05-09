@@ -358,13 +358,12 @@ class TofuPilotClient:
     def upload_and_create_from_openhtf_report(
         self,
         file_path: str,
-    ) -> str:
+    ) -> Dict:
         """
         Takes a path to an OpenHTF JSON file report, uploads it and creates a run from it.
 
         Returns:
-            str:
-                Id of the newly created run
+            Dict
         """
 
         print("")
@@ -401,8 +400,8 @@ class TofuPilotClient:
             self._logger, "POST", f"{self._url}/import", self._headers, data=payload
         )
 
-        # Return only the ID if successful, otherwise return the full result
-        if result.get("success", False) is not False:
+         # Return only the ID if successful, otherwise return the full result
+        if result.get("success", True) is not False:
             run_id = result.get("id")
             run_url = result.get("url")
 
@@ -412,9 +411,13 @@ class TofuPilotClient:
             elif run_id:
                 self._logger.success(f"Run imported successfully with ID: {run_id}")
 
-            return run_id
+            return {
+                "success": True,
+                "run_id": run_id,
+                "upload_id": upload_id,
+            }
         else:
-            return result
+            return {**result, "upload_id": upload_id,}
 
     def get_connection_credentials(self) -> dict:
         """
