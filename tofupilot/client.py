@@ -224,12 +224,13 @@ class TofuPilotClient:
             https://www.tofupilot.com/docs/api#create-a-run-from-a-file
         """
         # Upload report and create run from file_path
-        run_id = self.upload_and_create_from_openhtf_report(file_path)
+        upload_res = self.upload_and_create_from_openhtf_report(file_path)
 
-        # If run_id is not a string, it's an error response dictionary
-        if not isinstance(run_id, str):
+        if not upload_res.get("success", False):
             self._logger.error("OpenHTF import failed")
-            return run_id
+            return ""
+        
+        run_id = upload_res["run_id"]
 
         # Only continue with attachment upload if run_id is valid
         test_record = None
@@ -396,13 +397,12 @@ class TofuPilotClient:
     def upload_and_create_from_openhtf_report(
         self,
         file_path: str,
-    ) -> str:
+    ) -> Dict:
         """
         Takes a path to an OpenHTF JSON file report, uploads it and creates a run from it.
 
         Returns:
-            str:
-                Id of the newly created run
+            Dict
         """
 
         print("")
@@ -449,8 +449,8 @@ class TofuPilotClient:
             verify=self._verify,
         )
 
-        # Return only the ID if successful, otherwise return the full result
-        if result.get("success", False) is not False:
+         # Return only the ID if successful, otherwise return the full result
+        if result.get("success", True) is not False:
             run_id = result.get("id")
             run_url = result.get("url")
 
@@ -460,9 +460,13 @@ class TofuPilotClient:
             elif run_id:
                 self._logger.success(f"Run imported successfully with ID: {run_id}")
 
-            return run_id
+            return {
+                "success": True,
+                "run_id": run_id,
+                "upload_id": upload_id,
+            }
         else:
-            return result
+            return {**result, "upload_id": upload_id,}
 
     def get_connection_credentials(self) -> dict:
         """
