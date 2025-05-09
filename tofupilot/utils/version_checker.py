@@ -22,7 +22,7 @@ def check_latest_version(logger, current_version, package_name: str):
                 )
                 logger.warning(warning_message)
         except PackageNotFoundError:
-            logger.info(f"Package {package_name} is not installed.")
+            logger.info(f"Package not installed: {package_name}")
 
     except requests.RequestException as e:
-        logger.warning(f"Error checking the latest version: {e}")
+        logger.warning(f"Version check failed: {e}")
