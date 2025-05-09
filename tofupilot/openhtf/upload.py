@@ -68,7 +68,13 @@ class upload:  # pylint: disable=invalid-name
         self._max_attachments = self.client._max_attachments
         self._max_file_size = self.client._max_file_size
 
-    def __call__(self, test_record: TestRecord):
+    def __call__(self, test_record: TestRecord) -> str:
+        """
+        Returns:
+            str:
+                Id of the initial upload
+                (This id is present in the ApiCall table of the database)
+        """
         # Resume logger to ensure it's active during attachment processing
         was_logger_resumed = False
         if hasattr(self._logger, "resume"):
@@ -115,27 +121,16 @@ class upload:  # pylint: disable=invalid-name
                 # Extract run_id from response - it could be a string (id) or a dict (result with id field)
                 run_id = None
 
-                if isinstance(result, dict):
-                    # It's a dictionary response
-                    if not result.get("success", True):
-                        self._logger.error("Run creation failed, skipping attachments")
-                        return
+                if not result.get("success", False):
+                    self._logger.error("Run creation failed, skipping attachments")
+                    return result.get("upload_id", "")
 
-                    # Try to get the ID from the dictionary
-                    run_id = result.get("id")
-                else:
-                    # Direct ID string
-                    run_id = result
+                run_id = result.get("run_id")
+                original_upload_id: str = result.get("upload_id")
 
-                # Final validation of run_id
-                if not run_id or not isinstance(run_id, str):
-                    self._logger.error(
-                        f"Invalid run ID received: {run_id}, skipping attachments"
-                    )
-                    return
             except Exception as e:
                 self._logger.error(f"Error creating run: {str(e)}")
-                return
+                return ""
             finally:
                 # Ensure the file is deleted after processing
                 if os.path.exists(filename):
@@ -239,7 +234,9 @@ class upload:  # pylint: disable=invalid-name
                                 f"Failed to process attachment: {str(e)}"
                             )
                         continue
-        finally:
-            # For attachment logs to be visible, we intentionally don't pause the logger here
-            # Instead, we'll let the TofuPilot class's __exit__ method handle the logger state
-            pass
+            return original_upload_id
+        except Exception as e:
+            self._logger.error(
+                f"Otherwise uncaught exception: {str(e)}"
+            )
+            return ""

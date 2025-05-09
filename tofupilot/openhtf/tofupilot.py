@@ -123,11 +123,18 @@ class TofuPilot:
         self._logger = self.client._logger
         self._streaming_setup_thread = None
 
+    def _upload(self, testRecord: TestRecord):
+
+        # Side effecting !
+        upload_id = upload(api_key=self.api_key, url=self.url, client=self.client)(testRecord)
+
+        if (self.stream):
+            self._final_update(upload_id, testRecord)
+
     def __enter__(self):
         # Add upload callback without pausing the logger yet
         self.test.add_output_callbacks(
-            upload(api_key=self.api_key, url=self.url, client=self.client),
-            self._final_update,
+            self._upload
         )
 
         # Start streaming setup before pausing the logger
@@ -389,14 +396,14 @@ class TofuPilot:
                 f"Operator UI: Method call failed - {method_name}({', '.join(args)}) - {e}"
             )
 
-    def _final_update(self, testRecord: TestRecord):
+    def _final_update(self, upload_id: str, testRecord: TestRecord):
         """
         If the test is fast enough, the watcher never triggers, to avoid the UI being out of sync,
         we force send at least once at the very end of the test
         """
 
-        # Skip if streaming is disabled or MQTT client doesn't exist
-        if not self.stream or self.mqttClient is None:
+        # Skip if MQTT client doesn't exist
+        if self.mqttClient is None:
             return
 
         test_record_dict = testRecord.as_base_types()
@@ -406,6 +413,7 @@ class TofuPilot:
             "test_record": test_record_dict,
             "plugs": {"plug_states": {}},
             "running_phase_state": {},
+            "upload_id": upload_id
         }
 
         self._send_update(test_state_dict)
