@@ -7,10 +7,11 @@ setup(
     name="tofupilot",
     version="1.10.0",
     packages=find_packages(),
-    install_requires=["requests", "setuptools", "packaging", "pytest", "websockets"],
-    entry_points={
-        "pytest11": [
-            "tofupilot = tofupilot.plugin",  # Registering the pytest plugin
+    install_requires=["requests", "setuptools", "packaging", "websockets"],
+    extras_require={
+        "dev": [
+            "pytest",
+            "black",
         ],
     },
     author="TofuPilot",
