@@ -203,27 +203,25 @@ class TofuPilot:
 
     def _setup_streaming(self):
         try:
-            try:
-                cred = self.client.get_connection_credentials()
-            except Exception as e:
-                self._logger.warning(f"Operator UI: JWT error: {e}")
+            def display_help_disable_streaming():
                 # Print with yellow color for consistency with warnings
                 yellow = "\033[0;33m"
                 reset = "\033[0m"
                 print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
+                    f"{yellow}To disable Operator UI streaming, use TofuPilot(..., stream=False) in your script{reset}"
                 )
+
+            try:
+                cred = self.client.get_connection_credentials()
+            except Exception as e:
+                self._logger.warning(f"Operator UI: JWT error: {e}")
+                display_help_disable_streaming()
                 self.stream = False  # Disable streaming on auth failure
                 return
 
             if not cred:
                 self._logger.warning("Operator UI: Auth server connection failed")
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
+                display_help_disable_streaming()
                 self.stream = False  # Disable streaming on auth failure
                 return self
 
@@ -260,12 +258,7 @@ class TofuPilot:
                 self._logger.warning(
                     f"Operator UI: Failed to connect with server (exception): {e}"
                 )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
+                display_help_disable_streaming()
                 self.stream = False  # Disable streaming on connection failure
                 return
 
@@ -273,12 +266,7 @@ class TofuPilot:
                 self._logger.warning(
                     f"Operator UI: Failed to connect with server (error code): {connect_error_code}"
                 )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
+                display_help_disable_streaming()
                 self.stream = False  # Disable streaming on connection failure
                 return self
 
@@ -290,12 +278,7 @@ class TofuPilot:
                 self._logger.warning(
                     f"Operator UI: Failed to subscribe to server (exception): {e}"
                 )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
+                display_help_disable_streaming()
                 self.stream = False  # Disable streaming on subscription failure
                 return
 
@@ -303,12 +286,7 @@ class TofuPilot:
                 self._logger.warning(
                     f"Operator UI: Failed to subscribe to server (error code): {subscribe_error_code}"
                 )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
+                display_help_disable_streaming()
                 self.stream = False  # Disable streaming on subscription failure
                 return self
 
