@@ -20,7 +20,7 @@ def api_request(
     data: Optional[Dict] = None, 
     params: Optional[Dict] = None,
     timeout: int = SECONDS_BEFORE_TIMEOUT,
-    verify: str | None = None,
+    verify = None, #: str | None = None,
 ) -> Dict:
     """Unified API request handler with consistent error handling"""
     try:

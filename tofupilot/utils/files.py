@@ -102,9 +102,26 @@ def upload_file(
 
 
 def notify_server(
-    headers: dict, url: str, upload_id: str, run_id: str, logger=None, verify: str | None = None
+    headers: dict,
+    url: str,
+    upload_id: str,
+    run_id: str,
+    logger = None,
+    verify = None, # str | None
 ) -> bool:
-    """Tells TP server to sync upload with newly created run"""
+    """Tells TP server to sync upload with newly created run
+    
+    Args:
+        headers (dict): Request headers including authorization
+        url (str): Base API URL
+        upload_id (str): ID of the upload to link
+        run_id (str): ID of the run to link to
+        logger (Optional[Logger]): The logger to use
+        verify (Optional[str]): Path to a CA bundle file to verify the server certificate
+        
+    Returns:
+        bool: True if successful
+    """
     sync_url = f"{url}/uploads/sync"
     sync_payload = {"upload_id": upload_id, "run_id": run_id}
 
@@ -135,7 +152,7 @@ def upload_attachment_data(
     data,
     mimetype: str,
     run_id: str,
-    verify: str | None,
+    verify, #: str | None,
 ) -> bool:
     """
     Uploads binary data as an attachment and links it to a run
@@ -183,40 +200,6 @@ def upload_attachment_data(
         with LoggerStateManager(logger):
             logger.error(f"Upload failed: {name} - {str(e)}")
         return False
-
-
-def notify_server(
-    headers: dict,
-    url: str,
-    upload_id: str,
-    run_id: str,
-    verify: Optional[str] = None,
-) -> bool:
-    """Tells TP server to sync upload with newly created run
-    
-    Args:
-        headers (dict): Request headers including authorization
-        url (str): Base API URL
-        upload_id (str): ID of the upload to link
-        run_id (str): ID of the run to link to
-        verify (Optional[str]): Path to a CA bundle file to verify the server certificate
-        
-    Returns:
-        bool: True if successful
-    """
-    sync_url = f"{url}/uploads/sync"
-    sync_payload = {"upload_id": upload_id, "run_id": run_id}
-
-    response = requests.post(
-        sync_url,
-        data=json.dumps(sync_payload),
-        verify=verify,
-        headers=headers,
-        timeout=SECONDS_BEFORE_TIMEOUT,
-    )
-
-    return response.status_code == 200
-
 
 def upload_attachments(
     logger: Logger,
@@ -282,7 +265,7 @@ def process_openhtf_attachments(
     max_attachments: int,
     max_file_size: int,
     needs_base64_decode: bool = True,
-    verify: str | None = None,
+    verify = None, #: str | None = None,
 ) -> None:
     """
     Process attachments from an OpenHTF test record and upload them.
