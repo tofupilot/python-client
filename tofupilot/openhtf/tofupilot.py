@@ -122,7 +122,6 @@ class TofuPilot:
         self.update_task = None
         self.mqttClient = None
         self.publishOptions = None
-        self.failed_connection_attempts = 0
         self._logger = self.client._logger
         self._streaming_setup_thread = None
 
@@ -204,29 +203,37 @@ class TofuPilot:
         self._setup_streaming()
         self.connection_completed = True
 
+    def _display_help_disable_streaming(self):
+        # Print with yellow color for consistency with warnings
+        yellow = "\033[0;33m"
+        reset = "\033[0m"
+        print(
+            f"{yellow}To disable Operator UI streaming, use TofuPilot(..., stream=False) in your script{reset}"
+        )
+
     def _connect_streaming(self) -> str:
+        
+        res = {"success": False}
+        while not res.get("success", False):
+            try:
+                res = self.client.get_connection_credentials()
+            except Exception as e:
+                self._logger.warning(f"Operator UI: JWT error: {e}")
+                self._display_help_disable_streaming()
+                time.sleep(1)
 
-        def display_help_disable_streaming():
-            # Print with yellow color for consistency with warnings
-            yellow = "\033[0;33m"
-            reset = "\033[0m"
-            print(
-                f"{yellow}To disable Operator UI streaming, use TofuPilot(..., stream=False) in your script{reset}"
-            )
+            if not res.get("success", False):
+                status_code = res.get("status_code", 0)
+                self._logger.warning("Operator UI: Auth server connection failed")
+                self._display_help_disable_streaming()
+                
+                # various flavours of bad request/unauthorized
+                # We shouldn't retry to connect since it will fail again
+                if(400 <= status_code <= 407):
+                    return ""
+                time.sleep(1)
 
-        try:
-            cred = self.client.get_connection_credentials()
-        except Exception as e:
-            self._logger.warning(f"Operator UI: JWT error: {e}")
-            display_help_disable_streaming()
-            self.stream = False  # Disable streaming on auth failure
-            return ""
-
-        if not cred:
-            self._logger.warning("Operator UI: Auth server connection failed")
-            display_help_disable_streaming()
-            self.stream = False  # Disable streaming on auth failure
-            return ""
+        cred = res["values"]
 
         # Since we control the server, we know these will be set
         token = cred["token"]
@@ -252,7 +259,6 @@ class TofuPilot:
         self.mqttClient.username_pw_set("pythonClient", token)
 
         self.mqttClient.on_message = self._on_message
-        self.mqttClient.on_connect = self._on_connect
         self.mqttClient.on_disconnect = self._on_disconnect
         self.mqttClient.on_unsubscribe = self._on_unsubscribe
 
@@ -262,7 +268,7 @@ class TofuPilot:
             self._logger.warning(
                 f"Operator UI: Failed to connect with server (exception): {e}"
             )
-            display_help_disable_streaming()
+            self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on connection failure
             return ""
 
@@ -270,7 +276,7 @@ class TofuPilot:
             self._logger.warning(
                 f"Operator UI: Failed to connect with server (error code): {connect_error_code}"
             )
-            display_help_disable_streaming()
+            self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on connection failure
             return ""
 
@@ -282,7 +288,7 @@ class TofuPilot:
             self._logger.warning(
                 f"Operator UI: Failed to subscribe to server (exception): {e}"
             )
-            display_help_disable_streaming()
+            self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on subscription failure
             return ""
 
@@ -290,7 +296,7 @@ class TofuPilot:
             self._logger.warning(
                 f"Operator UI: Failed to subscribe to server (error code): {subscribe_error_code}"
             )
-            display_help_disable_streaming()
+            self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on subscription failure
             return ""
         
@@ -332,9 +338,7 @@ class TofuPilot:
 
         except Exception as e:
             self._logger.warning(f"Operator UI: Setup error - {e}")
-            print(
-                "To disable Operator UI streaming, use Test(..., stream=False) in your script"
-            )
+            self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on any setup error
 
     def _send_update(self, message):
@@ -420,26 +424,15 @@ class TofuPilot:
         if parsed["source"] == "web":
             self._handle_answer(**parsed["message"])
 
-    def _on_connect(
-        self, client, userdata, connect_flags, reason_code, properties
-    ):
-        self.failed_connection_attempts = 0
-
     def _on_disconnect(
         self, client, userdata, disconnect_flags: mqtt.DisconnectFlags, reason_code: ReasonCode, properties
     ):
         if reason_code != mqtt.MQTT_ERR_SUCCESS or disconnect_flags.is_disconnect_packet_from_server:
-            # Exponential backoff
-            if self.failed_connection_attempts > 0:
-                time.sleep(
-                    2**self.failed_connection_attempts
-                )
-            self.failed_connection_attempts += 1
 
-            if self.failed_connection_attempts > 5:
-                self._logger.warning(
-                    f"Operator UI: Unexpected disconnect (code {reason_code})"
-                )
+            self._logger.warning(
+                f"Operator UI: Unexpected disconnect (code {reason_code})"
+            )
+            
             self._connect_streaming()
             self.mqttClient.loop_start()
             test_state_dict, _ = _to_dict_with_event(self.test.state)

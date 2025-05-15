@@ -473,8 +473,12 @@ class TofuPilotClient:
         Fetches credentials required to livestream test results.
 
         Returns:
-            values:
-                a dict containing the emqx server url, the topic to connect to, and the JWT token required to connect
+            a dict containing
+                "success":
+                    a bool indicating success
+                "values" if success:
+                    a dict containing the emqx server url, the topic to connect to, and the JWT token required to connect
+                other fields as set in handle_http_error and handle_network_error
         """
         try:
             response = requests.get(
@@ -485,13 +489,11 @@ class TofuPilotClient:
             )
             response.raise_for_status()
             values = handle_response(self._logger, response)
-            return values
+            return {"success": True, "values": values}
         except requests.exceptions.HTTPError as http_err:
-            handle_http_error(self._logger, http_err)
-            return None
+            return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
-            handle_network_error(self._logger, e)
-            return None
+            return handle_network_error(self._logger, e)
 
 
 def print_version_banner(current_version: str):
