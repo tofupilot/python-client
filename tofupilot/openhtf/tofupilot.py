@@ -1,3 +1,4 @@
+import time
 import types
 from typing import Optional
 from time import sleep
@@ -9,6 +10,7 @@ from openhtf.util import data
 
 import paho.mqtt.client as mqtt
 from paho.mqtt.enums import CallbackAPIVersion
+from paho.mqtt.reasoncodes import ReasonCode
 from openhtf.core.test_record import TestRecord
 from openhtf.core.test_state import TestState
 
@@ -123,11 +125,18 @@ class TofuPilot:
         self._logger = self.client._logger
         self._streaming_setup_thread = None
 
+    def _upload(self, testRecord: TestRecord):
+
+        # Side effecting !
+        upload_id = upload(api_key=self.api_key, url=self.url, client=self.client)(testRecord)
+
+        if (self.stream):
+            self._final_update(upload_id, testRecord)
+
     def __enter__(self):
         # Add upload callback without pausing the logger yet
         self.test.add_output_callbacks(
-            upload(api_key=self.api_key, url=self.url, client=self.client),
-            self._final_update,
+            self._upload
         )
 
         # Start streaming setup before pausing the logger
@@ -194,116 +203,114 @@ class TofuPilot:
         self._setup_streaming()
         self.connection_completed = True
 
-    def _setup_streaming(self):
-        try:
+    def _display_help_disable_streaming(self):
+        # Print with yellow color for consistency with warnings
+        yellow = "\033[0;33m"
+        reset = "\033[0m"
+        print(
+            f"{yellow}To disable Operator UI streaming, use TofuPilot(..., stream=False) in your script{reset}"
+        )
+
+    def _connect_streaming(self) -> str:
+        
+        res = {"success": False}
+        while not res.get("success", False):
             try:
-                cred = self.client.get_connection_credentials()
+                res = self.client.get_connection_credentials()
             except Exception as e:
                 self._logger.warning(f"Operator UI: JWT error: {e}")
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
-                self.stream = False  # Disable streaming on auth failure
-                return
+                self._display_help_disable_streaming()
+                time.sleep(1)
 
-            if not cred:
+            if not res.get("success", False):
+                status_code = res.get("status_code", 0)
                 self._logger.warning("Operator UI: Auth server connection failed")
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
-                self.stream = False  # Disable streaming on auth failure
-                return self
+                self._display_help_disable_streaming()
+                
+                # various flavours of bad request/unauthorized
+                # We shouldn't retry to connect since it will fail again
+                if(400 <= status_code <= 407):
+                    return ""
+                time.sleep(1)
 
-            # Since we control the server, we know these will be set
-            token = cred["token"]
-            operatorPage = cred["operatorPage"]
-            clientOptions = cred["clientOptions"]
-            willOptions = cred["willOptions"]
-            connectOptions = cred["connectOptions"]
-            self.publishOptions = cred["publishOptions"]
-            subscribeOptions = cred["subscribeOptions"]
+        cred = res["values"]
 
-            self.mqttClient = mqtt.Client(
-                callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions
+        # Since we control the server, we know these will be set
+        token = cred["token"]
+        operatorPage = cred["operatorPage"]
+        clientOptions = cred["clientOptions"]
+        willOptions = cred["willOptions"]
+        connectOptions = cred["connectOptions"]
+        self.publishOptions = cred["publishOptions"]
+        subscribeOptions = cred["subscribeOptions"]
+
+        self.mqttClient = mqtt.Client(
+            callback_api_version=CallbackAPIVersion.VERSION2, **clientOptions
+        )
+
+        # This is not 100% reliable, hence the need to put the setup in the background
+        # See https://github.com/eclipse-paho/paho.mqtt.python/issues/890
+        self.mqttClient.connect_timeout = 1.0
+
+        self.mqttClient.tls_set()
+
+        self.mqttClient.will_set(**willOptions)
+
+        self.mqttClient.username_pw_set("pythonClient", token)
+
+        self.mqttClient.on_message = self._on_message
+        self.mqttClient.on_disconnect = self._on_disconnect
+        self.mqttClient.on_unsubscribe = self._on_unsubscribe
+
+        try:
+            connect_error_code = self.mqttClient.connect(**connectOptions)
+        except Exception as e:
+            self._logger.warning(
+                f"Operator UI: Failed to connect with server (exception): {e}"
             )
+            self._display_help_disable_streaming()
+            self.stream = False  # Disable streaming on connection failure
+            return ""
 
-            # This is not 100% reliable, hence the need to put the setup in the background
-            # See https://github.com/eclipse-paho/paho.mqtt.python/issues/890
-            self.mqttClient.connect_timeout = 1.0
+        if connect_error_code != mqtt.MQTT_ERR_SUCCESS:
+            self._logger.warning(
+                f"Operator UI: Failed to connect with server (error code): {connect_error_code}"
+            )
+            self._display_help_disable_streaming()
+            self.stream = False  # Disable streaming on connection failure
+            return ""
 
-            self.mqttClient.tls_set()
+        try:
+            subscribe_error_code, messageId = self.mqttClient.subscribe(
+                **subscribeOptions
+            )
+        except Exception as e:
+            self._logger.warning(
+                f"Operator UI: Failed to subscribe to server (exception): {e}"
+            )
+            self._display_help_disable_streaming()
+            self.stream = False  # Disable streaming on subscription failure
+            return ""
 
-            self.mqttClient.will_set(**willOptions)
+        if subscribe_error_code != mqtt.MQTT_ERR_SUCCESS:
+            self._logger.warning(
+                f"Operator UI: Failed to subscribe to server (error code): {subscribe_error_code}"
+            )
+            self._display_help_disable_streaming()
+            self.stream = False  # Disable streaming on subscription failure
+            return ""
+        
+        return operatorPage
+        
 
-            self.mqttClient.username_pw_set("pythonClient", token)
+    def _setup_streaming(self):
+        try:
 
-            self.mqttClient.on_message = self._on_message
-            self.mqttClient.on_disconnect = self._on_disconnect
-            self.mqttClient.on_unsubscribe = self._on_unsubscribe
+            operator_page = self._connect_streaming()
 
-            try:
-                connect_error_code = self.mqttClient.connect(**connectOptions)
-            except Exception as e:
-                self._logger.warning(
-                    f"Operator UI: Failed to connect with server (exception): {e}"
-                )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
-                self.stream = False  # Disable streaming on connection failure
+            # We will already have displayed the error message
+            if operator_page == "":
                 return
-
-            if connect_error_code != mqtt.MQTT_ERR_SUCCESS:
-                self._logger.warning(
-                    f"Operator UI: Failed to connect with server (error code): {connect_error_code}"
-                )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
-                self.stream = False  # Disable streaming on connection failure
-                return self
-
-            try:
-                subscribe_error_code, messageId = self.mqttClient.subscribe(
-                    **subscribeOptions
-                )
-            except Exception as e:
-                self._logger.warning(
-                    f"Operator UI: Failed to subscribe to server (exception): {e}"
-                )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
-                self.stream = False  # Disable streaming on subscription failure
-                return
-
-            if subscribe_error_code != mqtt.MQTT_ERR_SUCCESS:
-                self._logger.warning(
-                    f"Operator UI: Failed to subscribe to server (error code): {subscribe_error_code}"
-                )
-                # Print with yellow color for consistency with warnings
-                yellow = "\033[0;33m"
-                reset = "\033[0m"
-                print(
-                    f"{yellow}To disable Operator UI streaming, use Test(..., stream=False) in your script{reset}"
-                )
-                self.stream = False  # Disable streaming on subscription failure
-                return self
 
             self.mqttClient.loop_start()
 
@@ -318,7 +325,7 @@ class TofuPilot:
 
                 # Create clickable URL
                 clickable_url = (
-                    f"\033]8;;{operatorPage}\033\\{operatorPage}\033]8;;\033\\"
+                    f"\033]8;;{operator_page}\033\\{operator_page}\033]8;;\033\\"
                 )
 
                 # Print single line connection message with URL
@@ -327,13 +334,11 @@ class TofuPilot:
             except:
                 # Fallback for terminals that don't support ANSI
                 self._logger.success(f"Connected to TofuPilot real-time server")
-                self._logger.success(f"Access Operator UI: {operatorPage}")
+                self._logger.success(f"Access Operator UI: {operator_page}")
 
         except Exception as e:
             self._logger.warning(f"Operator UI: Setup error - {e}")
-            print(
-                "To disable Operator UI streaming, use Test(..., stream=False) in your script"
-            )
+            self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on any setup error
 
     def _send_update(self, message):
@@ -389,14 +394,14 @@ class TofuPilot:
                 f"Operator UI: Method call failed - {method_name}({', '.join(args)}) - {e}"
             )
 
-    def _final_update(self, testRecord: TestRecord):
+    def _final_update(self, upload_id: str, testRecord: TestRecord):
         """
         If the test is fast enough, the watcher never triggers, to avoid the UI being out of sync,
         we force send at least once at the very end of the test
         """
 
-        # Skip if streaming is disabled or MQTT client doesn't exist
-        if not self.stream or self.mqttClient is None:
+        # Skip if MQTT client doesn't exist
+        if self.mqttClient is None:
             return
 
         test_record_dict = testRecord.as_base_types()
@@ -406,6 +411,7 @@ class TofuPilot:
             "test_record": test_record_dict,
             "plugs": {"plug_states": {}},
             "running_phase_state": {},
+            "upload_id": upload_id
         }
 
         self._send_update(test_state_dict)
@@ -419,12 +425,18 @@ class TofuPilot:
             self._handle_answer(**parsed["message"])
 
     def _on_disconnect(
-        self, client, userdata, disconnect_flags, reason_code, properties
+        self, client, userdata, disconnect_flags: mqtt.DisconnectFlags, reason_code: ReasonCode, properties
     ):
-        if reason_code != mqtt.MQTT_ERR_SUCCESS:
+        if reason_code != mqtt.MQTT_ERR_SUCCESS or disconnect_flags.is_disconnect_packet_from_server:
+
             self._logger.warning(
                 f"Operator UI: Unexpected disconnect (code {reason_code})"
             )
+            
+            self._connect_streaming()
+            self.mqttClient.loop_start()
+            test_state_dict, _ = _to_dict_with_event(self.test.state)
+            self._send_update(test_state_dict)
 
     def _on_unsubscribe(self, client, userdata, mid, reason_code_list, properties):
         if any(
