@@ -123,6 +123,7 @@ class TofuPilot:
         self.mqttClient = None
         self.publishOptions = None
         self._logger = self.client._logger
+        self._reconnecting = False
         self._streaming_setup_thread = None
 
     def _upload(self, testRecord: TestRecord):
@@ -259,6 +260,7 @@ class TofuPilot:
         self.mqttClient.username_pw_set("pythonClient", token)
 
         self.mqttClient.on_message = self._on_message
+        self.mqttClient.on_connect = self._on_connect
         self.mqttClient.on_disconnect = self._on_disconnect
         self.mqttClient.on_unsubscribe = self._on_unsubscribe
 
@@ -424,6 +426,16 @@ class TofuPilot:
         if parsed["source"] == "web":
             self._handle_answer(**parsed["message"])
 
+    def _on_connect(
+        self, client, userdata, connect_flags, reason_code, properties,
+    ):
+        if self._reconnecting:
+            # Warning to be sure the log level is the same as the other message
+            self._logger.warning(
+                f"Operator UI: Reconnected"
+            )
+            self._reconnecting = False
+
     def _on_disconnect(
         self, client, userdata, disconnect_flags: mqtt.DisconnectFlags, reason_code: ReasonCode, properties
     ):
@@ -432,7 +444,7 @@ class TofuPilot:
             self._logger.warning(
                 f"Operator UI: Unexpected disconnect (code {reason_code})"
             )
-            
+            self._reconnecting = True
             self._connect_streaming()
             self.mqttClient.loop_start()
             test_state_dict, _ = _to_dict_with_event(self.test.state)
