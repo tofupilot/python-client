@@ -189,7 +189,7 @@ def upload_attachment_data(
         upload_response.raise_for_status()
 
         # Link attachment to run
-        notify_server(headers, url, upload_id, run_id, logger)
+        notify_server(headers, url, upload_id, run_id, verify=verify, logger=logger)
 
         # Log success with LoggerStateManager for visibility
         with LoggerStateManager(logger):
