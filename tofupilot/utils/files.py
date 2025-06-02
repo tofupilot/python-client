@@ -107,7 +107,7 @@ def notify_server(
     upload_id: str,
     run_id: str,
     logger = None,
-    verify = None, # str | None
+    verify: Optional[str] = None,
 ) -> bool:
     """Tells TP server to sync upload with newly created run
     
@@ -152,7 +152,7 @@ def upload_attachment_data(
     data,
     mimetype: str,
     run_id: str,
-    verify, #: str | None,
+    verify: Optional[str],
 ) -> bool:
     """
     Uploads binary data as an attachment and links it to a run
@@ -265,7 +265,7 @@ def process_openhtf_attachments(
     max_attachments: int,
     max_file_size: int,
     needs_base64_decode: bool = True,
-    verify = None, #: str | None = None,
+    verify: Optional[str] = None,
 ) -> None:
     """
     Process attachments from an OpenHTF test record and upload them.
