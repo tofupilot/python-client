@@ -8,6 +8,7 @@ import requests
 
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from .logger import LoggerStateManager
+from .network import prepare_verify_setting, cleanup_temp_cert_bundle
 
 
 def log_and_raise(logger: Logger, error_message: str):
@@ -60,45 +61,50 @@ def upload_file(
     Returns:
         str: The ID of the created upload
     """
-    # Upload initialization
-    initialize_url = f"{url}/uploads/initialize"
-    file_name = os.path.basename(file_path)
-    payload = {"name": file_name}
-
-    response = requests.post(
-        initialize_url,
-        data=json.dumps(payload),
-        headers=headers,
-        timeout=SECONDS_BEFORE_TIMEOUT,
-        verify=verify,
-    )
-
-    # Check for API key errors before raising for status
-    if response.status_code == 401:
-        error_data = response.json()
-        error_message = error_data.get("error", {}).get("message", "Authentication failed")
-        # Create a proper HTTPError with the response
-        http_error = requests.exceptions.HTTPError(response=response)
-        http_error.response = response
-        raise http_error
+    verify_setting = prepare_verify_setting(verify)
     
-    response.raise_for_status()
-    response_json = response.json()
-    upload_url = response_json.get("uploadUrl")
-    upload_id = response_json.get("id")
+    try:
+        # Upload initialization
+        initialize_url = f"{url}/uploads/initialize"
+        file_name = os.path.basename(file_path)
+        payload = {"name": file_name}
 
-    # File storing
-    with open(file_path, "rb") as file:
-        content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
-        requests.put(
-            upload_url,
-            data=file,
-            headers={"Content-Type": content_type},
+        response = requests.post(
+            initialize_url,
+            data=json.dumps(payload),
+            headers=headers,
             timeout=SECONDS_BEFORE_TIMEOUT,
-            verify=verify,
+            verify=verify_setting,
         )
 
-    return upload_id
+        # Check for API key errors before raising for status
+        if response.status_code == 401:
+            error_data = response.json()
+            error_message = error_data.get("error", {}).get("message", "Authentication failed")
+            # Create a proper HTTPError with the response
+            http_error = requests.exceptions.HTTPError(response=response)
+            http_error.response = response
+            raise http_error
+        
+        response.raise_for_status()
+        response_json = response.json()
+        upload_url = response_json.get("uploadUrl")
+        upload_id = response_json.get("id")
+
+        # File storing
+        with open(file_path, "rb") as file:
+            content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
+            requests.put(
+                upload_url,
+                data=file,
+                headers={"Content-Type": content_type},
+                timeout=SECONDS_BEFORE_TIMEOUT,
+                verify=verify_setting,
+            )
+
+        return upload_id
+    finally:
+        cleanup_temp_cert_bundle(verify_setting, verify)
 
 
 def notify_server(
@@ -122,16 +128,18 @@ def notify_server(
     Returns:
         bool: True if successful
     """
-    sync_url = f"{url}/uploads/sync"
-    sync_payload = {"upload_id": upload_id, "run_id": run_id}
-
+    verify_setting = prepare_verify_setting(verify)
+    
     try:
+        sync_url = f"{url}/uploads/sync"
+        sync_payload = {"upload_id": upload_id, "run_id": run_id}
+
         response = requests.post(
             sync_url,
             data=json.dumps(sync_payload),
             headers=headers,
             timeout=SECONDS_BEFORE_TIMEOUT,
-            verify=verify,
+            verify=verify_setting,
         )
         response.raise_for_status()
 
@@ -142,6 +150,8 @@ def notify_server(
             with LoggerStateManager(logger):
                 logger.error(f"Failed to sync attachment: {str(e)}")
         return False
+    finally:
+        cleanup_temp_cert_bundle(verify_setting, verify)
 
 
 def upload_attachment_data(
@@ -159,6 +169,8 @@ def upload_attachment_data(
 
     Uses LoggerStateManager to ensure proper logging, similar to OpenHTF implementation.
     """
+    verify_setting = prepare_verify_setting(verify)
+    
     try:
         initialize_url = f"{url}/uploads/initialize"
         payload = {"name": name}
@@ -168,7 +180,7 @@ def upload_attachment_data(
             data=json.dumps(payload),
             headers=headers,
             timeout=SECONDS_BEFORE_TIMEOUT,
-            verify=verify,
+            verify=verify_setting,
         )
         response.raise_for_status()
 
@@ -184,11 +196,11 @@ def upload_attachment_data(
             data=data,
             headers={"Content-Type": content_type},
             timeout=SECONDS_BEFORE_TIMEOUT,
-            verify=verify,
+            verify=verify_setting,
         )
         upload_response.raise_for_status()
 
-        # Link attachment to run
+        # Link attachment to run (uses its own verify handling)
         notify_server(headers, url, upload_id, run_id, verify=verify, logger=logger)
 
         # Log success with LoggerStateManager for visibility
@@ -199,7 +211,14 @@ def upload_attachment_data(
         # Log error with LoggerStateManager for visibility
         with LoggerStateManager(logger):
             logger.error(f"Upload failed: {name} - {str(e)}")
+            
+            # Provide specific guidance for SSL errors with storage service
+            if "storage." in str(e) and "certificate is not valid for" in str(e):
+                logger.warning("Certificate must include storage subdomain")
+                logger.warning("Generate wildcard certificate or add storage hostname to SAN")
         return False
+    finally:
+        cleanup_temp_cert_bundle(verify_setting, verify)
 
 def upload_attachments(
     logger: Logger,
