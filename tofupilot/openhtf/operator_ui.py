@@ -15,6 +15,42 @@ from typing import Union, Tuple
 
 import attr
 
+@dataclass
+class Element(ABC):
+    @abstractmethod
+    def as_dict(self):
+        pass
+
+@dataclass
+class Text(Element):
+    s: str
+
+    def as_dict(self):
+        return { "class": "Text", "s": self.s}
+    
+@dataclass
+class TextInput(Element):
+    placeholder: Optional[str]
+
+    def as_dict(self):
+        return { "class": "TextInput", "s": self.placeholder}
+
+@dataclass
+class Select(Element):
+    choices: Tuple[str, ...]
+
+    def as_dict(self):
+        return { "class": "Select", "choices": self.choices}
+
+@dataclass  
+class TopDown(Element):
+    children: Tuple['Element', ...]
+
+    def as_dict(self):
+        print(self.children)
+        children_dicts = tuple(map(lambda c: c.as_dict(), self.children))
+        return { "class": "TopDown", "options": children_dicts}
+
 @attr.s(slots=True, frozen=True)
 class Prompt(object):
     id = attr.ib(type=Text)
@@ -192,42 +228,6 @@ class OperatorUiPlug(FrontendAwareBasePlug):
 
         return trigger_phase
     """
-
-@dataclass
-class Element(ABC):
-    @abstractmethod
-    def as_dict(self):
-        pass
-
-@dataclass
-class Text(Element):
-    s: str
-
-    def as_dict(self):
-        return { "class": "Text", "s": self.s}
-    
-@dataclass
-class TextInput(Element):
-    placeholder: Optional[str]
-
-    def as_dict(self):
-        return { "class": "TextInput", "s": self.placeholder}
-
-@dataclass
-class Select(Element):
-    choices: Tuple[str, ...]
-
-    def as_dict(self):
-        return { "class": "Select", "choices": self.choices}
-
-@dataclass  
-class TopDown(Element):
-    children: Tuple['Element', ...]
-
-    def as_dict(self):
-        print(self.children)
-        children_dicts = tuple(map(lambda c: c.as_dict(), self.children))
-        return { "class": "TopDown", "options": children_dicts}
 
 class OperatorUi:
     plug = OperatorUiPlug
