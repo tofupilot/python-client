@@ -209,6 +209,7 @@ class upload:  # pylint: disable=invalid-name
                                 data=attachment_data,
                                 headers={"Content-Type": attachment.mimetype},
                                 timeout=SECONDS_BEFORE_TIMEOUT,
+                                verify=self._verify,
                             )
                         except Exception as e:
                             self._logger.error(f"Error uploading data: {str(e)}")
@@ -220,6 +221,7 @@ class upload:  # pylint: disable=invalid-name
                             upload_id,
                             run_id,
                             logger=self._logger,
+                            verify=self._verify,
                         )
 
                         # Use LoggerStateManager to temporarily activate the logger

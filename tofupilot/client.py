@@ -15,7 +15,6 @@ from .constants import (
     ENDPOINT,
     FILE_MAX_SIZE,
     CLIENT_MAX_ATTACHMENTS,
-    SECONDS_BEFORE_TIMEOUT,
 )
 from .models import SubUnit, UnitUnderTest, Step, Phase, Log
 from .utils import (
@@ -26,7 +25,6 @@ from .utils import (
     setup_logger,
     timedelta_to_iso,
     datetime_to_iso,
-    handle_response,
     handle_http_error,
     handle_network_error,
     api_request,
@@ -480,20 +478,13 @@ class TofuPilotClient:
                     a dict containing the emqx server url, the topic to connect to, and the JWT token required to connect
                 other fields as set in handle_http_error and handle_network_error
         """
-        try:
-            response = requests.get(
-                f"{self._url}/streaming",
-                headers=self._headers,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            values = handle_response(self._logger, response)
-            return {"success": True, "values": values}
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
+        return api_request(
+            self._logger,
+            "GET",
+            f"{self._url}/streaming",
+            self._headers,
+            verify=self._verify,
+        )
 
 
 def print_version_banner(current_version: str):
