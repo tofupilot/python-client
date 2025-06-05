@@ -15,34 +15,34 @@ from typing import Union, Tuple
 
 import attr
 
-@dataclass
+@dataclass(frozen=True)
 class Element(ABC):
     @abstractmethod
     def as_dict(self):
         pass
 
-@dataclass
+@dataclass(frozen=True)
 class Text(Element):
     s: str
 
     def as_dict(self):
         return { "class": "Text", "s": self.s}
     
-@dataclass
+@dataclass(frozen=True)
 class TextInput(Element):
     placeholder: Optional[str]
 
     def as_dict(self):
         return { "class": "TextInput", "s": self.placeholder}
 
-@dataclass
+@dataclass(frozen=True)
 class Select(Element):
     choices: Tuple[str, ...]
 
     def as_dict(self):
         return { "class": "Select", "choices": self.choices}
 
-@dataclass  
+@dataclass(frozen=True)  
 class TopDown(Element):
     children: Tuple['Element', ...]
 
