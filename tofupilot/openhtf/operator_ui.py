@@ -7,7 +7,7 @@ import platform
 import select
 import sys
 import threading
-from typing import Any, Callable, Dict, Optional, Text, Union
+from typing import Any, Callable, Dict, Optional, Union
 import uuid
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
@@ -71,10 +71,10 @@ class OperatorUiPlug(FrontendAwareBasePlug):
         self.last_response: Optional[tuple[str, str]] = None
         self._prompt: Optional[Prompt] = None
         #self._console_prompt: Optional[ConsolePrompt] = None
-        self._response: Optional[Text] = None
+        self._response: Optional[str] = None
         self._cond = threading.Condition(threading.RLock())
 
-    def _asdict(self) -> Optional[Dict[Text, Any]]:
+    def _asdict(self) -> Optional[Dict[str, Any]]:
         """Return a dictionary representation of the current prompt."""
         with self._cond:
             if self._prompt is None:
@@ -161,7 +161,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
             self.notify_update()
             return prompt_id
 
-    def wait_for_prompt(self, timeout_s: Union[int, float, None] = None) -> Text:
+    def wait_for_prompt(self, timeout_s: Union[int, float, None] = None) -> str:
         """Wait for the user to respond to the current prompt.
 
         Args:
@@ -183,7 +183,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
             #  raise PromptUnansweredError
             return self._response
 
-    def respond(self, prompt_id: Text, response: Text) -> None:
+    def respond(self, prompt_id: str, response: str) -> None:
         """Respond to the prompt with the given ID.
 
         If there is no active prompt or the given ID doesn't match the active
@@ -205,10 +205,10 @@ class OperatorUiPlug(FrontendAwareBasePlug):
     # TODO: Reimplement this with new framework
     """
     def prompt_for_test_start(
-        message: Text = 'Enter a DUT ID in order to start the test.',
+        message: str = 'Enter a DUT ID in order to start the test.',
         timeout_s: Union[int, float, None] = 60 * 60 * 24,
-        validator: Callable[[Text], Text] = lambda sn: sn,
-        cli_color: Text = '') -> openhtf.PhaseDescriptor:
+        validator: Callable[[str], str] = lambda sn: sn,
+        cli_color: str = '') -> openhtf.PhaseDescriptor:
         ""Returns an OpenHTF phase for use as a prompt-based start trigger.
 
         Args:
