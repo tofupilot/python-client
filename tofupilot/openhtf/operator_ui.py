@@ -5,36 +5,30 @@ from openhtf.core.base_plugs import FrontendAwareBasePlug
 import threading
 from typing import Any, Callable, Dict, Optional, Union
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 from typing import Union, Tuple
 
 @dataclass(frozen=True)
 class Element(ABC):
-    @abstractmethod
+
     def _asdict(self):
-        pass
+        return {
+            "class": self.__class__.__name__,
+            **asdict(self),
+        }
 
 @dataclass(frozen=True)
 class Text(Element):
     s: str
 
-    def _asdict(self):
-        return { "class": "Text", "s": self.s}
-    
 @dataclass(frozen=True)
 class TextInput(Element):
     placeholder: Optional[str]
 
-    def _asdict(self):
-        return { "class": "TextInput", "s": self.placeholder}
-
 @dataclass(frozen=True)
 class Select(Element):
     choices: Tuple[str, ...]
-
-    def _asdict(self):
-        return { "class": "Select", "choices": self.choices}
 
 @dataclass(frozen=True)  
 class TopDown(Element):
