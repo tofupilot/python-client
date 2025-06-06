@@ -18,9 +18,17 @@ class Element(ABC):
             **asdict(self),
         }
 
+# Output
+
 @dataclass(frozen=True)
 class Text(Element):
     s: str
+
+@dataclass(frozen=True)
+class Base64Image(Element):
+    data: str
+
+# Input
 
 @dataclass(frozen=True)
 class TextInput(Element):
@@ -30,7 +38,9 @@ class TextInput(Element):
 class Select(Element):
     choices: Tuple[str, ...]
 
-@dataclass(frozen=True)  
+# Layout
+
+@dataclass(frozen=True)
 class TopDown(Element):
     children: Tuple['Element', ...]
 
@@ -138,16 +148,28 @@ class OperatorUiPlug(FrontendAwareBasePlug):
 class OperatorUi:
     plug = OperatorUiPlug
 
+    # Outputs
+
     def text(s: str) -> Text:
         "Text to be displayed to the user, python `str` can also be used"
         return Text(s)
     
+    def image(*, path: str) -> Base64Image:
+        "Image to be displayed to the user"
+        with open(path, "rb") as file:
+            # Encode the file to base 64 (b64encode), then convert to a string (decode)
+            return Base64Image(base64.b64encode(file.read()).decode())
+    
+    # Inputs
+
     def text_input(placeholder: str = None) -> TextInput:
         "A place for the user to input text"
         return TextInput(placeholder)
     
     def select(*choices: str) -> Select:
         return Select(choices)
+    
+    # Layout
     
     def top_down(*children: Union[str, Element, None]) -> TopDown:
         
