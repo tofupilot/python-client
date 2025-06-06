@@ -33,10 +33,12 @@ class Base64Image(Element):
 @dataclass(frozen=True)
 class TextInput(Element):
     placeholder: Optional[str]
+    id: Union[str, None] = None
 
 @dataclass(frozen=True)
 class Select(Element):
     choices: Tuple[str, ...]
+    id: Union[str, None] = None
 
 # Layout
 
@@ -162,12 +164,12 @@ class OperatorUi:
     
     # Inputs
 
-    def text_input(placeholder: str = None) -> TextInput:
+    def text_input(placeholder: str = None, *, id: Optional[str] = None) -> TextInput:
         "A place for the user to input text"
-        return TextInput(placeholder)
+        return TextInput(placeholder, id)
     
-    def select(*choices: str) -> Select:
-        return Select(choices)
+    def select(*choices: str, id: Optional[str] = None) -> Select:
+        return Select(choices, id)
     
     # Layout
     
