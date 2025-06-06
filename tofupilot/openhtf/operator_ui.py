@@ -3,8 +3,9 @@ from openhtf import plugs
 from openhtf.core.base_plugs import FrontendAwareBasePlug
 
 import threading
-from typing import Any, Callable, Dict, Optional, Union
+import base64
 import uuid
+from typing import Any, Callable, Dict, Optional, Union
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 from typing import Union, Tuple
