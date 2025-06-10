@@ -5,10 +5,20 @@ from openhtf.core.base_plugs import FrontendAwareBasePlug
 import threading
 import base64
 import uuid
+import json
 from typing import Any, Callable, Dict, Optional, Union
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 from typing import Union, Tuple
+
+def _validate_id(id: Optional[str]) -> str:
+    if id == '':
+        raise ValueError("id cannot be the empty string")
+    
+    if id == None:
+        return ''
+    else:
+        return id
 
 @dataclass(frozen=True)
 class Element(ABC):
@@ -32,14 +42,23 @@ class Base64Image(Element):
 # Input
 
 @dataclass(frozen=True)
-class TextInput(Element):
-    placeholder: Optional[str]
-    id: Union[str, None] = None
+class FormInput(Element):
+    """
+    Abstract, should not be directy instantiated!
+
+    Parent class of all form-only inputs
+
+    Provides an identifier to be used to retrieve the value
+    """
+    id: str
 
 @dataclass(frozen=True)
-class Select(Element):
+class TextInput(FormInput):
+    placeholder: Optional[str]
+
+@dataclass(frozen=True)
+class Select(FormInput):
     choices: Tuple[str, ...]
-    id: Union[str, None] = None
 
 # Layout
 
@@ -141,12 +160,19 @@ class OperatorUiPlug(FrontendAwareBasePlug):
         with self._cond:
             if not (self._prompt and self._prompt.id == prompt_id):
                 return
-            self._response = response
+            parsed = json.loads(response)
+
+            # Shortcut: If the user defined only one input with no id, 
+            #   return that single value instead of the dict
+            no_id = ''
+            if len(parsed) == 1 and no_id in parsed.keys():
+                self._response = parsed[no_id]
+            else:
+                self._response = parsed
+            
             self.last_response = (prompt_id, response)
             self.remove_prompt()
             self._cond.notifyAll()
-
-    # TODO: Reimplement this with new framework
 
 class OperatorUi:
     plug = OperatorUiPlug
@@ -155,22 +181,22 @@ class OperatorUi:
 
     def text(s: str) -> Text:
         "Text to be displayed to the user, python `str` can also be used"
-        return Text(s)
+        return Text(s=s)
     
     def image(*, path: str) -> Base64Image:
         "Image to be displayed to the user"
         with open(path, "rb") as file:
             # Encode the file to base 64 (b64encode), then convert to a string (decode)
-            return Base64Image(base64.b64encode(file.read()).decode())
+            return Base64Image(data=base64.b64encode(file.read()).decode())
     
     # Inputs
 
     def text_input(placeholder: str = None, *, id: Optional[str] = None) -> TextInput:
         "A place for the user to input text"
-        return TextInput(placeholder, id)
+        return TextInput(placeholder=placeholder, id=_validate_id(id))
     
     def select(*choices: str, id: Optional[str] = None) -> Select:
-        return Select(choices, id)
+        return Select(choices=choices, id=_validate_id(id))
     
     # Layout
     
