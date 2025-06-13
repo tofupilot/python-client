@@ -1,6 +1,7 @@
 import time
 import types
-from typing import Optional
+import websockets.sync.server
+from typing import Optional, Union
 from time import sleep
 import threading
 
@@ -111,6 +112,8 @@ class TofuPilot:
         stream: Optional[bool] = True,  # Controls connection to Operator UI
         api_key: Optional[str] = None,
         url: Optional[str] = None,
+        *, # keyword only separator, TODO: Move it at the very beginning
+        studio: bool = False,
     ):
         self.test = test
         self.stream = stream
@@ -124,6 +127,10 @@ class TofuPilot:
         self.publishOptions = None
         self._logger = self.client._logger
         self._streaming_setup_thread = None
+        self._streaming_setup_thread_2 = None
+        self.studio = studio
+        self._websocket_peer = None
+        self._stop_websocket = None
 
     def _upload(self, testRecord: TestRecord):
 
@@ -149,6 +156,21 @@ class TofuPilot:
             )
             self._streaming_setup_thread.start()
             self._streaming_setup_thread.join(1.0)
+
+        if self.studio:
+            threading.Thread(target=self._start_websocket_server, daemon=True).start()
+
+            self._logger.info("Waiting for Studio to Connect")
+            while self._websocket_peer is None:
+                pass
+            # Ugly hack necessary because the studio in dev mode connects 3 times (React debug behaviour)
+            # and we might miss the first update
+            time.sleep(1)
+        
+        if self.studio or self.stream:
+            self._logger.debug("Starting station watcher")
+            self.watcher = SimpleStationWatcher(self._send_update)
+            self.watcher.start()
 
         # Pause logger after connection attempt is either completed or timed out
         self._logger.pause()
@@ -181,6 +203,9 @@ class TofuPilot:
             except Exception as e:
                 self._logger.warning(f"Error stopping watcher: {e}")
 
+        if self.studio:
+            self._websocket_server.shutdown()
+        
         # Clean up MQTT connection
         if self.mqttClient:
             try:
@@ -196,6 +221,24 @@ class TofuPilot:
         # In case of KeyboardInterrupt, return True to suppress the exception
         return exc_type is KeyboardInterrupt
 
+    # Studio connection related methods
+
+    def _start_websocket_server(self) -> str:
+
+        def handle_client(websocket):
+            self._logger.success("Studio successfuly connected")
+            if self._websocket_peer != None:
+                self._logger.warning(f"But there was already a studio connected")
+            self._websocket_peer = websocket
+            
+            for message in websocket:
+                parsed = json.loads(message)
+                self._handle_answer(**parsed)
+
+        with websockets.sync.server.serve(handle_client, "localhost", 8765) as server:
+            self._websocket_server = server
+            server.serve_forever()
+    
     # Operator UI-related methods
 
     def _setup_streaming_with_state(self):
@@ -314,9 +357,6 @@ class TofuPilot:
 
             self.mqttClient.loop_start()
 
-            self.watcher = SimpleStationWatcher(self._send_update)
-            self.watcher.start()
-
             # Show connection status message with URL
             try:
                 # Use ANSI escape sequence for clickable link
@@ -342,23 +382,25 @@ class TofuPilot:
             self.stream = False  # Disable streaming on any setup error
 
     def _send_update(self, message):
-        # Skip publishing if streaming is disabled or client is None
-        if not self.stream or self.mqttClient is None:
-            return
+    
+        if self.studio:
+            self._websocket_peer.send(json.dumps(message))
 
-        try:
-            self.mqttClient.publish(
-                payload=json.dumps(
-                    {"action": "send", "source": "python", "message": message}
-                ),
-                **self.publishOptions,
-            )
-        except Exception as e:
-            self._logger.warning(
-                f"Operator UI: Failed to publish to server (exception): {e}"
-            )
-            self.stream = False  # Disable streaming on publish failure
-            return
+        # Skip publishing if streaming is disabled or client is None
+        if self.stream and self.mqttClient is not None:
+            try:
+                self.mqttClient.publish(
+                    payload=json.dumps(
+                        {"action": "send", "source": "python", "message": message}
+                    ),
+                    **self.publishOptions,
+                )
+            except Exception as e:
+                self._logger.warning(
+                    f"Operator UI: Failed to publish to server (exception): {e}"
+                )
+                self.stream = False  # Disable streaming on publish failure
+                return
 
     def _handle_answer(self, plug_name, method_name, args):
         _, test_state = _get_executing_test()
