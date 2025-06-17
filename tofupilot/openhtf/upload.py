@@ -106,7 +106,7 @@ class upload:  # pylint: disable=invalid-name
                 filename,
                 inline_attachments=False,  # Exclude raw attachments
                 allow_nan=self.allow_nan,
-                indent=4,
+                separators=(",", ":"),  # minify json file
             )
 
             # Open the custom file and write serialized test record to it
@@ -236,7 +236,5 @@ class upload:  # pylint: disable=invalid-name
                         continue
             return original_upload_id
         except Exception as e:
-            self._logger.error(
-                f"Otherwise uncaught exception: {str(e)}"
-            )
+            self._logger.error(f"Otherwise uncaught exception: {str(e)}")
             return ""
