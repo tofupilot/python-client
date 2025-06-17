@@ -6,7 +6,7 @@ import threading
 import base64
 import uuid
 import json
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union, Literal
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 from typing import Union, Tuple
@@ -63,12 +63,26 @@ class Select(FormInput):
 # Layout
 
 @dataclass(frozen=True)
-class TopDown(Element):
+class Flex(Element):
     children: Tuple['Element', ...]
+    direction: Literal['top_down', 'bottom_up', 'left_to_right', 'right_to_left']
 
     def _asdict(self):
         children_dicts = tuple(map(lambda c: c._asdict(), self.children))
-        return { "class": "TopDown", "children": children_dicts}
+        return { "class": "Flex", "direction": self.direction, "children": children_dicts}
+
+def _parse_children(children: Tuple[Union[str, Element, None]]) -> Tuple[Element]:
+    """
+    Remove `None`s and convert `str` to `Text` elements
+    """
+
+    elements: tuple[Element] = tuple(
+        map(
+            lambda c: Text(c) if isinstance(c, str) else c,
+            filter(lambda c: c != None, children)
+        )
+    )
+    return elements
 
 @dataclass(frozen=True)
 class Prompt:
@@ -200,16 +214,11 @@ class OperatorUi:
     
     # Layout
     
-    def top_down(*children: Union[str, Element, None]) -> TopDown:
-        
-        # Remove `None`s and convert `str` to `Text` elements
-        elements: tuple[Element] = tuple(
-            map(
-                lambda c: Text(c) if isinstance(c, str) else c,
-                filter(lambda c: c != None, children)
-            )
-        )
-        return TopDown(elements)
+    def top_down(*children: Union[str, Element, None]) -> Flex:
+        return Flex(_parse_children(children), 'top_down')
+    
+    def left_right(*children: Union[str, Element, None]) -> Flex:
+        return Flex(_parse_children(children), 'left_right')
     
 def prompt_for_test_start(
     message: str = 'Enter a DUT ID in order to start the test.',
