@@ -1,10 +1,6 @@
-"""
-This module initializes the TofuPilot package.
+"""TofuPilot API client library."""
 
-It imports the TofuPilotClient class which provides
-the main interface for interacting with the TofuPilot API.
-"""
+from .openapi_client import TofuPilotClient
 
-from .client import TofuPilotClient
-from .plugin import numeric_step, string_step, conf
-from .models import MeasurementOutcome, PhaseOutcome
+__version__ = "0.67.0.dev713"
+__all__ = ["TofuPilotClient"]

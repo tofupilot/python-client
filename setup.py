@@ -1,43 +1,52 @@
+import subprocess
+import sys
 from setuptools import setup, find_packages
 
-with open("README.md", "r", encoding="utf-8") as file:
-    long_description = file.read()
+
+def get_version():
+    """Get version from multiple sources with fallbacks."""
+    # First try to read from _version.py (created by CI/CD workflow)
+    try:
+        version_globals = {}
+        with open("_version.py", "r") as f:
+            exec(f.read(), version_globals)
+        return version_globals["__version__"]
+    except (FileNotFoundError, KeyError):
+        pass
+    
+    # Second try to run version.py script
+    try:
+        result = subprocess.run([sys.executable, "version.py"], capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        pass
+    
+    # Final fallback version
+    return "0.0.0.dev1"
+
 
 setup(
     name="tofupilot",
-    version="1.11.2",
+    version=get_version(),
+    description="A client library for accessing TofuPilot API v1",
     packages=find_packages(),
-    install_requires=[
-        "requests>=2.25.0",
-        "setuptools>=50.0.0",
-        "packaging>=20.0",
-        "pytest",
-        "paho-mqtt>=2.0.0",
-        "sentry-sdk>=1.0.0",
-        "certifi>=2020.12.5",
-    ],
-    entry_points={
-        "pytest11": [
-            "tofupilot = tofupilot.plugin",  # Registering the pytest plugin
-        ],
+    package_data={
+        "tofupilot": ["**/py.typed"],
     },
-    author="TofuPilot Team",
-    author_email="hello@tofupilot.com",
-    description="Official Python client for TofuPilot with OpenHTF integration, real-time streaming and file attachment support",
-    license="MIT",
-    keywords="automatic hardware testing tofupilot openhtf",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/tofupilot/python-client",
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "Operating System :: OS Independent",
-        "Development Status :: 5 - Production/Stable",
-        "Intended Audience :: Developers",
-        "Intended Audience :: Manufacturing",
-        "Topic :: Scientific/Engineering",
-        "Topic :: Software Development :: Testing",
-        "Topic :: Software Development :: Libraries :: Python Modules",
+    include_package_data=True,
+    install_requires=[
+        "httpx>=0.23.0,<0.29.0",
+        "attrs>=22.2.0",
+        "python-dateutil>=2.8.0",
     ],
     python_requires=">=3.9",
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+    ],
 )
