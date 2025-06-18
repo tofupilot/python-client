@@ -262,7 +262,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
             
             self.last_response = (prompt_id, response)
             self.remove_prompt()
-            self._cond.notifyAll()
+            self._cond.notify_all()
 
 
 def prompt_for_test_start(
