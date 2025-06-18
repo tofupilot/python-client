@@ -1,15 +1,18 @@
-import os
-import json
 import datetime
+import json
+import os
 import tempfile
 from typing import Optional
 
-from openhtf.core.test_record import TestRecord
-from openhtf.output.callbacks import json_factory
 import requests
 
-from .. import TofuPilotClient
-from ..constants import SECONDS_BEFORE_TIMEOUT
+from openhtf.core.test_record import TestRecord
+from openhtf.output.callbacks import json_factory
+
+from ..client import TofuPilotClient
+from ..constants import (
+    SECONDS_BEFORE_TIMEOUT,
+)
 from ..utils import (
     notify_server,
 )
@@ -74,10 +77,8 @@ class upload:  # pylint: disable=invalid-name
                 (This id is present in the ApiCall table of the database)
         """
         # Resume logger to ensure it's active during attachment processing
-        was_logger_resumed = False
         if hasattr(self._logger, "resume"):
             self._logger.resume()
-            was_logger_resumed = True
 
         try:
             # Extract relevant details from the test record
@@ -85,9 +86,7 @@ class upload:  # pylint: disable=invalid-name
             test_name = test_record.metadata.get("test_name")
 
             # Convert milliseconds to a datetime object
-            start_time = datetime.datetime.fromtimestamp(
-                test_record.start_time_millis / 1000.0
-            )
+            start_time = datetime.datetime.fromtimestamp(test_record.start_time_millis / 1000.0)
 
             # Format the timestamp as YYYY-MM-DD_HH_MM_SS_SSS
             start_time_formatted = start_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
@@ -95,9 +94,7 @@ class upload:  # pylint: disable=invalid-name
             temp_dir = tempfile.gettempdir()
 
             # Craft system-agnostic temporary filename
-            filename = os.path.join(
-                temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json"
-            )
+            filename = os.path.join(temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json")
 
             # Use the existing OutputToJSON callback to write to the custom file
             output_callback = json_factory.OutputToJSON(
@@ -113,36 +110,18 @@ class upload:  # pylint: disable=invalid-name
                     file.write(json_line)
 
             try:
-                # Use auto-generated imports API for creating run from file
-                from ..openapi_client.models.run_create_from_file_body import RunCreateFromFileBody
-                
-                # Read the file content as bytes
-                with open(filename, 'rb') as f:
-                    file_content = f.read()
-                
-                # Create the body using auto-generated model
-                body = RunCreateFromFileBody(file=file_content, importer="OPENHTF")
-                
-                # Use the new auto-generated API
-                result = self.client.imports.create_from_file(body=body)
-                
-                # Handle response - the auto-generated API returns the model directly
+                # Call create_run_from_report with the generated file path
+                result = self.client.upload_and_create_from_openhtf_report(filename)
+
+                # Extract run_id from response - it could be a string (id) or a dict (result with id field)
                 run_id = None
-                original_upload_id = None
-                
-                if hasattr(result, 'id') and result.id:
-                    run_id = result.id
-                    # For upload_id, we'll generate a placeholder since the new API structure is different
-                    original_upload_id = f"openhtf_{run_id}"
-                    
-                    # Log success
-                    if hasattr(result, 'url') and result.url:
-                        self._logger.success(f"Run imported successfully: {result.url}")
-                    else:
-                        self._logger.success(f"Run imported successfully with ID: {run_id}")
-                else:
+
+                if not result.get("success", False):
                     self._logger.error("Run creation failed, skipping attachments")
-                    return ""
+                    return result.get("upload_id", "")
+
+                run_id = result.get("run_id")
+                original_upload_id: str = result.get("upload_id")
 
             except Exception as e:
                 self._logger.error(f"Error creating run: {str(e)}")
@@ -155,14 +134,9 @@ class upload:  # pylint: disable=invalid-name
             # Process attachments
             number_of_attachments = 0
             for phase_idx, phase in enumerate(test_record.phases):
-                # Count attachments silently
-                attachment_count = len(phase.attachments)
-
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
-                    self._logger.warning(
-                        f"Attachment limit ({self._max_attachments}) reached"
-                    )
+                    self._logger.warning(f"Attachment limit ({self._max_attachments}) reached")
                     break
 
                 # Process each attachment in the phase
@@ -178,49 +152,38 @@ class upload:  # pylint: disable=invalid-name
 
                     # Use LoggerStateManager to temporarily activate the logger
                     with LoggerStateManager(self._logger):
-                        self._logger.info(f"Uploading attachment...")
+                        self._logger.info("Uploading attachment...")
 
-                    # Use auto-generated uploads API for initialization
-                    from ..openapi_client.models.upload_initialize_body import UploadInitializeBody
-                    
+                    # Upload initialization
+                    initialize_url = f"{self._url}/uploads/initialize"
+                    payload = {"name": attachment_name}
+
                     try:
-                        # Initialize upload using auto-generated API
-                        init_body = UploadInitializeBody(name=attachment_name)
-                        init_response = self.client.uploads.initialize(body=init_body)
-                        
-                        # Extract upload URL and ID from auto-generated response
-                        if hasattr(init_response, 'upload_url') and hasattr(init_response, 'id'):
-                            upload_url = init_response.upload_url
-                            upload_id = init_response.id
-                        else:
-                            # Fallback to dict-style access if needed
-                            upload_url = getattr(init_response, 'upload_url', None)
-                            upload_id = getattr(init_response, 'id', None)
-                            
-                        if not upload_url or not upload_id:
-                            self._logger.error("Failed to get upload URL or ID from initialization")
-                            continue
+                        response = requests.post(
+                            initialize_url,
+                            data=json.dumps(payload),
+                            headers=self._headers,
+                            verify=self._verify,
+                            timeout=SECONDS_BEFORE_TIMEOUT,
+                        )
+
+                        response.raise_for_status()
+                        response_json = response.json()
+                        upload_url = response_json.get("uploadUrl")
+                        upload_id = response_json.get("id")
 
                         # Handle file attachments created with test.attach_from_file
                         try:
                             attachment_data = attachment.data
 
                             # Some OpenHTF implementations have file path in the attachment object
-                            if hasattr(attachment, "file_path") and getattr(
-                                attachment, "file_path"
-                            ):
+                            if hasattr(attachment, "file_path") and getattr(attachment, "file_path"):
                                 try:
-                                    with open(
-                                        getattr(attachment, "file_path"), "rb"
-                                    ) as f:
+                                    with open(getattr(attachment, "file_path"), "rb") as f:
                                         attachment_data = f.read()
-                                        self._logger.info(
-                                            f"Read file data from {attachment.file_path}"
-                                        )
+                                        self._logger.info(f"Read file data from {attachment.file_path}")
                                 except Exception as e:
-                                    self._logger.warning(
-                                        f"Could not read from file_path: {str(e)}"
-                                    )
+                                    self._logger.warning(f"Could not read from file_path: {str(e)}")
                                     # Continue with attachment.data
 
                             requests.put(
@@ -233,40 +196,23 @@ class upload:  # pylint: disable=invalid-name
                             self._logger.error(f"Error uploading data: {str(e)}")
                             continue
 
-                        # Use auto-generated uploads sync API instead of notify_server
-                        from ..openapi_client.models.upload_sync_upload_body import UploadSyncUploadBody
-                        
-                        try:
-                            # Sync the upload using auto-generated API
-                            sync_body = UploadSyncUploadBody(
-                                upload_id=upload_id,
-                                run_id=run_id
-                            )
-                            sync_response = self.client.uploads.sync(body=sync_body)
-                            
-                            # Log successful sync (response handling can be added if needed)
-                            if hasattr(sync_response, 'success') and not sync_response.success:
-                                self._logger.warning(f"Upload sync returned non-success status")
-                                
-                        except Exception as e:
-                            self._logger.warning(f"Failed to sync upload with server: {str(e)}")
-                            # Continue anyway as the file was uploaded
+                        notify_server(
+                            self._headers,
+                            self._url,
+                            upload_id,
+                            run_id,
+                            logger=self._logger,
+                        )
 
                         # Use LoggerStateManager to temporarily activate the logger
                         with LoggerStateManager(self._logger):
-                            self._logger.success(
-                                f"Uploaded attachment: {attachment_name}"
-                            )
+                            self._logger.success(f"Uploaded attachment: {attachment_name}")
                     except Exception as e:
                         # Use LoggerStateManager to temporarily activate the logger
                         with LoggerStateManager(self._logger):
-                            self._logger.error(
-                                f"Failed to process attachment: {str(e)}"
-                            )
+                            self._logger.error(f"Failed to process attachment: {str(e)}")
                         continue
             return original_upload_id
         except Exception as e:
-            self._logger.error(
-                f"Otherwise uncaught exception: {str(e)}"
-            )
+            self._logger.error(f"Otherwise uncaught exception: {str(e)}")
             return ""

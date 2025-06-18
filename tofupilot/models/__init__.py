@@ -1,11 +1,11 @@
 from .models import (
-    UnitUnderTest,
-    SubUnit,
-    Step,
-    Phase,
-    MeasurementOutcome,
-    PhaseOutcome,
     Log,
+    MeasurementOutcome,
+    Phase,
+    PhaseOutcome,
+    Step,
+    SubUnit,
+    UnitUnderTest,
 )
 
 __all__ = [

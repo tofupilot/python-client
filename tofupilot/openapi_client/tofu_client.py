@@ -4,7 +4,6 @@ TofuPilot API client.
 
 from typing import Optional, Union
 from .client import AuthenticatedClient, Client as BaseClient
-from ..deprecated import LegacyMethods
 
 
 class RunsAPI:
@@ -14,16 +13,16 @@ class RunsAPI:
         self._client = client
     
     def create(self, body):
-        from .api.runs.run_create import sync
-        return sync(client=self._client, body=body)
+        from .api.runs.run_create import sync_detailed
+        return sync_detailed(client=self._client, body=body)
     
     def get_by_serial(self, serial_number: str):
-        from .api.runs.run_get_runs_by_serial_number import sync
-        return sync(client=self._client, serial_number=serial_number)
+        from .api.runs.run_get_runs_by_serial_number import sync_detailed
+        return sync_detailed(client=self._client, serial_number=serial_number)
     
     def delete(self, run_id: str):
-        from .api.runs.run_delete_single import sync
-        return sync(client=self._client, id=run_id)
+        from .api.runs.run_delete_single import sync_detailed
+        return sync_detailed(client=self._client, id=run_id)
 
 
 class UnitsAPI:
@@ -33,12 +32,12 @@ class UnitsAPI:
         self._client = client
     
     def delete(self, serial_number: str):
-        from .api.units.unit_delete import sync
-        return sync(client=self._client, serial_number=serial_number)
+        from .api.units.unit_delete import sync_detailed
+        return sync_detailed(client=self._client, serial_number=serial_number)
     
     def update_parent(self, serial_number: str, body):
-        from .api.units.unit_update_unit_parent import sync
-        return sync(client=self._client, serial_number=serial_number, body=body)
+        from .api.units.unit_update_unit_parent import sync_detailed
+        return sync_detailed(client=self._client, serial_number=serial_number, body=body)
 
 
 class UploadsAPI:
@@ -48,12 +47,12 @@ class UploadsAPI:
         self._client = client
     
     def initialize(self, body):
-        from .api.uploads.upload_initialize import sync
-        return sync(client=self._client, body=body)
+        from .api.uploads.upload_initialize import sync_detailed
+        return sync_detailed(client=self._client, body=body)
     
     def sync(self, body):
-        from .api.uploads.upload_sync_upload import sync
-        return sync(client=self._client, body=body)
+        from .api.uploads.upload_sync_upload import sync_detailed
+        return sync_detailed(client=self._client, body=body)
 
 
 class StreamingAPI:
@@ -63,8 +62,8 @@ class StreamingAPI:
         self._client = client
     
     def get_token(self):
-        from .api.streaming.streaming_get_streaming_token import sync
-        return sync(client=self._client)
+        from .api.streaming.streaming_get_streaming_token import sync_detailed
+        return sync_detailed(client=self._client)
 
 
 class ImportsAPI:
@@ -74,17 +73,13 @@ class ImportsAPI:
         self._client = client
     
     def create_from_file(self, body):
-        from .api.imports.run_create_from_file import sync
-        return sync(client=self._client, body=body)
+        from .api.imports.run_create_from_file import sync_detailed
+        return sync_detailed(client=self._client, body=body)
 
 
-class TofuPilotClient(AuthenticatedClient, LegacyMethods):
+class TofuPilotClient(AuthenticatedClient):
     """
-    Auto-generated TofuPilot API client with legacy API compatibility.
-    
-    This is the base auto-generated client with legacy methods for backward compatibility.
-    For enhanced functionality including file attachments and logging, use the main
-    TofuPilotClient from tofupilot.client instead.
+    TofuPilot API client.
     
     Example:
         client = TofuPilotClient(api_key="tp_1234567890abcdef")

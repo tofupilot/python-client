@@ -1,11 +1,10 @@
-import subprocess
-import sys
+from datetime import datetime
 from setuptools import setup, find_packages
 
 
 def get_version():
-    """Get version from multiple sources with fallbacks."""
-    # First try to read from _version.py (created by CI/CD workflow)
+    """Get version using date-based format."""
+    # Try to read from _version.py if created by CI/CD
     try:
         version_globals = {}
         with open("_version.py", "r") as f:
@@ -14,15 +13,9 @@ def get_version():
     except (FileNotFoundError, KeyError):
         pass
     
-    # Second try to run version.py script
-    try:
-        result = subprocess.run([sys.executable, "version.py"], capture_output=True, text=True, check=True)
-        return result.stdout.strip()
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        pass
-    
-    # Final fallback version
-    return "0.0.0.dev1"
+    # Default: generate date-based version for local development
+    now = datetime.now()
+    return f"{now.year}.{now.month}.{now.day}.dev{now.hour:02d}{now.minute:02d}"
 
 
 setup(

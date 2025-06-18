@@ -17,24 +17,16 @@ from ...models.organization_is_required_but_not_specified_in_the_request_error_4
 )
 from ...models.run_get_runs_by_serial_number_response_200 import RunGetRunsBySerialNumberResponse200
 from ...models.unit_not_found_serial_number_error_404 import UnitNotFoundSerialNumberError404
-from ...types import UNSET, Response, Unset
+from ...types import UNSET, Response
 
 
 def _get_kwargs(
     *,
     serial_number: str,
-    new444: Union[None, Unset, str] = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["serial_number"] = serial_number
-
-    json_new444: Union[None, Unset, str]
-    if isinstance(new444, Unset):
-        json_new444 = UNSET
-    else:
-        json_new444 = new444
-    params["new444"] = json_new444
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -115,7 +107,6 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     serial_number: str,
-    new444: Union[None, Unset, str] = UNSET,
 ) -> Response[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -132,7 +123,6 @@ def sync_detailed(
 
     Args:
         serial_number (str): The serial number of the unit to get runs for
-        new444 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -144,7 +134,6 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         serial_number=serial_number,
-        new444=new444,
     )
 
     response = client.get_httpx_client().request(
@@ -158,7 +147,6 @@ def sync(
     *,
     client: AuthenticatedClient,
     serial_number: str,
-    new444: Union[None, Unset, str] = UNSET,
 ) -> Optional[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -175,7 +163,6 @@ def sync(
 
     Args:
         serial_number (str): The serial number of the unit to get runs for
-        new444 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -188,7 +175,6 @@ def sync(
     return sync_detailed(
         client=client,
         serial_number=serial_number,
-        new444=new444,
     ).parsed
 
 
@@ -196,7 +182,6 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     serial_number: str,
-    new444: Union[None, Unset, str] = UNSET,
 ) -> Response[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -213,7 +198,6 @@ async def asyncio_detailed(
 
     Args:
         serial_number (str): The serial number of the unit to get runs for
-        new444 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -225,7 +209,6 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         serial_number=serial_number,
-        new444=new444,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -237,7 +220,6 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     serial_number: str,
-    new444: Union[None, Unset, str] = UNSET,
 ) -> Optional[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -254,7 +236,6 @@ async def asyncio(
 
     Args:
         serial_number (str): The serial number of the unit to get runs for
-        new444 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -268,6 +249,5 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             serial_number=serial_number,
-            new444=new444,
         )
     ).parsed

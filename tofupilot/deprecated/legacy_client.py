@@ -63,7 +63,7 @@ class LegacyMethods:
         """
         self._deprecation_warning("client.run_create(...)", "client.runs.create(body)")
 
-        from ..openapi_client.models.run_create_body import RunCreateBody
+        from ..openapi_client.models.run import Run
 
         # Build unit_under_test from convenience parameters
         unit_under_test = self._build_unit_under_test(serial_number, part_number)
@@ -81,14 +81,14 @@ class LegacyMethods:
         body_dict = {
             "unit_under_test": unit_under_test,
         }
-        
+
         # Add optional fields conditionally
         if procedure_name is not None:
             body_dict["procedure_name"] = procedure_name
         else:
             # Set a default procedure_id if neither procedure_name nor procedure_id is provided
             body_dict["procedure_id"] = "default"
-            
+
         if procedure_version is not None:
             body_dict["procedure_version"] = procedure_version
         if run_passed is not None:
@@ -103,17 +103,16 @@ class LegacyMethods:
             body_dict["steps"] = processed_steps
         if processed_sub_units is not None:
             body_dict["sub_units"] = processed_sub_units
-            
+
         # Add any additional kwargs
         body_dict.update(kwargs)
-        
-        body = RunCreateBody.from_dict(body_dict)
+
+        body = Run.from_dict(body_dict)
 
         return self.runs.create(body)
 
     def create_run(self, *args, **kwargs):
         """Alias for run_create (DEPRECATED)."""
-        self._deprecation_warning("client.create_run(...)", "client.runs.create(body)")
         return self.run_create(*args, **kwargs)
 
     def run_delete_single(self, run_id: str):
@@ -123,7 +122,6 @@ class LegacyMethods:
 
     def delete_run(self, run_id: str):
         """Alias for run_delete_single (DEPRECATED)."""
-        self._deprecation_warning("client.delete_run(run_id)", "client.runs.delete(run_id)")
         return self.run_delete_single(run_id)
 
     def run_get_runs_by_serial_number(self, serial_number: str):
@@ -139,7 +137,6 @@ class LegacyMethods:
 
     def get_runs(self, serial_number: str):
         """Alias for run_get_runs_by_serial_number (DEPRECATED)."""
-        self._deprecation_warning("client.get_runs(serial_number)", "client.runs.get_by_serial(serial_number)")
         return self.run_get_runs_by_serial_number(serial_number)
 
     # Legacy Units API Methods
@@ -155,7 +152,6 @@ class LegacyMethods:
 
     def delete_unit(self, serial_number: str):
         """Alias for unit_delete (DEPRECATED)."""
-        self._deprecation_warning("client.delete_unit(serial_number)", "client.units.delete(serial_number)")
         return self.unit_delete(serial_number)
 
     def unit_update_unit_parent(self, serial_number: str, sub_units: list[dict[str, str]]):
@@ -177,7 +173,6 @@ class LegacyMethods:
 
     def update_unit_parent(self, serial_number: str, sub_units: list[dict[str, str]]):
         """Alias for unit_update_unit_parent (DEPRECATED)."""
-        self._deprecation_warning("client.update_unit_parent(...)", "client.units.update_parent(serial_number, body)")
         return self.unit_update_unit_parent(serial_number, sub_units)
 
     # Legacy Uploads API Methods
@@ -213,7 +208,6 @@ class LegacyMethods:
 
     def get_streaming_token(self):
         """Alias for streaming_get_streaming_token (DEPRECATED)."""
-        self._deprecation_warning("client.get_streaming_token()", "client.streaming.get_token()")
         return self.streaming_get_streaming_token()
 
     # Legacy Imports API Methods
@@ -229,7 +223,6 @@ class LegacyMethods:
 
     def create_run_from_file(self, body):
         """Alias for run_create_from_file (DEPRECATED)."""
-        self._deprecation_warning("client.create_run_from_file(...)", "client.imports.create_from_file(body)")
         return self.run_create_from_file(body)
 
     # Helper methods for processing data
@@ -244,23 +237,23 @@ class LegacyMethods:
             if isinstance(measurement, dict):
                 # Make a copy and add default outcome if missing
                 measurement_copy = measurement.copy()
-                
+
                 # Add default outcome if missing
                 if "outcome" not in measurement_copy:
                     # Determine outcome based on limits if present
                     measured_value = measurement_copy.get("measured_value")
                     lower_limit = measurement_copy.get("lower_limit")
                     upper_limit = measurement_copy.get("upper_limit")
-                    
+
                     outcome = "PASS"  # Default to PASS
                     if measured_value is not None and isinstance(measured_value, (int, float)):
                         if lower_limit is not None and measured_value < lower_limit:
                             outcome = "FAIL"
                         elif upper_limit is not None and measured_value > upper_limit:
                             outcome = "FAIL"
-                    
+
                     measurement_copy["outcome"] = outcome
-                
+
                 processed.append(measurement_copy)
             else:
                 processed.append(measurement)
