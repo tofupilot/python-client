@@ -7,4 +7,3 @@ It provides two main classes:
 
 from .upload import upload
 from .tofupilot import TofuPilot
-from .operator_ui import OperatorUi
