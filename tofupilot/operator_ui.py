@@ -95,6 +95,36 @@ class Prompt:
             'element': self.element._asdict(),
         }
 
+# Outputs
+
+def text(s: str) -> Text:
+    "Text to be displayed to the user, python `str` can also be used"
+    return Text(s=s)
+
+def image(*, path: str) -> Base64Image:
+    "Image to be displayed to the user"
+    with open(path, "rb") as file:
+        # Encode the file to base 64 (b64encode), then convert to a string (decode)
+        return Base64Image(data=base64.b64encode(file.read()).decode())
+
+# Inputs
+
+def text_input(placeholder: str = None, *, id: Optional[str] = None) -> TextInput:
+    "A place for the user to input text"
+    return TextInput(placeholder=placeholder, id=_validate_id(id))
+
+def select(*choices: str, id: Optional[str] = None) -> Select:
+    return Select(choices=choices, id=_validate_id(id))
+
+# Layout
+
+def top_down(*children: Union[str, Element, None]) -> Flex:
+    return Flex(_parse_children(children), 'top_down')
+
+def left_right(*children: Union[str, Element, None]) -> Flex:
+    return Flex(_parse_children(children), 'left_right')
+    
+
 class OperatorUiPlug(FrontendAwareBasePlug):
     """Get user input from inside test phases.
 
@@ -188,38 +218,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
             self.remove_prompt()
             self._cond.notifyAll()
 
-class OperatorUi:
-    plug = OperatorUiPlug
 
-    # Outputs
-
-    def text(s: str) -> Text:
-        "Text to be displayed to the user, python `str` can also be used"
-        return Text(s=s)
-    
-    def image(*, path: str) -> Base64Image:
-        "Image to be displayed to the user"
-        with open(path, "rb") as file:
-            # Encode the file to base 64 (b64encode), then convert to a string (decode)
-            return Base64Image(data=base64.b64encode(file.read()).decode())
-    
-    # Inputs
-
-    def text_input(placeholder: str = None, *, id: Optional[str] = None) -> TextInput:
-        "A place for the user to input text"
-        return TextInput(placeholder=placeholder, id=_validate_id(id))
-    
-    def select(*choices: str, id: Optional[str] = None) -> Select:
-        return Select(choices=choices, id=_validate_id(id))
-    
-    # Layout
-    
-    def top_down(*children: Union[str, Element, None]) -> Flex:
-        return Flex(_parse_children(children), 'top_down')
-    
-    def left_right(*children: Union[str, Element, None]) -> Flex:
-        return Flex(_parse_children(children), 'left_right')
-    
 def prompt_for_test_start(
     message: str = 'Enter a DUT ID in order to start the test.',
     timeout_s: Union[int, float, None] = 60 * 60 * 24,
@@ -235,16 +234,15 @@ def prompt_for_test_start(
         timeout_s: Seconds to wait before raising a PromptUnansweredError.
         validator: Function used to validate or modify the serial number.
     """
-    ui = OperatorUi
 
     @openhtf.PhaseOptions(timeout_s=timeout_s)
-    @plugs.plug(ui_plug=OperatorUi.plug)
-    def trigger_phase(test: openhtf.TestApi, ui_plug: OperatorUi.plug) -> None:
+    @plugs.plug(ui_plug=OperatorUiPlug)
+    def trigger_phase(test: openhtf.TestApi, ui_plug: OperatorUiPlug) -> None:
         """Test start trigger that prompts the user for a DUT ID."""
         dut_id = ui_plug.prompt(
-            ui.top_down(
+            top_down(
                 message,
-                ui.text_input(),
+                text_input(),
             ),
             timeout_s=timeout_s,
         )
