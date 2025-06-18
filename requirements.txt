@@ -7,4 +7,5 @@ pytest
 paho-mqtt
 build
 twine
+openhtf
 certifi>=2023.7.22
