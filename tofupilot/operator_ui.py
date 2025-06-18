@@ -7,6 +7,7 @@ import threading
 import base64
 import uuid
 import json
+import time
 from typing import Any, Callable, Dict, Optional, Union, Literal
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
@@ -23,6 +24,15 @@ def _validate_id(id: Optional[str]) -> str:
 
 @dataclass(frozen=True)
 class Element(ABC):
+    @abstractmethod
+    def _as_static(self) -> "StaticElement":
+        raise NotImplementedError(f"{self.__class__.__name__} does not implement `_as_sendable`")
+
+@dataclass(frozen=True)
+class StaticElement(Element):
+
+    def _as_static(self):
+        return self
 
     def _asdict(self):
         return {
@@ -33,17 +43,17 @@ class Element(ABC):
 # Output
 
 @dataclass(frozen=True)
-class Text(Element):
+class Text(StaticElement):
     s: str
 
 @dataclass(frozen=True)
-class Base64Image(Element):
+class Base64Image(StaticElement):
     data: str
 
 # Input
 
 @dataclass(frozen=True)
-class FormInput(Element):
+class FormInput(StaticElement):
     """
     Abstract, should not be directy instantiated!
 
@@ -63,14 +73,36 @@ class Select(FormInput):
 
 # Layout
 
+## Static
+
 @dataclass(frozen=True)
-class Flex(Element):
-    children: Tuple['Element', ...]
+class StaticFlex(StaticElement):
+    children: Tuple['StaticElement', ...]
     direction: Literal['top_down', 'bottom_up', 'left_to_right', 'right_to_left']
 
     def _asdict(self):
         children_dicts = tuple(map(lambda c: c._asdict(), self.children))
         return { "class": "Flex", "direction": self.direction, "children": children_dicts}
+
+## Potentially dynamic
+
+@dataclass(frozen=True)
+class Flex(Element):
+    children: Tuple['Element', ...]
+    direction: Literal['top_down', 'bottom_up', 'left_to_right', 'right_to_left']
+
+    def _as_static(self):
+        static_children = tuple(map(lambda c: c._as_static(), self.children))
+        return StaticFlex(children=static_children, direction=self.direction)
+
+# Dynamic
+
+@dataclass(frozen=True)
+class Dynamic(Element):
+    child: Callable[[], Element]
+
+    def _as_static(self):
+        return self.child()._as_static()
 
 def _parse_children(children: Tuple[Union[str, Element, None], ...]) -> Tuple[Element, ...]:
     """
@@ -84,15 +116,23 @@ def _parse_children(children: Tuple[Union[str, Element, None], ...]) -> Tuple[El
         )
     )
 
-@dataclass(frozen=True)
+@dataclass()
 class Prompt:
     id: str
     element: Element
+    update_period: float
+    _previous_element: Optional[StaticElement] = None
+    _previous_element_expiry_time: float = 0
 
     def _asdict(self) -> Dict[str, Any]:
+        current_time = time.time()
+        if self._previous_element is None or current_time > self._previous_element_expiry_time:
+            self._previous_element = self.element._as_static()
+            self._previous_element_expiry_time = current_time + self.update_period
+
         return {
             'id': self.id,
-            'element': self.element._asdict(),
+            'element': self._previous_element._asdict(),
         }
 
 # Outputs
@@ -119,11 +159,15 @@ def select(*choices: str, id: Optional[str] = None) -> Select:
 # Layout
 
 def top_down(*children: Union[str, Element, None]) -> Flex:
-    return Flex(_parse_children(children), 'top_down')
+    return Flex(children=_parse_children(children), direction='top_down')
 
-def left_right(*children: Union[str, Element, None]) -> Flex:
-    return Flex(_parse_children(children), 'left_to_right')
-    
+def left_to_right(*children: Union[str, Element, None]) -> Flex:
+    return Flex(children=_parse_children(children), direction='left_to_right')
+
+# Dynamic
+
+def dynamic(child: Callable[[], Element]) -> Dynamic:
+    return Dynamic(child=child)
 
 class OperatorUiPlug(FrontendAwareBasePlug):
     """Get user input from inside test phases.
@@ -143,7 +187,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
         self._cond = threading.Condition(threading.RLock())
 
     def _asdict(self) -> Optional[Dict[str, Any]]:
-        """Return a dictionary representation of the current prompt."""
+        """Return a dictionary representation of the current state."""
         with self._cond:
             if self._prompt is None:
                 return None
@@ -175,8 +219,10 @@ class OperatorUiPlug(FrontendAwareBasePlug):
             self._response = None
             self._prompt = Prompt(
                 prompt_id,
-                element
+                element,
+                update_period=1,
             )
+            self._previous_element = None
 
             self.notify_update()
             return prompt_id
