@@ -72,18 +72,17 @@ class Flex(Element):
         children_dicts = tuple(map(lambda c: c._asdict(), self.children))
         return { "class": "Flex", "direction": self.direction, "children": children_dicts}
 
-def _parse_children(children: Tuple[Union[str, Element, None]]) -> Tuple[Element]:
+def _parse_children(children: Tuple[Union[str, Element, None], ...]) -> Tuple[Element, ...]:
     """
     Remove `None`s and convert `str` to `Text` elements
     """
 
-    elements: tuple[Element] = tuple(
+    return tuple(
         map(
             lambda c: Text(c) if isinstance(c, str) else c,
             filter(lambda c: c != None, children)
         )
     )
-    return elements
 
 @dataclass(frozen=True)
 class Prompt:
@@ -110,7 +109,7 @@ def image(*, path: str) -> Base64Image:
 
 # Inputs
 
-def text_input(placeholder: str = None, *, id: Optional[str] = None) -> TextInput:
+def text_input(placeholder: Union[str, None] = None, *, id: Optional[str] = None) -> TextInput:
     "A place for the user to input text"
     return TextInput(placeholder=placeholder, id=_validate_id(id))
 
@@ -123,7 +122,7 @@ def top_down(*children: Union[str, Element, None]) -> Flex:
     return Flex(_parse_children(children), 'top_down')
 
 def left_right(*children: Union[str, Element, None]) -> Flex:
-    return Flex(_parse_children(children), 'left_right')
+    return Flex(_parse_children(children), 'left_to_right')
     
 
 class OperatorUiPlug(FrontendAwareBasePlug):
@@ -187,7 +186,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
             if self._prompt:
                 # if timeout_s is none, wait forever
                 self._cond.wait(timeout_s)
-            #if self._response is None:
+            if self._response is None:
               raise PromptUnansweredError
             return self._response
 
