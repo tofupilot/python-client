@@ -9,15 +9,29 @@ from ...client import AuthenticatedClient, Client
 from ...models.internal_server_error_error_500 import InternalServerErrorError500
 from ...models.run_delete_single_response_200 import RunDeleteSingleResponse200
 from ...models.unit_not_found_serial_number_error_404 import UnitNotFoundSerialNumberError404
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     id: UUID,
+    *,
+    test23: Union[None, Unset, str] = UNSET,
 ) -> dict[str, Any]:
+    params: dict[str, Any] = {}
+
+    json_test23: Union[None, Unset, str]
+    if isinstance(test23, Unset):
+        json_test23 = UNSET
+    else:
+        json_test23 = test23
+    params["test23"] = json_test23
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: dict[str, Any] = {
         "method": "delete",
         "url": f"/v1/runs/{id}",
+        "params": params,
     }
 
     return _kwargs
@@ -59,6 +73,7 @@ def sync_detailed(
     id: UUID,
     *,
     client: AuthenticatedClient,
+    test23: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[InternalServerErrorError500, RunDeleteSingleResponse200, UnitNotFoundSerialNumberError404]]:
     """Delete run
 
@@ -66,6 +81,7 @@ def sync_detailed(
 
     Args:
         id (UUID): The ID of the run to delete
+        test23 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -77,6 +93,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         id=id,
+        test23=test23,
     )
 
     response = client.get_httpx_client().request(
@@ -90,6 +107,7 @@ def sync(
     id: UUID,
     *,
     client: AuthenticatedClient,
+    test23: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[InternalServerErrorError500, RunDeleteSingleResponse200, UnitNotFoundSerialNumberError404]]:
     """Delete run
 
@@ -97,6 +115,7 @@ def sync(
 
     Args:
         id (UUID): The ID of the run to delete
+        test23 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -109,6 +128,7 @@ def sync(
     return sync_detailed(
         id=id,
         client=client,
+        test23=test23,
     ).parsed
 
 
@@ -116,6 +136,7 @@ async def asyncio_detailed(
     id: UUID,
     *,
     client: AuthenticatedClient,
+    test23: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[InternalServerErrorError500, RunDeleteSingleResponse200, UnitNotFoundSerialNumberError404]]:
     """Delete run
 
@@ -123,6 +144,7 @@ async def asyncio_detailed(
 
     Args:
         id (UUID): The ID of the run to delete
+        test23 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -134,6 +156,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         id=id,
+        test23=test23,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -145,6 +168,7 @@ async def asyncio(
     id: UUID,
     *,
     client: AuthenticatedClient,
+    test23: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[InternalServerErrorError500, RunDeleteSingleResponse200, UnitNotFoundSerialNumberError404]]:
     """Delete run
 
@@ -152,6 +176,7 @@ async def asyncio(
 
     Args:
         id (UUID): The ID of the run to delete
+        test23 (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -165,5 +190,6 @@ async def asyncio(
         await asyncio_detailed(
             id=id,
             client=client,
+            test23=test23,
         )
     ).parsed

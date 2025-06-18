@@ -77,18 +77,37 @@ class LegacyMethods:
         run_passed = self._convert_outcome_to_run_passed(outcome)
         duration_iso = self._convert_duration_ms_to_iso(duration)
 
-        body = RunCreateBody(
-            unit_under_test=unit_under_test,
-            procedure_name=procedure_name,
-            procedure_version=procedure_version,
-            run_passed=run_passed,
-            started_at=started_at,
-            duration=duration_iso,
-            phases=processed_phases,
-            steps=processed_steps,
-            sub_units=processed_sub_units,
-            **kwargs,
-        )
+        # Build the body dict and use from_dict to handle flexible parameters
+        body_dict = {
+            "unit_under_test": unit_under_test,
+        }
+        
+        # Add optional fields conditionally
+        if procedure_name is not None:
+            body_dict["procedure_name"] = procedure_name
+        else:
+            # Set a default procedure_id if neither procedure_name nor procedure_id is provided
+            body_dict["procedure_id"] = "default"
+            
+        if procedure_version is not None:
+            body_dict["procedure_version"] = procedure_version
+        if run_passed is not None:
+            body_dict["run_passed"] = run_passed
+        if started_at is not None:
+            body_dict["started_at"] = started_at
+        if duration_iso is not None:
+            body_dict["duration"] = duration_iso
+        if processed_phases is not None:
+            body_dict["phases"] = processed_phases
+        if processed_steps is not None:
+            body_dict["steps"] = processed_steps
+        if processed_sub_units is not None:
+            body_dict["sub_units"] = processed_sub_units
+            
+        # Add any additional kwargs
+        body_dict.update(kwargs)
+        
+        body = RunCreateBody.from_dict(body_dict)
 
         return self.runs.create(body)
 
@@ -223,8 +242,26 @@ class LegacyMethods:
         processed = []
         for measurement in measurements:
             if isinstance(measurement, dict):
-                # Keep as dict for now, let RunCreateBody.from_dict handle the conversion
-                processed.append(measurement)
+                # Make a copy and add default outcome if missing
+                measurement_copy = measurement.copy()
+                
+                # Add default outcome if missing
+                if "outcome" not in measurement_copy:
+                    # Determine outcome based on limits if present
+                    measured_value = measurement_copy.get("measured_value")
+                    lower_limit = measurement_copy.get("lower_limit")
+                    upper_limit = measurement_copy.get("upper_limit")
+                    
+                    outcome = "PASS"  # Default to PASS
+                    if measured_value is not None and isinstance(measured_value, (int, float)):
+                        if lower_limit is not None and measured_value < lower_limit:
+                            outcome = "FAIL"
+                        elif upper_limit is not None and measured_value > upper_limit:
+                            outcome = "FAIL"
+                    
+                    measurement_copy["outcome"] = outcome
+                
+                processed.append(measurement_copy)
             else:
                 processed.append(measurement)
         return processed
