@@ -56,22 +56,18 @@ class SimpleStationWatcher(threading.Thread):
     def __init__(self, send_update_callback):
         super().__init__(daemon=True)
         self.send_update = send_update_callback
-        self.last_phase = None
+        self.previous_state = None
         self.stop_event = threading.Event()
 
     def run(self):
         while not self.stop_event.is_set():
             _, test_state = _get_executing_test()
             if test_state is not None:
-                current_phase = (
-                    test_state.running_phase_state.name
-                    if test_state.running_phase_state
-                    else None
-                )
-                if current_phase != self.last_phase:
-                    test_state_dict, _ = _to_dict_with_event(test_state)
+                # TODO: Add a hash to result of _to_dict_with_event to speed up comparaison
+                test_state_dict, _ = _to_dict_with_event(test_state)
+                if test_state_dict != self.previous_state:
                     self.send_update(test_state_dict)
-                    self.last_phase = current_phase
+                    self.previous_state = test_state_dict
             sleep(0.1)  # Wait for 100 milliseconds
 
     def stop(self):
