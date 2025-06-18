@@ -1,6 +1,7 @@
 import openhtf
 from openhtf import plugs
 from openhtf.core.base_plugs import FrontendAwareBasePlug
+from openhtf.plugs.user_input import PromptUnansweredError
 
 import threading
 import base64
@@ -187,7 +188,7 @@ class OperatorUiPlug(FrontendAwareBasePlug):
                 # if timeout_s is none, wait forever
                 self._cond.wait(timeout_s)
             #if self._response is None:
-            #  raise PromptUnansweredError
+              raise PromptUnansweredError
             return self._response
 
     def respond(self, prompt_id: str, response: str) -> None:
