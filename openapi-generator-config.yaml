@@ -23,10 +23,10 @@ field_prefix: "field_"
 http_timeout: 60
 
 # Overrides
-class_overrides:
-  RunCreateBody:
-    class_name: Run
-    module_name: run
+class_overrides: {}
+  # RunCreateBody:
+  #   class_name: Run
+  #   module_name: run
 
 content_type_overrides: {}
 

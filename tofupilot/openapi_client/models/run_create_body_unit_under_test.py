@@ -6,11 +6,11 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="RunUnitUnderTest")
+T = TypeVar("T", bound="RunCreateBodyUnitUnderTest")
 
 
 @_attrs_define
-class RunUnitUnderTest:
+class RunCreateBodyUnitUnderTest:
     serial_number: str
     part_name: Union[None, Unset, str] = UNSET
     """ The `part_name` field is now ignored by `create_run`. You can safely remove it from your scripts. """
@@ -72,7 +72,7 @@ class RunUnitUnderTest:
 
         revision = d.pop("revision", UNSET)
 
-        run_unit_under_test = cls(
+        run_create_body_unit_under_test = cls(
             serial_number=serial_number,
             part_name=part_name,
             part_number=part_number,
@@ -80,8 +80,8 @@ class RunUnitUnderTest:
             revision=revision,
         )
 
-        run_unit_under_test.additional_properties = d
-        return run_unit_under_test
+        run_create_body_unit_under_test.additional_properties = d
+        return run_create_body_unit_under_test
 
     @property
     def additional_keys(self) -> list[str]:

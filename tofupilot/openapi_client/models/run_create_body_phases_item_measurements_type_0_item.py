@@ -4,27 +4,27 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.run_phases_item_measurements_type_0_item_outcome import (
-    RunPhasesItemMeasurementsType0ItemOutcome,
-    check_run_phases_item_measurements_type_0_item_outcome,
+from ..models.run_create_body_phases_item_measurements_type_0_item_outcome import (
+    RunCreateBodyPhasesItemMeasurementsType0ItemOutcome,
+    check_run_create_body_phases_item_measurements_type_0_item_outcome,
 )
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.run_phases_item_measurements_type_0_item_measured_value_type_4_type_0 import (
-        RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0,
+    from ..models.run_create_body_phases_item_measurements_type_0_item_measured_value_type_4_type_0 import (
+        RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0,
     )
 
 
-T = TypeVar("T", bound="RunPhasesItemMeasurementsType0Item")
+T = TypeVar("T", bound="RunCreateBodyPhasesItemMeasurementsType0Item")
 
 
 @_attrs_define
-class RunPhasesItemMeasurementsType0Item:
+class RunCreateBodyPhasesItemMeasurementsType0Item:
     name: str
-    outcome: RunPhasesItemMeasurementsType0ItemOutcome
+    outcome: RunCreateBodyPhasesItemMeasurementsType0ItemOutcome
     measured_value: Union[
-        "RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0",
+        "RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0",
         None,
         Unset,
         bool,
@@ -41,8 +41,8 @@ class RunPhasesItemMeasurementsType0Item:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.run_phases_item_measurements_type_0_item_measured_value_type_4_type_0 import (
-            RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0,
+        from ..models.run_create_body_phases_item_measurements_type_0_item_measured_value_type_4_type_0 import (
+            RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0,
         )
 
         name = self.name
@@ -59,7 +59,7 @@ class RunPhasesItemMeasurementsType0Item:
 
                 measured_value.append(measured_value_type_3_item)
 
-        elif isinstance(self.measured_value, RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0):
+        elif isinstance(self.measured_value, RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0):
             measured_value = self.measured_value.to_dict()
         elif isinstance(self.measured_value, list):
             measured_value = self.measured_value
@@ -120,19 +120,19 @@ class RunPhasesItemMeasurementsType0Item:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.run_phases_item_measurements_type_0_item_measured_value_type_4_type_0 import (
-            RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0,
+        from ..models.run_create_body_phases_item_measurements_type_0_item_measured_value_type_4_type_0 import (
+            RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0,
         )
 
         d = dict(src_dict)
         name = d.pop("name")
 
-        outcome = check_run_phases_item_measurements_type_0_item_outcome(d.pop("outcome"))
+        outcome = check_run_create_body_phases_item_measurements_type_0_item_outcome(d.pop("outcome"))
 
         def _parse_measured_value(
             data: object,
         ) -> Union[
-            "RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0",
+            "RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0",
             None,
             Unset,
             bool,
@@ -161,7 +161,9 @@ class RunPhasesItemMeasurementsType0Item:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                measured_value_type_4_type_0 = RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0.from_dict(data)
+                measured_value_type_4_type_0 = (
+                    RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0.from_dict(data)
+                )
 
                 return measured_value_type_4_type_0
             except:  # noqa: E722
@@ -176,7 +178,7 @@ class RunPhasesItemMeasurementsType0Item:
                 pass
             return cast(
                 Union[
-                    "RunPhasesItemMeasurementsType0ItemMeasuredValueType4Type0",
+                    "RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0",
                     None,
                     Unset,
                     bool,
@@ -237,7 +239,7 @@ class RunPhasesItemMeasurementsType0Item:
 
         docstring = _parse_docstring(d.pop("docstring", UNSET))
 
-        run_phases_item_measurements_type_0_item = cls(
+        run_create_body_phases_item_measurements_type_0_item = cls(
             name=name,
             outcome=outcome,
             measured_value=measured_value,
@@ -248,8 +250,8 @@ class RunPhasesItemMeasurementsType0Item:
             docstring=docstring,
         )
 
-        run_phases_item_measurements_type_0_item.additional_properties = d
-        return run_phases_item_measurements_type_0_item
+        run_create_body_phases_item_measurements_type_0_item.additional_properties = d
+        return run_create_body_phases_item_measurements_type_0_item
 
     @property
     def additional_keys(self) -> list[str]:

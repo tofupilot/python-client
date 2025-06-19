@@ -6,14 +6,14 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.run_logs_item_level import RunLogsItemLevel, check_run_logs_item_level
+from ..models.run_create_body_logs_item_level import RunCreateBodyLogsItemLevel, check_run_create_body_logs_item_level
 
-T = TypeVar("T", bound="RunLogsItem")
+T = TypeVar("T", bound="RunCreateBodyLogsItem")
 
 
 @_attrs_define
-class RunLogsItem:
-    level: RunLogsItemLevel
+class RunCreateBodyLogsItem:
+    level: RunCreateBodyLogsItemLevel
     timestamp: datetime.datetime
     message: str
     source_file: str
@@ -48,7 +48,7 @@ class RunLogsItem:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        level = check_run_logs_item_level(d.pop("level"))
+        level = check_run_create_body_logs_item_level(d.pop("level"))
 
         timestamp = isoparse(d.pop("timestamp"))
 
@@ -58,7 +58,7 @@ class RunLogsItem:
 
         line_number = d.pop("line_number")
 
-        run_logs_item = cls(
+        run_create_body_logs_item = cls(
             level=level,
             timestamp=timestamp,
             message=message,
@@ -66,8 +66,8 @@ class RunLogsItem:
             line_number=line_number,
         )
 
-        run_logs_item.additional_properties = d
-        return run_logs_item
+        run_create_body_logs_item.additional_properties = d
+        return run_create_body_logs_item
 
     @property
     def additional_keys(self) -> list[str]:

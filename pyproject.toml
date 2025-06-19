@@ -23,7 +23,7 @@ packages = [{include = "tofupilot"}]
 [tool.poetry.dependencies]
 python = "^3.9"
 requests = "^2.25.0"
-packaging = "^20.0"
+packaging = ">=23.0"
 pytest = "*"
 paho-mqtt = "^2.0.0"
 certifi = "^2020.12.5"

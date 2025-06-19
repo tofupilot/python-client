@@ -4,23 +4,28 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.run_phases_item_outcome import RunPhasesItemOutcome, check_run_phases_item_outcome
+from ..models.run_create_body_phases_item_outcome import (
+    RunCreateBodyPhasesItemOutcome,
+    check_run_create_body_phases_item_outcome,
+)
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.run_phases_item_measurements_type_0_item import RunPhasesItemMeasurementsType0Item
+    from ..models.run_create_body_phases_item_measurements_type_0_item import (
+        RunCreateBodyPhasesItemMeasurementsType0Item,
+    )
 
 
-T = TypeVar("T", bound="RunPhasesItem")
+T = TypeVar("T", bound="RunCreateBodyPhasesItem")
 
 
 @_attrs_define
-class RunPhasesItem:
+class RunCreateBodyPhasesItem:
     name: str
-    outcome: RunPhasesItemOutcome
+    outcome: RunCreateBodyPhasesItemOutcome
     start_time_millis: float
     end_time_millis: float
-    measurements: Union[None, Unset, list["RunPhasesItemMeasurementsType0Item"]] = UNSET
+    measurements: Union[None, Unset, list["RunCreateBodyPhasesItemMeasurementsType0Item"]] = UNSET
     docstring: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -70,18 +75,22 @@ class RunPhasesItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.run_phases_item_measurements_type_0_item import RunPhasesItemMeasurementsType0Item
+        from ..models.run_create_body_phases_item_measurements_type_0_item import (
+            RunCreateBodyPhasesItemMeasurementsType0Item,
+        )
 
         d = dict(src_dict)
         name = d.pop("name")
 
-        outcome = check_run_phases_item_outcome(d.pop("outcome"))
+        outcome = check_run_create_body_phases_item_outcome(d.pop("outcome"))
 
         start_time_millis = d.pop("start_time_millis")
 
         end_time_millis = d.pop("end_time_millis")
 
-        def _parse_measurements(data: object) -> Union[None, Unset, list["RunPhasesItemMeasurementsType0Item"]]:
+        def _parse_measurements(
+            data: object,
+        ) -> Union[None, Unset, list["RunCreateBodyPhasesItemMeasurementsType0Item"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -92,7 +101,7 @@ class RunPhasesItem:
                 measurements_type_0 = []
                 _measurements_type_0 = data
                 for measurements_type_0_item_data in _measurements_type_0:
-                    measurements_type_0_item = RunPhasesItemMeasurementsType0Item.from_dict(
+                    measurements_type_0_item = RunCreateBodyPhasesItemMeasurementsType0Item.from_dict(
                         measurements_type_0_item_data
                     )
 
@@ -101,7 +110,7 @@ class RunPhasesItem:
                 return measurements_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["RunPhasesItemMeasurementsType0Item"]], data)
+            return cast(Union[None, Unset, list["RunCreateBodyPhasesItemMeasurementsType0Item"]], data)
 
         measurements = _parse_measurements(d.pop("measurements", UNSET))
 
@@ -114,7 +123,7 @@ class RunPhasesItem:
 
         docstring = _parse_docstring(d.pop("docstring", UNSET))
 
-        run_phases_item = cls(
+        run_create_body_phases_item = cls(
             name=name,
             outcome=outcome,
             start_time_millis=start_time_millis,
@@ -123,8 +132,8 @@ class RunPhasesItem:
             docstring=docstring,
         )
 
-        run_phases_item.additional_properties = d
-        return run_phases_item
+        run_create_body_phases_item.additional_properties = d
+        return run_create_body_phases_item
 
     @property
     def additional_keys(self) -> list[str]:

@@ -514,6 +514,26 @@ socks = ["socksio (==1.*)"]
 zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
+name = "id"
+version = "1.5.0"
+description = "A tool for generating OIDC identities"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "id-1.5.0-py3-none-any.whl", hash = "sha256:f1434e1cef91f2cbb8a4ec64663d5a23b9ed43ef44c4c957d02583d61714c658"},
+    {file = "id-1.5.0.tar.gz", hash = "sha256:292cb8a49eacbbdbce97244f47a97b4c62540169c976552e497fd57df0734c1d"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[package.extras]
+dev = ["build", "bump (>=1.3.2)", "id[lint,test]"]
+lint = ["bandit", "interrogate", "mypy", "ruff (<0.8.2)", "types-requests"]
+test = ["coverage[toml]", "pretend", "pytest", "pytest-cov"]
+
+[[package]]
 name = "idna"
 version = "3.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -934,18 +954,15 @@ usb-plugs = ["M2Crypto (>=0.42.0)", "libusb1 (>=3.1.0)"]
 
 [[package]]
 name = "packaging"
-version = "20.9"
+version = "25.0"
 description = "Core utilities for Python packages"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.8"
 groups = ["main", "dev"]
 files = [
-    {file = "packaging-20.9-py2.py3-none-any.whl", hash = "sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a"},
-    {file = "packaging-20.9.tar.gz", hash = "sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5"},
+    {file = "packaging-25.0-py3-none-any.whl", hash = "sha256:29572ef2b1f17581046b3a2227d5c611fb25ec70ca1ba8554b24b0e69331a484"},
+    {file = "packaging-25.0.tar.gz", hash = "sha256:d443872c98d677bf60f6a1f2f8c1cb748e8fe762d2bf9d3148b5599295b0fc4f"},
 ]
-
-[package.dependencies]
-pyparsing = ">=2.0.2"
 
 [[package]]
 name = "paho-mqtt"
@@ -961,21 +978,6 @@ files = [
 
 [package.extras]
 proxy = ["pysocks"]
-
-[[package]]
-name = "pkginfo"
-version = "1.12.1.2"
-description = "Query metadata from sdists / bdists / installed packages."
-optional = false
-python-versions = ">=3.8"
-groups = ["dev"]
-files = [
-    {file = "pkginfo-1.12.1.2-py3-none-any.whl", hash = "sha256:c783ac885519cab2c34927ccfa6bf64b5a704d7c69afaea583dd9b7afe969343"},
-    {file = "pkginfo-1.12.1.2.tar.gz", hash = "sha256:5cd957824ac36f140260964eba3c6be6442a8359b8c48f4adf90210f33a04b7b"},
-]
-
-[package.extras]
-testing = ["pytest", "pytest-cov", "wheel"]
 
 [[package]]
 name = "pluggy"
@@ -1220,21 +1222,6 @@ typing-extensions = {version = ">=4.9", markers = "python_version < \"3.13\" and
 [package.extras]
 docs = ["sphinx (!=5.2.0,!=5.2.0.post0,!=7.2.5)", "sphinx_rtd_theme"]
 test = ["pretend", "pytest (>=3.0.1)", "pytest-rerunfailures"]
-
-[[package]]
-name = "pyparsing"
-version = "3.2.3"
-description = "pyparsing module - Classes and methods to define and execute parsing grammars"
-optional = false
-python-versions = ">=3.9"
-groups = ["main", "dev"]
-files = [
-    {file = "pyparsing-3.2.3-py3-none-any.whl", hash = "sha256:a749938e02d6fd0b59b356ca504a24982314bb090c383e3cf201c95ef7e2bfcf"},
-    {file = "pyparsing-3.2.3.tar.gz", hash = "sha256:b9c13f1ab8b3b542f72e28f634bad4de758ab3ce4546e4301970ad6fa77c38be"},
-]
-
-[package.extras]
-diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
 name = "pyproject-hooks"
@@ -1726,21 +1713,21 @@ files = [
 
 [[package]]
 name = "twine"
-version = "6.0.1"
+version = "6.1.0"
 description = "Collection of utilities for publishing packages on PyPI"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "twine-6.0.1-py3-none-any.whl", hash = "sha256:9c6025b203b51521d53e200f4a08b116dee7500a38591668c6a6033117bdc218"},
-    {file = "twine-6.0.1.tar.gz", hash = "sha256:36158b09df5406e1c9c1fb8edb24fc2be387709443e7376689b938531582ee27"},
+    {file = "twine-6.1.0-py3-none-any.whl", hash = "sha256:a47f973caf122930bf0fbbf17f80b83bc1602c9ce393c7845f289a3001dc5384"},
+    {file = "twine-6.1.0.tar.gz", hash = "sha256:be324f6272eff91d07ee93f251edf232fc647935dd585ac003539b42404a8dbd"},
 ]
 
 [package.dependencies]
+id = "*"
 importlib-metadata = {version = ">=3.6", markers = "python_version < \"3.10\""}
 keyring = {version = ">=15.1", markers = "platform_machine != \"ppc64le\" and platform_machine != \"s390x\""}
-packaging = "*"
-pkginfo = ">=1.8.1"
+packaging = ">=24.0"
 readme-renderer = ">=35.0"
 requests = ">=2.20"
 requests-toolbelt = ">=0.8.0,<0.9.0 || >0.9.0"
@@ -1921,4 +1908,4 @@ openhtf = []
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "27616f34ee9780d21d51013e0b19aeb8a2fdc3273c1699a347c0d94a5935a17b"
+content-hash = "e7e100cbfd6aed3713873dba36cde23b9d6e9550c0d0fab458b7d0d9566c92ba"
