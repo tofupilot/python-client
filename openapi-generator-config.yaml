@@ -11,7 +11,7 @@ use_path_prefixes_for_title_model_names: false
 docstrings_on_attributes: true
 
 # Enum handling
-literal_enums: true
+literal_enums: false
 
 # Tag generation
 generate_all_tags: true
@@ -23,10 +23,13 @@ field_prefix: "field_"
 http_timeout: 60
 
 # Overrides
-class_overrides: {}
-  # RunCreateBody:
-  #   class_name: Run
-  #   module_name: run
+class_overrides:
+  RunCreateBody:
+    class_name: Run
+    module_name: run
+  RunCreateBodyOutcome:
+    class_name: RunOutcome
+    module_name: run_outcome
 
 content_type_overrides: {}
 

@@ -9,7 +9,7 @@ from ...models.circular_parent_relationship_not_allowed_sub_units_not_found_erro
     CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
 )
 from ...models.internal_server_error_error_500 import InternalServerErrorError500
-from ...models.run_create_body import RunCreateBody
+from ...models.run import Run
 from ...models.run_create_response_200 import RunCreateResponse200
 from ...models.unit_not_found_serial_number_error_404 import UnitNotFoundSerialNumberError404
 from ...types import Response
@@ -17,7 +17,7 @@ from ...types import Response
 
 def _get_kwargs(
     *,
-    body: RunCreateBody,
+    body: Run,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -87,7 +87,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: RunCreateBody,
+    body: Run,
 ) -> Response[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -101,7 +101,7 @@ def sync_detailed(
      Creates a new run for a unit with associated procedure, phases, and measurements
 
     Args:
-        body (RunCreateBody):
+        body (Run):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -125,7 +125,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: RunCreateBody,
+    body: Run,
 ) -> Optional[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -139,7 +139,7 @@ def sync(
      Creates a new run for a unit with associated procedure, phases, and measurements
 
     Args:
-        body (RunCreateBody):
+        body (Run):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -158,7 +158,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: RunCreateBody,
+    body: Run,
 ) -> Response[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -172,7 +172,7 @@ async def asyncio_detailed(
      Creates a new run for a unit with associated procedure, phases, and measurements
 
     Args:
-        body (RunCreateBody):
+        body (Run):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -194,7 +194,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: RunCreateBody,
+    body: Run,
 ) -> Optional[
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
@@ -208,7 +208,7 @@ async def asyncio(
      Creates a new run for a unit with associated procedure, phases, and measurements
 
     Args:
-        body (RunCreateBody):
+        body (Run):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

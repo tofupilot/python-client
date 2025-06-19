@@ -5,10 +5,7 @@ from uuid import UUID
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.run_create_from_file_body_importer import (
-    RunCreateFromFileBodyImporter,
-    check_run_create_from_file_body_importer,
-)
+from ..models.run_create_from_file_body_importer import RunCreateFromFileBodyImporter
 
 T = TypeVar("T", bound="RunCreateFromFileBody")
 
@@ -22,7 +19,7 @@ class RunCreateFromFileBody:
     def to_dict(self) -> dict[str, Any]:
         upload_id = str(self.upload_id)
 
-        importer: str = self.importer
+        importer = self.importer.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -40,7 +37,7 @@ class RunCreateFromFileBody:
         d = dict(src_dict)
         upload_id = UUID(d.pop("upload_id"))
 
-        importer = check_run_create_from_file_body_importer(d.pop("importer"))
+        importer = RunCreateFromFileBodyImporter(d.pop("importer"))
 
         run_create_from_file_body = cls(
             upload_id=upload_id,

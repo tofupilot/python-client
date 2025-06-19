@@ -8,11 +8,11 @@ from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="RunCreateBodyStepsItem")
+T = TypeVar("T", bound="RunStepsItem")
 
 
 @_attrs_define
-class RunCreateBodyStepsItem:
+class RunStepsItem:
     name: str
     step_passed: bool
     duration: str
@@ -120,7 +120,7 @@ class RunCreateBodyStepsItem:
 
         limit_high = d.pop("limit_high", UNSET)
 
-        run_create_body_steps_item = cls(
+        run_steps_item = cls(
             name=name,
             step_passed=step_passed,
             duration=duration,
@@ -132,8 +132,8 @@ class RunCreateBodyStepsItem:
             limit_high=limit_high,
         )
 
-        run_create_body_steps_item.additional_properties = d
-        return run_create_body_steps_item
+        run_steps_item.additional_properties = d
+        return run_steps_item
 
     @property
     def additional_keys(self) -> list[str]:

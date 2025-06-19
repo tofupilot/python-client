@@ -6,15 +6,12 @@ from attrs import field as _attrs_field
 
 from ..models.streaming_get_streaming_token_response_200_subscribe_options_qos_type_0 import (
     StreamingGetStreamingTokenResponse200SubscribeOptionsQosType0,
-    check_streaming_get_streaming_token_response_200_subscribe_options_qos_type_0,
 )
 from ..models.streaming_get_streaming_token_response_200_subscribe_options_qos_type_1 import (
     StreamingGetStreamingTokenResponse200SubscribeOptionsQosType1,
-    check_streaming_get_streaming_token_response_200_subscribe_options_qos_type_1,
 )
 from ..models.streaming_get_streaming_token_response_200_subscribe_options_qos_type_2 import (
     StreamingGetStreamingTokenResponse200SubscribeOptionsQosType2,
-    check_streaming_get_streaming_token_response_200_subscribe_options_qos_type_2,
 )
 from ..types import UNSET, Unset
 
@@ -41,12 +38,12 @@ class StreamingGetStreamingTokenResponse200SubscribeOptions:
         qos: Union[Unset, int]
         if isinstance(self.qos, Unset):
             qos = UNSET
-        elif isinstance(self.qos, int):
-            qos = self.qos
-        elif isinstance(self.qos, int):
-            qos = self.qos
+        elif isinstance(self.qos, StreamingGetStreamingTokenResponse200SubscribeOptionsQosType0):
+            qos = self.qos.value
+        elif isinstance(self.qos, StreamingGetStreamingTokenResponse200SubscribeOptionsQosType1):
+            qos = self.qos.value
         else:
-            qos = self.qos
+            qos = self.qos.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -78,7 +75,7 @@ class StreamingGetStreamingTokenResponse200SubscribeOptions:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                qos_type_0 = check_streaming_get_streaming_token_response_200_subscribe_options_qos_type_0(data)
+                qos_type_0 = StreamingGetStreamingTokenResponse200SubscribeOptionsQosType0(data)
 
                 return qos_type_0
             except:  # noqa: E722
@@ -86,14 +83,14 @@ class StreamingGetStreamingTokenResponse200SubscribeOptions:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                qos_type_1 = check_streaming_get_streaming_token_response_200_subscribe_options_qos_type_1(data)
+                qos_type_1 = StreamingGetStreamingTokenResponse200SubscribeOptionsQosType1(data)
 
                 return qos_type_1
             except:  # noqa: E722
                 pass
             if not isinstance(data, int):
                 raise TypeError()
-            qos_type_2 = check_streaming_get_streaming_token_response_200_subscribe_options_qos_type_2(data)
+            qos_type_2 = StreamingGetStreamingTokenResponse200SubscribeOptionsQosType2(data)
 
             return qos_type_2
 

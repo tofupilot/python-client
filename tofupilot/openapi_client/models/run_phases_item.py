@@ -4,35 +4,30 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.run_create_body_phases_item_outcome import (
-    RunCreateBodyPhasesItemOutcome,
-    check_run_create_body_phases_item_outcome,
-)
+from ..models.run_phases_item_outcome import RunPhasesItemOutcome
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.run_create_body_phases_item_measurements_type_0_item import (
-        RunCreateBodyPhasesItemMeasurementsType0Item,
-    )
+    from ..models.run_phases_item_measurements_type_0_item import RunPhasesItemMeasurementsType0Item
 
 
-T = TypeVar("T", bound="RunCreateBodyPhasesItem")
+T = TypeVar("T", bound="RunPhasesItem")
 
 
 @_attrs_define
-class RunCreateBodyPhasesItem:
+class RunPhasesItem:
     name: str
-    outcome: RunCreateBodyPhasesItemOutcome
+    outcome: RunPhasesItemOutcome
     start_time_millis: float
     end_time_millis: float
-    measurements: Union[None, Unset, list["RunCreateBodyPhasesItemMeasurementsType0Item"]] = UNSET
+    measurements: Union[None, Unset, list["RunPhasesItemMeasurementsType0Item"]] = UNSET
     docstring: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        outcome: str = self.outcome
+        outcome = self.outcome.value
 
         start_time_millis = self.start_time_millis
 
@@ -75,22 +70,18 @@ class RunCreateBodyPhasesItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.run_create_body_phases_item_measurements_type_0_item import (
-            RunCreateBodyPhasesItemMeasurementsType0Item,
-        )
+        from ..models.run_phases_item_measurements_type_0_item import RunPhasesItemMeasurementsType0Item
 
         d = dict(src_dict)
         name = d.pop("name")
 
-        outcome = check_run_create_body_phases_item_outcome(d.pop("outcome"))
+        outcome = RunPhasesItemOutcome(d.pop("outcome"))
 
         start_time_millis = d.pop("start_time_millis")
 
         end_time_millis = d.pop("end_time_millis")
 
-        def _parse_measurements(
-            data: object,
-        ) -> Union[None, Unset, list["RunCreateBodyPhasesItemMeasurementsType0Item"]]:
+        def _parse_measurements(data: object) -> Union[None, Unset, list["RunPhasesItemMeasurementsType0Item"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -101,7 +92,7 @@ class RunCreateBodyPhasesItem:
                 measurements_type_0 = []
                 _measurements_type_0 = data
                 for measurements_type_0_item_data in _measurements_type_0:
-                    measurements_type_0_item = RunCreateBodyPhasesItemMeasurementsType0Item.from_dict(
+                    measurements_type_0_item = RunPhasesItemMeasurementsType0Item.from_dict(
                         measurements_type_0_item_data
                     )
 
@@ -110,7 +101,7 @@ class RunCreateBodyPhasesItem:
                 return measurements_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["RunCreateBodyPhasesItemMeasurementsType0Item"]], data)
+            return cast(Union[None, Unset, list["RunPhasesItemMeasurementsType0Item"]], data)
 
         measurements = _parse_measurements(d.pop("measurements", UNSET))
 
@@ -123,7 +114,7 @@ class RunCreateBodyPhasesItem:
 
         docstring = _parse_docstring(d.pop("docstring", UNSET))
 
-        run_create_body_phases_item = cls(
+        run_phases_item = cls(
             name=name,
             outcome=outcome,
             start_time_millis=start_time_millis,
@@ -132,8 +123,8 @@ class RunCreateBodyPhasesItem:
             docstring=docstring,
         )
 
-        run_create_body_phases_item.additional_properties = d
-        return run_create_body_phases_item
+        run_phases_item.additional_properties = d
+        return run_phases_item
 
     @property
     def additional_keys(self) -> list[str]:

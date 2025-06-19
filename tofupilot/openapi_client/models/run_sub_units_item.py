@@ -4,26 +4,38 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0")
+T = TypeVar("T", bound="RunSubUnitsItem")
 
 
 @_attrs_define
-class RunCreateBodyPhasesItemMeasurementsType0ItemMeasuredValueType4Type0:
+class RunSubUnitsItem:
+    serial_number: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        serial_number = self.serial_number
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "serial_number": serial_number,
+            }
+        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        run_create_body_phases_item_measurements_type_0_item_measured_value_type_4_type_0 = cls()
+        serial_number = d.pop("serial_number")
 
-        run_create_body_phases_item_measurements_type_0_item_measured_value_type_4_type_0.additional_properties = d
-        return run_create_body_phases_item_measurements_type_0_item_measured_value_type_4_type_0
+        run_sub_units_item = cls(
+            serial_number=serial_number,
+        )
+
+        run_sub_units_item.additional_properties = d
+        return run_sub_units_item
 
     @property
     def additional_keys(self) -> list[str]:

@@ -6,15 +6,12 @@ from attrs import field as _attrs_field
 
 from ..models.streaming_get_streaming_token_response_200_will_options_qos_type_0 import (
     StreamingGetStreamingTokenResponse200WillOptionsQosType0,
-    check_streaming_get_streaming_token_response_200_will_options_qos_type_0,
 )
 from ..models.streaming_get_streaming_token_response_200_will_options_qos_type_1 import (
     StreamingGetStreamingTokenResponse200WillOptionsQosType1,
-    check_streaming_get_streaming_token_response_200_will_options_qos_type_1,
 )
 from ..models.streaming_get_streaming_token_response_200_will_options_qos_type_2 import (
     StreamingGetStreamingTokenResponse200WillOptionsQosType2,
-    check_streaming_get_streaming_token_response_200_will_options_qos_type_2,
 )
 from ..types import UNSET, Unset
 
@@ -44,12 +41,12 @@ class StreamingGetStreamingTokenResponse200WillOptions:
         qos: Union[Unset, int]
         if isinstance(self.qos, Unset):
             qos = UNSET
-        elif isinstance(self.qos, int):
-            qos = self.qos
-        elif isinstance(self.qos, int):
-            qos = self.qos
+        elif isinstance(self.qos, StreamingGetStreamingTokenResponse200WillOptionsQosType0):
+            qos = self.qos.value
+        elif isinstance(self.qos, StreamingGetStreamingTokenResponse200WillOptionsQosType1):
+            qos = self.qos.value
         else:
-            qos = self.qos
+            qos = self.qos.value
 
         retain = self.retain
 
@@ -88,7 +85,7 @@ class StreamingGetStreamingTokenResponse200WillOptions:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                qos_type_0 = check_streaming_get_streaming_token_response_200_will_options_qos_type_0(data)
+                qos_type_0 = StreamingGetStreamingTokenResponse200WillOptionsQosType0(data)
 
                 return qos_type_0
             except:  # noqa: E722
@@ -96,14 +93,14 @@ class StreamingGetStreamingTokenResponse200WillOptions:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                qos_type_1 = check_streaming_get_streaming_token_response_200_will_options_qos_type_1(data)
+                qos_type_1 = StreamingGetStreamingTokenResponse200WillOptionsQosType1(data)
 
                 return qos_type_1
             except:  # noqa: E722
                 pass
             if not isinstance(data, int):
                 raise TypeError()
-            qos_type_2 = check_streaming_get_streaming_token_response_200_will_options_qos_type_2(data)
+            qos_type_2 = StreamingGetStreamingTokenResponse200WillOptionsQosType2(data)
 
             return qos_type_2
 

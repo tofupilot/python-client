@@ -6,39 +6,39 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.run_create_body_outcome import RunCreateBodyOutcome, check_run_create_body_outcome
+from ..models.run_outcome import RunOutcome
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.run_create_body_logs_item import RunCreateBodyLogsItem
-    from ..models.run_create_body_phases_item import RunCreateBodyPhasesItem
-    from ..models.run_create_body_steps_item import RunCreateBodyStepsItem
-    from ..models.run_create_body_sub_units_item import RunCreateBodySubUnitsItem
-    from ..models.run_create_body_unit_under_test import RunCreateBodyUnitUnderTest
+    from ..models.run_logs_item import RunLogsItem
+    from ..models.run_phases_item import RunPhasesItem
+    from ..models.run_steps_item import RunStepsItem
+    from ..models.run_sub_units_item import RunSubUnitsItem
+    from ..models.run_unit_under_test import RunUnitUnderTest
 
 
-T = TypeVar("T", bound="RunCreateBody")
+T = TypeVar("T", bound="Run")
 
 
 @_attrs_define
-class RunCreateBody:
+class Run:
     run_passed: bool
     procedure_id: str
-    unit_under_test: Union[Unset, "RunCreateBodyUnitUnderTest"] = UNSET
+    unit_under_test: Union[Unset, "RunUnitUnderTest"] = UNSET
     serial_number: Union[Unset, str] = UNSET
     part_number: Union[Unset, str] = UNSET
     batch_number: Union[Unset, str] = UNSET
     revision: Union[Unset, str] = UNSET
-    sub_units: Union[Unset, list["RunCreateBodySubUnitsItem"]] = UNSET
-    outcome: Union[Unset, RunCreateBodyOutcome] = UNSET
+    sub_units: Union[Unset, list["RunSubUnitsItem"]] = UNSET
+    outcome: Union[Unset, RunOutcome] = UNSET
     procedure_version: Union[None, Unset, str] = UNSET
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     duration: Union[Unset, str] = "PT0S"
     ended_at: Union[Unset, datetime.datetime] = UNSET
     docstring: Union[Unset, str] = UNSET
-    logs: Union[Unset, list["RunCreateBodyLogsItem"]] = UNSET
-    phases: Union[Unset, list["RunCreateBodyPhasesItem"]] = UNSET
-    steps: Union[Unset, list["RunCreateBodyStepsItem"]] = UNSET
+    logs: Union[Unset, list["RunLogsItem"]] = UNSET
+    phases: Union[Unset, list["RunPhasesItem"]] = UNSET
+    steps: Union[Unset, list["RunStepsItem"]] = UNSET
     """ The `steps` field is deprecated in favor of `phases` and `measurements`, which provide more detailed test
     logging. Existing `steps` will be auto-converted into a `phase`, with a `measurement` if they include a numeric
     value. """
@@ -71,7 +71,7 @@ class RunCreateBody:
 
         outcome: Union[Unset, str] = UNSET
         if not isinstance(self.outcome, Unset):
-            outcome = self.outcome
+            outcome = self.outcome.value
 
         procedure_version: Union[None, Unset, str]
         if isinstance(self.procedure_version, Unset):
@@ -167,11 +167,11 @@ class RunCreateBody:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.run_create_body_logs_item import RunCreateBodyLogsItem
-        from ..models.run_create_body_phases_item import RunCreateBodyPhasesItem
-        from ..models.run_create_body_steps_item import RunCreateBodyStepsItem
-        from ..models.run_create_body_sub_units_item import RunCreateBodySubUnitsItem
-        from ..models.run_create_body_unit_under_test import RunCreateBodyUnitUnderTest
+        from ..models.run_logs_item import RunLogsItem
+        from ..models.run_phases_item import RunPhasesItem
+        from ..models.run_steps_item import RunStepsItem
+        from ..models.run_sub_units_item import RunSubUnitsItem
+        from ..models.run_unit_under_test import RunUnitUnderTest
 
         d = dict(src_dict)
         run_passed = d.pop("run_passed")
@@ -179,11 +179,11 @@ class RunCreateBody:
         procedure_id = d.pop("procedure_id")
 
         _unit_under_test = d.pop("unit_under_test", UNSET)
-        unit_under_test: Union[Unset, RunCreateBodyUnitUnderTest]
+        unit_under_test: Union[Unset, RunUnitUnderTest]
         if isinstance(_unit_under_test, Unset):
             unit_under_test = UNSET
         else:
-            unit_under_test = RunCreateBodyUnitUnderTest.from_dict(_unit_under_test)
+            unit_under_test = RunUnitUnderTest.from_dict(_unit_under_test)
 
         serial_number = d.pop("serial_number", UNSET)
 
@@ -196,16 +196,16 @@ class RunCreateBody:
         sub_units = []
         _sub_units = d.pop("sub_units", UNSET)
         for sub_units_item_data in _sub_units or []:
-            sub_units_item = RunCreateBodySubUnitsItem.from_dict(sub_units_item_data)
+            sub_units_item = RunSubUnitsItem.from_dict(sub_units_item_data)
 
             sub_units.append(sub_units_item)
 
         _outcome = d.pop("outcome", UNSET)
-        outcome: Union[Unset, RunCreateBodyOutcome]
+        outcome: Union[Unset, RunOutcome]
         if isinstance(_outcome, Unset):
             outcome = UNSET
         else:
-            outcome = check_run_create_body_outcome(_outcome)
+            outcome = RunOutcome(_outcome)
 
         def _parse_procedure_version(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -247,21 +247,21 @@ class RunCreateBody:
         logs = []
         _logs = d.pop("logs", UNSET)
         for logs_item_data in _logs or []:
-            logs_item = RunCreateBodyLogsItem.from_dict(logs_item_data)
+            logs_item = RunLogsItem.from_dict(logs_item_data)
 
             logs.append(logs_item)
 
         phases = []
         _phases = d.pop("phases", UNSET)
         for phases_item_data in _phases or []:
-            phases_item = RunCreateBodyPhasesItem.from_dict(phases_item_data)
+            phases_item = RunPhasesItem.from_dict(phases_item_data)
 
             phases.append(phases_item)
 
         steps = []
         _steps = d.pop("steps", UNSET)
         for steps_item_data in _steps or []:
-            steps_item = RunCreateBodyStepsItem.from_dict(steps_item_data)
+            steps_item = RunStepsItem.from_dict(steps_item_data)
 
             steps.append(steps_item)
 
@@ -274,7 +274,7 @@ class RunCreateBody:
 
         procedure_name = _parse_procedure_name(d.pop("procedure_name", UNSET))
 
-        run_create_body = cls(
+        run = cls(
             run_passed=run_passed,
             procedure_id=procedure_id,
             unit_under_test=unit_under_test,
@@ -295,8 +295,8 @@ class RunCreateBody:
             procedure_name=procedure_name,
         )
 
-        run_create_body.additional_properties = d
-        return run_create_body
+        run.additional_properties = d
+        return run
 
     @property
     def additional_keys(self) -> list[str]:
