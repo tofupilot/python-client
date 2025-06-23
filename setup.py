@@ -20,6 +20,9 @@ setup(
         "pytest11": [
             "tofupilot = tofupilot.plugin",  # Registering the pytest plugin
         ],
+        "console_scripts": [
+            "tofupilot=tofupilot.cli:main",  # CLI command
+        ],
     },
     author="TofuPilot Team",
     author_email="hello@tofupilot.com",
