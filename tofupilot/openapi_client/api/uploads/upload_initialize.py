@@ -10,12 +10,12 @@ from ...models.circular_parent_relationship_not_allowed_sub_units_not_found_erro
 )
 from ...models.failed_to_generate_upload_url_error_502 import FailedToGenerateUploadURLError502
 from ...models.internal_server_error_error_500 import InternalServerErrorError500
-from ...models.organization_is_required_but_not_specified_in_the_request_error_403 import (
-    OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
-)
 from ...models.unit_not_found_serial_number_error_404 import UnitNotFoundSerialNumberError404
 from ...models.upload_initialize_body import UploadInitializeBody
 from ...models.upload_initialize_response_200 import UploadInitializeResponse200
+from ...models.you_must_belong_to_an_organization_to_upload_a_file_error_403 import (
+    YouMustBelongToAnOrganizationToUploadAFileError403,
+)
 from ...types import Response
 
 
@@ -45,9 +45,9 @@ def _parse_response(
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         FailedToGenerateUploadURLError502,
         InternalServerErrorError500,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         UnitNotFoundSerialNumberError404,
         UploadInitializeResponse200,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     if response.status_code == 200:
@@ -59,7 +59,7 @@ def _parse_response(
 
         return response_400
     if response.status_code == 403:
-        response_403 = OrganizationIsRequiredButNotSpecifiedInTheRequestError403.from_dict(response.json())
+        response_403 = YouMustBelongToAnOrganizationToUploadAFileError403.from_dict(response.json())
 
         return response_403
     if response.status_code == 404:
@@ -87,9 +87,9 @@ def _build_response(
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         FailedToGenerateUploadURLError502,
         InternalServerErrorError500,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         UnitNotFoundSerialNumberError404,
         UploadInitializeResponse200,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     return Response(
@@ -109,9 +109,9 @@ def sync_detailed(
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         FailedToGenerateUploadURLError502,
         InternalServerErrorError500,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         UnitNotFoundSerialNumberError404,
         UploadInitializeResponse200,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """Initialize file upload
@@ -126,7 +126,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, UnitNotFoundSerialNumberError404, UploadInitializeResponse200]]
+        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadInitializeResponse200, YouMustBelongToAnOrganizationToUploadAFileError403]]
     """
 
     kwargs = _get_kwargs(
@@ -149,9 +149,9 @@ def sync(
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         FailedToGenerateUploadURLError502,
         InternalServerErrorError500,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         UnitNotFoundSerialNumberError404,
         UploadInitializeResponse200,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """Initialize file upload
@@ -166,7 +166,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, UnitNotFoundSerialNumberError404, UploadInitializeResponse200]
+        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadInitializeResponse200, YouMustBelongToAnOrganizationToUploadAFileError403]
     """
 
     return sync_detailed(
@@ -184,9 +184,9 @@ async def asyncio_detailed(
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         FailedToGenerateUploadURLError502,
         InternalServerErrorError500,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         UnitNotFoundSerialNumberError404,
         UploadInitializeResponse200,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """Initialize file upload
@@ -201,7 +201,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, UnitNotFoundSerialNumberError404, UploadInitializeResponse200]]
+        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadInitializeResponse200, YouMustBelongToAnOrganizationToUploadAFileError403]]
     """
 
     kwargs = _get_kwargs(
@@ -222,9 +222,9 @@ async def asyncio(
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         FailedToGenerateUploadURLError502,
         InternalServerErrorError500,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         UnitNotFoundSerialNumberError404,
         UploadInitializeResponse200,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """Initialize file upload
@@ -239,7 +239,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, UnitNotFoundSerialNumberError404, UploadInitializeResponse200]
+        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, FailedToGenerateUploadURLError502, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadInitializeResponse200, YouMustBelongToAnOrganizationToUploadAFileError403]
     """
 
     return (

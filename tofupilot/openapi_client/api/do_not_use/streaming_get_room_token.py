@@ -9,8 +9,8 @@ from ...models.internal_server_error_error_500 import InternalServerErrorError50
 from ...models.invalid_api_key_please_verify_your_key_and_try_again_error_401 import (
     InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
 )
-from ...models.organization_is_required_but_not_specified_in_the_request_error_403 import (
-    OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+from ...models.you_must_belong_to_an_organization_to_upload_a_file_error_403 import (
+    YouMustBelongToAnOrganizationToUploadAFileError403,
 )
 from ...types import Response
 
@@ -31,7 +31,7 @@ def _parse_response(
         InternalServerErrorError500,
         InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
         None,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     if response.status_code == 200:
@@ -42,7 +42,7 @@ def _parse_response(
 
         return response_401
     if response.status_code == 403:
-        response_403 = OrganizationIsRequiredButNotSpecifiedInTheRequestError403.from_dict(response.json())
+        response_403 = YouMustBelongToAnOrganizationToUploadAFileError403.from_dict(response.json())
 
         return response_403
     if response.status_code == 500:
@@ -62,7 +62,7 @@ def _build_response(
         InternalServerErrorError500,
         InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
         None,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     return Response(
@@ -81,7 +81,7 @@ def sync_detailed(
         InternalServerErrorError500,
         InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
         None,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """OUTDATED
@@ -93,7 +93,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, OrganizationIsRequiredButNotSpecifiedInTheRequestError403]]
+        Response[Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, YouMustBelongToAnOrganizationToUploadAFileError403]]
     """
 
     kwargs = _get_kwargs()
@@ -113,7 +113,7 @@ def sync(
         InternalServerErrorError500,
         InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
         None,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """OUTDATED
@@ -125,7 +125,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, OrganizationIsRequiredButNotSpecifiedInTheRequestError403]
+        Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, YouMustBelongToAnOrganizationToUploadAFileError403]
     """
 
     return sync_detailed(
@@ -141,7 +141,7 @@ async def asyncio_detailed(
         InternalServerErrorError500,
         InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
         None,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """OUTDATED
@@ -153,7 +153,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, OrganizationIsRequiredButNotSpecifiedInTheRequestError403]]
+        Response[Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, YouMustBelongToAnOrganizationToUploadAFileError403]]
     """
 
     kwargs = _get_kwargs()
@@ -171,7 +171,7 @@ async def asyncio(
         InternalServerErrorError500,
         InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401,
         None,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
+        YouMustBelongToAnOrganizationToUploadAFileError403,
     ]
 ]:
     """OUTDATED
@@ -183,7 +183,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, OrganizationIsRequiredButNotSpecifiedInTheRequestError403]
+        Union[InternalServerErrorError500, InvalidAPIKeyPleaseVerifyYourKeyAndTryAgainError401, None, YouMustBelongToAnOrganizationToUploadAFileError403]
     """
 
     return (

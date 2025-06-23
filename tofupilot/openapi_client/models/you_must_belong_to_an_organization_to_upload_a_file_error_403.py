@@ -7,20 +7,20 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.organization_is_required_but_not_specified_in_the_request_error_403_issues_item import (
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403IssuesItem,
+    from ..models.you_must_belong_to_an_organization_to_upload_a_file_error_403_issues_item import (
+        YouMustBelongToAnOrganizationToUploadAFileError403IssuesItem,
     )
 
 
-T = TypeVar("T", bound="OrganizationIsRequiredButNotSpecifiedInTheRequestError403")
+T = TypeVar("T", bound="YouMustBelongToAnOrganizationToUploadAFileError403")
 
 
 @_attrs_define
-class OrganizationIsRequiredButNotSpecifiedInTheRequestError403:
+class YouMustBelongToAnOrganizationToUploadAFileError403:
     """The error information
 
     Example:
-        {'code': 'FORBIDDEN', 'message': 'Organization is required but not specified in the request', 'issues': []}
+        {'code': 'FORBIDDEN', 'message': 'You must belong to an organization to upload a file', 'issues': []}
 
     """
 
@@ -28,7 +28,7 @@ class OrganizationIsRequiredButNotSpecifiedInTheRequestError403:
     """ The error message """
     code: str
     """ The error code """
-    issues: Union[Unset, list["OrganizationIsRequiredButNotSpecifiedInTheRequestError403IssuesItem"]] = UNSET
+    issues: Union[Unset, list["YouMustBelongToAnOrganizationToUploadAFileError403IssuesItem"]] = UNSET
     """ An array of issues that were responsible for the error """
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -59,8 +59,8 @@ class OrganizationIsRequiredButNotSpecifiedInTheRequestError403:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.organization_is_required_but_not_specified_in_the_request_error_403_issues_item import (
-            OrganizationIsRequiredButNotSpecifiedInTheRequestError403IssuesItem,
+        from ..models.you_must_belong_to_an_organization_to_upload_a_file_error_403_issues_item import (
+            YouMustBelongToAnOrganizationToUploadAFileError403IssuesItem,
         )
 
         d = dict(src_dict)
@@ -71,20 +71,18 @@ class OrganizationIsRequiredButNotSpecifiedInTheRequestError403:
         issues = []
         _issues = d.pop("issues", UNSET)
         for issues_item_data in _issues or []:
-            issues_item = OrganizationIsRequiredButNotSpecifiedInTheRequestError403IssuesItem.from_dict(
-                issues_item_data
-            )
+            issues_item = YouMustBelongToAnOrganizationToUploadAFileError403IssuesItem.from_dict(issues_item_data)
 
             issues.append(issues_item)
 
-        organization_is_required_but_not_specified_in_the_request_error_403 = cls(
+        you_must_belong_to_an_organization_to_upload_a_file_error_403 = cls(
             message=message,
             code=code,
             issues=issues,
         )
 
-        organization_is_required_but_not_specified_in_the_request_error_403.additional_properties = d
-        return organization_is_required_but_not_specified_in_the_request_error_403
+        you_must_belong_to_an_organization_to_upload_a_file_error_403.additional_properties = d
+        return you_must_belong_to_an_organization_to_upload_a_file_error_403
 
     @property
     def additional_keys(self) -> list[str]:

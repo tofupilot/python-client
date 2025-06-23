@@ -11,12 +11,6 @@ from ...models.circular_parent_relationship_not_allowed_sub_units_not_found_erro
     CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
 )
 from ...models.internal_server_error_error_500 import InternalServerErrorError500
-from ...models.multiple_procedures_found_with_name_procedure_name_multiple_components_found_part_number_must_be_provided_to_identify_which_component_to_use_multiple_revisions_found_for_part_number_part_number_error_409 import (
-    MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-)
-from ...models.organization_is_required_but_not_specified_in_the_request_error_403 import (
-    OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
-)
 from ...models.run_get_exclude_item import RunGetExcludeItem
 from ...models.run_get_outcome import RunGetOutcome
 from ...models.run_get_response_200 import RunGetResponse200
@@ -128,8 +122,6 @@ def _parse_response(
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         RunGetResponse200,
         UnitNotFoundSerialNumberError404,
     ]
@@ -142,20 +134,10 @@ def _parse_response(
         response_400 = CircularParentRelationshipNotAllowedSubUnitsNotFoundError400.from_dict(response.json())
 
         return response_400
-    if response.status_code == 403:
-        response_403 = OrganizationIsRequiredButNotSpecifiedInTheRequestError403.from_dict(response.json())
-
-        return response_403
     if response.status_code == 404:
         response_404 = UnitNotFoundSerialNumberError404.from_dict(response.json())
 
         return response_404
-    if response.status_code == 409:
-        response_409 = MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409.from_dict(
-            response.json()
-        )
-
-        return response_409
     if response.status_code == 500:
         response_500 = InternalServerErrorError500.from_dict(response.json())
 
@@ -172,8 +154,6 @@ def _build_response(
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         RunGetResponse200,
         UnitNotFoundSerialNumberError404,
     ]
@@ -205,8 +185,6 @@ def sync_detailed(
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         RunGetResponse200,
         UnitNotFoundSerialNumberError404,
     ]
@@ -224,7 +202,7 @@ def sync_detailed(
         end_date (Union[Unset, datetime.datetime]):
         limit (Union[Unset, int]): Maximum number of runs to return (default 50, min 1, max 100)
             Default: 50.
-        offset (Union[Unset, int]):  Default: 0.
+        offset (Union[Unset, int]): Number of runs to skip for pagination (default 0) Default: 0.
         sort (Union[Unset, RunGetSort]):  Default: RunGetSort.VALUE_0.
         exclude (Union[Unset, list[RunGetExcludeItem]]):
 
@@ -233,7 +211,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, RunGetResponse200, UnitNotFoundSerialNumberError404]]
+        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, RunGetResponse200, UnitNotFoundSerialNumberError404]]
     """
 
     kwargs = _get_kwargs(
@@ -277,8 +255,6 @@ def sync(
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         RunGetResponse200,
         UnitNotFoundSerialNumberError404,
     ]
@@ -296,7 +272,7 @@ def sync(
         end_date (Union[Unset, datetime.datetime]):
         limit (Union[Unset, int]): Maximum number of runs to return (default 50, min 1, max 100)
             Default: 50.
-        offset (Union[Unset, int]):  Default: 0.
+        offset (Union[Unset, int]): Number of runs to skip for pagination (default 0) Default: 0.
         sort (Union[Unset, RunGetSort]):  Default: RunGetSort.VALUE_0.
         exclude (Union[Unset, list[RunGetExcludeItem]]):
 
@@ -305,7 +281,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, RunGetResponse200, UnitNotFoundSerialNumberError404]
+        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, RunGetResponse200, UnitNotFoundSerialNumberError404]
     """
 
     return sync_detailed(
@@ -344,8 +320,6 @@ async def asyncio_detailed(
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         RunGetResponse200,
         UnitNotFoundSerialNumberError404,
     ]
@@ -363,7 +337,7 @@ async def asyncio_detailed(
         end_date (Union[Unset, datetime.datetime]):
         limit (Union[Unset, int]): Maximum number of runs to return (default 50, min 1, max 100)
             Default: 50.
-        offset (Union[Unset, int]):  Default: 0.
+        offset (Union[Unset, int]): Number of runs to skip for pagination (default 0) Default: 0.
         sort (Union[Unset, RunGetSort]):  Default: RunGetSort.VALUE_0.
         exclude (Union[Unset, list[RunGetExcludeItem]]):
 
@@ -372,7 +346,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, RunGetResponse200, UnitNotFoundSerialNumberError404]]
+        Response[Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, RunGetResponse200, UnitNotFoundSerialNumberError404]]
     """
 
     kwargs = _get_kwargs(
@@ -414,8 +388,6 @@ async def asyncio(
     Union[
         CircularParentRelationshipNotAllowedSubUnitsNotFoundError400,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-        OrganizationIsRequiredButNotSpecifiedInTheRequestError403,
         RunGetResponse200,
         UnitNotFoundSerialNumberError404,
     ]
@@ -433,7 +405,7 @@ async def asyncio(
         end_date (Union[Unset, datetime.datetime]):
         limit (Union[Unset, int]): Maximum number of runs to return (default 50, min 1, max 100)
             Default: 50.
-        offset (Union[Unset, int]):  Default: 0.
+        offset (Union[Unset, int]): Number of runs to skip for pagination (default 0) Default: 0.
         sort (Union[Unset, RunGetSort]):  Default: RunGetSort.VALUE_0.
         exclude (Union[Unset, list[RunGetExcludeItem]]):
 
@@ -442,7 +414,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, OrganizationIsRequiredButNotSpecifiedInTheRequestError403, RunGetResponse200, UnitNotFoundSerialNumberError404]
+        Union[CircularParentRelationshipNotAllowedSubUnitsNotFoundError400, InternalServerErrorError500, RunGetResponse200, UnitNotFoundSerialNumberError404]
     """
 
     return (

@@ -1,26 +1,25 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="RunGetRunsBySerialNumberResponse200")
+T = TypeVar("T", bound="FailedToSyncUploadWithRunError409IssuesItem")
 
 
 @_attrs_define
-class RunGetRunsBySerialNumberResponse200:
-    data: list[Any]
-    """ Array of runs associated with the serial number """
+class FailedToSyncUploadWithRunError409IssuesItem:
+    message: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        data = self.data
+        message = self.message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "data": data,
+                "message": message,
             }
         )
 
@@ -29,14 +28,14 @@ class RunGetRunsBySerialNumberResponse200:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        data = cast(list[Any], d.pop("data"))
+        message = d.pop("message")
 
-        run_get_runs_by_serial_number_response_200 = cls(
-            data=data,
+        failed_to_sync_upload_with_run_error_409_issues_item = cls(
+            message=message,
         )
 
-        run_get_runs_by_serial_number_response_200.additional_properties = d
-        return run_get_runs_by_serial_number_response_200
+        failed_to_sync_upload_with_run_error_409_issues_item.additional_properties = d
+        return failed_to_sync_upload_with_run_error_409_issues_item
 
     @property
     def additional_keys(self) -> list[str]:

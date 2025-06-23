@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class RunGetExcludeItem(str, Enum):
+    ALL = "all"
     ATTACHMENTS = "attachments"
     CREATEDBY = "createdBy"
     LOGS = "logs"

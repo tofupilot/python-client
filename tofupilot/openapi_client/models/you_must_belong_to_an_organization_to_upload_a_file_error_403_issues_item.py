@@ -4,14 +4,11 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar(
-    "T",
-    bound="MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409IssuesItem",
-)
+T = TypeVar("T", bound="YouMustBelongToAnOrganizationToUploadAFileError403IssuesItem")
 
 
 @_attrs_define
-class MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409IssuesItem:
+class YouMustBelongToAnOrganizationToUploadAFileError403IssuesItem:
     message: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,12 +30,12 @@ class MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNum
         d = dict(src_dict)
         message = d.pop("message")
 
-        multiple_procedures_found_with_name_procedure_name_multiple_components_found_part_number_must_be_provided_to_identify_which_component_to_use_multiple_revisions_found_for_part_number_part_number_error_409_issues_item = cls(
+        you_must_belong_to_an_organization_to_upload_a_file_error_403_issues_item = cls(
             message=message,
         )
 
-        multiple_procedures_found_with_name_procedure_name_multiple_components_found_part_number_must_be_provided_to_identify_which_component_to_use_multiple_revisions_found_for_part_number_part_number_error_409_issues_item.additional_properties = d
-        return multiple_procedures_found_with_name_procedure_name_multiple_components_found_part_number_must_be_provided_to_identify_which_component_to_use_multiple_revisions_found_for_part_number_part_number_error_409_issues_item
+        you_must_belong_to_an_organization_to_upload_a_file_error_403_issues_item.additional_properties = d
+        return you_must_belong_to_an_organization_to_upload_a_file_error_403_issues_item
 
     @property
     def additional_keys(self) -> list[str]:

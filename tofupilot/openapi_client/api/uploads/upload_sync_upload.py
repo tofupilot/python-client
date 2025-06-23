@@ -5,10 +5,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.failed_to_sync_upload_with_run_error_409 import FailedToSyncUploadWithRunError409
 from ...models.internal_server_error_error_500 import InternalServerErrorError500
-from ...models.multiple_procedures_found_with_name_procedure_name_multiple_components_found_part_number_must_be_provided_to_identify_which_component_to_use_multiple_revisions_found_for_part_number_part_number_error_409 import (
-    MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
-)
 from ...models.unit_not_found_serial_number_error_404 import UnitNotFoundSerialNumberError404
 from ...models.upload_sync_upload_body import UploadSyncUploadBody
 from ...models.upload_sync_upload_response_200 import UploadSyncUploadResponse200
@@ -38,8 +36,8 @@ def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[
     Union[
+        FailedToSyncUploadWithRunError409,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
         UnitNotFoundSerialNumberError404,
         UploadSyncUploadResponse200,
     ]
@@ -53,9 +51,7 @@ def _parse_response(
 
         return response_404
     if response.status_code == 409:
-        response_409 = MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409.from_dict(
-            response.json()
-        )
+        response_409 = FailedToSyncUploadWithRunError409.from_dict(response.json())
 
         return response_409
     if response.status_code == 500:
@@ -72,8 +68,8 @@ def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Response[
     Union[
+        FailedToSyncUploadWithRunError409,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
         UnitNotFoundSerialNumberError404,
         UploadSyncUploadResponse200,
     ]
@@ -92,8 +88,8 @@ def sync_detailed(
     body: UploadSyncUploadBody,
 ) -> Response[
     Union[
+        FailedToSyncUploadWithRunError409,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
         UnitNotFoundSerialNumberError404,
         UploadSyncUploadResponse200,
     ]
@@ -110,7 +106,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]]
+        Response[Union[FailedToSyncUploadWithRunError409, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]]
     """
 
     kwargs = _get_kwargs(
@@ -130,8 +126,8 @@ def sync(
     body: UploadSyncUploadBody,
 ) -> Optional[
     Union[
+        FailedToSyncUploadWithRunError409,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
         UnitNotFoundSerialNumberError404,
         UploadSyncUploadResponse200,
     ]
@@ -148,7 +144,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]
+        Union[FailedToSyncUploadWithRunError409, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]
     """
 
     return sync_detailed(
@@ -163,8 +159,8 @@ async def asyncio_detailed(
     body: UploadSyncUploadBody,
 ) -> Response[
     Union[
+        FailedToSyncUploadWithRunError409,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
         UnitNotFoundSerialNumberError404,
         UploadSyncUploadResponse200,
     ]
@@ -181,7 +177,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]]
+        Response[Union[FailedToSyncUploadWithRunError409, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]]
     """
 
     kwargs = _get_kwargs(
@@ -199,8 +195,8 @@ async def asyncio(
     body: UploadSyncUploadBody,
 ) -> Optional[
     Union[
+        FailedToSyncUploadWithRunError409,
         InternalServerErrorError500,
-        MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409,
         UnitNotFoundSerialNumberError404,
         UploadSyncUploadResponse200,
     ]
@@ -217,7 +213,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[InternalServerErrorError500, MultipleProceduresFoundWithNameProcedureNameMultipleComponentsFoundPartNumberMustBeProvidedToIdentifyWhichComponentToUseMultipleRevisionsFoundForPartNumberPartNumberError409, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]
+        Union[FailedToSyncUploadWithRunError409, InternalServerErrorError500, UnitNotFoundSerialNumberError404, UploadSyncUploadResponse200]
     """
 
     return (
