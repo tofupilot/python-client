@@ -1,31 +1,34 @@
-from typing import Dict, List, Optional, Any
+from typing import Any, Optional
 
 import requests
-from ..constants.requests import SECONDS_BEFORE_TIMEOUT
+
+from ..constants import SECONDS_BEFORE_TIMEOUT
 
 
 def parse_error_message(response: requests.Response) -> str:
     """Extract error message from response"""
     try:
         error_data = response.json()
-        return error_data.get("error", {}).get(
-            "message", f"HTTP error occurred: {response.text}"
-        )
+        return error_data.get("error", {}).get("message", f"HTTP error occurred: {response.text}")
     except ValueError:
         return f"HTTP error occurred: {response.text}"
 
 
 def api_request(
-    logger, method: str, url: str, headers: Dict, 
-    data: Optional[Dict] = None, 
-    params: Optional[Dict] = None,
+    logger,
+    method: str,
+    url: str,
+    headers: dict,
+    data: Optional[dict] = None,
+    params: Optional[dict] = None,
     timeout: int = SECONDS_BEFORE_TIMEOUT,
-    verify = None, #: str | None = None,
-) -> Dict:
+    verify=None,  #: str | None = None,
+) -> dict:
     """Unified API request handler with consistent error handling"""
     try:
         response = requests.request(
-            method, url, 
+            method,
+            url,
             json=data,
             headers=headers,
             params=params,
@@ -52,17 +55,17 @@ def handle_response(
 
     # Ensure logger is active to process messages
     was_resumed = False
-    if hasattr(logger, 'resume'):
+    if hasattr(logger, "resume"):
         logger.resume()
         was_resumed = True
-    
+
     try:
         # Process warnings
-        warnings: Optional[List[str]] = data.get("warnings")
+        warnings: Optional[list[str]] = data.get("warnings")
         if warnings is not None:
             for warning in warnings:
                 logger.warning(warning)
-        
+
         # Process errors
         errors = data.get("errors") or data.get("error")
         if errors:
@@ -77,45 +80,42 @@ def handle_response(
                 logger.error(errors["message"])
             elif isinstance(errors, str):
                 logger.error(errors)
-        
+
         # Process success message
         message = data.get("message")
         if message is not None:
             logger.success(message)
     finally:
         # Restore logger state if needed
-        if was_resumed and hasattr(logger, 'pause'):
+        if was_resumed and hasattr(logger, "pause"):
             logger.pause()
 
     # Returning the parsed JSON to the caller
     return data
 
 
-def handle_http_error(
-    logger, http_err: requests.exceptions.HTTPError
-) -> Dict[str, Any]:
+def handle_http_error(logger, http_err: requests.exceptions.HTTPError) -> dict[str, Any]:
     """Handles HTTP errors and logs them."""
     warnings = None
-    
+
     # Ensure logger is active to process messages
     was_resumed = False
-    if hasattr(logger, 'resume'):
+    if hasattr(logger, "resume"):
         logger.resume()
         was_resumed = True
-    
+
     try:
         # Extract error details from JSON response when available
-        if (http_err.response.text.strip() and 
-            http_err.response.headers.get("Content-Type") == "application/json"):
+        if http_err.response.text.strip() and http_err.response.headers.get("Content-Type") == "application/json":
             try:
                 response_json = http_err.response.json()
-                
+
                 # Process warnings if present
                 warnings = response_json.get("warnings")
                 if warnings:
                     for warning in warnings:
                         logger.warning(warning)
-                        
+
                 # Get error message
                 error_message = parse_error_message(http_err.response)
             except ValueError:
@@ -127,7 +127,7 @@ def handle_http_error(
         logger.error(error_message)
     finally:
         # Restore logger state if needed
-        if was_resumed and hasattr(logger, 'pause'):
+        if was_resumed and hasattr(logger, "pause"):
             logger.pause()
 
     # Return structured error info
@@ -140,18 +140,18 @@ def handle_http_error(
     }
 
 
-def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]:
+def handle_network_error(logger, e: requests.RequestException) -> dict[str, Any]:
     """Handles network errors and logs them."""
     # Ensure logger is active to process messages
     was_resumed = False
-    if hasattr(logger, 'resume'):
+    if hasattr(logger, "resume"):
         logger.resume()
         was_resumed = True
-    
+
     try:
         error_message = f"Network error: {str(e)}"
         logger.error(error_message)
-        
+
         # Provide SSL-specific guidance
         if isinstance(e, requests.exceptions.SSLError) or "SSL" in str(e) or "certificate verify failed" in str(e):
             logger.warning("SSL certificate verification error detected")
@@ -159,9 +159,9 @@ def handle_network_error(logger, e: requests.RequestException) -> Dict[str, Any]
             logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
     finally:
         # Restore logger state if needed
-        if was_resumed and hasattr(logger, 'pause'):
+        if was_resumed and hasattr(logger, "pause"):
             logger.pause()
-    
+
     # Return structured error info
     return {
         "success": False,
