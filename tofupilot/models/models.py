@@ -1,6 +1,6 @@
-from typing import Optional, Union, TypedDict, List
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Optional, TypedDict, Union
 
 
 class Step(TypedDict):
@@ -27,7 +27,7 @@ class Measurement(TypedDict):
     units: Optional[str]
     lower_limit: Optional[float]
     upper_limit: Optional[float]
-    validators: Optional[List[str]]
+    validators: Optional[list[str]]
     docstring: Optional[str]
 
 
@@ -43,7 +43,7 @@ class Phase(TypedDict):
     outcome: PhaseOutcome
     start_time_millis: int
     end_time_millis: int
-    measurements: Optional[List[Measurement]]
+    measurements: Optional[list[Measurement]]
     docstring: Optional[str]
 
 
