@@ -1,8 +1,9 @@
 # TofuPilot Python Client - Branch: julien/app-3760
 
-> **⚠️ Development Branch**: This is a development branch.
+> **⚠️ Development Branch**: Preview of changes from PR #163
 > For stable version, see [main branch](https://github.com/tofupilot/python-client/tree/main)
 
+**Original PR**: [Introduces api v2 preview](https://github.com/tofupilot/tofupilot/pull/163)
 **Source Branch**: `julien/app-3760`
 
 ## Preview Installation
@@ -10,5 +11,8 @@
 pip install git+https://github.com/tofupilot/python-client.git@julien/app-3760
 ```
 
+## Changes
+No description provided.
+
 ---
-🔄 Auto-synced from branch: julien/app-3760
+🔄 Auto-synced from PR: https://github.com/tofupilot/tofupilot/pull/163
