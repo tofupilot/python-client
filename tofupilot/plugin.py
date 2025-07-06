@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import Any, Callable, Dict, Optional, List
-from threading import Lock
-from datetime import datetime, timezone, timedelta
+
 import functools
 import time
 from abc import ABC, abstractmethod
+from datetime import datetime, timedelta, timezone
+from threading import Lock
+from typing import Any, Callable
 
 import pytest
 from _pytest.config import Config
@@ -19,22 +20,22 @@ from .models import SubUnit
 # Configuration object
 class Conf:
     def __init__(self):
-        self.procedure_id: Optional[str] = None
-        self.unit_under_test: Dict[str, Any] = {}
-        self.sub_units: Optional[List[SubUnit]] = None
-        self.report_variables: Optional[Dict[str, str]] = None
-        self.attachments: Optional[List[str]] = None
+        self.procedure_id: str | None = None
+        self.unit_under_test: dict[str, Any] = {}
+        self.sub_units: list[SubUnit] | None = None
+        self.report_variables: dict[str, str] | None = None
+        self.attachments: list[str] | None = None
 
     def set(
         self,
-        procedure_id: Optional[str] = None,
-        serial_number: Optional[str] = None,
-        part_number: Optional[str] = None,
-        revision: Optional[str] = None,
-        batch_number: Optional[str] = None,
-        sub_units: Optional[List[SubUnit]] = None,
-        report_variables: Optional[Dict[str, str]] = None,
-        attachments: Optional[List[str]] = None,
+        procedure_id: str | None = None,
+        serial_number: str | None = None,
+        part_number: str | None = None,
+        revision: str | None = None,
+        batch_number: str | None = None,
+        sub_units: list[SubUnit] | None = None,
+        report_variables: dict[str, str] | None = None,
+        attachments: list[str] | None = None,
     ) -> None:
         if procedure_id is not None:
             self.procedure_id = procedure_id
@@ -80,11 +81,11 @@ class TestPilotPlugin:
     """
 
     def __init__(self) -> None:
-        self.session_start_time: Optional[float] = None  # To store session start time
+        self.session_start_time: float | None = None  # To store session start time
         self.test_steps_lock = Lock()
         self.test_steps = []
 
-    def append_step(self, step_info: Dict[str, Any]) -> None:
+    def append_step(self, step_info: dict[str, Any]) -> None:
         """
         Thread-safely appends test step to the test_step list.
         """
@@ -128,16 +129,14 @@ class TestPilotPlugin:
         duration = timedelta(seconds=duration_seconds)
 
         # Retrieve step_info from item.user_properties
-        step_info: Dict[str, Any] = {}
+        step_info: dict[str, Any] = {}
         for name, value in item.user_properties:
             if name == "step_info":
                 step_info = value
                 break  # Found the step_info, no need to continue
 
         step_info["duration"] = duration
-        step_info["started_at"] = datetime.fromtimestamp(
-            item.start_time, tz=timezone.utc
-        )
+        step_info["started_at"] = datetime.fromtimestamp(item.start_time, tz=timezone.utc)
 
         if step_info.get("name") is None:
             step_info["name"] = item.name
@@ -160,14 +159,10 @@ class TestPilotPlugin:
         session_end_time = time.time()
 
         # Calculate the total duration
-        total_duration = session_end_time - (
-            self.session_start_time or session_end_time
-        )
+        total_duration = session_end_time - (self.session_start_time or session_end_time)
 
         # Format the started_at and duration fields
-        started_at = datetime.fromtimestamp(
-            self.session_start_time or session_end_time, tz=timezone.utc
-        )
+        started_at = datetime.fromtimestamp(self.session_start_time or session_end_time, tz=timezone.utc)
         duration_td = timedelta(seconds=total_duration)
 
         # Prepare the steps
@@ -198,10 +193,10 @@ class Step(ABC):
     """
 
     def __init__(self) -> None:
-        self.name: Optional[str] = None
+        self.name: str | None = None
         self.comp: str = "EQ"
-        self.step_passed: Optional[bool] = None
-        self.request: Optional[FixtureRequest] = None  # Will be set by the fixture
+        self.step_passed: bool | None = None
+        self.request: FixtureRequest | None = None  # Will be set by the fixture
 
     @abstractmethod
     def evaluate(self) -> None:
@@ -246,10 +241,10 @@ class NumericStep(Step):
 
     def __init__(self) -> None:
         super().__init__()
-        self.result: Optional[float] = None
-        self.low_limit: Optional[float] = None
-        self.high_limit: Optional[float] = None
-        self.units: Optional[str] = None
+        self.result: float | None = None
+        self.low_limit: float | None = None
+        self.high_limit: float | None = None
+        self.units: str | None = None
         self.comp = "DEFAULT"
 
     def measure(self, result: float) -> NumericStep:
@@ -259,9 +254,7 @@ class NumericStep(Step):
         self.result = result
         return self  # Allow method chaining
 
-    def set_limits(
-        self, low: Optional[float] = None, high: Optional[float] = None
-    ) -> NumericStep:
+    def set_limits(self, low: float | None = None, high: float | None = None) -> NumericStep:
         """
         Set the lower and upper limits for a numeric measurement.
         """
@@ -280,9 +273,7 @@ class NumericStep(Step):
         """
         Evaluate the numeric measurement against the limits.
         """
-        self.step_passed = evaluate_numeric_limits(
-            self.result, self.low_limit, self.high_limit, self.comp
-        )
+        self.step_passed = evaluate_numeric_limits(self.result, self.low_limit, self.high_limit, self.comp)
 
     def __call__(self) -> None:
         """
@@ -290,9 +281,7 @@ class NumericStep(Step):
         """
         self.evaluate()
         if not self.step_passed:
-            raise AssertionError(
-                f"Measurement {self.result} {self.units} did not meet the criteria."
-            )
+            raise AssertionError(f"Measurement {self.result} {self.units} did not meet the criteria.")
         return self.step_passed
 
 
@@ -303,8 +292,8 @@ class StringStep(Step):
 
     def __init__(self) -> None:
         super().__init__()
-        self.result: Optional[str] = None
-        self.limit: Optional[str] = None
+        self.result: str | None = None
+        self.limit: str | None = None
         self.comp = "EQ"
 
     def measure(self, result: str) -> StringStep:
@@ -337,9 +326,7 @@ class StringStep(Step):
         return self.step_passed
 
 
-def step_decorator(
-    func: Callable[..., Any], step_type: str, **decorator_kwargs: Any
-) -> Callable[..., Any]:
+def step_decorator(func: Callable[..., Any], step_type: str, **decorator_kwargs: Any) -> Callable[..., Any]:
     @functools.wraps(func)
     def wrapper(*args: Any, step: Step, **kwargs: Any) -> None:
         if step_type == "numeric":
@@ -390,9 +377,9 @@ def string_step(func: Callable[..., Any], **kwargs: Any) -> Callable[..., Any]:
 
 
 def evaluate_numeric_limits(
-    measurement: Optional[float],
-    low: Optional[float],
-    high: Optional[float],
+    measurement: float | None,
+    low: float | None,
+    high: float | None,
     comp: str,
 ) -> bool:
     """
@@ -412,17 +399,9 @@ def evaluate_numeric_limits(
             comp = "LEGE"
 
     if comp == "EQ":
-        return (
-            measurement == low
-            if low is not None
-            else measurement == high if high is not None else False
-        )
+        return measurement == low if low is not None else measurement == high if high is not None else False
     if comp == "NE":
-        return (
-            measurement != low
-            if low is not None
-            else measurement != high if high is not None else False
-        )
+        return measurement != low if low is not None else measurement != high if high is not None else False
     if comp == "LT":
         return measurement < high if high is not None else False
     if comp == "LE":
@@ -443,8 +422,8 @@ def evaluate_numeric_limits(
 
 
 def evaluate_string_limit(
-    value: Optional[str],
-    limit: Optional[str],
+    value: str | None,
+    limit: str | None,
     comp: str,
 ) -> bool:
     """

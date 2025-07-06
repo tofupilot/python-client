@@ -1,0 +1,14 @@
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+.env/
+.envrc
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Script specific
+results/

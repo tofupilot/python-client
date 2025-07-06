@@ -1,0 +1,1004 @@
+{
+    "dut_id": "PCB01A69658",
+    "start_time_millis": 1737383526058,
+    "end_time_millis": 1737383540106,
+    "outcome": "PASS",
+    "outcome_details": [],
+    "marginal": false,
+    "metadata": {
+        "procedure_id": "FVT4",
+        "procedure_name":"Battery Assembly Testing",
+        "part_number": "BAT1",
+        "part_name": "Battery",
+        "revision": "3.2",
+        "batch_number": "11-24",
+        "test_name": "openhtf_test",
+        "config": {
+            "attachments_directory": null,
+            "plug_teardown_timeout_s": 0,
+            "allow_unset_measurements": false,
+            "station_id": "Station1.local",
+            "cancel_timeout_s": 2,
+            "stop_on_first_failure": false,
+            "capture_source": false
+        }
+    },
+    "phases": [
+        {
+            "measurements": {},
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383526057,
+            "end_time_millis": 1737383526058,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4395007824,
+            "name": "trigger_phase",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "firmware_version": {
+                    "name": "firmware_version",
+                    "outcome": "PASS",
+                    "validators": [
+                        "'x' matches /^1\\.4\\.3$/"
+                    ],
+                    "measured_value": "1.4.3"
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383526058,
+            "end_time_millis": 1737383527064,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4395007376,
+            "name": "pcba_firmware_version",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "led_status": {
+                    "name": "led_status",
+                    "outcome": "PASS",
+                    "validators": [
+                        "x == True"
+                    ],
+                    "measured_value": true
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383527065,
+            "end_time_millis": 1737383528072,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394993600,
+            "name": "check_led_switch_on",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "input_voltage": {
+                    "name": "input_voltage",
+                    "outcome": "PASS",
+                    "validators": [
+                        "4.5 <= x <= 5"
+                    ],
+                    "units": {
+                        "name": "volt",
+                        "code": "VLT",
+                        "suffix": "V"
+                    },
+                    "measured_value": 4.83
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383528073,
+            "end_time_millis": 1737383530077,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394993264,
+            "name": "test_voltage_input",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "output_voltage": {
+                    "name": "output_voltage",
+                    "outcome": "PASS",
+                    "validators": [
+                        "3.2 <= x <= 3.4"
+                    ],
+                    "units": {
+                        "name": "volt",
+                        "code": "VLT",
+                        "suffix": "V"
+                    },
+                    "measured_value": 3.35
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383530078,
+            "end_time_millis": 1737383532082,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394995056,
+            "name": "test_voltage_output",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "current_protection_triggered": {
+                    "name": "current_protection_triggered",
+                    "outcome": "PASS",
+                    "validators": [
+                        "x <= 1.5"
+                    ],
+                    "units": {
+                        "name": "ampere",
+                        "code": "AMP",
+                        "suffix": "A"
+                    },
+                    "measured_value": 1.352
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383532084,
+            "end_time_millis": 1737383533089,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394994944,
+            "name": "test_overcurrent_protection",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {},
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383533089,
+            "end_time_millis": 1737383533089,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394994832,
+            "name": "test_battery_switch",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "efficiency": {
+                    "name": "efficiency",
+                    "outcome": "PASS",
+                    "validators": [
+                        "85 <= x <= 98"
+                    ],
+                    "units": {
+                        "name": "percent",
+                        "code": "P1",
+                        "suffix": "%"
+                    },
+                    "measured_value": 92.0
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383533089,
+            "end_time_millis": 1737383538095,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394999536,
+            "name": "test_converter_efficiency",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "power_mode_functional": {
+                    "name": "power_mode_functional",
+                    "outcome": "PASS",
+                    "validators": [
+                        "'x' matches /^on$/"
+                    ],
+                    "measured_value": "on"
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383538096,
+            "end_time_millis": 1737383539101,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394998528,
+            "name": "test_power_saving_mode",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {},
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383539102,
+            "end_time_millis": 1737383539103,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4394999872,
+            "name": "visual_control_pcb_coating",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        },
+        {
+            "measurements": {
+                "bool": {
+                    "name": "bool",
+                    "outcome": "PASS",
+                    "validators": [
+                        "x == True"
+                    ],
+                    "measured_value": true
+                },
+                "text": {
+                    "name": "text",
+                    "outcome": "PASS",
+                    "validators": [
+                        "'x' matches /^1\\.2\\.7$/"
+                    ],
+                    "measured_value": "1.2.7"
+                },
+                "numeric": {
+                    "name": "numeric",
+                    "outcome": "PASS",
+                    "validators": [
+                        "20 <= x <= 25"
+                    ],
+                    "units": {
+                        "name": "degree Celsius",
+                        "code": "CEL",
+                        "suffix": "\u00b0C"
+                    },
+                    "measured_value": 22.88
+                },
+                "numeric2": {
+                    "name": "numeric2",
+                    "outcome": "PASS",
+                    "validators": [
+                        "95 <= x"
+                    ],
+                    "units": {
+                        "name": "percent",
+                        "code": "P1",
+                        "suffix": "%"
+                    },
+                    "measured_value": 97.3
+                }
+            },
+            "options": {
+                "name": null,
+                "timeout_s": null,
+                "run_if": null,
+                "requires_state": false,
+                "force_repeat": false,
+                "repeat_on_timeout": false,
+                "repeat_limit": null,
+                "run_under_pdb": false,
+                "phase_name_case": "KEEP",
+                "stop_on_measurement_fail": false
+            },
+            "diagnosers": [],
+            "subtest_name": null,
+            "start_time_millis": 1737383539104,
+            "end_time_millis": 1737383540106,
+            "attachments": {},
+            "diagnosis_results": [],
+            "failure_diagnosis_results": [],
+            "result": {
+                "phase_result": "CONTINUE"
+            },
+            "outcome": "PASS",
+            "marginal": false,
+            "descriptor_id": 4395000768,
+            "name": "phase_multi_measurements",
+            "codeinfo": {
+                "name": "",
+                "docstring": null,
+                "sourcecode": ""
+            }
+        }
+    ],
+    "subtests": [],
+    "branches": [],
+    "diagnosers": [],
+    "diagnoses": [],
+    "log_records": [
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383526057,
+            "message": "Executing phase trigger_phase"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383526058,
+            "message": "Thread finished: <PhaseExecutorThread: (trigger_phase)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.trigger_phase",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383526058,
+            "message": "Phase outcome of trigger_phase is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383526058,
+            "message": "Phase trigger_phase finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383526058,
+            "message": "Executing phase pcba_firmware_version"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383526058,
+            "message": "Executing phase pcba_firmware_version"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383527064,
+            "message": "Thread finished: <PhaseExecutorThread: (pcba_firmware_version)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.pcba_firmware_version",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383527064,
+            "message": "Phase outcome of pcba_firmware_version is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383527065,
+            "message": "Phase pcba_firmware_version finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383527065,
+            "message": "Executing phase check_led_switch_on"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383527065,
+            "message": "Executing phase check_led_switch_on"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383528071,
+            "message": "Thread finished: <PhaseExecutorThread: (check_led_switch_on)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.check_led_switch_on",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383528072,
+            "message": "Phase outcome of check_led_switch_on is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383528072,
+            "message": "Phase check_led_switch_on finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383528072,
+            "message": "Executing phase test_voltage_input"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383528073,
+            "message": "Executing phase test_voltage_input"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383530076,
+            "message": "Thread finished: <PhaseExecutorThread: (test_voltage_input)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.test_voltage_input",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383530077,
+            "message": "Phase outcome of test_voltage_input is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383530077,
+            "message": "Phase test_voltage_input finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383530077,
+            "message": "Executing phase test_voltage_output"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383530078,
+            "message": "Executing phase test_voltage_output"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383532082,
+            "message": "Thread finished: <PhaseExecutorThread: (test_voltage_output)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.test_voltage_output",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383532082,
+            "message": "Phase outcome of test_voltage_output is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383532083,
+            "message": "Phase test_voltage_output finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383532083,
+            "message": "Executing phase test_overcurrent_protection"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383532084,
+            "message": "Executing phase test_overcurrent_protection"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383533088,
+            "message": "Thread finished: <PhaseExecutorThread: (test_overcurrent_protection)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.test_overcurrent_protection",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383533088,
+            "message": "Phase outcome of test_overcurrent_protection is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383533089,
+            "message": "Phase test_overcurrent_protection finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383533089,
+            "message": "Executing phase test_battery_switch"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383533089,
+            "message": "Executing phase test_battery_switch"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383533089,
+            "message": "Thread finished: <PhaseExecutorThread: (test_battery_switch)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.test_battery_switch",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383533089,
+            "message": "Phase outcome of test_battery_switch is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383533089,
+            "message": "Phase test_battery_switch finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383533089,
+            "message": "Executing phase test_converter_efficiency"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383533090,
+            "message": "Executing phase test_converter_efficiency"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383538095,
+            "message": "Thread finished: <PhaseExecutorThread: (test_converter_efficiency)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.test_converter_efficiency",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383538095,
+            "message": "Phase outcome of test_converter_efficiency is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383538095,
+            "message": "Phase test_converter_efficiency finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383538096,
+            "message": "Executing phase test_power_saving_mode"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383538096,
+            "message": "Executing phase test_power_saving_mode"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383539101,
+            "message": "Thread finished: <PhaseExecutorThread: (test_power_saving_mode)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.test_power_saving_mode",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383539101,
+            "message": "Phase outcome of test_power_saving_mode is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383539102,
+            "message": "Phase test_power_saving_mode finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383539102,
+            "message": "Executing phase visual_control_pcb_coating"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383539102,
+            "message": "Executing phase visual_control_pcb_coating"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383539103,
+            "message": "Thread finished: <PhaseExecutorThread: (visual_control_pcb_coating)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.visual_control_pcb_coating",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383539103,
+            "message": "Phase outcome of visual_control_pcb_coating is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383539103,
+            "message": "Phase visual_control_pcb_coating finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_executor.py",
+            "lineno": 310,
+            "timestamp_millis": 1737383539103,
+            "message": "Executing phase phase_multi_measurements"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 307,
+            "timestamp_millis": 1737383539104,
+            "message": "Executing phase phase_multi_measurements"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor_thread",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383540105,
+            "message": "Thread finished: <PhaseExecutorThread: (phase_multi_measurements)>"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase.phase_multi_measurements",
+            "source": "test_state.py",
+            "lineno": 774,
+            "timestamp_millis": 1737383540106,
+            "message": "Phase outcome of phase_multi_measurements is PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057.phase_executor",
+            "source": "phase_executor.py",
+            "lineno": 336,
+            "timestamp_millis": 1737383540106,
+            "message": "Phase phase_multi_measurements finished with result PhaseResult.CONTINUE"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.plugs",
+            "source": "__init__.py",
+            "lineno": 334,
+            "timestamp_millis": 1737383540106,
+            "message": "Tearing down all plugs."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.test_record.5679:552e841862484ed5:ac47306acfe34b6a:1737383526057",
+            "source": "test_state.py",
+            "lineno": 473,
+            "timestamp_millis": 1737383540106,
+            "message": "Finishing test execution normally with outcome PASS."
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.util.threads",
+            "source": "threads.py",
+            "lineno": 118,
+            "timestamp_millis": 1737383540106,
+            "message": "Thread finished: TestExecutorThread"
+        },
+        {
+            "level": 10,
+            "logger_name": "openhtf.core.test_descriptor",
+            "source": "test_descriptor.py",
+            "lineno": 351,
+            "timestamp_millis": 1737383540106,
+            "message": "Test completed for openhtf_test, outputting now."
+        }
+    ],
+    "station_id": "Station1.local",
+    "code_info": {
+        "name": "",
+        "docstring": null,
+        "sourcecode": ""
+    }
+}
