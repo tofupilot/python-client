@@ -1,8 +1,10 @@
-from typing import Optional, Union, TypedDict, List, Literal
+from typing import Optional, Union, TypedDict, List, Literal, Dict
 from datetime import datetime, timedelta
 from enum import Enum
 
 RunOutcome = Literal["RUNNING", "PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
+LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+Json = Union[Dict[str, object], List]
 
 class StepRequired(TypedDict):
     name: str
@@ -28,8 +30,8 @@ class MeasurementRequired(TypedDict):
     outcome: MeasurementOutcome
 
 class Measurement(MeasurementRequired, total=False):
-    measured_value: Union[float, str]
-    units: str
+    measured_value: Union[float, str, bool, List[List[float]], Json]
+    units: Union[str, List[str]]
     lower_limit: float
     upper_limit: float
     validators: Optional[List[str]]
@@ -46,19 +48,18 @@ class PhaseOutcome(str, Enum):
 class PhaseRequired(TypedDict):
     name: str
     outcome: PhaseOutcome
-    start_time_millis: int
-    end_time_millis: int
 
 class Phase(PhaseRequired, total=False):
     measurements: Optional[List[Measurement]]
     docstring: Optional[str]
-
-class LogLevel(str, Enum):
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
+    
+    # These are effectively required:
+    start_time: datetime
+    end_time: datetime
+    # These are deprecated, and should be replaced by they're non _millis equivalent
+    start_time_millis: int # TODO: technically only these are allowed and required (should be the opposite)
+    end_time_millis: int # TODO: technically only these are allowed and required (should be the opposite)
+    # At least one set is required
 
 
 class Log(TypedDict):

@@ -1,0 +1,64 @@
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files
+.idea/
+.vscode/
+tasks.json
+*.sublime-workspace
+*.sublime-project
+
+# Ignore pip environment files
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+
+# Ignore test result files
+*.log
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore temporary files
+*.swp
+*.bak
+*.tmp
+
+# Ignore pytest cache
+.pytest_cache/
+
+# Ignore mypy type checker cache
+.mypy_cache/
+
+# Ignore pyright type checker cache
+.pyright/
+
+# Ignore specific file patterns
+*.pot
+*.mo
+
+# Ignore helpers file
+publish.sh
+
+test_report.json

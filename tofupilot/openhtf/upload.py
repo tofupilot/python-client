@@ -1,13 +1,12 @@
-import datetime
-import json
 import os
+import json
+import datetime
 import tempfile
 from typing import Optional
 
-import requests
-
 from openhtf.core.test_record import TestRecord
 from openhtf.output.callbacks import json_factory
+import requests
 
 from ..client import TofuPilotClient
 from ..constants import (
@@ -77,8 +76,10 @@ class upload:  # pylint: disable=invalid-name
                 (This id is present in the ApiCall table of the database)
         """
         # Resume logger to ensure it's active during attachment processing
+        was_logger_resumed = False
         if hasattr(self._logger, "resume"):
             self._logger.resume()
+            was_logger_resumed = True
 
         try:
             # Extract relevant details from the test record
@@ -86,7 +87,9 @@ class upload:  # pylint: disable=invalid-name
             test_name = test_record.metadata.get("test_name")
 
             # Convert milliseconds to a datetime object
-            start_time = datetime.datetime.fromtimestamp(test_record.start_time_millis / 1000.0)
+            start_time = datetime.datetime.fromtimestamp(
+                test_record.start_time_millis / 1000.0
+            )
 
             # Format the timestamp as YYYY-MM-DD_HH_MM_SS_SSS
             start_time_formatted = start_time.strftime("%Y-%m-%d_%H-%M-%S-%f")[:-3]
@@ -94,7 +97,9 @@ class upload:  # pylint: disable=invalid-name
             temp_dir = tempfile.gettempdir()
 
             # Craft system-agnostic temporary filename
-            filename = os.path.join(temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json")
+            filename = os.path.join(
+                temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json"
+            )
 
             # Use the existing OutputToJSON callback to write to the custom file
             output_callback = json_factory.OutputToJSON(
@@ -111,7 +116,7 @@ class upload:  # pylint: disable=invalid-name
 
             try:
                 # Call create_run_from_report with the generated file path
-                result = self.client.upload_and_create_from_openhtf_report(filename)
+                result = self.client._upload_and_create_from_openhtf_report(filename)
 
                 # Extract run_id from response - it could be a string (id) or a dict (result with id field)
                 run_id = None
@@ -134,9 +139,14 @@ class upload:  # pylint: disable=invalid-name
             # Process attachments
             number_of_attachments = 0
             for phase_idx, phase in enumerate(test_record.phases):
+                # Count attachments silently
+                attachment_count = len(phase.attachments)
+
                 # Keep only max number of attachments
                 if number_of_attachments >= self._max_attachments:
-                    self._logger.warning(f"Attachment limit ({self._max_attachments}) reached")
+                    self._logger.warning(
+                        f"Attachment limit ({self._max_attachments}) reached"
+                    )
                     break
 
                 # Process each attachment in the phase
@@ -152,7 +162,7 @@ class upload:  # pylint: disable=invalid-name
 
                     # Use LoggerStateManager to temporarily activate the logger
                     with LoggerStateManager(self._logger):
-                        self._logger.info("Uploading attachment...")
+                        self._logger.info(f"Uploading attachment...")
 
                     # Upload initialization
                     initialize_url = f"{self._url}/uploads/initialize"
@@ -177,13 +187,21 @@ class upload:  # pylint: disable=invalid-name
                             attachment_data = attachment.data
 
                             # Some OpenHTF implementations have file path in the attachment object
-                            if hasattr(attachment, "file_path") and getattr(attachment, "file_path"):
+                            if hasattr(attachment, "file_path") and getattr(
+                                attachment, "file_path"
+                            ):
                                 try:
-                                    with open(getattr(attachment, "file_path"), "rb") as f:
+                                    with open(
+                                        getattr(attachment, "file_path"), "rb"
+                                    ) as f:
                                         attachment_data = f.read()
-                                        self._logger.info(f"Read file data from {attachment.file_path}")
+                                        self._logger.info(
+                                            f"Read file data from {attachment.file_path}"
+                                        )
                                 except Exception as e:
-                                    self._logger.warning(f"Could not read from file_path: {str(e)}")
+                                    self._logger.warning(
+                                        f"Could not read from file_path: {str(e)}"
+                                    )
                                     # Continue with attachment.data
 
                             requests.put(
@@ -206,13 +224,19 @@ class upload:  # pylint: disable=invalid-name
 
                         # Use LoggerStateManager to temporarily activate the logger
                         with LoggerStateManager(self._logger):
-                            self._logger.success(f"Uploaded attachment: {attachment_name}")
+                            self._logger.success(
+                                f"Uploaded attachment: {attachment_name}"
+                            )
                     except Exception as e:
                         # Use LoggerStateManager to temporarily activate the logger
                         with LoggerStateManager(self._logger):
-                            self._logger.error(f"Failed to process attachment: {str(e)}")
+                            self._logger.error(
+                                f"Failed to process attachment: {str(e)}"
+                            )
                         continue
             return original_upload_id
         except Exception as e:
-            self._logger.error(f"Otherwise uncaught exception: {str(e)}")
+            self._logger.error(
+                f"Otherwise uncaught exception: {str(e)}"
+            )
             return ""

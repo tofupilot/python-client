@@ -1,13 +1,12 @@
 import json
 import mimetypes
+from logging import Logger
 import os
 import sys
-from logging import Logger
-from typing import Optional, Union
-
+from typing import List, Dict, Optional, Union
 import requests
 
-from ..constants import SECONDS_BEFORE_TIMEOUT
+from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from .logger import LoggerStateManager
 
 
@@ -18,7 +17,7 @@ def log_and_raise(logger: Logger, error_message: str):
 
 def validate_files(
     logger: Logger,
-    attachments: list[str],
+    attachments: List[str],
     max_attachments: int,
     max_file_size: int,
 ):
@@ -32,7 +31,9 @@ def validate_files(
     for file_path in attachments:
         # Checking if the file exists before attempting to get its size
         if not os.path.isfile(file_path):
-            raise FileNotFoundError(f"The file at {file_path} does not exist or is not accessible")
+            raise FileNotFoundError(
+                f"The file at {file_path} does not exist or is not accessible"
+            )
 
         file_size = os.path.getsize(file_path)
         if file_size > max_file_size:
@@ -49,13 +50,13 @@ def upload_file(
     verify: Optional[str] = None,
 ) -> str:
     """Initializes an upload and stores file in it
-
+    
     Args:
         headers (dict): Request headers including authorization
         url (str): Base API URL
         file_path (str): Path to the file to upload
         verify (Optional[str]): Path to a CA bundle file to verify the server certificate
-
+    
     Returns:
         str: The ID of the created upload
     """
@@ -74,11 +75,13 @@ def upload_file(
 
     # Check for API key errors before raising for status
     if response.status_code == 401:
+        error_data = response.json()
+        error_message = error_data.get("error", {}).get("message", "Authentication failed")
         # Create a proper HTTPError with the response
         http_error = requests.exceptions.HTTPError(response=response)
         http_error.response = response
         raise http_error
-
+    
     response.raise_for_status()
     response_json = response.json()
     upload_url = response_json.get("uploadUrl")
@@ -103,11 +106,11 @@ def notify_server(
     url: str,
     upload_id: str,
     run_id: str,
-    logger=None,
-    verify=None,  # str | None
+    logger = None,
+    verify = None, # str | None
 ) -> bool:
     """Tells TP server to sync upload with newly created run
-
+    
     Args:
         headers (dict): Request headers including authorization
         url (str): Base API URL
@@ -115,7 +118,7 @@ def notify_server(
         run_id (str): ID of the run to link to
         logger (Optional[Logger]): The logger to use
         verify (Optional[str]): Path to a CA bundle file to verify the server certificate
-
+        
     Returns:
         bool: True if successful
     """
@@ -149,7 +152,7 @@ def upload_attachment_data(
     data,
     mimetype: str,
     run_id: str,
-    verify,  #: str | None,
+    verify, #: str | None,
 ) -> bool:
     """
     Uploads binary data as an attachment and links it to a run
@@ -198,12 +201,11 @@ def upload_attachment_data(
             logger.error(f"Upload failed: {name} - {str(e)}")
         return False
 
-
 def upload_attachments(
     logger: Logger,
     headers: dict,
     url: str,
-    paths: list[str],
+    paths: List[str],
     run_id: str,
     verify: Optional[str] = None,
 ):
@@ -211,7 +213,7 @@ def upload_attachments(
 
     Uses LoggerStateManager to ensure logging is properly handled during the upload process,
     similar to the OpenHTF implementation.s
-
+    
     Args:
         logger (Logger): Logger instance
         headers (dict): Request headers including authorization
@@ -239,10 +241,14 @@ def upload_attachments(
             with open(file_path, "rb") as file:
                 name = os.path.basename(file_path)
                 data = file.read()
-                mimetype, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
+                mimetype, _ = (
+                    mimetypes.guess_type(file_path) or "application/octet-stream"
+                )
 
                 # Use shared upload function
-                upload_attachment_data(logger, headers, url, name, data, mimetype, run_id, verify)
+                upload_attachment_data(
+                    logger, headers, url, name, data, mimetype, run_id, verify
+                )
         except Exception as e:
             # Use LoggerStateManager to ensure error is visible
             with LoggerStateManager(logger):
@@ -254,12 +260,12 @@ def process_openhtf_attachments(
     logger: Logger,
     headers: dict,
     url: str,
-    test_record: Union[dict, object],
+    test_record: Union[Dict, object],
     run_id: str,
     max_attachments: int,
     max_file_size: int,
     needs_base64_decode: bool = True,
-    verify=None,  #: str | None = None,
+    verify = None, #: str | None = None,
 ) -> None:
     """
     Process attachments from an OpenHTF test record and upload them.
@@ -321,7 +327,9 @@ def process_openhtf_attachments(
                 continue
 
             with LoggerStateManager(logger):
-                logger.info(f"Processing {len(phase_attachments)} attachments in {phase_name}")
+                logger.info(
+                    f"Processing {len(phase_attachments)} attachments in {phase_name}"
+                )
 
             # Process each attachment in the phase
             for name, attachment in phase_attachments.items():
@@ -334,9 +342,13 @@ def process_openhtf_attachments(
                     with LoggerStateManager(logger):
                         logger.debug(f"Attachment: {name}, Type: JSON format")
                 else:
-                    attrs = [attr for attr in dir(attachment) if not attr.startswith("_")]
+                    attrs = [
+                        attr for attr in dir(attachment) if not attr.startswith("_")
+                    ]
                     with LoggerStateManager(logger):
-                        logger.debug(f"Attachment: {name}, Type: Object, Attributes: {attrs}")
+                        logger.debug(
+                            f"Attachment: {name}, Type: Object, Attributes: {attrs}"
+                        )
 
                 # Get attachment data and size based on record type
                 if isinstance(test_record, dict):
@@ -356,10 +368,14 @@ def process_openhtf_attachments(
                             data = attachment_data
 
                         attachment_size = len(data)
-                        mimetype = attachment.get("mimetype", "application/octet-stream")
+                        mimetype = attachment.get(
+                            "mimetype", "application/octet-stream"
+                        )
                     except Exception as e:
                         with LoggerStateManager(logger):
-                            logger.error(f"Failed to process attachment data: {name} - {str(e)}")
+                            logger.error(
+                                f"Failed to process attachment data: {name} - {str(e)}"
+                            )
                         continue
                 else:
                     # Object format (from callback)
@@ -375,7 +391,9 @@ def process_openhtf_attachments(
                     data = None
 
                     # Option 1: Check for direct file_path attribute
-                    if hasattr(attachment, "file_path") and getattr(attachment, "file_path"):
+                    if hasattr(attachment, "file_path") and getattr(
+                        attachment, "file_path"
+                    ):
                         try:
                             file_path = getattr(attachment, "file_path")
                             with LoggerStateManager(logger):
@@ -387,7 +405,9 @@ def process_openhtf_attachments(
                                 logger.error(f"Failed to read from file_path: {str(e)}")
 
                     # Option 2: Check for filename attribute (used in some OpenHTF versions)
-                    elif hasattr(attachment, "filename") and getattr(attachment, "filename"):
+                    elif hasattr(attachment, "filename") and getattr(
+                        attachment, "filename"
+                    ):
                         try:
                             file_path = getattr(attachment, "filename")
                             with LoggerStateManager(logger):
@@ -412,7 +432,9 @@ def process_openhtf_attachments(
 
                     # Get size from attribute or calculate it
                     attachment_size = getattr(attachment, "size", len(data))
-                    mimetype = getattr(attachment, "mimetype", "application/octet-stream")
+                    mimetype = getattr(
+                        attachment, "mimetype", "application/octet-stream"
+                    )
 
                 # Skip oversized attachments
                 if attachment_size > max_file_size:
@@ -425,11 +447,23 @@ def process_openhtf_attachments(
 
                 # Use unified attachment upload function - logging is handled inside this function
                 try:
-                    upload_attachment_data(logger, headers, url, name, data, mimetype, run_id, verify)
+                    success = upload_attachment_data(
+                        logger,
+                        headers,
+                        url,
+                        name,
+                        data,
+                        mimetype,
+                        run_id,
+                        verify
+                    )
+
                     # Don't log success/failure here as it's already logged in upload_attachment_data
                 except Exception as e:
                     with LoggerStateManager(logger):
-                        logger.error(f"Exception during attachment upload: {name} - {str(e)}")
+                        logger.error(
+                            f"Exception during attachment upload: {name} - {str(e)}"
+                        )
                 # Continue with other attachments regardless of success/failure
     finally:
         # We intentionally don't pause the logger here, as in the OpenHTF implementation

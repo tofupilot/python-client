@@ -1,11 +1,12 @@
 from .models import (
-    Log,
-    MeasurementOutcome,
-    Phase,
-    PhaseOutcome,
-    Step,
-    SubUnit,
     UnitUnderTest,
+    SubUnit,
+    Step,
+    Phase,
+    MeasurementOutcome,
+    PhaseOutcome,
+    Log,
+    RunOutcome,
 )
 
 __all__ = [
@@ -16,4 +17,5 @@ __all__ = [
     "MeasurementOutcome",
     "PhaseOutcome",
     "Log",
+    "RunOutcome",
 ]

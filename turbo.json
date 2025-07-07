@@ -1,0 +1,9 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build", "web#build"],
+      "outputs": ["dist"]
+    }
+  }
+}

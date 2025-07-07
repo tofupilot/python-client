@@ -1,0 +1,25 @@
+# Include documentation and legal files
+include README.md
+include CHANGELOG.md
+include LICENSE.md
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+
+# Include setup and requirements files
+include setup.py
+include requirements.txt
+
+# Include all Python source files in the src directory
+recursive-include src *.py
+
+# Include test files
+recursive-include tests *.py
+
+# Exclude build artifacts and metadata
+prune build
+prune dist
+prune *.egg-info
+
+# Exclude IDE/editor-specific files
+prune .vscode
+prune .idea

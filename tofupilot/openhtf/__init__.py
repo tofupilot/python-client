@@ -5,7 +5,5 @@ It provides two main classes:
 2. TofuPilot(): Stream real-time test execution data for monitoring
 """
 
-from .tofupilot import TofuPilot
 from .upload import upload
-
-__all__ = ["TofuPilot", "upload"]
+from .tofupilot import TofuPilot

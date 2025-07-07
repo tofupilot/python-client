@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, datetime, timezone
+from typing import Optional
 
 
 def timedelta_to_iso(td: timedelta) -> str:
@@ -47,3 +48,12 @@ def datetime_to_iso(dt: datetime):
     if iso_str.endswith("+00:00"):
         iso_str = iso_str[:-6] + "Z"
     return iso_str
+
+def datetime_to_iso_optional(dt: Optional[datetime]) -> Optional[str]:
+    return datetime_to_iso(dt) if dt is not None else None
+
+def iso_to_datetime(s: str) -> datetime:
+    return datetime.fromisoformat(s)
+
+def iso_to_datetime_optional(s: Optional[str]) -> Optional[datetime]:
+    return iso_to_datetime(s) if s is not None else None

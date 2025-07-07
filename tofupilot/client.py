@@ -1,263 +1,460 @@
-"""
-Enhanced TofuPilot API client combining auto-generated OpenAPI client with production features.
+"""Module for TofuPilot's Python API wrapper."""
 
-This module provides the main TofuPilotClient class that extends the auto-generated client
-with additional functionality from the production client including file attachments,
-logging, version checking, and enhanced error handling.
-"""
-
-import logging
+from typing import Dict, List, Optional, Union, cast
 import os
+import sys
+import logging
 from datetime import datetime, timedelta
 from importlib.metadata import version
-from typing import Optional
+
+import json
+import requests
+import certifi
 
 from .constants import (
-    CLIENT_MAX_ATTACHMENTS,
     ENDPOINT,
     FILE_MAX_SIZE,
+    CLIENT_MAX_ATTACHMENTS,
+    SECONDS_BEFORE_TIMEOUT,
 )
-from .deprecated import LegacyMethods
-from .openapi_client import TofuPilotClient as BaseClient
+from .models import SubUnit, UnitUnderTest, Step, Phase, Log, RunOutcome
+from .responses import (
+    CreateRunResponse,
+    GetRunsBySerialNumberResponse,
+    _OpenHTFImportResult,
+    _StreamingResult,
+    _InitializeUploadResponse,
+    ErrorResponse,
+)
 from .utils import (
     check_latest_version,
-    datetime_to_iso,
-    print_tofu_banner,
-    process_openhtf_attachments,
+    validate_files,
+    upload_file,
+    upload_attachments,
     setup_logger,
     timedelta_to_iso,
-    upload_attachments,
-    validate_files,
+    datetime_to_iso,
+    datetime_to_iso_optional,
+    handle_response,
+    handle_http_error,
+    handle_network_error,
+    api_request,
+    process_openhtf_attachments,
 )
 
 
-class TofuPilotClient(BaseClient, LegacyMethods):
-    """
-    Enhanced TofuPilot API client.
-
-    Combines the auto-generated OpenAPI client with production features including:
-    - File attachment handling
-    - Enhanced logging and error handling
-    - Version checking
-    - Legacy API compatibility
-    - OpenHTF integration
-
+class TofuPilotClient:
+    """Wrapper for TofuPilot's API that provides additional support for handling attachments.
+    
     Args:
-        api_key (str): API key for authentication with TofuPilot's API.
-        base_url (str, optional): Base URL for TofuPilot's API. Defaults to production endpoint.
-        verify (str, optional): Path to a CA bundle file for SSL verification.
-
-    Example:
-        client = TofuPilotClient(api_key="tp_1234567890abcdef")
-
-        # New API (recommended)
-        response = client.runs.create(body)
-
-        # Legacy API (deprecated but still supported)
-        response = client.run_create(serial_number="DEMO-001", part_number="PCB-123", ...)
+        api_key (Optional[str]): API key for authentication with TofuPilot's API.
+            If not provided, the TOFUPILOT_API_KEY environment variable will be used.
+        url (Optional[str]): Base URL for TofuPilot's API.
+            If not provided, the TOFUPILOT_URL environment variable or the default endpoint will be used.
+        verify (Optional[str]): Path to a CA bundle file to verify TofuPilot's server certificate.
+            Useful for connecting to instances with custom/self-signed certificates.
     """
 
-    def __init__(self, api_key: str, base_url: Optional[str] = None, verify: Optional[str] = None, **kwargs):
-        if base_url is None:
-            base_url = os.environ.get("TOFUPILOT_URL") or ENDPOINT
-
-        base_url = base_url.rstrip("/") + "/api"
-
-        # Initialize the auto-generated client
-        super().__init__(api_key=api_key, base_url=base_url, **kwargs)
-
-        # Enhanced client features from production
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        url: Optional[str] = None,
+        verify: Optional[str] = None,
+    ):
         self._current_version = version("tofupilot")
-        print_tofu_banner(self._current_version)
+        print_version_banner(self._current_version)
         self._logger = setup_logger(logging.INFO)
 
-        # SSL and connection settings
+        # Configure SSL certificate validation
+        self._setup_ssl_certificates()
+
+        self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
+        if self._api_key is None:
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."
+            self._logger.error(error)
+            sys.exit(1)
+
+        self._url = f"{url or os.environ.get('TOFUPILOT_URL') or ENDPOINT}/api/v1"
+        self._headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self._api_key}",
+        }
         self._verify = verify
         self._max_attachments = CLIENT_MAX_ATTACHMENTS
         self._max_file_size = FILE_MAX_SIZE
+        check_latest_version(self._logger, self._current_version, "tofupilot")
 
-        # Store the full URL including /api/v1 for compatibility with tests
-        self._base_url = base_url
+    def _setup_ssl_certificates(self):
+        """Configure SSL certificate validation using certifi if needed."""
+        # Check if SSL_CERT_FILE is already set to a valid path
+        cert_file = os.environ.get("SSL_CERT_FILE")
+        if not cert_file or not os.path.isfile(cert_file):
+            # Use certifi's certificate bundle
+            certifi_path = certifi.where()
+            if os.path.isfile(certifi_path):
+                os.environ["SSL_CERT_FILE"] = certifi_path
+                self._logger.debug(f"SSL: Using certifi path {certifi_path}")
 
-        # Store original URL without /api/v1 for file uploads
-        self._upload_base_url = base_url.replace("/api/v1", "")
+    def _log_request(self, method: str, endpoint: str, payload: Optional[dict] = None):
+        """Logs the details of the HTTP request."""
+        self._logger.debug(
+            "Request: %s %s%s payload=%s", method, self._url, endpoint, payload
+        )
 
-        # Version checking
-        check_latest_version(self._current_version, "tofupilot")
-
-    def create_run_with_attachments(
+    def create_run(  # pylint: disable=too-many-arguments,too-many-locals
         self,
-        unit_under_test: dict[str, str],
+        unit_under_test: UnitUnderTest,
         run_passed: bool,
         procedure_id: Optional[str] = None,
         procedure_name: Optional[str] = None,
         procedure_version: Optional[str] = None,
-        steps: Optional[list[dict]] = None,
-        phases: Optional[list[dict]] = None,
+        steps: Optional[List[Step]] = None,
+        phases: Optional[List[Phase]] = None,
         started_at: Optional[datetime] = None,
         duration: Optional[timedelta] = None,
-        sub_units: Optional[list[dict]] = None,
-        report_variables: Optional[dict[str, str]] = None,
-        attachments: Optional[list[str]] = None,
-        logs: Optional[list[dict]] = None,
-    ) -> dict:
+        sub_units: Optional[List[SubUnit]] = None,
+        attachments: Optional[List[str]] = None,
+        logs: Optional[List[Log]] = None,
+    ) -> Union[CreateRunResponse, ErrorResponse]:
         """
-        Create a run with enhanced attachment support.
-
-        This method combines the auto-generated runs.create() with production-level
-        attachment handling, validation, and logging.
+        Creates a test run with the specified parameters and uploads it to the TofuPilot platform.
 
         Args:
-            unit_under_test: The unit being tested with serial_number and part_number
-            run_passed: Boolean indicating whether the test run was successful
-            procedure_id: The unique identifier of the procedure
-            procedure_name: The name of the procedure
-            procedure_version: The version of the procedure
-            steps: List of steps (deprecated, use phases instead)
-            phases: List of phases with measurements
-            started_at: The datetime when the test started
-            duration: The duration of the test run
-            sub_units: List of sub-units included in the test run
-            report_variables: Dictionary of report variables
-            attachments: List of file paths for attachments to include
-            logs: List of log entries
+            unit_under_test (UnitUnderTest):
+                The unit being tested.
+            run_passed (bool):
+                Boolean indicating whether the test run was successful.
+            procedure_id (str, optional):
+                The unique identifier of the procedure to which the test run belongs. Required if several procedures exists with the same procedure_name.
+            procedure_name (str, optional):
+                The name of the procedure to which the test run belongs. A new procedure will be created if none was found with this name.
+            procedure_version (str, optional):
+                The version of the procedure to which the test run belongs.
+            started_at (datetime, optional):
+                The datetime at which the test started. Default is None.
+            duration (timedelta, optional):
+                The duration of the test run. Default is None.
+            steps (Optional[List[Step]], optional):
+                [A list of steps included in the test run](https://tofupilot.com/docs/steps). DEPRECATED: Use phases and measurements instead. Default is None.
+            phases (Optional[List[Phase]], optional):
+                [A list of phases included in the test run](https://tofupilot.com/docs/phases). Default is None.
+            sub_units (Optional[List[SubUnit]], optional):
+                [A list of sub-units included in the test run](https://tofupilot.com/docs/sub-units). Default is None.
+            attachments (Optional[List[str]], optional):
+                [A list of file paths for attachments to include with the test run](https://tofupilot.com/docs/attachments). Default is None.
+            logs (Optional[List[Log]], optional):
+                [A list of log entries for the test run](https://tofupilot.com/docs/logs). Default is None.
 
         Returns:
-            dict: Response from the API including run ID and URL
+            CreateRunResponse:
+                Dict containing run id if successful.
+
+        References:
+            https://www.tofupilot.com/docs/api#create-a-run
         """
         print("")
-        self._logger.info("Creating run with attachments...")
+        self._logger.info("Creating run...")
 
-        # Validate attachments if provided
         if attachments is not None:
-            validate_files(self._logger, attachments, self._max_attachments, self._max_file_size)
+            validate_files(
+                self._logger, attachments, self._max_attachments, self._max_file_size
+            )
 
-        # Build the request body using auto-generated models
-        from .openapi_client.models.run_create_body import RunCreateBody
-
-        body_dict = {
+        payload = {
             "unit_under_test": unit_under_test,
             "run_passed": run_passed,
+            "procedure_id": procedure_id,
+            "procedure_name": procedure_name,
+            "procedure_version": procedure_version,
             "client": "Python",
             "client_version": self._current_version,
         }
 
-        # Add optional fields
-        if procedure_id is not None:
-            body_dict["procedure_id"] = procedure_id
-        if procedure_name is not None:
-            body_dict["procedure_name"] = procedure_name
-        if procedure_version is not None:
-            body_dict["procedure_version"] = procedure_version
         if steps is not None:
-            # Process steps with datetime/duration conversion
-            processed_steps = []
             for step in steps:
-                step_copy = step.copy()
-                if "duration" in step_copy and isinstance(step_copy["duration"], timedelta):
-                    step_copy["duration"] = timedelta_to_iso(step_copy["duration"])
-                if "started_at" in step_copy and isinstance(step_copy["started_at"], datetime):
-                    step_copy["started_at"] = datetime_to_iso(step_copy["started_at"])
-                processed_steps.append(step_copy)
-            body_dict["steps"] = processed_steps
-        if phases is not None:
-            body_dict["phases"] = phases
-        if started_at is not None:
-            body_dict["started_at"] = datetime_to_iso(started_at)
-        if duration is not None:
-            body_dict["duration"] = timedelta_to_iso(duration)
-        if sub_units is not None:
-            body_dict["sub_units"] = sub_units
-        if report_variables is not None:
-            body_dict["report_variables"] = report_variables
-        if logs is not None:
-            body_dict["logs"] = logs
+                if step["duration"] is not None:
+                    step["duration"] = timedelta_to_iso(step["duration"])
+                if step["started_at"] is not None:
+                    step["started_at"] = datetime_to_iso(step["started_at"])
+            payload["steps"] = steps
 
-        # Create the run using auto-generated client
-        body = RunCreateBody.from_dict(body_dict)
-        result = self.runs.create(body=body)
+        if phases is not None:
+            payload["phases"] = phases
+
+        if logs is not None:
+            payload["logs"] = logs
+
+        if started_at is not None:
+            payload["started_at"] = datetime_to_iso(started_at)
+
+        if duration is not None:
+            payload["duration"] = timedelta_to_iso(duration)
+
+        if sub_units is not None:
+            payload["sub_units"] = sub_units
+
+        self._log_request("POST", "/runs", payload)
+        result = cast(
+            Union[CreateRunResponse, ErrorResponse],
+            api_request(
+                self._logger,
+                "POST",
+                f"{self._url}/runs",
+                self._headers,
+                data=payload,
+                verify=self._verify,
+            )
+        )
+        result["success"] = result.get("success", True) # pyright: ignore[reportGeneralTypeIssues]
 
         # Upload attachments if run was created successfully
-        if hasattr(result, "id") and result.id and attachments:
+        run_id = result.get("id")
+        if run_id and attachments:
             # Ensure logger is active for attachment uploads
-            if hasattr(self._logger, "resume"):
+            if hasattr(self._logger, 'resume'):
                 self._logger.resume()
-
+                
             upload_attachments(
-                self._logger,
-                {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
-                self._upload_base_url + "/api/v1",
-                attachments,
-                result.id,
-                self._verify,
+                self._logger, self._headers, self._url, attachments, run_id, self._verify,
             )
-
         return result
 
     def create_run_from_openhtf_report(self, file_path: str) -> str:
         """
-        Create a run from an OpenHTF JSON report with enhanced error handling.
+        Creates a run on TofuPilot from an OpenHTF JSON report.
 
         Args:
-            file_path: Path to the OpenHTF JSON report file
+            file_path (str):
+                The path to the log file to be imported.
 
         Returns:
-            str: The ID of the newly created run
+            str:
+                The id of the newly created run.
+
+        References:
+            https://www.tofupilot.com/docs/api#create-a-run-from-a-file
         """
-        import json
+        # Upload report and create run from file_path
+        upload_res = self._upload_and_create_from_openhtf_report(file_path)
 
-        from .openapi_client.models.run_create_from_file_body import RunCreateFromFileBody
+        if not upload_res.get("success", False):
+            self._logger.error("OpenHTF import failed")
+            return ""
+        
+        run_id = upload_res["run_id"]
 
-        print("")
-        self._logger.info("Importing run from OpenHTF report...")
-
-        # Validate the file
-        validate_files(self._logger, [file_path], self._max_attachments, self._max_file_size)
-
+        # Only continue with attachment upload if run_id is valid
+        test_record = None
         try:
-            # Read and upload the file
-            with open(file_path, "rb") as f:
-                file_content = f.read()
-
-            body = RunCreateFromFileBody(file=file_content, importer="OPENHTF")
-            result = self.imports.create_from_file(body=body)
-
-            if not hasattr(result, "id") or not result.id:
-                self._logger.error("OpenHTF import failed")
-                return ""
-
-            run_id = result.id
-
-            # Process attachments from the OpenHTF report
-            try:
-                with open(file_path, encoding="utf-8") as file:
-                    test_record = json.load(file)
-
-                if "phases" in test_record:
-                    print("")
-                    self._logger.info("Processing attachments from OpenHTF test record")
-
-                    process_openhtf_attachments(
-                        self._logger,
-                        {"Authorization": f"Bearer {self.token}", "Content-Type": "application/json"},
-                        self._upload_base_url + "/api/v1",
-                        test_record,
-                        run_id,
-                        self._max_attachments,
-                        self._max_file_size,
-                        needs_base64_decode=True,
-                        verify=self._verify,
-                    )
-
-            except Exception as e:
-                self._logger.warning(f"Could not process attachments: {e}")
-
+            with open(file_path, "r", encoding="utf-8") as file:
+                test_record = json.load(file)
+        except FileNotFoundError:
+            self._logger.error(f"File not found: {file_path}")
+            return run_id
+        except json.JSONDecodeError:
+            self._logger.error(f"Invalid JSON: {file_path}")
+            return run_id
+        except PermissionError:
+            self._logger.error(f"Permission denied: {file_path}")
+            return run_id
+        except Exception as e:
+            self._logger.error(f"Error: {e}")
             return run_id
 
-        except Exception as e:
-            self._logger.error(f"Failed to import OpenHTF report: {e}")
-            return ""
+        # Now safely proceed with attachment upload
+        if run_id and test_record and "phases" in test_record:
+            # Add a visual separator after the run success message
+            print("")
+            self._logger.info("Processing attachments from OpenHTF test record")
+
+            # Use the centralized function to process all attachments
+            process_openhtf_attachments(
+                self._logger,
+                self._headers,
+                self._url,
+                test_record,
+                run_id,
+                self._max_attachments,
+                self._max_file_size,
+                needs_base64_decode=True,  # JSON attachments need base64 decoding
+                verify=self._verify,
+            )
+        else:
+            if not test_record:
+                self._logger.error("Test record load failed")
+            elif "phases" not in test_record:
+                self._logger.error("No phases in test record")
+
+        return run_id
+
+    def _upload_and_create_from_openhtf_report(
+        self,
+        file_path: str,
+    ) -> Union[_OpenHTFImportResult, ErrorResponse]:
+        """
+        Takes a path to an OpenHTF JSON file report, uploads it and creates a run from it.
+
+        Returns:
+            Dict
+        """
+
+        print("")
+        self._logger.info("Importing run...")
+
+        # Validate report
+        validate_files(
+            self._logger, [file_path], self._max_attachments, self._max_file_size
+        )
+
+        # Upload report
+        try:
+            # First, check if we have a valid API key directly (avoids cryptic errors)
+            if not self._api_key or len(self._api_key) < 10:
+                self._logger.error("API key error: Invalid API key format.")
+                return {"success": False, "error": {"message": "Invalid API key format."}}
+            
+            upload_id = upload_file(self._headers, self._url, file_path, self._verify)
+        except requests.exceptions.HTTPError as http_err:
+            error_info = handle_http_error(self._logger, http_err)
+            # Error already logged by handle_http_error
+            return error_info
+        except requests.RequestException as e:
+            error_info = handle_network_error(self._logger, e)
+            # Error already logged by handle_network_error
+            return error_info
+
+        payload = {
+            "upload_id": upload_id,
+            "importer": "OPENHTF",
+            "client": "Python",
+            "client_version": self._current_version,
+        }
+
+        self._log_request("POST", "/import", payload)
+
+        # Create run from file using unified API request handler
+        result = api_request(
+            self._logger,
+            "POST",
+            f"{self._url}/import",
+            self._headers,
+            data=payload,
+            verify=self._verify,
+        )
+
+         # Return only the ID if successful, otherwise return the full result
+        if result.get("success", True) is not False:
+            run_id = result.get("id")
+            run_url = result.get("url")
+
+            # Explicitly log success with URL if available
+            if run_url:
+                self._logger.success(f"Run imported successfully: {run_url}")
+            elif run_id:
+                self._logger.success(f"Run imported successfully with ID: {run_id}")
+
+            return {
+                "success": True,
+                "run_id": run_id,
+                "upload_id": upload_id,
+            }
+        else:
+            return {**result, "upload_id": upload_id,}
+
+    def _get_connection_credentials(self) -> Union[_StreamingResult, ErrorResponse]:
+        """
+        Fetches credentials required to livestream test results.
+
+        Returns:
+            a dict containing
+                "success":
+                    a bool indicating success
+                "values" if success:
+                    a dict containing:
+                        - token: JWT used for authentication
+                        - operatorPage: URL to the operator page
+                        - clientOptions: options for paho.mqtt.Client
+                        - willOptions: options for paho.mqtt.Client.will_set
+                        - connectOptions: options for paho.mqtt.Client.connect (host, port, keepalive)
+                        - publishOptions: options for paho.mqtt.Client.publish (topic, retain, qos)
+                        - subscribeOptions: options for paho.mqtt.Client.subscribe (topic, qos)
+                other fields as set in handle_http_error and handle_network_error
+        """
+        self._log_request("GET", "/streaming")
+        try:
+            response = requests.get(
+                f"{self._url}/streaming",
+                headers=self._headers,
+                verify=self._verify,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            values = handle_response(self._logger, response)
+            return {"success": True, "values": values}
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
+
+    def get_runs_by_serial_number(
+        self,
+        serial_number: str,
+    ) -> Union[GetRunsBySerialNumberResponse, ErrorResponse]:
+        """
+        Retrieves all runs associated with a specific unit identified by serial number.
+
+        Args:
+            serial_number (str): Serial number of the unit to find runs for.
+
+        Returns:
+            GetRunsBySerialNumberResponse: Dict containing runs data if successful.
+            ErrorResponse: Error details if the request fails.
+
+        References:
+            https://www.tofupilot.com/docs/api#get-runs-by-serial-number
+        """
+        self._logger.info(f"Fetching runs for serial number: {serial_number}")
+        
+        params = {"serial_number": serial_number}
+        self._log_request("GET", "/runs", params)
+        
+        try:
+            response = requests.get(
+                f"{self._url}/runs",
+                headers=self._headers,
+                params=params,
+                verify=self._verify,
+                timeout=SECONDS_BEFORE_TIMEOUT,
+            )
+            response.raise_for_status()
+            api_response = handle_response(self._logger, response)
+            
+            # Extract runs array from API response structure
+            runs_array = api_response.get("result", [])
+            result = {
+                "success": True,
+                "runs": runs_array
+            }
+                
+            return cast(GetRunsBySerialNumberResponse, result)
+            
+        except requests.exceptions.HTTPError as http_err:
+            return handle_http_error(self._logger, http_err)
+        except requests.RequestException as e:
+            return handle_network_error(self._logger, e)
 
 
-# For backward compatibility, also export the enhanced client as the main client
-__all__ = ["TofuPilotClient"]
+def print_version_banner(current_version: str):
+    """Prints current version of client with tofu art"""
+    # Colors for the tofu art
+    yellow = "\033[33m"  # Yellow for the plane
+    blue = "\033[34m"  # Blue for the cap border
+    reset = "\033[0m"  # Reset color
+
+    banner = (
+        f"{blue}╭{reset} {yellow}✈{reset} {blue}╮{reset}\n"
+        f"[•ᴗ•] TofuPilot Python Client {current_version}\n"
+        "\n"
+    )
+
+    print(banner, end="")

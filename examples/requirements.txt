@@ -1,5 +1,0 @@
-openhtf
-six
-tofupilot
-numpy
-paho-mqtt
