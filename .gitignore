@@ -3,6 +3,13 @@ build/
 dist/
 *.egg-info/
 
+# Ignore virtual environments
+myenv/
+venv/
+.env/
+.env
+.env.*
+
 # Ignore Python cache files
 __pycache__/
 *.py[cod]

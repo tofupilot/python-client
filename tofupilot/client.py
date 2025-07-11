@@ -286,7 +286,44 @@ class TofuPilotClient:
                 self._logger.error("No phases in test record")
 
         return run_id
+    
+    def get_runs(self, serial_number: str) -> dict:
+        """
+        Fetches all runs related to a specific unit from TofuPilot.
 
+        Args:
+            serial_number (str, required): The unique identifier of the unit associated with the runs.
+
+        Returns:
+            data (Optional[dict]):
+                The runs data if found.
+            message (Optional[str]):
+                Message returned from TofuPilot API.
+
+        References:
+            https://www.tofupilot.com/docs/api#get-runs-by-serial-number
+        """
+        if not serial_number:
+            error_message = "A 'serial_number' is required to fetch runs."
+            self._logger.error(error_message)
+            return {
+                "status_code": None,
+                "success": False,
+                "message": None,
+                "error": {"message": error_message},
+            }
+
+        self._logger.info("Fetching runs for: %s", serial_number)
+        params = {"serial_number": serial_number}
+        self._log_request("GET", "/runs", params)
+        return api_request(
+            self._logger,
+            "GET",
+            f"{self._url}/runs",
+            self._headers,
+            params=params,
+            verify=self._verify,
+        )
     def _upload_and_create_from_openhtf_report(
         self,
         file_path: str,
@@ -395,54 +432,6 @@ class TofuPilotClient:
             return handle_http_error(self._logger, http_err)
         except requests.RequestException as e:
             return handle_network_error(self._logger, e)
-
-    def get_runs_by_serial_number(
-        self,
-        serial_number: str,
-    ) -> Union[GetRunsBySerialNumberResponse, ErrorResponse]:
-        """
-        Retrieves all runs associated with a specific unit identified by serial number.
-
-        Args:
-            serial_number (str): Serial number of the unit to find runs for.
-
-        Returns:
-            GetRunsBySerialNumberResponse: Dict containing runs data if successful.
-            ErrorResponse: Error details if the request fails.
-
-        References:
-            https://www.tofupilot.com/docs/api#get-runs-by-serial-number
-        """
-        self._logger.info(f"Fetching runs for serial number: {serial_number}")
-        
-        params = {"serial_number": serial_number}
-        self._log_request("GET", "/runs", params)
-        
-        try:
-            response = requests.get(
-                f"{self._url}/runs",
-                headers=self._headers,
-                params=params,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            api_response = handle_response(self._logger, response)
-            
-            # Extract runs array from API response structure
-            runs_array = api_response.get("result", [])
-            result = {
-                "success": True,
-                "runs": runs_array
-            }
-                
-            return cast(GetRunsBySerialNumberResponse, result)
-            
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-
 
 def print_version_banner(current_version: str):
     """Prints current version of client with tofu art"""
