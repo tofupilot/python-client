@@ -15,7 +15,7 @@ from openhtf.core.test_record import TestRecord
 from openhtf.core.test_state import TestState
 
 from .upload import upload
-from ..client import TofuPilotClient
+from ..v1.client import TofuPilotClient
 
 
 def _get_executing_test():

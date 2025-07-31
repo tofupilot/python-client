@@ -2,13 +2,14 @@ import pytest
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from typing import Any
 
 # Load environment variables from .env file
 env_path = Path(__file__).parent / '.env'
 load_dotenv(env_path)
 
 @pytest.fixture(scope="class")
-def tofupilot_server_url():
+def tofupilot_server_url() -> str:
     # Get URL from environment
     url = os.environ.get("TOFUPILOT_URL")
     
@@ -21,7 +22,7 @@ def tofupilot_server_url():
     return url
 
 @pytest.fixture(scope="class")
-def station_api_key():
+def station_api_key() -> str:
     # Get API key from environment
     api_key = os.environ.get("TOFUPILOT_API_KEY_STATION")
     
@@ -34,7 +35,7 @@ def station_api_key():
     return api_key
 
 @pytest.fixture(scope="class")
-def user_api_key():
+def user_api_key() -> str:
     # Get API key from environment
     api_key = os.environ.get("TOFUPILOT_API_KEY_USER")
     
@@ -47,7 +48,7 @@ def user_api_key():
     return api_key
 
 @pytest.fixture(scope="class", params=["user", "station"])
-def api_key(request, user_api_key, station_api_key):
+def api_key(request, user_api_key: str, station_api_key: str) -> str:
     """Fixture that provides both user and station API keys for testing."""
     if request.param == "user":
         return user_api_key
@@ -57,8 +58,13 @@ def api_key(request, user_api_key, station_api_key):
         raise ValueError(f"Unknown api_key type: {request.param}")
 
 @pytest.fixture(scope="class")
-def procedure_identifier():
-    """Update this with the procedure identifier you get in local"""
+def procedure_identifier(request) -> str:
+    """Update this with the procedure identifier you get in local (V1 tests only)"""
+    # Only require this fixture for v1 tests
+    test_path = str(request.fspath)
+    if "/v1/" not in test_path:
+        pytest.skip("procedure_identifier fixture is only for v1 tests")
+    
     procedure_identifier = os.environ.get("TOFUPILOT_PROCEDURE_IDENTIFIER")
     
     if not procedure_identifier:
@@ -70,7 +76,7 @@ def procedure_identifier():
     return procedure_identifier
 
 @pytest.fixture(scope="class")
-def procedure_id():
+def procedure_id() -> str:
     """Update this with the procedure id you get in local (see url)"""
     procedure_id = os.environ.get("TOFUPILOT_PROCEDURE_ID")
     

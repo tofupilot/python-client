@@ -8,14 +8,14 @@ from openhtf.core.test_record import TestRecord
 from openhtf.output.callbacks import json_factory
 import requests
 
-from ..client import TofuPilotClient
-from ..constants import (
+from ..v1.client import TofuPilotClient
+from ..v1.constants import (
     SECONDS_BEFORE_TIMEOUT,
 )
-from ..utils import (
+from ..v1.utils import (
     notify_server,
 )
-from ..utils.logger import LoggerStateManager
+from ..v1.utils.logger import LoggerStateManager
 
 
 class upload:  # pylint: disable=invalid-name
