@@ -3,5 +3,8 @@
   "scripts": {
     "build": "source venv/bin/activate && python -m build",
     "generate:sdk": "./scripts/generate-sdk.sh"
+  },
+  "dependencies": {
+    "speakeasy": "^2.0.0"
   }
 }

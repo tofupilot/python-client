@@ -171,20 +171,6 @@ class PartGetRevisionPart(BaseModel):
     r"""Name of the part."""
 
 
-class PartGetRevisionImageTypedDict(TypedDict):
-    r"""Image associated with the revision."""
-
-    s3_key: str
-    r"""S3 key for the revision image."""
-
-
-class PartGetRevisionImage(BaseModel):
-    r"""Image associated with the revision."""
-
-    s3_key: str
-    r"""S3 key for the revision image."""
-
-
 PartGetRevisionOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Outcome of the run."""
 
@@ -333,8 +319,8 @@ class PartGetRevisionResponseTypedDict(TypedDict):
     r"""Station that created the revision."""
     part: PartGetRevisionPartTypedDict
     r"""Part associated with this revision."""
-    image: Nullable[PartGetRevisionImageTypedDict]
-    r"""Image associated with the revision."""
+    image: Nullable[str]
+    r"""Image URL associated with the revision."""
     units: List[PartGetRevisionUnitTypedDict]
     r"""List of units created with this revision."""
 
@@ -360,8 +346,8 @@ class PartGetRevisionResponse(BaseModel):
     part: PartGetRevisionPart
     r"""Part associated with this revision."""
 
-    image: Nullable[PartGetRevisionImage]
-    r"""Image associated with the revision."""
+    image: Nullable[str]
+    r"""Image URL associated with the revision."""
 
     units: List[PartGetRevisionUnit]
     r"""List of units created with this revision."""

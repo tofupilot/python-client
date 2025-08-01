@@ -7,8 +7,9 @@ from ._version import (
     __gen_version__,
     __user_agent__,
 )
-# Import the error tracking client
+# Import the error tracking enhanced client by default
 from .client_with_error_tracking import TofuPilotWithErrorTracking as TofuPilot
+# Still export the base SDK for those who want it
 from .sdk import TofuPilot as TofuPilotBase
 from .sdkconfiguration import *
 

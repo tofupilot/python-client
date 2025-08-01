@@ -36,20 +36,6 @@ class StationGetNotFoundIssue(BaseModel):
     message: str
 
 
-class StationGetImageTypedDict(TypedDict):
-    r"""Image associated with the station"""
-
-    s3_key: str
-    r"""S3 key for the station image"""
-
-
-class StationGetImage(BaseModel):
-    r"""Image associated with the station"""
-
-    s3_key: str
-    r"""S3 key for the station image"""
-
-
 class StationGetProcedureTypedDict(TypedDict):
     id: str
     r"""Procedure ID"""
@@ -118,8 +104,8 @@ class StationGetResponseTypedDict(TypedDict):
     r"""Station identifier"""
     name: str
     r"""Name of the station"""
-    image: Nullable[StationGetImageTypedDict]
-    r"""Image associated with the station"""
+    image: Nullable[str]
+    r"""Image URL associated with the station"""
     api_key: Nullable[str]
     r"""API key for the station"""
     procedures: List[StationGetProcedureTypedDict]
@@ -140,8 +126,8 @@ class StationGetResponse(BaseModel):
     name: str
     r"""Name of the station"""
 
-    image: Nullable[StationGetImage]
-    r"""Image associated with the station"""
+    image: Nullable[str]
+    r"""Image URL associated with the station"""
 
     api_key: Nullable[str]
     r"""API key for the station"""
