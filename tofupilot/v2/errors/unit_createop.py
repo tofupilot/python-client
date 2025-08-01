@@ -70,7 +70,7 @@ class UnitWithSerialNumberSerialNumberAlreadyExistsInTheOrganizationError409(
         self.data = data
 
 
-class RevisionRevisionNumberNotFoundForPartPartNumberError404Data(BaseModel):
+class UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data(BaseModel):
     message: str
     r"""The error message"""
 
@@ -81,14 +81,14 @@ class RevisionRevisionNumberNotFoundForPartPartNumberError404Data(BaseModel):
     r"""An array of issues that were responsible for the error"""
 
 
-class RevisionRevisionNumberNotFoundForPartPartNumberError404(TofuPilotError):
+class UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404(TofuPilotError):
     r"""The error information"""
 
-    data: RevisionRevisionNumberNotFoundForPartPartNumberError404Data
+    data: UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data
 
     def __init__(
         self,
-        data: RevisionRevisionNumberNotFoundForPartPartNumberError404Data,
+        data: UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
         raw_response: httpx.Response,
         body: Optional[str] = None,
     ):

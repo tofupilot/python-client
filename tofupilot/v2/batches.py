@@ -931,10 +931,10 @@ class Batches(BaseSDK):
             return unmarshal_json_response(models.BatchCreateResponse, http_res)
         if utils.match_response(http_res, "400", "application/json"):
             response_data = unmarshal_json_response(
-                errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400Data,
+                errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400Data,
                 http_res,
             )
-            raise errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400(
+            raise errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400(
                 response_data, http_res
             )
         if utils.match_response(http_res, "409", "application/json"):
@@ -1039,10 +1039,10 @@ class Batches(BaseSDK):
             return unmarshal_json_response(models.BatchCreateResponse, http_res)
         if utils.match_response(http_res, "400", "application/json"):
             response_data = unmarshal_json_response(
-                errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400Data,
+                errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400Data,
                 http_res,
             )
-            raise errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400(
+            raise errors.BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400(
                 response_data, http_res
             )
         if utils.match_response(http_res, "409", "application/json"):

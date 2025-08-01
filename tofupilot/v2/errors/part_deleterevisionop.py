@@ -38,7 +38,9 @@ class PartDeleteRevisionInternalServerErrorError500(TofuPilotError):
         self.data = data
 
 
-class RevisionWithIDIDNotFoundError404Data(BaseModel):
+class PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data(
+    BaseModel
+):
     message: str
     r"""The error message"""
 
@@ -51,14 +53,16 @@ class RevisionWithIDIDNotFoundError404Data(BaseModel):
     r"""An array of issues that were responsible for the error"""
 
 
-class RevisionWithIDIDNotFoundError404(TofuPilotError):
+class PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404(
+    TofuPilotError
+):
     r"""The error information"""
 
-    data: RevisionWithIDIDNotFoundError404Data
+    data: PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data
 
     def __init__(
         self,
-        data: RevisionWithIDIDNotFoundError404Data,
+        data: PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
         raw_response: httpx.Response,
         body: Optional[str] = None,
     ):

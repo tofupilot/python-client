@@ -4,16 +4,6 @@ from typing import TYPE_CHECKING
 from importlib import import_module
 
 if TYPE_CHECKING:
-    from .attachment_deleteop import (
-        AttachmentDeleteInternalServerErrorIssue,
-        AttachmentDeleteInternalServerErrorIssueTypedDict,
-        AttachmentDeleteNotFoundIssue,
-        AttachmentDeleteNotFoundIssueTypedDict,
-        AttachmentDeleteRequest,
-        AttachmentDeleteRequestTypedDict,
-        AttachmentDeleteResponse,
-        AttachmentDeleteResponseTypedDict,
-    )
     from .attachment_initializeop import (
         AttachmentInitializeBadRequestIssue,
         AttachmentInitializeBadRequestIssueTypedDict,
@@ -714,14 +704,6 @@ if TYPE_CHECKING:
 
 __all__ = [
     "Attachment",
-    "AttachmentDeleteInternalServerErrorIssue",
-    "AttachmentDeleteInternalServerErrorIssueTypedDict",
-    "AttachmentDeleteNotFoundIssue",
-    "AttachmentDeleteNotFoundIssueTypedDict",
-    "AttachmentDeleteRequest",
-    "AttachmentDeleteRequestTypedDict",
-    "AttachmentDeleteResponse",
-    "AttachmentDeleteResponseTypedDict",
     "AttachmentInitializeBadRequestIssue",
     "AttachmentInitializeBadRequestIssueTypedDict",
     "AttachmentInitializeForbiddenIssue",
@@ -1342,14 +1324,6 @@ __all__ = [
 ]
 
 _dynamic_imports: dict[str, str] = {
-    "AttachmentDeleteInternalServerErrorIssue": ".attachment_deleteop",
-    "AttachmentDeleteInternalServerErrorIssueTypedDict": ".attachment_deleteop",
-    "AttachmentDeleteNotFoundIssue": ".attachment_deleteop",
-    "AttachmentDeleteNotFoundIssueTypedDict": ".attachment_deleteop",
-    "AttachmentDeleteRequest": ".attachment_deleteop",
-    "AttachmentDeleteRequestTypedDict": ".attachment_deleteop",
-    "AttachmentDeleteResponse": ".attachment_deleteop",
-    "AttachmentDeleteResponseTypedDict": ".attachment_deleteop",
     "AttachmentInitializeBadRequestIssue": ".attachment_initializeop",
     "AttachmentInitializeBadRequestIssueTypedDict": ".attachment_initializeop",
     "AttachmentInitializeForbiddenIssue": ".attachment_initializeop",

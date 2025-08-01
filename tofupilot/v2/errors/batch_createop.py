@@ -66,7 +66,7 @@ class ABatchWithThisNumberAlreadyExistsInTheOrganizationError409(TofuPilotError)
         self.data = data
 
 
-class BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400Data(
+class BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400Data(
     BaseModel
 ):
     message: str
@@ -79,16 +79,16 @@ class BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400Data(
     r"""An array of issues that were responsible for the error"""
 
 
-class BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400(
+class BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400(
     TofuPilotError
 ):
     r"""The error information"""
 
-    data: BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400Data
+    data: BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400Data
 
     def __init__(
         self,
-        data: BatchNumberCanOnlyContainLettersNumbersUnderscoresAndDashesError400Data,
+        data: BatchNumberCanOnlyContainLettersNumbersUnderscoresDashesPlusSignsDotsAndColonsError400Data,
         raw_response: httpx.Response,
         body: Optional[str] = None,
     ):

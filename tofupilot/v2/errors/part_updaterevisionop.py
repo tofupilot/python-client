@@ -68,7 +68,9 @@ class AnotherRevisionWithNumberNumberAlreadyExistsForThisPartError409(TofuPilotE
         self.data = data
 
 
-class RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404Data(BaseModel):
+class RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data(
+    BaseModel
+):
     message: str
     r"""The error message"""
 
@@ -81,14 +83,16 @@ class RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404Data(BaseModel)
     r"""An array of issues that were responsible for the error"""
 
 
-class RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404(TofuPilotError):
+class RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404(
+    TofuPilotError
+):
     r"""The error information"""
 
-    data: RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404Data
+    data: RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data
 
     def __init__(
         self,
-        data: RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404Data,
+        data: RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data,
         raw_response: httpx.Response,
         body: Optional[str] = None,
     ):

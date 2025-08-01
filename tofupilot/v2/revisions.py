@@ -288,9 +288,12 @@ class Revisions(BaseSDK):
             return unmarshal_json_response(models.PartDeleteRevisionResponse, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(
-                errors.RevisionWithIDIDNotFoundError404Data, http_res
+                errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
+                http_res,
             )
-            raise errors.RevisionWithIDIDNotFoundError404(response_data, http_res)
+            raise errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404(
+                response_data, http_res
+            )
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.PartDeleteRevisionInternalServerErrorError500Data, http_res
@@ -387,9 +390,12 @@ class Revisions(BaseSDK):
             return unmarshal_json_response(models.PartDeleteRevisionResponse, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(
-                errors.RevisionWithIDIDNotFoundError404Data, http_res
+                errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
+                http_res,
             )
-            raise errors.RevisionWithIDIDNotFoundError404(response_data, http_res)
+            raise errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404(
+                response_data, http_res
+            )
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.PartDeleteRevisionInternalServerErrorError500Data, http_res
@@ -506,10 +512,10 @@ class Revisions(BaseSDK):
             return unmarshal_json_response(models.PartUpdateRevisionResponse, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(
-                errors.RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404Data,
+                errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data,
                 http_res,
             )
-            raise errors.RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404(
+            raise errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404(
                 response_data, http_res
             )
         if utils.match_response(http_res, "409", "application/json"):
@@ -636,10 +642,10 @@ class Revisions(BaseSDK):
             return unmarshal_json_response(models.PartUpdateRevisionResponse, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(
-                errors.RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404Data,
+                errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data,
                 http_res,
             )
-            raise errors.RevisionWithIDIDNotFoundUploadWithIDImageIDNotFoundError404(
+            raise errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404(
                 response_data, http_res
             )
         if utils.match_response(http_res, "409", "application/json"):

@@ -359,10 +359,10 @@ class UnitsSDK(BaseSDK):
             return unmarshal_json_response(models.UnitCreateResponse, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(
-                errors.RevisionRevisionNumberNotFoundForPartPartNumberError404Data,
+                errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
                 http_res,
             )
-            raise errors.RevisionRevisionNumberNotFoundForPartPartNumberError404(
+            raise errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404(
                 response_data, http_res
             )
         if utils.match_response(http_res, "409", "application/json"):
@@ -473,10 +473,10 @@ class UnitsSDK(BaseSDK):
             return unmarshal_json_response(models.UnitCreateResponse, http_res)
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(
-                errors.RevisionRevisionNumberNotFoundForPartPartNumberError404Data,
+                errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
                 http_res,
             )
-            raise errors.RevisionRevisionNumberNotFoundForPartPartNumberError404(
+            raise errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404(
                 response_data, http_res
             )
         if utils.match_response(http_res, "409", "application/json"):
