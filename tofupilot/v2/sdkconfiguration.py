@@ -16,7 +16,7 @@ from typing import Callable, Dict, Optional, Tuple, Union
 
 
 SERVERS = [
-    "http://localhost:3000/api",
+    "https://www.tofupilot.app/api",
 ]
 """Contains the list of servers available to the SDK"""
 

@@ -1,5 +1,6 @@
 """TofuPilot SDK with enhanced error tracking and logging capabilities."""
 
+import os
 from typing import Dict, Optional, Union
 from .sdk import TofuPilot
 from .sdkconfiguration import SDKConfiguration
@@ -37,6 +38,10 @@ class TofuPilotWithErrorTracking(TofuPilot):
             debug: Enable debug logging
             **kwargs: Additional arguments passed to base SDK
         """
+
+        if api_key is None:
+            api_key = os.environ.get("TOFUPILOT_API_KEY", None)
+
         # Initialize base SDK
         super().__init__(
             api_key=api_key,

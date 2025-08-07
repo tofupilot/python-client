@@ -79,12 +79,7 @@ class TofuPilotClient:
         if url:
             self._url = f"{url}/api/v1"
         else:
-            tofupilot_url = os.environ.get('TOFUPILOT_URL')
-            if not tofupilot_url:
-                error = "Please set TOFUPILOT_URL environment variable."
-                posthog.capture_exception(ApiV1Error(error))
-                self._logger.error(error)
-                sys.exit(1)
+            tofupilot_url = os.environ.get('TOFUPILOT_URL', ENDPOINT)
             self._url = f"{tofupilot_url}/api/v1"
         self._headers = {
             "Content-Type": "application/json",
