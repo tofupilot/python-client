@@ -20,22 +20,6 @@ class PartDeleteRequest(BaseModel):
     r"""Part number to delete."""
 
 
-class PartDeleteInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartDeleteInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class PartDeleteNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartDeleteNotFoundIssue(BaseModel):
-    message: str
-
-
 class PartDeleteResponseTypedDict(TypedDict):
     r"""Part deleted successfully"""
 

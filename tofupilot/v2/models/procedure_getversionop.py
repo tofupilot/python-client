@@ -33,22 +33,6 @@ class ProcedureGetVersionRequest(BaseModel):
     r"""Version tag to retrieve."""
 
 
-class ProcedureGetVersionInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureGetVersionInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureGetVersionNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureGetVersionNotFoundIssue(BaseModel):
-    message: str
-
-
 class ProcedureGetVersionCreatedByUserTypedDict(TypedDict):
     r"""User who created this procedure version."""
 

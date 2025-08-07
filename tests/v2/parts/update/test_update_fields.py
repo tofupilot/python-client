@@ -10,9 +10,8 @@ class TestUpdatePartFields:
     """Test updating part fields."""
     
     @pytest.fixture
-    def test_part(self, client: TofuPilot, auth_type: str) -> tuple[str, str]:
+    def test_part(self, client: TofuPilot, auth_type: str, timestamp) -> tuple[str, str]:
         """Create a test part for update tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UPDATE-TEST-{timestamp}"
         result = client.parts.create(
             number=part_number,
@@ -21,10 +20,10 @@ class TestUpdatePartFields:
         assert_create_part_success(result)
         return result.id, part_number
     
-    def test_update_part_number(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_update_part_number(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test updating part number."""
         part_id, part_number = test_part
-        new_number = f"UPDATED-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        new_number = f"UPDATED-{timestamp}"
         
         if auth_type == "station":
             # Station cannot update parts - now returns 403 Forbidden
@@ -99,10 +98,9 @@ class TestUpdatePartFields:
                 break
         assert found
     
-    def test_update_both_fields(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_update_both_fields(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp) -> None:
         """Test updating both number and name."""
         part_id, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         new_number = f"BOTH-UPDATED-{timestamp}"
         new_name = "Both Fields Updated"
         
@@ -143,9 +141,8 @@ class TestUpdatePartFields:
                 break
         assert found
     
-    def test_update_preserves_revisions(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_preserves_revisions(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that updating a part preserves its revisions."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PART-WITH-REV-{timestamp}"
         
         # Create part with revision
@@ -209,7 +206,7 @@ class TestUpdatePartFields:
             # For users, validation error
             assert "required" in error_message or "validation" in error_message
     
-    def test_update_special_characters(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_update_special_characters(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp) -> None:
         """Test updating with special characters."""
         _, part_number = test_part
         if auth_type == "station":
@@ -223,8 +220,6 @@ class TestUpdatePartFields:
                 )
             assert "403" in str(exc_info.value) or "cannot update parts" in str(exc_info.value).lower()
             return
-        
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         
         # Test various special characters
         special_updates = [
@@ -249,10 +244,9 @@ class TestUpdatePartFields:
                 # Some special characters might not be allowed
                 continue
     
-    def test_update_long_values(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_update_long_values(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp) -> None:
         """Test updating with maximum length values."""
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         # Create maximum length strings: part number (60 chars), part name (255 chars)
         long_number = f"LONG-{timestamp}-{'X' * (60 - len(f'LONG-{timestamp}-'))}"[:60]
         long_name = f"NAME-{timestamp}-{'N' * (255 - len(f'NAME-{timestamp}-'))}"[:255]

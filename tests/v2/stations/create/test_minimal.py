@@ -10,14 +10,13 @@ from ..utils import assert_create_station_success, assert_get_stations_success
 class TestCreateStationMinimal:
     """Test minimal station creation scenarios."""
     
-    def test_create_station_minimal(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_station_minimal(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a station with only required fields (name)."""
         if auth_type == "station":
             # Skip test for station auth
             return
             
         # Test constants - ensure uniqueness with timestamp + uuid
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         STATION_NAME = f"Test Station {timestamp}-{unique_id}"
         
@@ -53,7 +52,7 @@ class TestCreateStationMinimal:
         # Image should be None
         assert found_station.image is None
     
-    def test_create_multiple_stations(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_multiple_stations(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating multiple stations in sequence."""
         if auth_type == "station":
             # Skip test for station auth
@@ -63,7 +62,6 @@ class TestCreateStationMinimal:
         
         # Create 3 stations
         for i in range(3):
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
             station_name = f"Station {i+1} - {timestamp}"
             
             result = client.stations.create(name=station_name)
@@ -83,14 +81,13 @@ class TestCreateStationMinimal:
             assert created_station['id'] in station_ids_in_list, \
                 f"Station {created_station['id']} not found in list"
     
-    def test_create_station_with_special_characters(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_station_with_special_characters(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a station with special characters in name."""
         if auth_type == "station":
             # Skip test for station auth
             return
             
         # Test constants with special characters
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         STATION_NAME = f"Station #1 @Factory & Testing (100%) - {timestamp}"
         
         # Create station

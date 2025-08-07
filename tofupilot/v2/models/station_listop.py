@@ -31,14 +31,6 @@ class StationListRequest(BaseModel):
     ] = None
 
 
-class StationListIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationListIssue(BaseModel):
-    message: str
-
-
 class StationListProcedureTypedDict(TypedDict):
     id: str
     r"""Procedure ID"""

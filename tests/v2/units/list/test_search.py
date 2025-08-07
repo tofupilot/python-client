@@ -11,10 +11,9 @@ class TestUnitsSearch:
     """Test search functionality in units.list()."""
     
     @pytest.fixture
-    def test_units_for_search(self, client: TofuPilot) -> List[Tuple[models.UnitCreateResponse, str]]:
+    def test_units_for_search(self, client: TofuPilot, timestamp: str) -> List[Tuple[models.UnitCreateResponse, str]]:
         """Create test units with specific serial numbers for search tests."""
         # Create our own test data: part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"SEARCH-TEST-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -92,10 +91,10 @@ class TestUnitsSearch:
         sn_matches = [u for u in result.data if "SN00" in u.serial_number]
         assert len(sn_matches) >= 2  # At least SN001 and SN002
 
-    def test_search_no_results(self, client: TofuPilot):
+    def test_search_no_results(self, client: TofuPilot, timestamp: str):
         """Test search with no matching results."""
         # Search for something very unlikely to exist
-        unique_term = f"NONEXISTENT-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        unique_term = f"NONEXISTENT-{timestamp}"
         result = client.units.list(search_query=unique_term)
         assert_get_units_success(result)
         

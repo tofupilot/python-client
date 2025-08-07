@@ -12,9 +12,8 @@ class TestPartsListPagination:
     """Test parts list pagination functionality."""
     
     @pytest.fixture
-    def test_parts_for_pagination(self, client: TofuPilot, auth_type: str) -> List[str]:
+    def test_parts_for_pagination(self, client: TofuPilot, auth_type: str, timestamp) -> List[str]:
         """Create multiple parts for pagination tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         created_part_ids: List[str] = []
         
@@ -172,9 +171,8 @@ class TestPartsListPagination:
             for i in range(len(page2a.data)):
                 assert page2a.data[i].id == page2b.data[i].id
     
-    def test_search_with_pagination(self, client: TofuPilot, test_parts_for_pagination: List[str]) -> None:
+    def test_search_with_pagination(self, client: TofuPilot, test_parts_for_pagination: List[str], timestamp) -> None:
         """Test combining search with pagination."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         search_prefix = f"SEARCH-PAGE-{timestamp}-{unique_id}"
         search_part_ids: List[str] = []

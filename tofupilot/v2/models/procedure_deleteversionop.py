@@ -25,30 +25,6 @@ class ProcedureDeleteVersionRequest(BaseModel):
     r"""Version tag to delete"""
 
 
-class ProcedureDeleteVersionInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureDeleteVersionInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureDeleteVersionConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureDeleteVersionConflictIssue(BaseModel):
-    message: str
-
-
-class ProcedureDeleteVersionNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureDeleteVersionNotFoundIssue(BaseModel):
-    message: str
-
-
 class ProcedureDeleteVersionResponseTypedDict(TypedDict):
     r"""Procedure version deleted successfully"""
 

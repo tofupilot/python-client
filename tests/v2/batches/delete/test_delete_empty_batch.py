@@ -10,14 +10,14 @@ from ...utils import assert_station_access_forbidden
 
 class TestDeleteEmptyBatch:
     
-    def test_delete_empty_batch_success(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_empty_batch_success(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test deleting an empty batch - behavior differs by auth type.
         
         Users: Can successfully delete batches they have access to.
         Stations: Cannot delete batches (access policy only allows select/insert).
         """
         # Create a batch
-        BATCH_NUMBER = f"AutomatedTest-V2-Delete-Empty-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Delete-Empty-{timestamp}"
         
         create_result = client.batches.create(number=BATCH_NUMBER)
         assert_create_batch_success(create_result)
@@ -54,14 +54,14 @@ class TestDeleteEmptyBatch:
             with assert_station_access_forbidden("delete non-existent batch"):
                 client.batches.delete(number=fake_number)
     
-    def test_delete_already_deleted_batch(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_already_deleted_batch(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test deleting an already deleted batch fails.
         
         Users: Can delete once, then subsequent deletes fail with NOT_FOUND.
         Stations: Cannot delete batches at all due to access restrictions.
         """
         # Create and delete a batch
-        BATCH_NUMBER = f"AutomatedTest-V2-Delete-Twice-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Delete-Twice-{timestamp}"
         
         create_result = client.batches.create(number=BATCH_NUMBER)
         assert_create_batch_success(create_result)
@@ -82,13 +82,13 @@ class TestDeleteEmptyBatch:
             with assert_station_access_forbidden("delete already deleted batch"):
                 client.batches.delete(number=BATCH_NUMBER)
     
-    def test_create_delete_recreate_same_number(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_delete_recreate_same_number(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that after deleting a batch, the same number can be reused.
         
         Users: Can delete and recreate batches with the same number.
         Stations: Cannot delete batches, so recreation test is not applicable.
         """
-        BATCH_NUMBER = f"AutomatedTest-V2-Recreate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Recreate-{timestamp}"
         
         # Create first batch
         result1 = client.batches.create(number=BATCH_NUMBER)

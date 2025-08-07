@@ -2,7 +2,7 @@
 
 import pytest
 from typing import List
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import uuid
 from tofupilot.v2 import TofuPilot, models
 from ...utils import assert_create_run_success, assert_get_runs_success
@@ -11,10 +11,10 @@ from ...utils import assert_create_run_success, assert_get_runs_success
 class TestRunsPagination:
     """Test limit and cursor pagination parameters."""
     
-    @pytest.fixture 
-    def test_runs_data(self, client: TofuPilot, procedure_id: str) -> List[models.RunCreateResponse]:
+    @pytest.fixture
+    def test_runs_data(self, client: TofuPilot, procedure_id: str, timestamp) -> List[models.RunCreateResponse]:
         """Create test runs for pagination tests."""
-        timestamp = datetime.now(timezone.utc)
+        timestamp_dt = datetime.now(timezone.utc)
         unique_id = str(uuid.uuid4())[:8]
         
         test_runs = []
@@ -23,10 +23,10 @@ class TestRunsPagination:
             run = client.runs.create(
                 outcome="PASS",
                 procedure_id=procedure_id,
-                serial_number=f"PAGE-TEST-{timestamp.strftime('%Y%m%d-%H%M%S')}-{unique_id}-{i:03d}",
+                serial_number=f"PAGE-TEST-{timestamp}-{unique_id}-{i:03d}",
                 part_number="PCB-001",
-                started_at=timestamp,
-                ended_at=timestamp
+                started_at=timestamp_dt + timedelta(seconds = i - 20),
+                ended_at=timestamp_dt + timedelta(seconds = i - 20),
             )
             assert_create_run_success(run)
             test_runs.append(run)
@@ -94,24 +94,24 @@ class TestRunsPagination:
         page2 = client.runs.list(limit=5, cursor=page1.meta.next_cursor)
         assert_get_runs_success(page2)
         assert len(page2.data) == 5
+        assert page2.meta.has_more is True
+        assert page2.meta.next_cursor is not None
         
         # Verify no overlap between pages
         page1_ids = {run.id for run in page1.data}
         page2_ids = {run.id for run in page2.data}
         assert len(page1_ids & page2_ids) == 0  # No intersection
         
-        # Get third page
-        if page2.meta.has_more:
-            page3 = client.runs.list(limit=5, cursor=page2.meta.next_cursor)
-            assert_get_runs_success(page3)
-            
-            # Should have remaining runs (up to 5)
-            assert len(page3.data) <= 5
-            
-            # No overlap with previous pages
-            page3_ids = {run.id for run in page3.data}
-            assert len(page1_ids & page3_ids) == 0
-            assert len(page2_ids & page3_ids) == 0
+        page3 = client.runs.list(limit=5, cursor=page2.meta.next_cursor)
+        assert_get_runs_success(page3)
+        
+        # Should have remaining runs (up to 5)
+        assert len(page3.data) <= 5
+        
+        # No overlap with previous pages
+        page3_ids = {run.id for run in page3.data}
+        assert len(page1_ids & page3_ids) == 0
+        assert len(page2_ids & page3_ids) == 0
 
     def test_last_page_has_more_false(self, client: TofuPilot) -> None:
         """Test that last page has has_more=False."""
@@ -175,11 +175,11 @@ class TestRunsPagination:
             for i in range(len(page2a.data)):
                 assert page2a.data[i].id == page2b.data[i].id
     
-    def test_search_with_pagination(self, client: TofuPilot, procedure_id: str) -> None:
+    def test_search_with_pagination(self, client: TofuPilot, procedure_id: str, timestamp) -> None:
         """Test combining search with pagination."""
-        timestamp = datetime.now(timezone.utc)
+        timestamp_dt = datetime.now(timezone.utc)
         unique_id = str(uuid.uuid4())[:8]
-        search_prefix = f"SEARCH-PAGE-{timestamp.strftime('%Y%m%d-%H%M%S')}-{unique_id}"
+        search_prefix = f"SEARCH-PAGE-{timestamp}-{unique_id}"
         search_run_ids: List[str] = []
         
         # Create runs with searchable pattern
@@ -189,8 +189,8 @@ class TestRunsPagination:
                 procedure_id=procedure_id,
                 serial_number=f"{search_prefix}-{i:02d}",
                 part_number="PCB-001",
-                started_at=timestamp,
-                ended_at=timestamp
+                started_at=timestamp_dt,
+                ended_at=timestamp_dt
             )
             assert_create_run_success(result)
             search_run_ids.append(result.id)

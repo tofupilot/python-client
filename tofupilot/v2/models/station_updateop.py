@@ -59,30 +59,6 @@ class StationUpdateRequest(BaseModel):
     ]
 
 
-class StationUpdateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationUpdateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class StationUpdateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationUpdateConflictIssue(BaseModel):
-    message: str
-
-
-class StationUpdateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationUpdateNotFoundIssue(BaseModel):
-    message: str
-
-
 class StationUpdateResponseTypedDict(TypedDict):
     r"""Station updated successfully"""
 

@@ -21,7 +21,7 @@ class TestProceduresNoCharacterRestrictions:
         assert isinstance(response.data, list), "2-character search should work"
         print("✓ 2-character search works")
 
-    def test_short_procedure_id_search(self, client: TofuPilot, auth_type: str):
+    def test_short_procedure_id_search(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test that procedure ID search works with less than 6 characters (previously restricted)."""
         if auth_type == "station":
             # Stations cannot create procedures, but can still search
@@ -33,7 +33,6 @@ class TestProceduresNoCharacterRestrictions:
             test_procedure = procedures_response.data[0]
         else:
             # Create a procedure to test with
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
             procedure_response = client.procedures.create(
                 name=f"Test Procedure for ID Search {timestamp}"
             )
@@ -56,7 +55,7 @@ class TestProceduresNoCharacterRestrictions:
         assert test_procedure.id in found_ids, f"Should find procedure with 5-character ID prefix: {medium_id_search}"
         print(f"✓ 5-character ID search works (searched for '{medium_id_search}')")
 
-    def test_substring_matching_everywhere(self, client: TofuPilot, auth_type: str):
+    def test_substring_matching_everywhere(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test that substring matching works (not just prefix matching)."""
         if auth_type == "station":
             # Stations cannot create procedures, but can test search functionality
@@ -71,7 +70,6 @@ class TestProceduresNoCharacterRestrictions:
             return
         
         # For users, create procedures with specific multi-word names for testing
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a procedure with a multi-word name
         procedure_name = f"Automated Battery Testing Procedure {timestamp}"
@@ -112,7 +110,7 @@ class TestProceduresNoCharacterRestrictions:
             assert isinstance(response.data, list), f"Single character '{char}' search should work"
         print("✓ Single special character searches work")
 
-    def test_procedure_name_search_consistency(self, client: TofuPilot, auth_type: str):
+    def test_procedure_name_search_consistency(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test that procedure name search is consistent with substring matching."""
         if auth_type == "station":
             # Stations can test search but not create procedures
@@ -124,7 +122,6 @@ class TestProceduresNoCharacterRestrictions:
             return
             
         # For users, create a procedure with a known name containing "test"
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         procedure_name = f"Test Procedure Consistency Check {timestamp}"
         test_procedure = client.procedures.create(name=procedure_name)
         

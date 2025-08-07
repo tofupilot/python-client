@@ -19,22 +19,6 @@ class RunDeleteRequest(BaseModel):
     r"""Array of run IDs to delete."""
 
 
-class RunDeleteInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunDeleteInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class RunDeleteNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunDeleteNotFoundIssue(BaseModel):
-    message: str
-
-
 class RunDeleteResponseTypedDict(TypedDict):
     r"""Response for successful run deletion"""
 

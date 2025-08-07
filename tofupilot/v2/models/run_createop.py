@@ -350,46 +350,6 @@ class RunCreateRequest(BaseModel):
         return m
 
 
-class RunCreateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunCreateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnprocessableEntityIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnprocessableEntityIssue(BaseModel):
-    message: str
-
-
-class RunCreateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunCreateNotFoundIssue(BaseModel):
-    message: str
-
-
-class RunCreateForbiddenIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunCreateForbiddenIssue(BaseModel):
-    message: str
-
-
-class RunCreateBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunCreateBadRequestIssue(BaseModel):
-    message: str
-
-
 class RunCreateResponseTypedDict(TypedDict):
     r"""Run created successfully"""
 

@@ -9,10 +9,10 @@ from ...utils import assert_station_access_forbidden, assert_station_access_limi
 
 class TestBatchDeleteLifecycle:
     
-    def test_complete_batch_lifecycle(self, client: TofuPilot, auth_type: str) -> None:
+    def test_complete_batch_lifecycle(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test complete lifecycle: create batch, use it, then delete it."""
         # Create batch
-        BATCH_NUMBER = f"AutomatedTest-V2-Lifecycle-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Lifecycle-{timestamp}"
         
         batch_result = client.batches.create(number=BATCH_NUMBER)
         assert_create_batch_success(batch_result)
@@ -38,9 +38,8 @@ class TestBatchDeleteLifecycle:
             with assert_station_access_forbidden("delete batch"):
                 client.batches.delete(number=BATCH_NUMBER)
     
-    def test_multiple_batch_operations(self, client: TofuPilot, auth_type: str) -> None:
+    def test_multiple_batch_operations(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test creating and deleting multiple batches."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         batch_ids: List[str] = []
         batch_numbers: List[str] = []
         
@@ -73,9 +72,8 @@ class TestBatchDeleteLifecycle:
                 with assert_station_access_forbidden(f"delete batch {batch_number}"):
                     client.batches.delete(number=batch_number)
     
-    def test_batch_deletion_does_not_affect_others(self, client: TofuPilot, auth_type: str) -> None:
+    def test_batch_deletion_does_not_affect_others(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that deleting one batch doesn't affect others."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create two batches
         batch1_number = f"KEEP-BATCH-{timestamp}"
@@ -105,9 +103,8 @@ class TestBatchDeleteLifecycle:
             with assert_station_access_forbidden("delete batch"):
                 client.batches.delete(number=batch2_number)
     
-    def test_batch_with_special_characters_deletion(self, client: TofuPilot, auth_type: str) -> None:
+    def test_batch_with_special_characters_deletion(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test deleting batches with special characters in their numbers."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create batch with special characters (URL-safe but non-alphanumeric)
         import uuid

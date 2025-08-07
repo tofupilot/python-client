@@ -8,9 +8,9 @@ from ...utils import assert_station_access_forbidden
 
 class TestCreateProcedureMinimal:
 
-    def test_create_procedure_with_simple_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_procedure_with_simple_name(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a procedure with a simple name."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Create-Simple-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Create-Simple-{timestamp}"
         
         if auth_type == "station":
             # Station should fail to create procedures with HTTP 403 FORBIDDEN
@@ -44,10 +44,10 @@ class TestCreateProcedureMinimal:
             found_in_general = any(p.id == result.id for p in general_list.data)
             assert found_in_general, f"Procedure {result.id} not found in search or general list"
     
-    def test_create_procedure_with_long_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_procedure_with_long_name(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a procedure with a long name."""
         # Create a long but valid procedure name (within validation limits)
-        base_name = f"AutomatedTest-V2-Create-Long-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        base_name = f"AutomatedTest-V2-Create-Long-{timestamp}"
         PROCEDURE_NAME = base_name + "-LONG"  # Keep under 100 chars total
         
         if auth_type == "station":
@@ -67,9 +67,9 @@ class TestCreateProcedureMinimal:
         assert proc is not None
         assert proc.name == PROCEDURE_NAME
     
-    def test_create_procedure_with_special_characters(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_procedure_with_special_characters(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a procedure with special characters in name."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Special-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}-!@#$%^&*()"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Special-{timestamp}-!@#$%^&*()"
         
         if auth_type == "station":
             # Station should fail to create procedures with HTTP 403 FORBIDDEN
@@ -88,9 +88,9 @@ class TestCreateProcedureMinimal:
         assert proc is not None
         assert proc.name == PROCEDURE_NAME
     
-    def test_create_procedure_with_unicode(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_procedure_with_unicode(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a procedure with unicode characters."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Unicode-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}-测试-café-🚀"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Unicode-{timestamp}-测试-café-🚀"
         
         if auth_type == "station":
             # Station should fail to create procedures with HTTP 403 FORBIDDEN

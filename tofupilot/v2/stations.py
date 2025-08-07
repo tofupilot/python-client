@@ -5,7 +5,6 @@ from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
-from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
 from typing import Any, Mapping, Optional, Union
 
 
@@ -90,20 +89,31 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationListResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationListResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationListInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationListInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def list_async(
         self,
@@ -185,20 +195,31 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationListResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationListResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationListInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationListInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def create(
         self,
@@ -277,36 +298,41 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationCreateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationCreateResponse)
         if utils.match_response(http_res, "403", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.YouCanTAddAStationWithoutUpgradingYourPlanError403Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorFORBIDDENData
             )
-            raise errors.YouCanTAddAStationWithoutUpgradingYourPlanError403(
-                response_data, http_res
-            )
+            raise errors.ErrorFORBIDDEN(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationWithThisIdentifierAlreadyExistsError409Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.StationWithThisIdentifierAlreadyExistsError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationCreateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationCreateInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def create_async(
         self,
@@ -385,36 +411,41 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationCreateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationCreateResponse)
         if utils.match_response(http_res, "403", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.YouCanTAddAStationWithoutUpgradingYourPlanError403Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorFORBIDDENData
             )
-            raise errors.YouCanTAddAStationWithoutUpgradingYourPlanError403(
-                response_data, http_res
-            )
+            raise errors.ErrorFORBIDDEN(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationWithThisIdentifierAlreadyExistsError409Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.StationWithThisIdentifierAlreadyExistsError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationCreateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationCreateInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def get(
         self,
@@ -490,25 +521,36 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationGetResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationGetResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationGetStationNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.StationGetStationNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationGetInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationGetInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def get_async(
         self,
@@ -584,25 +626,36 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationGetResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationGetResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationGetStationNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.StationGetStationNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationGetInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationGetInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def remove(
         self,
@@ -678,32 +731,41 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationRemoveResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationRemoveResponse)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationIsAlreadyArchivedError400Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.StationIsAlreadyArchivedError400(response_data, http_res)
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationRemoveStationNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.StationRemoveStationNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationRemoveInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationRemoveInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def remove_async(
         self,
@@ -779,32 +841,41 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationRemoveResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationRemoveResponse)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationIsAlreadyArchivedError400Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.StationIsAlreadyArchivedError400(response_data, http_res)
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationRemoveStationNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.StationRemoveStationNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationRemoveInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationRemoveInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def update(
         self,
@@ -903,35 +974,41 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationUpdateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationUpdateResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationNotFoundUploadNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.StationNotFoundUploadNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.AnotherStationWithThisIdentifierAlreadyExistsAnotherStationWithThisNameAlreadyExistsError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.AnotherStationWithThisIdentifierAlreadyExistsAnotherStationWithThisNameAlreadyExistsError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationUpdateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationUpdateInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def update_async(
         self,
@@ -1030,32 +1107,38 @@ class Stations(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.StationUpdateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.StationUpdateResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationNotFoundUploadNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.StationNotFoundUploadNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.AnotherStationWithThisIdentifierAlreadyExistsAnotherStationWithThisNameAlreadyExistsError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.AnotherStationWithThisIdentifierAlreadyExistsAnotherStationWithThisNameAlreadyExistsError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.StationUpdateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.StationUpdateInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )

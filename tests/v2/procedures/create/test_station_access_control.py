@@ -17,9 +17,9 @@ from tofupilot.v2.errors import APIError
 
 class TestStationAccessControl:
 
-    def test_station_cannot_create_procedure_with_proper_http_error(self, client: TofuPilot, auth_type: str) -> None:
+    def test_station_cannot_create_procedure_with_proper_http_error(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that stations receive proper HTTP 403 FORBIDDEN error when attempting to create procedures."""
-        PROCEDURE_NAME = f"AccessControl-Test-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AccessControl-Test-{timestamp}"
         
         if auth_type == "user":
             # Users should be able to create procedures - verify this works
@@ -54,12 +54,12 @@ class TestStationAccessControl:
             f"but got: {api_error}"
         )
 
-    def test_station_access_control_error_structure(self, client: TofuPilot, auth_type: str) -> None:
+    def test_station_access_control_error_structure(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that the error response has the expected structure for debugging."""
         if auth_type == "user":
             return  # Users can create procedures, so no error to test
             
-        PROCEDURE_NAME = f"ErrorStructure-Test-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"ErrorStructure-Test-{timestamp}"
         
         with pytest.raises(APIError) as exc_info:
             client.procedures.create(name=PROCEDURE_NAME)
@@ -80,13 +80,13 @@ class TestStationAccessControl:
         for keyword in internal_keywords:
             assert keyword not in error_lower, f"Error should not expose internal details: {keyword}"
 
-    def test_different_station_operations_same_error_pattern(self, client: TofuPilot, auth_type: str) -> None:
+    def test_different_station_operations_same_error_pattern(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that different unauthorized station operations follow the same error pattern."""
         if auth_type == "user":
             return  # Users can create procedures, so no error to test
             
         # Test procedure creation (should fail)
-        PROCEDURE_NAME = f"Pattern-Test-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"Pattern-Test-{timestamp}"
         
         with pytest.raises(APIError) as create_exc:
             client.procedures.create(name=PROCEDURE_NAME)

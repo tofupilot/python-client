@@ -12,7 +12,7 @@ class TestProceduresSearch:
     """Test search functionality in procedures.list()."""
     
     @pytest.fixture
-    def test_procedures_for_search(self, client: TofuPilot, auth_type: str) -> List[Tuple[models.ProcedureCreateResponse, str]]:
+    def test_procedures_for_search(self, client: TofuPilot, auth_type: str, timestamp: str) -> List[Tuple[models.ProcedureCreateResponse, str]]:
         """Create test procedures or test station authorization."""
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -23,7 +23,6 @@ class TestProceduresSearch:
             return []
             
         # User API can create procedures
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         test_configs = [
             f"SEARCH-Alpha-Procedure-{timestamp}",
@@ -100,10 +99,10 @@ class TestProceduresSearch:
         procedure_matches = [p for p in result.data if "Procedure" in p.name]
         assert len(procedure_matches) >= 2  # At least Alpha and Delta
 
-    def test_search_no_results(self, client: TofuPilot, auth_type: str):
+    def test_search_no_results(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test search with no matching results."""
         # Search for something very unlikely to exist
-        unique_term = f"NONEXISTENT-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        unique_term = f"NONEXISTENT-{timestamp}"
         result = client.procedures.list(search_query=unique_term)
         assert_get_procedures_success(result)
         

@@ -13,13 +13,12 @@ class TestStationListPagination:
     """Test station list pagination scenarios."""
     
     @pytest.fixture
-    def test_stations_for_pagination(self, client: TofuPilot, auth_type: str) -> List[str]:
+    def test_stations_for_pagination(self, client: TofuPilot, auth_type: str, timestamp) -> List[str]:
         """Create multiple stations for pagination tests."""
         if auth_type == "station":
             # Station can't create stations, return empty list
             return []
-        
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
+
         unique_id = str(uuid.uuid4())[:8]
         created_station_ids: List[str] = []
         

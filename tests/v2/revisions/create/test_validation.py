@@ -13,10 +13,9 @@ class TestCreateRevisionValidation:
     """Test revision creation validation scenarios."""
     
     @pytest.fixture
-    def test_part(self, client: TofuPilot, auth_type: str) -> tuple[str, str]:
+    def test_part(self, client: TofuPilot, auth_type: str, timestamp: str) -> tuple[str, str]:
         """Create a test part for revision validation tests."""
             
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-VAL-{timestamp}-{unique_id}"
         
@@ -52,10 +51,9 @@ class TestCreateRevisionValidation:
         error_message = str(exc_info.value).lower()
         assert "60" in error_message or "length" in error_message or "long" in error_message
     
-    def test_invalid_part_number_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_invalid_part_number_fails(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that creating a revision with invalid part_number fails."""
             
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-FAIL-{timestamp}"
         fake_part_id = "00000000-0000-0000-0000-000000000000"
         
@@ -66,10 +64,9 @@ class TestCreateRevisionValidation:
         error_message = str(exc_info.value).lower()
         assert "not found" in error_message or "part" in error_message
     
-    def test_malformed_uuid_part_number_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_malformed_uuid_part_number_fails(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that creating a revision with non-existent part fails."""
             
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-NONEXISTENT-{timestamp}"
         
         with pytest.raises(ErrorNOTFOUND) as exc_info:
@@ -79,12 +76,11 @@ class TestCreateRevisionValidation:
         error_message = str(exc_info.value).lower()
         assert "not found" in error_message
     
-    def test_duplicate_revision_number_same_part_fails(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_duplicate_revision_number_same_part_fails(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test that creating duplicate revision numbers for the same part fails."""
             
         _, part_number = test_part
         # Create unique revision number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-DUP-{timestamp}"
         
         # Create first revision
@@ -105,10 +101,9 @@ class TestCreateRevisionValidation:
         error_message = str(exc_info.value).lower()
         assert "already exists" in error_message or "conflict" in error_message or "duplicate" in error_message
     
-    def test_same_revision_number_different_parts_succeeds(self, client: TofuPilot, auth_type: str) -> None:
+    def test_same_revision_number_different_parts_succeeds(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that same revision number for different parts succeeds."""
             
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-SAME-{timestamp}"
         
         # Create two different parts
@@ -141,12 +136,11 @@ class TestCreateRevisionValidation:
         # Verify they are different revisions
         assert rev1_result.id != rev2_result.id
     
-    def test_revision_number_case_insensitive(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_revision_number_case_insensitive(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test that revision numbers are case-insensitive for uniqueness."""
         from tofupilot.v2.errors import ErrorCONFLICT
             
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create revision with lowercase
         lower_result = client.parts.revisions.create(

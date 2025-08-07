@@ -7,7 +7,7 @@ from tofupilot.v2 import TofuPilot
 class TestRunsNestedSearch:
     """Test that search is working correctly for runs - supports run ID, procedure name, and unit serial."""
 
-    def test_search_by_run_id(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_by_run_id(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test searching runs by run ID (partial match)."""
         if auth_type == "station":
             # Stations cannot create runs - test with existing data only
@@ -16,7 +16,6 @@ class TestRunsNestedSearch:
             return
         
         # Create a run
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"SEARCH-ID-{timestamp}"
         
         run_result = client.runs.create(
@@ -49,7 +48,7 @@ class TestRunsNestedSearch:
                 
         assert found_run, f"Should find the exact run {run_result.id}"
 
-    def test_search_by_procedure_name(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_by_procedure_name(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test searching runs by procedure name."""
         if auth_type == "station":
             # Stations cannot create runs - test with existing data only
@@ -58,7 +57,6 @@ class TestRunsNestedSearch:
             return
         
         # Create a run
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"SEARCH-PROC-{timestamp}"
         
         run_result = client.runs.create(
@@ -101,7 +99,7 @@ class TestRunsNestedSearch:
             else:
                 print(f"⚠ No runs found for procedure name '{proc_name}' - search may not support procedure name matching")
 
-    def test_search_by_procedure_identifier(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_by_procedure_identifier(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test searching runs by procedure identifier."""
         if auth_type == "station":
             # Stations cannot create runs or list procedures - basic search only
@@ -115,7 +113,6 @@ class TestRunsNestedSearch:
         # Note: Procedure identifier search is no longer supported in the backend
         # This test now verifies basic run creation works
         # Create a run to verify basic procedure search works
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"SEARCH-PROCID-{timestamp}"
         
         run_result = client.runs.create(
@@ -133,7 +130,7 @@ class TestRunsNestedSearch:
         assert len(search_results.data) > 0, f"Should find run with serial number '{serial_number}'"
         print("✓ Run created successfully for procedure test")
 
-    def test_search_by_unit_serial_number(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_by_unit_serial_number(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test searching runs by unit serial number."""
         if auth_type == "station":
             # Stations cannot create runs - test with existing data only
@@ -142,7 +139,6 @@ class TestRunsNestedSearch:
             return
         
         # Create test data with unique serial number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_serial = f"UNIQUE-SERIAL-{timestamp}"
         
         run_result = client.runs.create(
@@ -172,7 +168,7 @@ class TestRunsNestedSearch:
                 
         assert found_serial, f"Should find run with exact serial number '{unique_serial}'"
 
-    def test_search_case_insensitive(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_case_insensitive(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test that search is case insensitive."""
         if auth_type == "station":
             # Stations cannot create runs - test with existing data only
@@ -181,7 +177,6 @@ class TestRunsNestedSearch:
             return
         
         # Create test data with mixed case
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         mixed_case_serial = f"MixedCaseSerial-{timestamp}"
         
         run_result = client.runs.create(
@@ -210,7 +205,7 @@ class TestRunsNestedSearch:
         assert len(search_upper.data) > 0, "Upper case search should find at least one result"
         assert len(search_mixed.data) > 0, "Mixed case search should find at least one result"
 
-    def test_search_partial_match(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_partial_match(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test partial string matching in search."""
         if auth_type == "station":
             # Stations cannot create runs - test with existing data only
@@ -219,7 +214,6 @@ class TestRunsNestedSearch:
             return
         
         # Create test data
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_with_pattern = f"PREFIX-MIDDLE-SUFFIX-{timestamp}"
         
         run_result = client.runs.create(
@@ -250,7 +244,7 @@ class TestRunsNestedSearch:
         assert isinstance(search_results.data, list)
         print(f"✓ Non-existent search handled gracefully: {len(search_results.data)} results")
 
-    def test_search_short_query(self, client: TofuPilot, procedure_id: str, auth_type: str):
+    def test_search_short_query(self, client: TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test that short queries work correctly (character restrictions removed)."""
         if auth_type == "station":
             # Stations cannot create runs - test with existing data only
@@ -259,7 +253,6 @@ class TestRunsNestedSearch:
             return
         
         # Create a run with a short serial number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         short_serial = f"AB-{timestamp}"
         
         run_result = client.runs.create(

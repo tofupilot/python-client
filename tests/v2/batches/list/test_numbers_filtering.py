@@ -11,9 +11,8 @@ class TestBatchesNumbersFiltering:
     """Test filtering batches by numbers."""
     
     @pytest.fixture
-    def test_batches_for_numbers(self, client: TofuPilot) -> List[tuple[models.BatchCreateResponse, str]]:
+    def test_batches_for_numbers(self, client: TofuPilot, timestamp) -> List[tuple[models.BatchCreateResponse, str]]:
         """Create test batches with specific numbers for filtering tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         test_configs = [
             f"BATCH-ALPHA-{timestamp}",

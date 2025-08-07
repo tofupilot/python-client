@@ -61,13 +61,13 @@ TofuPilot is available on [PyPI](https://pypi.org/project/tofupilot/). Version p
 
 1. Create a new branch for testing your changes.  
 2. Apply any changes to the code as needed.  
-3. In `setup.py`, update the following line:  
+3. In `pyproject.toml`, update the following line:  
    ```python
-   version="X.Y.Z"
+   version = "X.Y.Z"
    ```  
    to:  
    ```python
-   version="X.Y.Z.dev0"
+   version = "X.Y.Z.dev0"
    ```
 
 4. Run:  
@@ -86,7 +86,7 @@ TofuPilot is available on [PyPI](https://pypi.org/project/tofupilot/). Version p
 
 If you need to test a new version of the Python client before making an official release, you can publish it to TestPyPI, a sandbox version of PyPI used for testing package distributions.
 
-1. If a previous test package with the exact same version was released, update the version in `setup.py`. For instance, change version="X.Y.Z.dev0" to version="X.Y.Z.dev1".
+1. If a previous test package with the exact same version was released, update the version in `pyproject.toml`. For instance, change version = "X.Y.Z.dev0" to version = "X.Y.Z.dev1".
 2. Build the package locally using:
    ```sh
    rm -rf dist/*

@@ -25,22 +25,6 @@ class UnitRemoveChildRequest(BaseModel):
     r"""Serial number of the sub-unit to remove"""
 
 
-class UnitRemoveChildInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitRemoveChildInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnitRemoveChildNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitRemoveChildNotFoundIssue(BaseModel):
-    message: str
-
-
 class UnitRemoveChildResponseTypedDict(TypedDict):
     r"""Child unit removed successfully"""
 

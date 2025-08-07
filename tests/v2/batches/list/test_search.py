@@ -11,10 +11,8 @@ class TestBatchesSearch:
     """Test search parameter for partial text matching."""
     
     @pytest.fixture
-    def test_batches_for_search(self, client: TofuPilot) -> List[tuple[models.BatchCreateResponse, str]]:
+    def test_batches_for_search(self, client: TofuPilot, timestamp) -> List[tuple[models.BatchCreateResponse, str]]:
         """Create test batches with various patterns for search tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
-        
         test_configs = [
             f"PRODUCTION-LINE-A-{timestamp}",
             f"PRODUCTION-LINE-B-{timestamp}",

@@ -43,10 +43,9 @@ def get_test_image_data() -> bytes:
 class TestRevisionImageUpload:
     """Test revision image upload functionality."""
     
-    def test_update_revision_with_image(self, client: tofupilot.v2.TofuPilot, auth_type: str) -> None:
+    def test_update_revision_with_image(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating a revision with an image attachment."""
         # Step 1: Create a part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-IMG-{timestamp}-{unique_id}"
         
@@ -81,10 +80,9 @@ class TestRevisionImageUpload:
         
         print(f"\nSuccessfully updated revision {revision_id} with image {attachment.id}")
     
-    def test_update_revision_image_and_verify_download(self, client: tofupilot.v2.TofuPilot, auth_type: str) -> None:
+    def test_update_revision_image_and_verify_download(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test complete image workflow: upload, attach to revision, and verify download."""
         # Step 1: Create a part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-IMG-DL-{timestamp}-{unique_id}"
         
@@ -144,10 +142,9 @@ class TestRevisionImageUpload:
         
         print(f"\nSuccessfully replaced revision image with {second_image.id}")
     
-    def test_remove_revision_image(self, client: tofupilot.v2.TofuPilot, auth_type: str) -> None:
+    def test_remove_revision_image(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test removing an image from a revision."""
         # Step 1: Create a part and revision with an image
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-IMG-REM-{timestamp}-{unique_id}"
         
@@ -198,10 +195,9 @@ class TestRevisionImageUpload:
         
         print(f"\nSuccessfully removed image from revision {revision_id}")
     
-    def test_update_revision_with_image_and_number(self, client: tofupilot.v2.TofuPilot, auth_type: str) -> None:
+    def test_update_revision_with_image_and_number(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating both revision number and image in single call."""
         # Step 1: Create a part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-IMG-NUM-{timestamp}-{unique_id}"
         

@@ -27,22 +27,6 @@ class RunGetRequest(BaseModel):
     r"""ID of the run to retrieve."""
 
 
-class RunGetInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunGetInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class RunGetNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunGetNotFoundIssue(BaseModel):
-    message: str
-
-
 RunGetOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Final result of the run execution."""
 

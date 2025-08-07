@@ -10,7 +10,7 @@ from ..utils import assert_create_station_success, assert_get_stations_success
 class TestStationListSearch:
     """Test station list search scenarios."""
     
-    def test_search_station_by_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_search_station_by_name(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test searching stations by name."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -20,7 +20,6 @@ class TestStationListSearch:
             return
         
         # Create test stations with specific names
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         
         test_stations = [
@@ -48,7 +47,7 @@ class TestStationListSearch:
         
         assert matching_count == 2, f"Expected 2 Assembly stations, found {matching_count}"
     
-    def test_search_station_by_identifier(self, client: TofuPilot, auth_type: str) -> None:
+    def test_search_station_by_identifier(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test searching stations by identifier."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -58,7 +57,6 @@ class TestStationListSearch:
             return
         
         # Create a station and get its auto-generated identifier
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_name = f"Search Test Station - {timestamp}"
         
         create_result = client.stations.create(name=station_name)
@@ -91,7 +89,7 @@ class TestStationListSearch:
         
         assert found, f"Station with identifier {identifier} not found in search results"
     
-    def test_search_station_partial_match(self, client: TofuPilot, auth_type: str) -> None:
+    def test_search_station_partial_match(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test partial matching in station search."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -101,7 +99,6 @@ class TestStationListSearch:
             return
         
         # Create stations with related names
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         base_name = f"Manufacture-{timestamp}"
         
         test_names = [

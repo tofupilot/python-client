@@ -9,9 +9,9 @@ from ...utils import assert_station_access_forbidden
 
 class TestCreateProcedureDuplicateName:
 
-    def test_duplicate_procedure_name_succeeds(self, client: TofuPilot, auth_type: str) -> None:
+    def test_duplicate_procedure_name_succeeds(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that creating procedures with duplicate names succeeds (names are not unique)."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Duplicate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Duplicate-{timestamp}"
         
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -42,9 +42,9 @@ class TestCreateProcedureDuplicateName:
         # Both should have the same name (duplicate names allowed)
         assert proc1.name == proc2.name == PROCEDURE_NAME
     
-    def test_case_sensitivity_in_names(self, client: TofuPilot, auth_type: str) -> None:
+    def test_case_sensitivity_in_names(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test case sensitivity in procedure names."""
-        base_name = f"AutomatedTest-V2-Case-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        base_name = f"AutomatedTest-V2-Case-{timestamp}"
         PROCEDURE_NAME_LOWER = base_name.lower()
         PROCEDURE_NAME_UPPER = base_name.upper()
         
@@ -76,9 +76,8 @@ class TestCreateProcedureDuplicateName:
         assert proc1.name == PROCEDURE_NAME_LOWER
         assert proc2.name == PROCEDURE_NAME_UPPER
     
-    def test_similar_but_different_names_succeed(self, client: TofuPilot, auth_type: str) -> None:
+    def test_similar_but_different_names_succeed(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that similar but different names can be created."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         names = [
             f"AutomatedTest-V2-Similar-{timestamp}-A",

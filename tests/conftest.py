@@ -1,8 +1,11 @@
 import pytest
 import os
+import re
 from pathlib import Path
 from dotenv import load_dotenv
-from typing import Any
+from typing import Union
+
+import tofupilot
 
 # Load environment variables from .env file
 env_path = Path(__file__).parent / '.env'
@@ -87,3 +90,124 @@ def procedure_id() -> str:
             "export TOFUPILOT_PROCEDURE_ID='your-procedure-id'"
         )
     return procedure_id
+
+@pytest.fixture()
+def extract_run_id_from_logs(caplog):
+    SUCCESS_LEVEL_NUM = 25
+
+    def extract_id(s: str) -> Union[str, None]:
+
+        res = re.search(r"^Run imported successfully with ID: (.*)$", s)
+
+        return res.group(1) if res else None
+
+    def func() -> str:
+        successes = [record for record in caplog.get_records('call') if record.levelno == SUCCESS_LEVEL_NUM]
+        ids = [ id for record in successes if (id := extract_id(record.getMessage())) ]
+
+        assert len(ids) == 1, f"Expected single id, but got: {ids}"
+
+        return ids[0]
+    
+    return func
+
+@pytest.fixture()
+def check_run_exists(tofupilot_server_url, user_api_key):
+    """Function to check if a run exists, returns the run for further checks"""
+
+    v2_client = tofupilot.v2.TofuPilot(
+        api_key=user_api_key,
+        server_url=f"{tofupilot_server_url}/api",
+    )
+  
+    def func(id: str, *, 
+             # Basic run fields
+             outcome: Union[str, None] = None,
+             # Unit fields
+             serial_number: Union[str, None] = None,
+             part_number: Union[str, None] = None,
+             part_name: Union[str, None] = None,
+             revision: Union[str, None] = None,
+             batch_number: Union[str, None] = None,
+             # Procedure fields
+             procedure_id: Union[str, None] = None,
+             procedure_name: Union[str, None] = None,
+             procedure_version: Union[str, None] = None,
+             # Optional fields
+             docstring: Union[str, None] = None):
+
+        run = v2_client.runs.get(id = id)
+        assert run.id == id
+
+        # Basic run fields
+        if outcome:
+            assert run.outcome == outcome
+            
+        # Unit fields
+        if serial_number:
+            assert run.unit.serial_number == serial_number
+        if part_number:
+            assert run.unit.part.number == part_number
+        if part_name:
+            assert run.unit.part.name == part_name
+        if revision:
+            assert run.unit.part.revision.number == revision
+        if batch_number:
+            assert run.unit.batch
+            assert run.unit.batch.number == batch_number
+            
+        # Procedure fields
+        if procedure_id:
+            assert run.procedure.id == procedure_id
+        if procedure_name:
+            assert run.procedure.name == procedure_name
+        if procedure_version:
+            assert run.procedure.version
+            assert run.procedure.version.tag == procedure_version
+            
+        # Optional fields
+        if docstring:
+            assert run.docstring == docstring
+
+        return run
+        
+    return func
+
+
+@pytest.fixture()
+def extract_id_and_check_run_exists(extract_run_id_from_logs, check_run_exists):
+    """Function to check if a run exists (extracted from the logs), returns the run for further checks"""
+    
+    def func(
+            *,
+            # Basic run fields
+            outcome: Union[str, None] = None,
+            # Unit fields
+            serial_number: Union[str, None] = None,
+            part_number: Union[str, None] = None,
+            part_name: Union[str, None] = None,
+            revision: Union[str, None] = None,
+            batch_number: Union[str, None] = None,
+            # Procedure fields
+            procedure_id: Union[str, None] = None,
+            procedure_name: Union[str, None] = None,
+            procedure_version: Union[str, None] = None,
+            # Optional fields
+            docstring: Union[str, None] = None
+        ):
+        id = extract_run_id_from_logs()
+        return check_run_exists(
+            id,
+            outcome=outcome,
+            serial_number=serial_number,
+            part_number=part_number,
+            part_name=part_name,
+            revision=revision,
+            batch_number=batch_number,
+            procedure_id=procedure_id,
+            procedure_name=procedure_name,
+            procedure_version=procedure_version,
+            docstring=docstring
+        )
+
+    return func

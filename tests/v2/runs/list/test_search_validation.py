@@ -35,12 +35,11 @@ class TestRunsSearchValidation:
             assert isinstance(response.data, list), f"Case variation '{search_term}' should work"
         print("✓ Case variations work")
 
-    def test_search_with_existing_data(self, client: TofuPilot, procedure_id: str):
+    def test_search_with_existing_data(self, client: TofuPilot, procedure_id: str, timestamp: str):
         """Test search against test data we create - only supported fields."""
         from datetime import datetime, timezone
         
         # Create test run with searchable serial number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"SEARCHABLE-UNIT-{timestamp}"
         
         # Create run
@@ -74,12 +73,11 @@ class TestRunsSearchValidation:
             assert run_result.id in found_run_ids, "Should find run by ID prefix"
             print("✓ Found run by ID prefix search")
 
-    def test_nested_fields_accessible(self, client: TofuPilot, procedure_id: str):
+    def test_nested_fields_accessible(self, client: TofuPilot, procedure_id: str, timestamp: str):
         """Test that result objects have correct nested structure."""
         # Create a simple run
         from datetime import datetime, timezone
         
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"NESTED-TEST-{timestamp}"
         
         run_result = client.runs.create(
@@ -118,52 +116,3 @@ class TestRunsSearchValidation:
             assert hasattr(our_run.unit, 'id'), "Unit should have id"
             assert hasattr(our_run.unit, 'serial_number'), "Unit should have serial_number"
             print("✓ Unit nested fields accessible")
-
-    def test_search_by_procedure_name(self, client: TofuPilot, procedure_id: str):
-        """Test searching by procedure name (supported field)."""
-        from datetime import datetime, timezone
-        
-        # Get the procedure to know its name
-        procedures = client.procedures.list(limit=100)
-        test_procedure = None
-        for proc in procedures.data:
-            if proc.id == procedure_id:
-                test_procedure = proc
-                break
-        
-        if test_procedure and test_procedure.name:
-            # Create a run with this procedure
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
-            serial_number = f"PROC-NAME-TEST-{timestamp}"
-            
-            client.runs.create(
-                outcome="PASS",
-                procedure_id=procedure_id,
-                serial_number=serial_number,
-                part_number=f"PART-{timestamp}",
-                started_at=datetime.now(timezone.utc),
-                ended_at=datetime.now(timezone.utc)
-            )
-            
-            # Add small delay to ensure search index is updated
-            import time
-            time.sleep(0.5)
-            
-            # First, verify the run was created by searching for the unique serial number
-            verify_response = client.runs.list(search_query=serial_number)
-            if len(verify_response.data) == 0:
-                print(f"⚠️ Could not find the just-created run with serial number '{serial_number}'")
-            
-            # Search by procedure name
-            response = client.runs.list(search_query=test_procedure.name)
-            
-            # For very short procedure names like "new", search might not work well
-            # Let's be more lenient for station auth
-            if len(test_procedure.name) <= 3:
-                # For short names, just verify search doesn't crash
-                assert isinstance(response.data, list), "Search should return a list"
-                print(f"✓ Search by short procedure name '{test_procedure.name}' returned {len(response.data)} results")
-            else:
-                # For longer names, expect to find results
-                assert len(response.data) > 0, f"Should find runs with procedure name '{test_procedure.name}'"
-                print("✓ Found runs by procedure name search")

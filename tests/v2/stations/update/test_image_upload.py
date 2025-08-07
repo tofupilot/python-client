@@ -45,14 +45,13 @@ def get_test_image_data() -> bytes:
 class TestStationImageUpload:
     """Test station image upload functionality."""
     
-    def test_update_station_with_image(self, client: "TofuPilot", auth_type: str) -> None:
+    def test_update_station_with_image(self, client: "TofuPilot", auth_type: str, timestamp: str) -> None:
         """Test updating a station with an image attachment."""
         if auth_type == "station":
             # Skip test for station auth - stations can't update themselves
             return
             
         # Step 1: Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         station_name = f"Image Test Station {timestamp}-{unique_id}"
         
@@ -78,14 +77,13 @@ class TestStationImageUpload:
         
         print(f"\nSuccessfully updated station {station_id} with image {attachment.id}")
     
-    def test_update_station_image_and_verify_download(self, client: "TofuPilot", auth_type: str) -> None:
+    def test_update_station_image_and_verify_download(self, client: "TofuPilot", auth_type: str, timestamp: str) -> None:
         """Test complete image workflow: upload, attach to station, and verify download."""
         if auth_type == "station":
             # Skip test for station auth
             return
             
         # Step 1: Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         station_name = f"Image Download Test Station {timestamp}-{unique_id}"
         
@@ -133,14 +131,13 @@ class TestStationImageUpload:
         
         print(f"\nSuccessfully replaced station image with {second_image.id}")
     
-    def test_remove_station_image(self, client: "TofuPilot", auth_type: str) -> None:
+    def test_remove_station_image(self, client: "TofuPilot", auth_type: str, timestamp: str) -> None:
         """Test removing an image from a station."""
         if auth_type == "station":
             # Skip test for station auth
             return
             
         # Step 1: Create a station with an image
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         station_name = f"Image Remove Test Station {timestamp}-{unique_id}"
         
@@ -176,14 +173,13 @@ class TestStationImageUpload:
         
         print(f"\nSuccessfully removed image from station {station_id}")
     
-    def test_update_station_with_image_and_name(self, client: "TofuPilot", auth_type: str) -> None:
+    def test_update_station_with_image_and_name(self, client: "TofuPilot", auth_type: str, timestamp: str) -> None:
         """Test updating both station name and image in single call."""
         if auth_type == "station":
             # Skip test for station auth
             return
             
         # Step 1: Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         station_name = f"Image+Name Test Station {timestamp}-{unique_id}"
         
@@ -216,14 +212,13 @@ class TestStationImageUpload:
         
         print(f"\nSuccessfully updated station {station_id} with new name '{new_name}' and image")
     
-    def test_update_station_with_image_and_identifier(self, client: "TofuPilot", auth_type: str) -> None:
+    def test_update_station_with_image_and_identifier(self, client: "TofuPilot", auth_type: str, timestamp: str) -> None:
         """Test updating both station identifier and image in single call."""
         if auth_type == "station":
             # Skip test for station auth
             return
             
         # Step 1: Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         station_name = f"Image+ID Test Station {timestamp}-{unique_id}"
         

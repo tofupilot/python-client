@@ -171,14 +171,6 @@ class RunListRequest(BaseModel):
     r"""Sort order direction."""
 
 
-class RunListIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunListIssue(BaseModel):
-    message: str
-
-
 RunListDataOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Final result of the run execution."""
 
@@ -247,7 +239,7 @@ class RunListCreatedByStationTypedDict(TypedDict):
 
     id: str
     r"""Station ID."""
-    name: Nullable[str]
+    name: str
     r"""Station name."""
     image: Nullable[str]
     r"""Station image URL."""
@@ -259,7 +251,7 @@ class RunListCreatedByStation(BaseModel):
     id: str
     r"""Station ID."""
 
-    name: Nullable[str]
+    name: str
     r"""Station name."""
 
     image: Nullable[str]
@@ -268,7 +260,7 @@ class RunListCreatedByStation(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name", "image"]
+        nullable_fields = ["image"]
         null_default_fields = []
 
         serialized = handler(self)

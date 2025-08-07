@@ -12,7 +12,7 @@ from ..utils import assert_create_station_success, assert_get_station_success
 class TestGetStation:
     """Test getting individual station details."""
     
-    def test_get_station_by_id(self, client: TofuPilot, auth_type: str) -> None:
+    def test_get_station_by_id(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test getting a station by its ID."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -22,7 +22,6 @@ class TestGetStation:
             return
         
         # Create a station first
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_name = f"Get Test Station - {timestamp}"
         
         create_result = client.stations.create(name=station_name)
@@ -53,14 +52,13 @@ class TestGetStation:
         
         # ErrorNOTFOUND is automatically a 404
     
-    def test_get_station_with_procedures(self, client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+    def test_get_station_with_procedures(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test getting a station that has linked procedures."""
         if auth_type == "station":
             # Skip for station auth as they can't create/link
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_name = f"Station with Procedures - {timestamp}"
         
         create_result = client.stations.create(name=station_name)
@@ -82,7 +80,7 @@ class TestGetStation:
             assert hasattr(proc, 'identifier')
             assert hasattr(proc, 'runs_count')
     
-    def test_get_station_connection_status(self, client: TofuPilot, auth_type: str) -> None:
+    def test_get_station_connection_status(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that connection status is returned correctly."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -92,7 +90,6 @@ class TestGetStation:
             return
         
         # Create a new station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         create_result = client.stations.create(name=f"Connection Test - {timestamp}")
         station_id = create_result.id
         
@@ -103,7 +100,7 @@ class TestGetStation:
         # Connection status should be None, 'connected', or 'disconnected'
         assert result.connection_status is None or result.connection_status in ['connected', 'disconnected']
     
-    def test_get_multiple_stations_sequentially(self, client: TofuPilot, auth_type: str) -> None:
+    def test_get_multiple_stations_sequentially(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test getting multiple stations one after another."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -114,7 +111,6 @@ class TestGetStation:
         
         # Create multiple stations
         station_ids: List[str] = []
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         
         for i in range(3):
             name = f"Sequential Test {i+1} - {timestamp}-{str(uuid.uuid4())[:8]}"

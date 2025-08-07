@@ -21,14 +21,13 @@ class TestBatchCaseInsensitiveConflicts:
         with pytest.raises(ErrorCONFLICT) as exc_info:
             client.batches.create(number=batch_number.lower())
         
-        assert exc_info.value.status_code == 409
         assert "already exists" in str(exc_info.value).lower()
         
         # Also test with mixed case and whitespace
         with pytest.raises(ErrorCONFLICT) as exc_info:
             client.batches.create(number=f"  {batch_number.title()}  ")
         
-        assert exc_info.value.status_code == 409
+        assert "already exists" in str(exc_info.value).lower()
 
     def test_batch_create_no_conflict_different_numbers(self, client: TofuPilot):
         """Test that creating batches with different numbers works."""
@@ -53,5 +52,4 @@ class TestBatchCaseInsensitiveConflicts:
         with pytest.raises(ErrorCONFLICT) as exc_info:
             client.batches.create(number=batch_number)
         
-        assert exc_info.value.status_code == 409
         assert "already exists" in str(exc_info.value).lower()

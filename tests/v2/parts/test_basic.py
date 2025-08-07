@@ -7,9 +7,8 @@ from ..utils import assert_station_access_forbidden
 
 class TestParts:
     
-    def test_create_part(self, client: TofuPilot) -> None:
+    def test_create_part(self, client: TofuPilot, timestamp) -> None:
         """Test creating a new part."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"TEST-BASIC-001-{timestamp}"
         result = client.parts.create(number=part_number, name="Test Part")
         
@@ -25,9 +24,8 @@ class TestParts:
         assert part.number == part_number
         assert part.name == "Test Part"
     
-    def test_create_part_with_revision(self, client: TofuPilot) -> None:
+    def test_create_part_with_revision(self, client: TofuPilot, timestamp) -> None:
         """Test creating a new part with revision."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"TEST-BASIC-002-{timestamp}"
         result = client.parts.create(
             number=part_number,
@@ -66,10 +64,9 @@ class TestParts:
         assert hasattr(result, 'data')
         assert isinstance(result.data, list)
     
-    def test_update_part(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_part(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating a part."""
         # First create a part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"TEST-BASIC-003-{timestamp}"
         create_result = client.parts.create(number=part_number, name="Test Part for Update")
         part_id = create_result.id

@@ -15,30 +15,6 @@ class StationCreateRequest(BaseModel):
     r"""Name of the station"""
 
 
-class StationCreateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationCreateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class StationCreateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationCreateConflictIssue(BaseModel):
-    message: str
-
-
-class StationCreateForbiddenIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationCreateForbiddenIssue(BaseModel):
-    message: str
-
-
 class StationCreateResponseTypedDict(TypedDict):
     r"""Station created successfully"""
 

@@ -11,14 +11,13 @@ from ..utils import assert_create_station_success, assert_update_station_success
 class TestUpdateStation:
     """Test updating station details."""
     
-    def test_update_station_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_station_name(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating a station's name."""
         if auth_type == "station":
             # Skip test for station auth
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         original_name = f"Original Station Name - {timestamp}"
         
         create_result = client.stations.create(name=original_name)
@@ -39,14 +38,13 @@ class TestUpdateStation:
         # Identifier should remain unchanged
         assert get_result.identifier == update_result.identifier
     
-    def test_update_station_identifier(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_station_identifier(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating a station's identifier."""
         if auth_type == "station":
             # Skip test for station auth
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_name = f"Station for ID Update - {timestamp}"
         
         create_result = client.stations.create(name=station_name)
@@ -69,14 +67,13 @@ class TestUpdateStation:
         assert get_result.identifier == new_identifier
         assert get_result.name == station_name  # Name unchanged
     
-    def test_update_station_both_fields(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_station_both_fields(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating both name and identifier simultaneously."""
         if auth_type == "station":
             # Skip test for station auth
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         create_result = client.stations.create(name=f"Initial Station - {timestamp}")
         station_id = create_result.id
         
@@ -108,14 +105,13 @@ class TestUpdateStation:
             )
     
     
-    def test_update_station_remove_image(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_station_remove_image(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test removing a station's image by passing empty string."""
         if auth_type == "station":
             # Skip test for station auth
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         create_result = client.stations.create(name=f"Station with Image - {timestamp}")
         station_id = create_result.id
         
@@ -131,14 +127,13 @@ class TestUpdateStation:
         get_result = client.stations.get(id=station_id)
         assert get_result.image is None
     
-    def test_update_station_partial_update(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_station_partial_update(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that unspecified fields remain unchanged during update."""
         if auth_type == "station":
             # Skip test for station auth
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         original_name = f"Partial Update Test - {timestamp}"
         
         create_result = client.stations.create(name=original_name)

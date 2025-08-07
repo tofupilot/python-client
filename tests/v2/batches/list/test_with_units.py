@@ -12,9 +12,8 @@ class TestBatchesWithUnits:
     """Test batch listing including associated units."""
     
     @pytest.fixture
-    def test_batches_with_units_data(self, client: TofuPilot, procedure_id: str) -> Tuple[List[models.BatchCreateResponse], Dict[str, List[str]]]:
+    def test_batches_with_units_data(self, client: TofuPilot, procedure_id: str, timestamp) -> Tuple[List[models.BatchCreateResponse], Dict[str, List[str]]]:
         """Create test batches with and without units."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         batches: List[models.BatchCreateResponse] = []
         units_map: Dict[str, List[str]] = {}  # Maps batch_id to list of serial numbers

@@ -6,7 +6,7 @@ include CONTRIBUTING.md
 include CODE_OF_CONDUCT.md
 
 # Include setup and requirements files
-include setup.py
+include pyproject.toml
 include requirements.txt
 
 # Include all Python source files in the src directory

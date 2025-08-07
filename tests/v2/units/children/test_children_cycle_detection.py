@@ -7,42 +7,12 @@ from tofupilot.v2 import errors
 from ..utils import assert_create_unit_success
 from ...utils import assert_station_access_forbidden
 
-
-def create_test_unit(client: TofuPilot, prefix: str) -> tuple[str, str, str]:
-    """Create a test unit and return (unit_id, serial_number, revision_id)."""
-    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
-    part_number = f"{prefix}-PART-{timestamp}"
-    revision_number = f"{prefix}-REV-{timestamp}"
-    serial_number = f"{prefix}-{timestamp}"
-    
-    # Create part and revision
-    client.parts.create(
-        number=part_number,
-        name=f"Test Part {prefix} {timestamp}"
-    )
-    
-    revision_result = client.parts.revisions.create(
-        part_number=part_number,
-        number=revision_number
-    )
-    
-    # Create unit
-    unit_result = client.units.create(
-        serial_number=serial_number,
-        part_number=part_number,
-        revision_number=revision_number,
-    )
-    
-    assert_create_unit_success(unit_result)
-    return unit_result.id, serial_number, revision_result.id
-
-
 class TestCycleDetection:
     """Tests to ensure cycles cannot be created in parent-child relationships."""
 
-    def test_self_reference_prevention(self, client: TofuPilot, auth_type: str) -> None:
+    def test_self_reference_prevention(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test that a unit cannot be its own child (direct cycle)."""
-        unit_id, unit_serial, _ = create_test_unit(client, "SELF-REFERENCE")
+        unit_id, unit_serial, _ = create_test_unit("SELF-REFERENCE")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
@@ -59,10 +29,10 @@ class TestCycleDetection:
                 child_serial_number=unit_serial,
             )
 
-    def test_two_level_cycle_prevention(self, client: TofuPilot, auth_type: str) -> None:
+    def test_two_level_cycle_prevention(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test preventing 2-level cycle: A -> B, then B -> A."""
-        unit_a_id, unit_a_serial, _ = create_test_unit(client, "CYCLE-2-A")
-        unit_b_id, unit_b_serial, _ = create_test_unit(client, "CYCLE-2-B")
+        unit_a_id, unit_a_serial, _ = create_test_unit("CYCLE-2-A")
+        unit_b_id, unit_b_serial, _ = create_test_unit("CYCLE-2-B")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships - verify 403 on first operation
@@ -86,11 +56,11 @@ class TestCycleDetection:
                 child_serial_number=unit_a_serial,
             )
 
-    def test_three_level_cycle_prevention(self, client: TofuPilot, auth_type: str) -> None:
+    def test_three_level_cycle_prevention(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test preventing 3-level cycle: A -> B -> C, then C -> A."""
-        unit_a_id, unit_a_serial, _ = create_test_unit(client, "CYCLE-3-A")
-        unit_b_id, unit_b_serial, _ = create_test_unit(client, "CYCLE-3-B")
-        unit_c_id, unit_c_serial, _ = create_test_unit(client, "CYCLE-3-C")
+        unit_a_id, unit_a_serial, _ = create_test_unit("CYCLE-3-A")
+        unit_b_id, unit_b_serial, _ = create_test_unit("CYCLE-3-B")
+        unit_c_id, unit_c_serial, _ = create_test_unit("CYCLE-3-C")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships - verify 403 on first operation
@@ -119,12 +89,12 @@ class TestCycleDetection:
                 child_serial_number=unit_a_serial,
             )
 
-    def test_four_level_cycle_prevention(self, client: TofuPilot, auth_type: str) -> None:
+    def test_four_level_cycle_prevention(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test preventing 4-level cycle: A -> B -> C -> D, then D -> A."""
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            unit_a_id, unit_a_serial, _ = create_test_unit(client, "CYCLE-4-A-STATION")
-            unit_b_id, unit_b_serial, _ = create_test_unit(client, "CYCLE-4-B-STATION")
+            unit_a_id, unit_a_serial, _ = create_test_unit("CYCLE-4-A-STATION")
+            unit_b_id, unit_b_serial, _ = create_test_unit("CYCLE-4-B-STATION")
             with assert_station_access_forbidden("add child for 4-level cycle test"):
                 client.units.add_child(
                     serial_number=unit_a_serial,
@@ -134,7 +104,7 @@ class TestCycleDetection:
             
         units: list[tuple[str, str]] = []
         for i in range(4):
-            unit_id, unit_serial, _ = create_test_unit(client, f"CYCLE-4-{chr(65+i)}")
+            unit_id, unit_serial, _ = create_test_unit(f"CYCLE-4-{chr(65+i)}")
             units.append((unit_id, unit_serial))
         
         # Create chain: A -> B -> C -> D
@@ -154,12 +124,12 @@ class TestCycleDetection:
                 child_serial_number=units[0][1],
             )
 
-    def test_deep_cycle_prevention(self, client: TofuPilot, auth_type: str) -> None:
+    def test_deep_cycle_prevention(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test preventing cycle in a deep hierarchy (10 levels)."""
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            unit_a_id, unit_a_serial, _ = create_test_unit(client, "DEEP-A-STATION")
-            unit_b_id, unit_b_serial, _ = create_test_unit(client, "DEEP-B-STATION")
+            unit_a_id, unit_a_serial, _ = create_test_unit("DEEP-A-STATION")
+            unit_b_id, unit_b_serial, _ = create_test_unit("DEEP-B-STATION")
             with assert_station_access_forbidden("add child for deep cycle test"):
                 client.units.add_child(
                     serial_number=unit_a_serial,
@@ -169,7 +139,7 @@ class TestCycleDetection:
             
         units: list[tuple[str, str]] = []
         for i in range(10):
-            unit_id, unit_serial, _ = create_test_unit(client, f"DEEP-{i}")
+            unit_id, unit_serial, _ = create_test_unit(f"DEEP-{i}")
             units.append((unit_id, unit_serial))
         
         # Create deep chain: 0 -> 1 -> 2 -> ... -> 9
@@ -204,12 +174,12 @@ class TestCycleDetection:
                 child_serial_number=units[2][1],
             )
 
-    def test_diamond_pattern_prevention(self, client: TofuPilot, auth_type: str) -> None:
+    def test_diamond_pattern_prevention(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test preventing diamond pattern that would create a cycle."""
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            unit_a_id, unit_a_serial, _ = create_test_unit(client, "DIAMOND-A-STATION")
-            unit_b_id, unit_b_serial, _ = create_test_unit(client, "DIAMOND-B-STATION")
+            unit_a_id, unit_a_serial, _ = create_test_unit("DIAMOND-A-STATION")
+            unit_b_id, unit_b_serial, _ = create_test_unit("DIAMOND-B-STATION")
             with assert_station_access_forbidden("add child for diamond pattern test"):
                 client.units.add_child(
                     serial_number=unit_a_serial,
@@ -218,10 +188,10 @@ class TestCycleDetection:
             return
             
         # Create units: A, B, C, D
-        unit_a_id, unit_a_serial, _ = create_test_unit(client, "DIAMOND-A")
-        unit_b_id, unit_b_serial, _ = create_test_unit(client, "DIAMOND-B")
-        unit_c_id, unit_c_serial, _ = create_test_unit(client, "DIAMOND-C")
-        unit_d_id, unit_d_serial, _ = create_test_unit(client, "DIAMOND-D")
+        unit_a_id, unit_a_serial, _ = create_test_unit("DIAMOND-A")
+        unit_b_id, unit_b_serial, _ = create_test_unit("DIAMOND-B")
+        unit_c_id, unit_c_serial, _ = create_test_unit("DIAMOND-C")
+        unit_d_id, unit_d_serial, _ = create_test_unit("DIAMOND-D")
         
         # Create structure:
         # A -> B
@@ -263,12 +233,12 @@ class TestCycleDetection:
                 child_serial_number=unit_a_serial,
             )
 
-    def test_multiple_children_no_cycle(self, client: TofuPilot, auth_type: str) -> None:
+    def test_multiple_children_no_cycle(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test that having multiple children doesn't prevent valid operations."""
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            parent_id, parent_serial, _ = create_test_unit(client, "MULTI-PARENT-STATION")
-            child_id, child_serial, _ = create_test_unit(client, "MULTI-CHILD-STATION")
+            parent_id, parent_serial, _ = create_test_unit("MULTI-PARENT-STATION")
+            child_id, child_serial, _ = create_test_unit("MULTI-CHILD-STATION")
             with assert_station_access_forbidden("add child for multiple children test"):
                 client.units.add_child(
                     serial_number=parent_serial,
@@ -277,12 +247,12 @@ class TestCycleDetection:
             return
             
         # Create parent with multiple children (tree structure)
-        parent_id, parent_serial, _ = create_test_unit(client, "TREE-PARENT")
+        parent_id, parent_serial, _ = create_test_unit("TREE-PARENT")
         
         # Add 3 children
         children: list[tuple[str, str]] = []
         for i in range(3):
-            child_id, child_serial, _ = create_test_unit(client, f"TREE-CHILD-{i}")
+            child_id, child_serial, _ = create_test_unit(f"TREE-CHILD-{i}")
             children.append((child_id, child_serial))
             
             client.units.add_child(
@@ -293,7 +263,7 @@ class TestCycleDetection:
         # Each child can have their own children (no cycles)
         grandchildren: list[tuple[str, str]] = []
         for i, (child_id, child_serial) in enumerate(children):
-            grandchild_id, grandchild_serial, _ = create_test_unit(client, f"TREE-GRANDCHILD-{i}")
+            grandchild_id, grandchild_serial, _ = create_test_unit(f"TREE-GRANDCHILD-{i}")
             grandchildren.append((grandchild_id, grandchild_serial))
             
             # This should work fine (no cycle)

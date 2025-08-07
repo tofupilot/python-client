@@ -7,7 +7,6 @@ from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
-from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
 from tofupilot.v2.versions import Versions
 from typing import Any, Mapping, Optional
 
@@ -109,23 +108,31 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureListResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureListResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorProcedureIDHasNoCreatedByUserError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorProcedureIDHasNoCreatedByUserError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def list_async(
         self,
@@ -213,23 +220,31 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureListResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureListResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorProcedureIDHasNoCreatedByUserError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorProcedureIDHasNoCreatedByUserError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def create(
         self,
@@ -302,36 +317,37 @@ class Procedures(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["400", "4XX", "500", "5XX"],
+            error_status_codes=["4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureCreateResponse, http_res)
-        if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureCreateProcedureNameIsRequiredError400Data, http_res
-            )
-            raise errors.ProcedureCreateProcedureNameIsRequiredError400(
-                response_data, http_res
-            )
+            return utils.unmarshal_json(http_res.text, models.ProcedureCreateResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorFailedToCreateProcedureErrorError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorFailedToCreateProcedureErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def create_async(
         self,
@@ -404,36 +420,37 @@ class Procedures(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["400", "4XX", "500", "5XX"],
+            error_status_codes=["4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureCreateResponse, http_res)
-        if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureCreateProcedureNameIsRequiredError400Data, http_res
-            )
-            raise errors.ProcedureCreateProcedureNameIsRequiredError400(
-                response_data, http_res
-            )
+            return utils.unmarshal_json(http_res.text, models.ProcedureCreateResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorFailedToCreateProcedureErrorError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorFailedToCreateProcedureErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def get(
         self,
@@ -509,27 +526,36 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureGetResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureGetResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureNotFoundIDError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.ProcedureNotFoundIDError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureGetInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.ProcedureGetInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def get_async(
         self,
@@ -605,27 +631,36 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureGetResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureGetResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureNotFoundIDError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.ProcedureNotFoundIDError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureGetInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.ProcedureGetInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def delete(
         self,
@@ -640,7 +675,7 @@ class Procedures(BaseSDK):
 
         Permanently delete a procedure and all associated data. This action cannot be undone and will remove all nested elements including runs, phases, measurements, and run attachments.
 
-        :param id:
+        :param id: Unique identifier of the procedure to delete.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -701,30 +736,36 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureDeleteResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureDeleteResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureDeleteProcedureWithIDIDNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.ProcedureDeleteProcedureWithIDIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorFailedToDeleteProcedureErrorError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorFailedToDeleteProcedureErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def delete_async(
         self,
@@ -739,7 +780,7 @@ class Procedures(BaseSDK):
 
         Permanently delete a procedure and all associated data. This action cannot be undone and will remove all nested elements including runs, phases, measurements, and run attachments.
 
-        :param id:
+        :param id: Unique identifier of the procedure to delete.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -800,30 +841,36 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureDeleteResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureDeleteResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureDeleteProcedureWithIDIDNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.ProcedureDeleteProcedureWithIDIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorFailedToDeleteProcedureErrorError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorFailedToDeleteProcedureErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def update(
         self,
@@ -911,37 +958,41 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureUpdateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureUpdateResponse)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureUpdateProcedureNameIsRequiredError400Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.ProcedureUpdateProcedureNameIsRequiredError400(
-                response_data, http_res
-            )
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureUpdateProcedureWithIDIDNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.ProcedureUpdateProcedureWithIDIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorFailedToUpdateProcedureErrorError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorFailedToUpdateProcedureErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def update_async(
         self,
@@ -1029,34 +1080,38 @@ class Procedures(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureUpdateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.ProcedureUpdateResponse)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureUpdateProcedureNameIsRequiredError400Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.ProcedureUpdateProcedureNameIsRequiredError400(
-                response_data, http_res
-            )
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ProcedureUpdateProcedureWithIDIDNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.ProcedureUpdateProcedureWithIDIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InternalServerErrorFailedToUpdateProcedureErrorError500Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.InternalServerErrorFailedToUpdateProcedureErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )

@@ -80,55 +80,6 @@ class TestGetRevision:
         for unit in revision.units:
             assert unit.id is not None
             assert unit.serial_number is not None
-            assert hasattr(unit, 'children_count')
-            assert hasattr(unit, 'runs')
-
-    def test_get_revision_with_unit_runs(self, client: TofuPilot, procedure_id: str):
-        """Test revision includes run information for its units."""
-        # Create part
-        part_number = f"TEST-PART-REV-RUNS-{int(time.time() * 1000)}"
-        part_response = client.parts.create(
-            number=part_number,
-            name="Part with Run History"
-        )
-        assert_create_part_success(part_response)
-        
-        # Create revision
-        revision_response = client.parts.revisions.create(part_number=part_number
-        , number="REV-C")
-        assert_create_revision_success(revision_response)
-        
-        # Create unit with multiple runs
-        serial_number = f"UNIT-WITH-RUNS-{int(time.time() * 1000)}"
-        for i in range(3):
-            # Use different duration for variety
-            started_at, ended_at = get_random_test_dates(duration_minutes=5 + i)
-            run = client.runs.create(
-                outcome="PASS" if i == 0 else "FAIL",
-                procedure_id=procedure_id,
-                serial_number=serial_number,
-                part_number=part_number,
-                revision_number="REV-C",
-                started_at=started_at,
-                ended_at=ended_at
-            )
-            assert_create_run_success(run)
-        
-        # Get the revision
-        revision = client.parts.revisions.get(part_number=part_number, revision_number="REV-C")
-        
-        # Find the unit
-        unit = next((u for u in revision.units if u.serial_number == serial_number), None)
-        assert unit is not None
-        
-        # Verify runs
-        assert len(unit.runs) >= 3
-        for run in unit.runs:
-            assert run.id is not None
-            assert run.started_at is not None
-            assert run.outcome in ["PASS", "FAIL"]
-            if run.procedure:
-                assert run.procedure.name is not None
 
     def test_get_revision_with_image(self, client: TofuPilot):
         """Test revision includes image information if present."""

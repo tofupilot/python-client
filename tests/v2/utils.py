@@ -23,6 +23,20 @@ def client(api_key: str, tofupilot_server_url: str) -> TofuPilot:
     
     return client
 
+@pytest.fixture(scope="class")
+def user_client(user_api_key, tofupilot_server_url) -> TofuPilot:
+    return TofuPilot(
+        api_key=user_api_key,
+        server_url=f"{tofupilot_server_url}/api",
+    )
+
+@pytest.fixture(scope="class")
+def station_client(station_api_key, tofupilot_server_url) -> TofuPilot:
+    return TofuPilot(
+        api_key=station_api_key,
+        server_url=f"{tofupilot_server_url}/api",
+    )
+
 @pytest.fixture
 def operator_email_address() -> str:
     # Get API key from environment

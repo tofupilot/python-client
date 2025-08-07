@@ -12,9 +12,8 @@ class TestBatchesSorting:
     """Test sort_by and sort_order parameters."""
     
     @pytest.fixture
-    def test_batches_sorted_data(self, client: TofuPilot) -> List[models.BatchCreateResponse]:
+    def test_batches_sorted_data(self, client: TofuPilot, timestamp) -> List[models.BatchCreateResponse]:
         """Create test batches with different timestamps and numbers for sorting tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         test_batches: List[models.BatchCreateResponse] = []
         # Create batches with different numbers and slight time delays

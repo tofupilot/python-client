@@ -12,10 +12,9 @@ class TestUnitsExcludeParent:
     """Test exclude_units_with_parent functionality in units.list()."""
     
     @pytest.fixture
-    def test_units_for_parent_child(self, client: TofuPilot, auth_type: str) -> Dict[str, str]:
+    def test_units_for_parent_child(self, client: TofuPilot, auth_type: str, timestamp: str) -> Dict[str, str]:
         """Create test units with parent-child relationship."""
         # Create our own test data: part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PARENT-TEST-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -54,7 +53,6 @@ class TestUnitsExcludeParent:
         if auth_type == "user":
             client.units.add_child(
                 serial_number=parent_serial,
-                child_id=child_unit.id,
                 child_serial_number=child_serial
             )
         
@@ -221,14 +219,13 @@ class TestUnitsExcludeParent:
         if parent_id in unit_ids:
             assert True, "Parent unit correctly included"
 
-    def test_exclude_units_with_parent_multiple_levels(self, client: TofuPilot, auth_type: str):
+    def test_exclude_units_with_parent_multiple_levels(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test exclude_units_with_parent with multiple levels of hierarchy."""
         if auth_type == "station":
             # Stations cannot modify unit relationships, skip hierarchy test
             return
             
         # Create test data with multiple levels
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         part_number = f"MULTILEVEL-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -273,13 +270,11 @@ class TestUnitsExcludeParent:
         
         client.units.add_child(
             serial_number=grandparent_serial,
-            child_id=parent_unit.id,
             child_serial_number=parent_serial
         )
         
         client.units.add_child(
             serial_number=parent_serial,
-            child_id=child_unit.id,
             child_serial_number=child_serial
         )
         
@@ -298,10 +293,9 @@ class TestUnitsExcludeParent:
         assert parent_unit.id not in unit_ids, "Parent unit should be excluded (has grandparent)"
         assert child_unit.id not in unit_ids, "Child unit should be excluded (has parent)"
 
-    def test_exclude_units_with_parent_no_hierarchy(self, client: TofuPilot):
+    def test_exclude_units_with_parent_no_hierarchy(self, client: TofuPilot, timestamp: str):
         """Test exclude_units_with_parent when there are no parent-child relationships."""
         # Create standalone units without any parent-child relationships
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         part_number = f"STANDALONE-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         

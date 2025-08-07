@@ -15,30 +15,6 @@ class BatchCreateRequest(BaseModel):
     r"""The batch number identifier"""
 
 
-class BatchCreateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchCreateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class BatchCreateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchCreateConflictIssue(BaseModel):
-    message: str
-
-
-class BatchCreateBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchCreateBadRequestIssue(BaseModel):
-    message: str
-
-
 class BatchCreateResponseTypedDict(TypedDict):
     r"""Batch created successfully"""
 

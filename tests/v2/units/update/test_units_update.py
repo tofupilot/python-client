@@ -8,9 +8,8 @@ from ...utils import assert_station_access_limited
 
 class TestUnitsUpdate:
     
-    def test_update_unit_basic(self, client: TofuPilot, auth_type: str):
+    def test_update_unit_basic(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test updating a unit with basic fields."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create test parts and revisions
         part1_number = f"UPDATE-BASIC-PART1-{timestamp}"
@@ -79,9 +78,8 @@ class TestUnitsUpdate:
         assert updated_unit.part.number == part2_number
         assert updated_unit.part.revision.number == revision2_number
     
-    def test_update_unit_minimal(self, client: TofuPilot, auth_type: str):
+    def test_update_unit_minimal(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test updating a unit with minimal parameters."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create test part and revision
         part_number = f"UPDATE-MINIMAL-PART-{timestamp}"

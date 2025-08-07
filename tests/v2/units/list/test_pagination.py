@@ -12,9 +12,8 @@ class TestUnitsListPagination:
     """Test units list pagination functionality."""
     
     @pytest.fixture
-    def test_units_for_pagination(self, client: TofuPilot, auth_type: str) -> List[str]:
+    def test_units_for_pagination(self, client: TofuPilot, auth_type: str, timestamp) -> List[str]:
         """Create multiple units for pagination tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         created_unit_ids: List[str] = []
         
@@ -23,7 +22,6 @@ class TestUnitsListPagination:
             number=f"PAGE-PART-{timestamp}-{unique_id}",
             name="Pagination Test Part"
         )
-        assert part_result.data is not None
         
         revision_result = client.parts.revisions.create(
             part_number=f"PAGE-PART-{timestamp}-{unique_id}",
@@ -39,7 +37,7 @@ class TestUnitsListPagination:
                 revision_number=f"v1.0-{unique_id}"
             )
             assert_create_unit_success(result)
-            created_unit_ids.append(result.data.id)
+            created_unit_ids.append(result.id)
         
         return created_unit_ids
     
@@ -185,9 +183,8 @@ class TestUnitsListPagination:
             for i in range(len(page2a.data)):
                 assert page2a.data[i].id == page2b.data[i].id
     
-    def test_search_with_pagination(self, client: TofuPilot, test_units_for_pagination: List[str]) -> None:
+    def test_search_with_pagination(self, client: TofuPilot, test_units_for_pagination: List[str], timestamp) -> None:
         """Test combining search with pagination."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         search_prefix = f"SEARCH-PAGE-{timestamp}-{unique_id}"
         search_unit_ids: List[str] = []
@@ -197,7 +194,6 @@ class TestUnitsListPagination:
             number=f"SEARCH-PART-{timestamp}-{unique_id}",
             name="Search Test Part"
         )
-        assert part_result.data is not None
         
         revision_result = client.parts.revisions.create(
             part_number=f"SEARCH-PART-{timestamp}-{unique_id}",
@@ -212,7 +208,7 @@ class TestUnitsListPagination:
                 revision_number=f"v1.0-search-{unique_id}"
             )
             assert_create_unit_success(result)
-            search_unit_ids.append(result.data.id)
+            search_unit_ids.append(result.id)
         
         # Don't rely on search - filter directly
         all_units = client.units.list(limit=100)

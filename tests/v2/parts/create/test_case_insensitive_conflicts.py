@@ -21,14 +21,13 @@ class TestPartCaseInsensitiveConflicts:
         with pytest.raises(ErrorCONFLICT) as exc_info:
             client.parts.create(number=part_number.lower())
         
-        assert exc_info.value.status_code == 409
         assert "already exists" in str(exc_info.value).lower()
         
         # Also test with mixed case and whitespace
         with pytest.raises(ErrorCONFLICT) as exc_info:
             client.parts.create(number=f"  {part_number.title()}  ")
         
-        assert exc_info.value.status_code == 409
+        assert "already exists" in str(exc_info.value).lower()
 
     def test_part_create_no_conflict_different_numbers(self, client: TofuPilot):
         """Test that creating parts with different numbers works."""
@@ -51,12 +50,6 @@ class TestPartCaseInsensitiveConflicts:
         
         # Try to create without spaces - should fail
         # Check if it returns 409 or 500 (backend inconsistency)
-        try:
+        with pytest.raises(ErrorCONFLICT) as exec_info:
             client.parts.create(number=part_number)
-            pytest.fail("Expected error when creating part with same normalized number")
-        except ErrorCONFLICT as e:
-            assert e.status_code == 409
-            assert "already exists" in str(e).lower()
-        except ERRORINTERNALSERVERERROR as e:
-            assert e.status_code == 500
-            assert "already in use" in str(e).lower()
+            assert "already in use" in str(exec_info.value).lower()

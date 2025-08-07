@@ -17,6 +17,7 @@ from openhtf.core.test_state import TestState
 from .upload import upload
 from ..v1.client import TofuPilotClient
 
+import posthog
 
 def _get_executing_test():
     """Get the currently executing test and its state."""
@@ -179,6 +180,7 @@ class TofuPilot:
                 self.watcher.stop()
                 self.watcher.join(timeout=2.0)  # Add timeout to prevent hanging
             except Exception as e:
+                posthog.capture_exception(e)
                 self._logger.warning(f"Error stopping watcher: {e}")
 
         # Clean up MQTT connection
@@ -188,6 +190,7 @@ class TofuPilot:
                 self.mqttClient.loop_stop()
                 self.mqttClient.disconnect()
             except Exception as e:
+                posthog.capture_exception(e)
                 self._logger.warning(f"Error disconnecting MQTT client: {e}")
             finally:
                 self.mqttClient = None
@@ -218,6 +221,7 @@ class TofuPilot:
             try:
                 res = self.client._get_connection_credentials()
             except Exception as e:
+                posthog.capture_exception(e)
                 self._logger.warning(f"Operator UI: JWT error: {e}")
                 self._display_help_disable_streaming()
                 time.sleep(1)
@@ -265,6 +269,7 @@ class TofuPilot:
         try:
             connect_error_code = self.mqttClient.connect(**connectOptions)
         except Exception as e:
+            posthog.capture_exception(e)
             self._logger.warning(
                 f"Operator UI: Failed to connect with server (exception): {e}"
             )
@@ -285,6 +290,7 @@ class TofuPilot:
                 **subscribeOptions
             )
         except Exception as e:
+            posthog.capture_exception(e)
             self._logger.warning(
                 f"Operator UI: Failed to subscribe to server (exception): {e}"
             )
@@ -331,12 +337,14 @@ class TofuPilot:
                 # Print single line connection message with URL
                 print(f"\n{green}Connected to TofuPilot real-time server{reset}")
                 print(f"{green}Access Operator UI: {clickable_url}{reset}\n")
-            except:
+            except Exception as e:
+                posthog.capture_exception(e)
                 # Fallback for terminals that don't support ANSI
                 self._logger.success(f"Connected to TofuPilot real-time server")
                 self._logger.success(f"Access Operator UI: {operator_page}")
 
         except Exception as e:
+            posthog.capture_exception(e)
             self._logger.warning(f"Operator UI: Setup error - {e}")
             self._display_help_disable_streaming()
             self.stream = False  # Disable streaming on any setup error
@@ -354,6 +362,7 @@ class TofuPilot:
                 **self.publishOptions,
             )
         except Exception as e:
+            posthog.capture_exception(e)
             self._logger.warning(
                 f"Operator UI: Failed to publish to server (exception): {e}"
             )
@@ -390,6 +399,7 @@ class TofuPilot:
             # side-effecting !
             method(*args)
         except Exception as e:  # pylint: disable=broad-except
+            posthog.capture_exception(e)
             self._logger.warning(
                 f"Operator UI: Method call failed - {method_name}({', '.join(args)}) - {e}"
             )

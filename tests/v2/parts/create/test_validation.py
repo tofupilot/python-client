@@ -33,10 +33,10 @@ class TestCreatePartValidation:
         error_message = str(exc_info.value).lower()
         assert "length" in error_message or "long" in error_message or "60" in error_message
     
-    def test_part_name_too_long_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_part_name_too_long_fails(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that creating a part with name > 255 chars fails."""
             
-        PART_NUMBER = f"PN-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PART_NUMBER = f"PN-{timestamp}"
         PART_NAME = "Y" * 256
         
         with pytest.raises(APIError) as exc_info:
@@ -46,10 +46,10 @@ class TestCreatePartValidation:
         error_message = str(exc_info.value).lower()
         assert "length" in error_message or "long" in error_message or "255" in error_message
     
-    def test_revision_number_too_long_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_revision_number_too_long_fails(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that creating a part with revision_number > 60 chars fails."""
             
-        PART_NUMBER = f"PN-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PART_NUMBER = f"PN-{timestamp}"
         REVISION_NUMBER = "R" * 61
         
         with pytest.raises(APIError) as exc_info:
@@ -59,11 +59,11 @@ class TestCreatePartValidation:
         error_message = str(exc_info.value).lower()
         assert "length" in error_message or "long" in error_message or "60" in error_message
     
-    def test_duplicate_part_number_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_duplicate_part_number_fails(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that creating a part with duplicate number fails."""
             
         # Create unique part number
-        PART_NUMBER = f"PN-DUP-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PART_NUMBER = f"PN-DUP-{timestamp}"
         
         # Create first part
         result1 = client.parts.create(number=PART_NUMBER)
@@ -77,11 +77,10 @@ class TestCreatePartValidation:
         error_message = str(exc_info.value).lower()
         assert "already exists" in error_message or "conflict" in error_message or "duplicate" in error_message
     
-    def test_part_number_case_insensitive(self, client: TofuPilot, auth_type: str) -> None:
+    def test_part_number_case_insensitive(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that part numbers are case-insensitive for uniqueness."""
         from tofupilot.v2.errors import ErrorCONFLICT
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
+
         PART_NUMBER_LOWER = f"pn-case-{timestamp}"
         PART_NUMBER_UPPER = f"PN-CASE-{timestamp}"
         
@@ -97,7 +96,7 @@ class TestCreatePartValidation:
         error_message = str(exc_info.value).lower()
         assert "already exists" in error_message or "conflict" in error_message
     
-    def test_part_number_special_characters(self, client: TofuPilot, auth_type: str) -> None:
+    def test_part_number_special_characters(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test part creation with various special characters."""
             
         special_chars_tests = [
@@ -112,8 +111,6 @@ class TestCreatePartValidation:
             ("unicode", "PN-测试-123"),
             ("emoji", "PN-🔧-123"),
         ]
-        
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         for test_name, special_pattern in special_chars_tests:
             part_number = f"{special_pattern}-{timestamp}-{test_name}"

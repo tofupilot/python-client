@@ -18,30 +18,6 @@ class StationRemoveRequest(BaseModel):
     r"""Unique identifier of the station to remove"""
 
 
-class StationRemoveInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationRemoveInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class StationRemoveNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationRemoveNotFoundIssue(BaseModel):
-    message: str
-
-
-class StationRemoveBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationRemoveBadRequestIssue(BaseModel):
-    message: str
-
-
 class StationRemoveResponseTypedDict(TypedDict):
     r"""Station removed successfully"""
 

@@ -8,10 +8,9 @@ from ..utils import assert_get_parts_success
 class TestPartsSearch:
     """Test parts search functionality with independent test data."""
 
-    def test_search_by_part_number(self, client: TofuPilot):
+    def test_search_by_part_number(self, client: TofuPilot, timestamp):
         """Test searching parts by part number."""
         # Create test data: parts with searchable numbers
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         part1_number = f"SEARCH-ALPHA-{timestamp}"
         part2_number = f"SEARCH-BETA-{timestamp}"
@@ -36,10 +35,9 @@ class TestPartsSearch:
         assert len(results.data) >= 1
         assert part1.id in {part.id for part in results.data}
 
-    def test_search_by_part_name(self, client: TofuPilot):
+    def test_search_by_part_name(self, client: TofuPilot, timestamp):
         """Test searching parts by part name."""
         # Create test data with searchable names
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         part_number = f"PART-NAME-SEARCH-{timestamp}"
         part_name = f"SEARCHABLE-NAME-{timestamp}"
@@ -56,10 +54,9 @@ class TestPartsSearch:
         found_ids = {part.id for part in results.data}
         assert part_result.id in found_ids
 
-    def test_search_by_revision_number(self, client: TofuPilot):
+    def test_search_by_revision_number(self, client: TofuPilot, timestamp):
         """Test that revision search is no longer supported (optimized out)."""
         # Create test data: part with revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PART-REV-SEARCH-{timestamp}"
         revision_number = f"SEARCHABLE-REV-{timestamp}"
         
@@ -103,10 +100,9 @@ class TestPartsSearch:
         assert isinstance(results.data, list)
         # Results can be empty or contain unrelated parts, both are valid
 
-    def test_partial_search(self, client: TofuPilot):
+    def test_partial_search(self, client: TofuPilot, timestamp):
         """Test partial string search works correctly."""
         # Create test data with known pattern
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PARTIAL-SEARCH-{timestamp}"
         
         part_result = client.parts.create(
@@ -121,10 +117,9 @@ class TestPartsSearch:
         found_ids = {part.id for part in results.data}
         assert part_result.id in found_ids
 
-    def test_case_insensitive_search(self, client: TofuPilot):
+    def test_case_insensitive_search(self, client: TofuPilot, timestamp):
         """Test that search is case insensitive."""
         # Create test data with mixed case
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"CASE-TEST-{timestamp}"
         part_name = f"CaseSensitive-{timestamp}"
         
@@ -140,10 +135,9 @@ class TestPartsSearch:
         found_ids = {part.id for part in results.data}
         assert part_result.id in found_ids
 
-    def test_special_characters_search(self, client: TofuPilot):
+    def test_special_characters_search(self, client: TofuPilot, timestamp):
         """Test search works with allowed special characters (hyphens and underscores)."""
         # Create test data with allowed special characters
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"SPECIAL_TEST-{timestamp}"
         
         part_result = client.parts.create(

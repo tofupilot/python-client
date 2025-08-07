@@ -25,22 +25,6 @@ class PartDeleteRevisionRequest(BaseModel):
     r"""Revision number to delete."""
 
 
-class PartDeleteRevisionInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartDeleteRevisionInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class PartDeleteRevisionNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartDeleteRevisionNotFoundIssue(BaseModel):
-    message: str
-
-
 class PartDeleteRevisionResponseTypedDict(TypedDict):
     r"""Revision deleted successfully"""
 

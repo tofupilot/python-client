@@ -11,9 +11,9 @@ from ...utils import assert_station_access_forbidden
 
 class TestDeleteProcedure:
 
-    def test_delete_empty_procedure_success(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_empty_procedure_success(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test successfully deleting an empty procedure."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Delete-Empty-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Delete-Empty-{timestamp}"
         
         if auth_type == "station":
             # Station should fail to delete procedures (HTTP 403 FORBIDDEN)
@@ -57,9 +57,9 @@ class TestDeleteProcedure:
         error_message = str(exc_info.value).lower()
         assert any(keyword in error_message for keyword in ["not found", "404", "does not exist"])
 
-    def test_delete_already_deleted_procedure(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_already_deleted_procedure(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test deleting an already deleted procedure fails."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Delete-Twice-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Delete-Twice-{timestamp}"
         
         if auth_type == "station":
             # Station should fail to delete procedures (HTTP 403 FORBIDDEN)
@@ -85,9 +85,9 @@ class TestDeleteProcedure:
         error_message = str(exc_info.value).lower()
         assert any(keyword in error_message for keyword in ["not found", "404", "does not exist"])
 
-    def test_create_delete_recreate_same_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_delete_recreate_same_name(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that after deleting a procedure, the same name can be reused."""
-        PROCEDURE_NAME = f"AutomatedTest-V2-Recreate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Recreate-{timestamp}"
         
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -120,9 +120,8 @@ class TestDeleteProcedure:
     # This test was deleting the shared procedure_id fixture used by other tests,
     # causing cascading failures. Delete operations should create their own test procedures.
 
-    def test_multiple_procedure_deletions(self, client: TofuPilot, auth_type: str) -> None:
+    def test_multiple_procedure_deletions(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test deleting multiple procedures."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -152,9 +151,9 @@ class TestDeleteProcedure:
             with pytest.raises(ErrorNOTFOUND):
                 client.procedures.update(id=procedure_id, name="Should-Not-Work")
 
-    def test_delete_updated_procedure(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_updated_procedure(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test deleting a procedure after updating it."""
-        original_name = f"DelUpd-Orig-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        original_name = f"DelUpd-Orig-{timestamp}"
         
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -168,7 +167,7 @@ class TestDeleteProcedure:
         assert_create_procedure_success(create_result)
         
         # Update the procedure
-        new_name = f"DelUpd-Mod-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        new_name = f"DelUpd-Mod-{timestamp}"
         update_result = client.procedures.update(id=create_result.id, name=new_name)
         from ..utils import assert_update_procedure_success
         assert_update_procedure_success(update_result)
@@ -183,9 +182,8 @@ class TestDeleteProcedure:
         found_procedures = [p for p in list_result.data if p.id == create_result.id]
         assert len(found_procedures) == 0
 
-    def test_delete_procedure_lifecycle(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_procedure_lifecycle(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test complete procedure lifecycle: create, update, delete."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)

@@ -6,7 +6,6 @@ from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
-from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
 from typing import Any, List, Mapping, Optional
 
 
@@ -127,20 +126,31 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitListResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitListResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitListInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitListInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def list_async(
         self,
@@ -258,20 +268,31 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitListResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitListResponse)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitListInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitListInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def create(
         self,
@@ -356,36 +377,41 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitCreateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitCreateResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitWithSerialNumberSerialNumberAlreadyExistsInTheOrganizationError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.UnitWithSerialNumberSerialNumberAlreadyExistsInTheOrganizationError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitCreateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitCreateInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def create_async(
         self,
@@ -470,36 +496,41 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitCreateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitCreateResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitCreateRevisionRevisionNumberNotFoundForPartPartNumberError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitWithSerialNumberSerialNumberAlreadyExistsInTheOrganizationError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.UnitWithSerialNumberSerialNumberAlreadyExistsInTheOrganizationError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitCreateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitCreateInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def delete(
         self,
@@ -575,27 +606,36 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitDeleteResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitDeleteResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.NoUnitsFoundWithSerialNumbersSerialNumbersError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.NoUnitsFoundWithSerialNumbersSerialNumbersError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitDeleteInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitDeleteInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def delete_async(
         self,
@@ -671,27 +711,36 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitDeleteResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitDeleteResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.NoUnitsFoundWithSerialNumbersSerialNumbersError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.NoUnitsFoundWithSerialNumbersSerialNumbersError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitDeleteInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitDeleteInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def get(
         self,
@@ -767,27 +816,36 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitGetResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitGetResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitNotFoundSerialNumberError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitNotFoundSerialNumberError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitGetInternalServerErrorMessageError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitGetInternalServerErrorMessageError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def get_async(
         self,
@@ -863,27 +921,36 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitGetResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitGetResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitNotFoundSerialNumberError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitNotFoundSerialNumberError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitGetInternalServerErrorMessageError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitGetInternalServerErrorMessageError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def update(
         self,
@@ -976,35 +1043,41 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitUpdateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitUpdateResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitWithIDUnitIDNotFoundRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitWithIDUnitIDNotFoundRevisionRevisionNumberNotFoundForPartPartNumberError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.SerialNumberSerialNumberIsAlreadyInUseError409Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.SerialNumberSerialNumberIsAlreadyInUseError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitUpdateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitUpdateInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def update_async(
         self,
@@ -1097,35 +1170,41 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitUpdateResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitUpdateResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitWithIDUnitIDNotFoundRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitWithIDUnitIDNotFoundRevisionRevisionNumberNotFoundForPartPartNumberError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.SerialNumberSerialNumberIsAlreadyInUseError409Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.SerialNumberSerialNumberIsAlreadyInUseError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitUpdateInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitUpdateInternalServerErrorError500(response_data, http_res)
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def add_child(
         self,
@@ -1213,38 +1292,41 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitAddChildResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitAddChildResponse)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.CannotCreateCyclicParentChildRelationshipUnitUnitIDWouldBecomeItsOwnAncestorCannotAddUnitAsItsOwnSubUnitUnitSerialNumberAlreadyHasAParentError400Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.CannotCreateCyclicParentChildRelationshipUnitUnitIDWouldBecomeItsOwnAncestorCannotAddUnitAsItsOwnSubUnitUnitSerialNumberAlreadyHasAParentError400(
-                response_data, http_res
-            )
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitAddChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitAddChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitAddChildInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitAddChildInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def add_child_async(
         self,
@@ -1332,38 +1414,41 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitAddChildResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitAddChildResponse)
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.CannotCreateCyclicParentChildRelationshipUnitUnitIDWouldBecomeItsOwnAncestorCannotAddUnitAsItsOwnSubUnitUnitSerialNumberAlreadyHasAParentError400Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.CannotCreateCyclicParentChildRelationshipUnitUnitIDWouldBecomeItsOwnAncestorCannotAddUnitAsItsOwnSubUnitUnitSerialNumberAlreadyHasAParentError400(
-                response_data, http_res
-            )
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitAddChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitAddChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitAddChildInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitAddChildInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def remove_child(
         self,
@@ -1442,30 +1527,36 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitRemoveChildResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitRemoveChildResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitRemoveChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitRemoveChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitRemoveChildInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitRemoveChildInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def remove_child_async(
         self,
@@ -1544,27 +1635,33 @@ class UnitsSDK(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitRemoveChildResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.UnitRemoveChildResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitRemoveChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UnitRemoveChildUnitNotFoundSerialNumberParentUnitWithIDUnitIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UnitRemoveChildInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.UnitRemoveChildInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )

@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime, timezone
 from typing import Optional
-
+import posthog
 
 def timedelta_to_iso(td: timedelta) -> str:
     if td == timedelta():  # Check if timedelta is zero
@@ -39,10 +39,12 @@ def duration_to_iso(duration_seconds):
 
 def datetime_to_iso(dt: datetime):
     if isinstance(dt, str):
-        raise TypeError(
+        exception = TypeError(
             f"Expected datetime object, got string: '{dt}'. "
             f"Convert to datetime first: datetime.fromisoformat('{dt}'.replace('Z', '+00:00'))"
         )
+        posthog.capture_exception(exception)
+        raise exception
     # Ensure the datetime object is timezone-aware and in UTC
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)

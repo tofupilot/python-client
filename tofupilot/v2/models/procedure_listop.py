@@ -44,14 +44,6 @@ class ProcedureListRequest(BaseModel):
     ] = None
 
 
-class ProcedureListIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureListIssue(BaseModel):
-    message: str
-
-
 class ProcedureListCreatedByUserTypedDict(TypedDict):
     r"""User who created the procedure."""
 
@@ -124,7 +116,7 @@ class ProcedureListUnit(BaseModel):
     r"""Unique identifier for the unit."""
 
 
-class ProcedureListRunTypedDict(TypedDict):
+class RunTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the run."""
     outcome: ProcedureListOutcome
@@ -135,7 +127,7 @@ class ProcedureListRunTypedDict(TypedDict):
     r"""Unit associated with this run."""
 
 
-class ProcedureListRun(BaseModel):
+class Run(BaseModel):
     id: str
     r"""Unique identifier for the run."""
 
@@ -158,7 +150,7 @@ class ProcedureListDataTypedDict(TypedDict):
     r"""ISO 8601 timestamp when the procedure was created."""
     created_by_user: ProcedureListCreatedByUserTypedDict
     r"""User who created the procedure."""
-    runs: List[ProcedureListRunTypedDict]
+    runs: List[RunTypedDict]
     r"""Recent runs for this procedure."""
     fpy: Nullable[float]
     r"""First Pass Yield (FPY) as a percentage. Null if no runs available."""
@@ -177,7 +169,7 @@ class ProcedureListData(BaseModel):
     created_by_user: ProcedureListCreatedByUser
     r"""User who created the procedure."""
 
-    runs: List[ProcedureListRun]
+    runs: List[Run]
     r"""Recent runs for this procedure."""
 
     fpy: Nullable[float]

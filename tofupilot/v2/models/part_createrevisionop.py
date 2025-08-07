@@ -34,30 +34,6 @@ class PartCreateRevisionRequest(BaseModel):
     ]
 
 
-class PartCreateRevisionInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartCreateRevisionInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class PartCreateRevisionConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartCreateRevisionConflictIssue(BaseModel):
-    message: str
-
-
-class PartCreateRevisionNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartCreateRevisionNotFoundIssue(BaseModel):
-    message: str
-
-
 class PartCreateRevisionResponseTypedDict(TypedDict):
     r"""Revision created successfully"""
 

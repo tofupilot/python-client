@@ -10,7 +10,7 @@ from ...utils import assert_delete_units_success, assert_station_access_limited
 
 class TestDeleteUnits:
 
-    def test_delete_single_unit(self, client: TofuPilot, auth_type: str):
+    def test_delete_single_unit(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test deleting a single unit."""
         if auth_type == "station":
             # Stations have limited access to delete units
@@ -20,7 +20,6 @@ class TestDeleteUnits:
             return
             
         # Create test data: part, revision, and unit
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"DELETE-SINGLE-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -53,7 +52,7 @@ class TestDeleteUnits:
         assert unit_id in result.ids
         assert len(result.ids) == 1
 
-    def test_delete_multiple_units(self, client: TofuPilot, auth_type: str):
+    def test_delete_multiple_units(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test deleting multiple units."""
         if auth_type == "station":
             # Stations have limited access to delete units
@@ -63,7 +62,6 @@ class TestDeleteUnits:
             return
             
         # Create test data: part, revision, and multiple units
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"DELETE-MULTI-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -116,7 +114,7 @@ class TestDeleteUnits:
             with assert_station_access_limited("delete nonexistent unit"):
                 client.units.delete(serial_numbers=[fake_serial_number])
 
-    def test_delete_response_structure(self, client: TofuPilot, auth_type: str):
+    def test_delete_response_structure(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test the structure of delete response."""
         if auth_type == "station":
             # Stations have limited access to delete units
@@ -126,7 +124,6 @@ class TestDeleteUnits:
             return
             
         # Create test data: part, revision, and unit
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"DELETE-RESPONSE-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -159,7 +156,7 @@ class TestDeleteUnits:
         assert isinstance(deleted_ids, list)
         assert unit_id in deleted_ids
 
-    def test_delete_batch_units(self, client: TofuPilot, auth_type: str):
+    def test_delete_batch_units(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test deleting multiple units in batch."""
         if auth_type == "station":
             # Stations have limited access to delete units
@@ -169,7 +166,6 @@ class TestDeleteUnits:
             return
             
         # Create test data: part, revision, and multiple units
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"DELETE-BATCH-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -209,7 +205,7 @@ class TestDeleteUnits:
         
         assert len(deleted_ids) == len(unit_ids)
 
-    def test_delete_preserves_other_units(self, client: TofuPilot, auth_type: str):
+    def test_delete_preserves_other_units(self, client: TofuPilot, auth_type: str, timestamp: str):
         """Test that deleting units doesn't affect other units."""
         if auth_type == "station":
             # Stations have limited access to delete units
@@ -219,7 +215,6 @@ class TestDeleteUnits:
             return
             
         # Create test data: part, revision, and multiple units
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"DELETE-PRESERVE-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         

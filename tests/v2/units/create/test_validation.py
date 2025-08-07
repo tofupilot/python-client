@@ -8,10 +8,8 @@ from tofupilot.v2.errors import ErrorNOTFOUND, ErrorCONFLICT
 
 class TestCreateUnitValidation:
 
-    def test_create_unit_revision_not_found(self, client: TofuPilot) -> None:
+    def test_create_unit_revision_not_found(self, client: TofuPilot, timestamp) -> None:
         """Test creating a unit with non-existent revision."""
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         fake_part_number = f"FAKE-PART-{timestamp}"
         fake_revision_number = f"FAKE-REV-{timestamp}"
         serial_number = f"UNIT-{uuid.uuid4().hex[:8]}"
@@ -27,11 +25,9 @@ class TestCreateUnitValidation:
         assert "revision" in error_message
 
 
-    def test_create_unit_duplicate_serial_number(self, client: TofuPilot) -> None:
+    def test_create_unit_duplicate_serial_number(self, client: TofuPilot, timestamp) -> None:
         """Test creating a unit with duplicate serial number."""
         # Create test data: part and revision
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-DUP-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -68,11 +64,9 @@ class TestCreateUnitValidation:
         error_message = str(exc_info.value).lower()
         assert "already exists" in error_message or "serial number" in error_message
 
-    def test_create_unit_empty_serial_number(self, client: TofuPilot) -> None:
+    def test_create_unit_empty_serial_number(self, client: TofuPilot, timestamp) -> None:
         """Test creating a unit with empty serial number."""
         # Create test data: part and revision
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-EMPTY-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -99,11 +93,9 @@ class TestCreateUnitValidation:
         error_message = str(exc_info.value).lower()
         assert "validation" in error_message or "serial_number" in error_message or "at least 1 character" in error_message
 
-    def test_create_unit_whitespace_only_serial_number(self, client: TofuPilot) -> None:
+    def test_create_unit_whitespace_only_serial_number(self, client: TofuPilot, timestamp) -> None:
         """Test creating a unit with whitespace-only serial number."""
         # Create test data: part and revision
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-WS-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         

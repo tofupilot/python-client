@@ -9,13 +9,13 @@ from ...utils import assert_station_access_forbidden
 
 class TestSimpleProcedureCreation:
 
-    def test_create_procedure_basic(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_procedure_basic(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating a procedure - behavior differs by auth type.
         
         Users: Can create procedures successfully.
         Stations: Cannot create procedures (access policy restriction).
         """
-        PROCEDURE_NAME = f"AutomatedTest-V2-Simple-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        PROCEDURE_NAME = f"AutomatedTest-V2-Simple-{timestamp}"
         
         if auth_type == "user":
             # Users can create procedures
@@ -44,13 +44,13 @@ class TestSimpleProcedureCreation:
             with assert_station_access_forbidden("create procedure"):
                 client.procedures.create(name=PROCEDURE_NAME)
 
-    def test_create_and_update_procedure(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_and_update_procedure(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating and updating a procedure - behavior differs by auth type.
         
         Users: Can create and update procedures.
         Stations: Cannot create or update procedures (access policy restriction).
         """
-        original_name = f"AutomatedTest-V2-CreateUpdate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        original_name = f"AutomatedTest-V2-CreateUpdate-{timestamp}"
         
         if auth_type == "user":
             # Users can create and update procedures
@@ -58,7 +58,7 @@ class TestSimpleProcedureCreation:
             assert_create_procedure_success(create_result)
             
             # Update
-            new_name = f"AutomatedTest-V2-Updated-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            new_name = f"AutomatedTest-V2-Updated-{timestamp}"
             from ..utils import assert_update_procedure_success
             update_result = client.procedures.update(id=create_result.id, name=new_name)
             assert_update_procedure_success(update_result)
@@ -68,13 +68,13 @@ class TestSimpleProcedureCreation:
             with assert_station_access_forbidden("create procedure"):
                 client.procedures.create(name=original_name)
 
-    def test_create_and_delete_procedure(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_and_delete_procedure(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating and deleting a procedure - behavior differs by auth type.
         
         Users: Can create and delete procedures.
         Stations: Cannot create or delete procedures (access policy restriction).
         """
-        procedure_name = f"AutomatedTest-V2-CreateDelete-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        procedure_name = f"AutomatedTest-V2-CreateDelete-{timestamp}"
         
         if auth_type == "user":
             # Users can create and delete procedures

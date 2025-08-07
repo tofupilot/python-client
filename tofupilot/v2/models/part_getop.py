@@ -27,22 +27,6 @@ class PartGetRequest(BaseModel):
     r"""Part number of the part to retrieve."""
 
 
-class PartGetInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartGetInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class PartGetNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartGetNotFoundIssue(BaseModel):
-    message: str
-
-
 class PartGetCreatedByUserTypedDict(TypedDict):
     r"""User who created this part."""
 
@@ -102,7 +86,7 @@ class PartGetCreatedByStationTypedDict(TypedDict):
 
     id: str
     r"""Station ID."""
-    name: Nullable[str]
+    name: str
     r"""Station name."""
     image: Nullable[str]
     r"""Station image URL."""
@@ -114,7 +98,7 @@ class PartGetCreatedByStation(BaseModel):
     id: str
     r"""Station ID."""
 
-    name: Nullable[str]
+    name: str
     r"""Station name."""
 
     image: Nullable[str]
@@ -123,7 +107,7 @@ class PartGetCreatedByStation(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name", "image"]
+        nullable_fields = ["image"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -158,8 +142,6 @@ class PartGetRevisionTypedDict(TypedDict):
     r"""Revision number."""
     created_at: datetime
     r"""ISO 8601 timestamp when the revision was created."""
-    unit_count: float
-    r"""Number of units created with this revision."""
     image: Nullable[str]
     r"""Revision image URL."""
 
@@ -173,9 +155,6 @@ class PartGetRevision(BaseModel):
 
     created_at: datetime
     r"""ISO 8601 timestamp when the revision was created."""
-
-    unit_count: float
-    r"""Number of units created with this revision."""
 
     image: Nullable[str]
     r"""Revision image URL."""

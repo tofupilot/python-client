@@ -15,22 +15,6 @@ class ProcedureCreateRequest(BaseModel):
     r"""Name of the procedure. Must be unique within the organization."""
 
 
-class ProcedureCreateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureCreateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureCreateBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureCreateBadRequestIssue(BaseModel):
-    message: str
-
-
 class ProcedureCreateResponseTypedDict(TypedDict):
     r"""Procedure created successfully"""
 

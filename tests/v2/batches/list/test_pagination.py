@@ -12,9 +12,8 @@ class TestBatchesPagination:
     """Test limit and cursor pagination parameters."""
     
     @pytest.fixture 
-    def test_batches_data(self, client: TofuPilot) -> List[models.BatchCreateResponse]:
+    def test_batches_data(self, client: TofuPilot, timestamp) -> List[models.BatchCreateResponse]:
         """Create test batches for pagination tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         
         test_batches: List[models.BatchCreateResponse] = []
@@ -74,14 +73,13 @@ class TestBatchesPagination:
         assert len(result.data) <= 100
 
 
-    def test_cursor_pagination(self, client: TofuPilot, test_batches_data: List[models.BatchCreateResponse]) -> None:
+    def test_cursor_pagination(self, client: TofuPilot, test_batches_data: List[models.BatchCreateResponse], timestamp) -> None:
         """Test offset-based pagination (cursor is actually an offset)."""
         # Ensure we have test batches created
         assert len(test_batches_data) >= 15, "Test batches should be created"
         
         # Since this is offset-based pagination, we need to use consistent filtering
         # to avoid issues with data changing between requests
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         test_prefix = f"CURSOR-TEST-{timestamp}-{unique_id}"
         
@@ -173,11 +171,10 @@ class TestBatchesPagination:
             else:
                 assert all_batches.meta.has_more is True
     
-    def test_cursor_consistency(self, client: TofuPilot, test_batches_data: List[models.BatchCreateResponse]) -> None:
+    def test_cursor_consistency(self, client: TofuPilot, test_batches_data: List[models.BatchCreateResponse], timestamp) -> None:
         """Test that offset returns consistent results when no data changes."""
         # For offset-based pagination, consistency is only guaranteed if no data changes
         # Create isolated test data
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         test_prefix = f"CONSISTENCY-TEST-{timestamp}-{unique_id}"
         
@@ -217,9 +214,8 @@ class TestBatchesPagination:
             for i in range(len(page2a_sorted)):
                 assert page2a_sorted[i].id == page2b_sorted[i].id
 
-    def test_search_with_pagination(self, client: TofuPilot, test_batches_data: List[models.BatchCreateResponse]) -> None:
+    def test_search_with_pagination(self, client: TofuPilot, test_batches_data: List[models.BatchCreateResponse], timestamp) -> None:
         """Test combining search with pagination."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         search_prefix = f"SEARCH-PAGE-{timestamp}-{unique_id}"
         search_batch_ids: List[str] = []

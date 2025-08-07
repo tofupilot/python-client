@@ -92,30 +92,6 @@ class UnitUpdateRequest(BaseModel):
     ]
 
 
-class UnitUpdateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitUpdateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnitUpdateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitUpdateConflictIssue(BaseModel):
-    message: str
-
-
-class UnitUpdateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitUpdateNotFoundIssue(BaseModel):
-    message: str
-
-
 class UnitUpdateResponseTypedDict(TypedDict):
     r"""Unit updated successfully"""
 

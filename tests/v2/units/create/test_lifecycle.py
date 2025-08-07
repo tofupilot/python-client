@@ -8,10 +8,9 @@ from ...utils import assert_station_access_forbidden
 
 class TestUnitLifecycle:
 
-    def test_create_and_delete_unit(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_and_delete_unit(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating and deleting a unit."""
         # Create test data: part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-TEST-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         
@@ -27,7 +26,7 @@ class TestUnitLifecycle:
             number=revision_number
         )
         
-        serial_number = f"AutomatedTest-V2-CreateDelete-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        serial_number = f"AutomatedTest-V2-CreateDelete-{timestamp}"
         
         # Create
         create_result = client.units.create(
@@ -44,7 +43,7 @@ class TestUnitLifecycle:
         
         # Delete - only users can delete units
         if auth_type == 'user':
-            delete_result = client.units.delete(ids=[create_result.id])
+            delete_result = client.units.delete(serial_numbers=[serial_number])
             assert_delete_unit_success(delete_result)
             assert create_result.id in delete_result.ids
             
@@ -56,10 +55,9 @@ class TestUnitLifecycle:
             unit_still_exists = get_unit_by_id(client, create_result.id)
             assert unit_still_exists is not None
 
-    def test_create_and_update_unit(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_and_update_unit(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating and updating a unit."""
         # Create test data: two different parts with revisions
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create first part
         part1_number = f"UNIT-UPDATE-PART1-{timestamp}"
@@ -91,7 +89,7 @@ class TestUnitLifecycle:
         different_part = part2_number
         different_revision = revision2_number
         
-        serial_number = f"AutomatedTest-V2-CreateUpdate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        serial_number = f"AutomatedTest-V2-CreateUpdate-{timestamp}"
         
         # Create
         create_result = client.units.create(
@@ -103,7 +101,7 @@ class TestUnitLifecycle:
         
         if auth_type == "station":
             # Stations cannot update units
-            new_serial_number = f"AutomatedTest-V2-Updated-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            new_serial_number = f"AutomatedTest-V2-Updated-{timestamp}"
             with assert_station_access_forbidden("update unit"):
                 client.units.update(
                     serial_number=serial_number,
@@ -114,7 +112,7 @@ class TestUnitLifecycle:
             return
         
         # Update with new serial number and part/revision
-        new_serial_number = f"AutomatedTest-V2-Updated-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        new_serial_number = f"AutomatedTest-V2-Updated-{timestamp}"
         from ..utils import assert_update_unit_success
         update_result = client.units.update(
             serial_number=serial_number,
@@ -141,10 +139,9 @@ class TestUnitLifecycle:
             assert unit_after_update.part.number == different_part
             assert unit_after_update.part.revision.number == different_revision
 
-    def test_create_multiple_units_and_bulk_delete(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_multiple_units_and_bulk_delete(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test creating multiple units and deleting them in bulk."""
         # Create test data: part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-BULK-PART-{timestamp}"
         revision_number = f"REV-BULK-{timestamp}"
         
@@ -162,8 +159,9 @@ class TestUnitLifecycle:
         
         # Create multiple units
         created_ids: list[str] = []
+        created_serial_numbers: list[str] = []
         for i in range(3):
-            serial_number = f"AutomatedTest-V2-Bulk-{i}-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            serial_number = f"AutomatedTest-V2-Bulk-{i}-{timestamp}"
             result = client.units.create(
                 serial_number=serial_number,
                 part_number=part_number,
@@ -171,6 +169,7 @@ class TestUnitLifecycle:
             )
             assert_create_unit_success(result)
             created_ids.append(result.id)
+            created_serial_numbers.append(serial_number)
         
         # Verify all were created
         for unit_id in created_ids:
@@ -179,7 +178,7 @@ class TestUnitLifecycle:
         
         # Delete all at once - only users can delete units
         if auth_type == 'user':
-            delete_result = client.units.delete(ids=created_ids)
+            delete_result = client.units.delete(serial_numbers=created_serial_numbers)
             assert_delete_unit_success(delete_result)
             assert set(delete_result.ids) == set(created_ids)
             

@@ -34,30 +34,6 @@ class UnitAddChildRequest(BaseModel):
     ]
 
 
-class UnitAddChildInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitAddChildInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnitAddChildNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitAddChildNotFoundIssue(BaseModel):
-    message: str
-
-
-class UnitAddChildBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitAddChildBadRequestIssue(BaseModel):
-    message: str
-
-
 class UnitAddChildResponseTypedDict(TypedDict):
     r"""Child units added successfully"""
 

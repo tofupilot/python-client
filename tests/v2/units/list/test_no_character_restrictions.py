@@ -20,10 +20,9 @@ class TestUnitsNoCharacterRestrictions:
         assert isinstance(response.data, list), "2-character search should work"
         print("✓ 2-character search works")
 
-    def test_short_search_with_created_unit(self, client: TofuPilot):
+    def test_short_search_with_created_unit(self, client: TofuPilot, timestamp: str):
         """Test short searches work with created test data."""
         # Create test data
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PART-{timestamp}"
         
         # Create part and revision
@@ -59,10 +58,9 @@ class TestUnitsNoCharacterRestrictions:
         assert serial_number in found_serials, "Should find unit with 2-character search"
         print("✓ 2-character search finds our unit")
 
-    def test_substring_matching_everywhere(self, client: TofuPilot):
+    def test_substring_matching_everywhere(self, client: TofuPilot, timestamp: str):
         """Test that substring matching works (not just prefix matching)."""
         # Create test data
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PART-{timestamp}"
         
         # Create part and revision
@@ -111,10 +109,9 @@ class TestUnitsNoCharacterRestrictions:
             assert isinstance(response.data, list), f"Single character '{char}' search should work"
         print("✓ Single special character searches work")
 
-    def test_search_across_multiple_fields(self, client: TofuPilot):
+    def test_search_across_multiple_fields(self, client: TofuPilot, timestamp: str):
         """Test that search works across serial number, part name, part number, and revision."""
         # Create test data with searchable patterns in different fields
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"SEARCHABLE-PART-{timestamp}"
         part_name = f"Searchable Test Part {timestamp}"
         revision_number = f"SEARCHABLE-REV-{timestamp}"
@@ -159,10 +156,9 @@ class TestUnitsNoCharacterRestrictions:
         assert unit_result.id in found_ids, "Should find unit by revision number"
         print("✓ Revision number search works")
 
-    def test_short_searches_in_all_fields(self, client: TofuPilot):
+    def test_short_searches_in_all_fields(self, client: TofuPilot, timestamp: str):
         """Test that short searches work across all searchable fields."""
         # Create test data with 2-character patterns in different fields
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"XY-PART-{timestamp}"
         part_name = f"XY Test Part {timestamp}"
         revision_number = f"XY-REV-{timestamp}"

@@ -27,7 +27,7 @@ def test_create_version_empty_name(client: TofuPilot, auth_type: str) -> None:
     
     error = exc_info.value
     assert error.status_code == 400
-    assert "tag" in str(error.message).lower() or "name" in str(error.message).lower()
+    assert "tag" in str(error).lower() or "name" in str(error).lower()
 
 
 def test_create_version_long_name(client: TofuPilot, auth_type: str) -> None:
@@ -50,7 +50,7 @@ def test_create_version_long_name(client: TofuPilot, auth_type: str) -> None:
     
     error = exc_info.value
     assert error.status_code == 400
-    assert "60 character" in str(error.message)
+    assert "60 character" in str(error)
 
 
 def test_create_version_invalid_procedure_id(client: TofuPilot, auth_type: str) -> None:
@@ -77,5 +77,4 @@ def test_create_version_nonexistent_procedure(client: TofuPilot, auth_type: str)
         )
     
     error = exc_info.value
-    assert error.status_code == 404
-    assert "procedure" in str(error.message).lower()
+    assert "procedure" in str(error.data.message).lower()

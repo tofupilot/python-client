@@ -17,6 +17,8 @@ from ..v1.utils import (
 )
 from ..v1.utils.logger import LoggerStateManager
 
+import posthog
+
 
 class upload:  # pylint: disable=invalid-name
     """
@@ -129,6 +131,7 @@ class upload:  # pylint: disable=invalid-name
                 original_upload_id: str = result.get("upload_id")
 
             except Exception as e:
+                posthog.capture_exception(e)
                 self._logger.error(f"Error creating run: {str(e)}")
                 return ""
             finally:
@@ -139,15 +142,6 @@ class upload:  # pylint: disable=invalid-name
             # Process attachments
             number_of_attachments = 0
             for phase_idx, phase in enumerate(test_record.phases):
-                # Count attachments silently
-                attachment_count = len(phase.attachments)
-
-                # Keep only max number of attachments
-                if number_of_attachments >= self._max_attachments:
-                    self._logger.warning(
-                        f"Attachment limit ({self._max_attachments}) reached"
-                    )
-                    break
 
                 # Process each attachment in the phase
                 for attachment_name, attachment in phase.attachments.items():
@@ -155,6 +149,10 @@ class upload:  # pylint: disable=invalid-name
                     if attachment.size > self._max_file_size:
                         self._logger.warning(f"File too large: {attachment_name}")
                         continue
+                    if number_of_attachments == self._max_attachments:
+                        self._logger.warning(
+                            f"Attachment limit ({self._max_attachments}) reached"
+                        )
                     if number_of_attachments >= self._max_attachments:
                         break
 
@@ -199,6 +197,7 @@ class upload:  # pylint: disable=invalid-name
                                             f"Read file data from {attachment.file_path}"
                                         )
                                 except Exception as e:
+                                    posthog.capture_exception(e)
                                     self._logger.warning(
                                         f"Could not read from file_path: {str(e)}"
                                     )
@@ -211,6 +210,7 @@ class upload:  # pylint: disable=invalid-name
                                 timeout=SECONDS_BEFORE_TIMEOUT,
                             )
                         except Exception as e:
+                            posthog.capture_exception(e)
                             self._logger.error(f"Error uploading data: {str(e)}")
                             continue
 
@@ -228,6 +228,7 @@ class upload:  # pylint: disable=invalid-name
                                 f"Uploaded attachment: {attachment_name}"
                             )
                     except Exception as e:
+                        posthog.capture_exception(e)
                         # Use LoggerStateManager to temporarily activate the logger
                         with LoggerStateManager(self._logger):
                             self._logger.error(
@@ -236,6 +237,7 @@ class upload:  # pylint: disable=invalid-name
                         continue
             return original_upload_id
         except Exception as e:
+            posthog.capture_exception(e)
             self._logger.error(
                 f"Otherwise uncaught exception: {str(e)}"
             )

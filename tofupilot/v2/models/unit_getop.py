@@ -27,22 +27,6 @@ class UnitGetRequest(BaseModel):
     r"""Serial number of the unit to retrieve."""
 
 
-class UnitGetInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitGetInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnitGetNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitGetNotFoundIssue(BaseModel):
-    message: str
-
-
 class UnitGetCreatedByUserTypedDict(TypedDict):
     r"""User who created this unit."""
 
@@ -102,7 +86,7 @@ class UnitGetCreatedByStationTypedDict(TypedDict):
 
     id: str
     r"""Station ID."""
-    name: Nullable[str]
+    name: str
     r"""Station name."""
     image: Nullable[str]
     r"""Station image URL."""
@@ -114,7 +98,7 @@ class UnitGetCreatedByStation(BaseModel):
     id: str
     r"""Station ID."""
 
-    name: Nullable[str]
+    name: str
     r"""Station name."""
 
     image: Nullable[str]
@@ -123,7 +107,7 @@ class UnitGetCreatedByStation(BaseModel):
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name", "image"]
+        nullable_fields = ["image"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -583,11 +567,11 @@ class UnitGetChild(BaseModel):
         return m
 
 
-CreatedFromOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
+UnitGetOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Final result of the run execution."""
 
 
-class CreatedFromProcedureTypedDict(TypedDict):
+class UnitGetProcedureTypedDict(TypedDict):
     r"""Procedure information."""
 
     id: str
@@ -596,7 +580,7 @@ class CreatedFromProcedureTypedDict(TypedDict):
     r"""Procedure name."""
 
 
-class CreatedFromProcedure(BaseModel):
+class UnitGetProcedure(BaseModel):
     r"""Procedure information."""
 
     id: str
@@ -606,7 +590,7 @@ class CreatedFromProcedure(BaseModel):
     r"""Procedure name."""
 
 
-class CreatedFromTypedDict(TypedDict):
+class CreatedDuringTypedDict(TypedDict):
     r"""Run that created this unit."""
 
     id: str
@@ -615,15 +599,15 @@ class CreatedFromTypedDict(TypedDict):
     r"""ISO 8601 timestamp when the run was created."""
     started_at: datetime
     r"""ISO 8601 timestamp when the run started."""
-    outcome: CreatedFromOutcome
+    outcome: UnitGetOutcome
     r"""Final result of the run execution."""
     duration: str
     r"""ISO 8601 duration string."""
-    procedure: CreatedFromProcedureTypedDict
+    procedure: UnitGetProcedureTypedDict
     r"""Procedure information."""
 
 
-class CreatedFrom(BaseModel):
+class CreatedDuring(BaseModel):
     r"""Run that created this unit."""
 
     id: str
@@ -635,613 +619,14 @@ class CreatedFrom(BaseModel):
     started_at: datetime
     r"""ISO 8601 timestamp when the run started."""
 
-    outcome: CreatedFromOutcome
+    outcome: UnitGetOutcome
     r"""Final result of the run execution."""
 
     duration: str
     r"""ISO 8601 duration string."""
 
-    procedure: CreatedFromProcedure
+    procedure: UnitGetProcedure
     r"""Procedure information."""
-
-
-class ParentChangeCreatedByUserTypedDict(TypedDict):
-    r"""User who made the parent change."""
-
-    id: str
-    r"""User ID."""
-    name: str
-    r"""User display name."""
-
-
-class ParentChangeCreatedByUser(BaseModel):
-    r"""User who made the parent change."""
-
-    id: str
-    r"""User ID."""
-
-    name: str
-    r"""User display name."""
-
-
-class ParentChangeCreatedByStationTypedDict(TypedDict):
-    r"""Station that made the parent change."""
-
-    id: str
-    r"""Station ID."""
-    name: str
-    r"""Station name."""
-
-
-class ParentChangeCreatedByStation(BaseModel):
-    r"""Station that made the parent change."""
-
-    id: str
-    r"""Station ID."""
-
-    name: str
-    r"""Station name."""
-
-
-class ParentChangeProcedureTypedDict(TypedDict):
-    r"""Procedure associated with the run."""
-
-    id: str
-    r"""Procedure ID."""
-    name: str
-    r"""Procedure name."""
-
-
-class ParentChangeProcedure(BaseModel):
-    r"""Procedure associated with the run."""
-
-    id: str
-    r"""Procedure ID."""
-
-    name: str
-    r"""Procedure name."""
-
-
-class ParentChangeRunTypedDict(TypedDict):
-    r"""Run that triggered the parent change."""
-
-    id: str
-    r"""Run ID."""
-    procedure: Nullable[ParentChangeProcedureTypedDict]
-    r"""Procedure associated with the run."""
-
-
-class ParentChangeRun(BaseModel):
-    r"""Run that triggered the parent change."""
-
-    id: str
-    r"""Run ID."""
-
-    procedure: Nullable[ParentChangeProcedure]
-    r"""Procedure associated with the run."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["procedure"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-class ParentChangeRevisionTypedDict(TypedDict):
-    r"""Revision information."""
-
-    id: str
-    r"""Revision ID."""
-    number: str
-    r"""Revision number."""
-    image: Nullable[str]
-    r"""Revision image URL."""
-
-
-class ParentChangeRevision(BaseModel):
-    r"""Revision information."""
-
-    id: str
-    r"""Revision ID."""
-
-    number: str
-    r"""Revision number."""
-
-    image: Nullable[str]
-    r"""Revision image URL."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["image"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-class ParentChangePartTypedDict(TypedDict):
-    r"""Part information with revision details."""
-
-    id: str
-    r"""Part ID."""
-    number: str
-    r"""Part number."""
-    name: str
-    r"""Part name."""
-    revision: Nullable[ParentChangeRevisionTypedDict]
-    r"""Revision information."""
-
-
-class ParentChangePart(BaseModel):
-    r"""Part information with revision details."""
-
-    id: str
-    r"""Part ID."""
-
-    number: str
-    r"""Part number."""
-
-    name: str
-    r"""Part name."""
-
-    revision: Nullable[ParentChangeRevision]
-    r"""Revision information."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["revision"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-class UnitGetUnitTypedDict(TypedDict):
-    r"""Unit involved in the parent change."""
-
-    id: str
-    r"""Unit ID."""
-    serial_number: str
-    r"""Unit serial number."""
-    part: Nullable[ParentChangePartTypedDict]
-    r"""Part information with revision details."""
-
-
-class UnitGetUnit(BaseModel):
-    r"""Unit involved in the parent change."""
-
-    id: str
-    r"""Unit ID."""
-
-    serial_number: str
-    r"""Unit serial number."""
-
-    part: Nullable[ParentChangePart]
-    r"""Part information with revision details."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["part"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-class OldTypedDict(TypedDict):
-    r"""Previous parent unit (null if this was the first parent assignment)."""
-
-    id: str
-    r"""Previous parent unit ID."""
-    serial_number: str
-    r"""Previous parent unit serial number."""
-
-
-class Old(BaseModel):
-    r"""Previous parent unit (null if this was the first parent assignment)."""
-
-    id: str
-    r"""Previous parent unit ID."""
-
-    serial_number: str
-    r"""Previous parent unit serial number."""
-
-
-class NewTypedDict(TypedDict):
-    r"""New parent unit (null if parent was removed)."""
-
-    id: str
-    r"""New parent unit ID."""
-    serial_number: str
-    r"""New parent unit serial number."""
-
-
-class New(BaseModel):
-    r"""New parent unit (null if parent was removed)."""
-
-    id: str
-    r"""New parent unit ID."""
-
-    serial_number: str
-    r"""New parent unit serial number."""
-
-
-class ParentChangeTypedDict(TypedDict):
-    id: str
-    r"""Parent change ID."""
-    created_at: datetime
-    r"""ISO 8601 timestamp when the parent change occurred."""
-    created_by_user: Nullable[ParentChangeCreatedByUserTypedDict]
-    r"""User who made the parent change."""
-    created_by_station: Nullable[ParentChangeCreatedByStationTypedDict]
-    r"""Station that made the parent change."""
-    run: Nullable[ParentChangeRunTypedDict]
-    r"""Run that triggered the parent change."""
-    unit: Nullable[UnitGetUnitTypedDict]
-    r"""Unit involved in the parent change."""
-    old: Nullable[OldTypedDict]
-    r"""Previous parent unit (null if this was the first parent assignment)."""
-    new: Nullable[NewTypedDict]
-    r"""New parent unit (null if parent was removed)."""
-
-
-class ParentChange(BaseModel):
-    id: str
-    r"""Parent change ID."""
-
-    created_at: datetime
-    r"""ISO 8601 timestamp when the parent change occurred."""
-
-    created_by_user: Nullable[ParentChangeCreatedByUser]
-    r"""User who made the parent change."""
-
-    created_by_station: Nullable[ParentChangeCreatedByStation]
-    r"""Station that made the parent change."""
-
-    run: Nullable[ParentChangeRun]
-    r"""Run that triggered the parent change."""
-
-    unit: Nullable[UnitGetUnit]
-    r"""Unit involved in the parent change."""
-
-    old: Nullable[Old]
-    r"""Previous parent unit (null if this was the first parent assignment)."""
-
-    new: Nullable[New]
-    r"""New parent unit (null if parent was removed)."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = [
-            "created_by_user",
-            "created_by_station",
-            "run",
-            "unit",
-            "old",
-            "new",
-        ]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-UnitGetRunOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
-r"""Final result of the run execution."""
-
-
-class UnitGetRunProcedureTypedDict(TypedDict):
-    r"""Test procedure associated with this run. Every run must have a procedure."""
-
-    id: str
-    r"""Procedure ID."""
-    name: str
-    r"""Procedure name."""
-
-
-class UnitGetRunProcedure(BaseModel):
-    r"""Test procedure associated with this run. Every run must have a procedure."""
-
-    id: str
-    r"""Procedure ID."""
-
-    name: str
-    r"""Procedure name."""
-
-
-class RunCreatedByUserTypedDict(TypedDict):
-    r"""User who created this run."""
-
-    id: str
-    r"""User ID."""
-    name: Nullable[str]
-    r"""User display name."""
-    image: Nullable[str]
-    r"""User profile image URL."""
-
-
-class RunCreatedByUser(BaseModel):
-    r"""User who created this run."""
-
-    id: str
-    r"""User ID."""
-
-    name: Nullable[str]
-    r"""User display name."""
-
-    image: Nullable[str]
-    r"""User profile image URL."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name", "image"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-class RunCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this run."""
-
-    id: str
-    r"""Station ID."""
-    name: Nullable[str]
-    r"""Station name."""
-    image: Nullable[str]
-    r"""Station image URL."""
-
-
-class RunCreatedByStation(BaseModel):
-    r"""Station that created this run."""
-
-    id: str
-    r"""Station ID."""
-
-    name: Nullable[str]
-    r"""Station name."""
-
-    image: Nullable[str]
-    r"""Station image URL."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name", "image"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-class UnitGetRunTypedDict(TypedDict):
-    id: str
-    r"""Run ID."""
-    created_at: datetime
-    r"""ISO 8601 timestamp when the run was created."""
-    started_at: datetime
-    r"""ISO 8601 timestamp when the run execution started."""
-    outcome: UnitGetRunOutcome
-    r"""Final result of the run execution."""
-    duration: str
-    r"""ISO 8601 duration string representing the total execution time."""
-    procedure: UnitGetRunProcedureTypedDict
-    r"""Test procedure associated with this run. Every run must have a procedure."""
-    created_by_user: NotRequired[Nullable[RunCreatedByUserTypedDict]]
-    r"""User who created this run."""
-    created_by_station: NotRequired[Nullable[RunCreatedByStationTypedDict]]
-    r"""Station that created this run."""
-
-
-class UnitGetRun(BaseModel):
-    id: str
-    r"""Run ID."""
-
-    created_at: datetime
-    r"""ISO 8601 timestamp when the run was created."""
-
-    started_at: datetime
-    r"""ISO 8601 timestamp when the run execution started."""
-
-    outcome: UnitGetRunOutcome
-    r"""Final result of the run execution."""
-
-    duration: str
-    r"""ISO 8601 duration string representing the total execution time."""
-
-    procedure: UnitGetRunProcedure
-    r"""Test procedure associated with this run. Every run must have a procedure."""
-
-    created_by_user: OptionalNullable[RunCreatedByUser] = UNSET
-    r"""User who created this run."""
-
-    created_by_station: OptionalNullable[RunCreatedByStation] = UNSET
-    r"""Station that created this run."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = ["created_by_user", "created_by_station"]
-        nullable_fields = ["created_by_user", "created_by_station"]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
 
 
 class UnitGetResponseTypedDict(TypedDict):
@@ -1265,12 +650,8 @@ class UnitGetResponseTypedDict(TypedDict):
     r"""Batch information for this unit."""
     children: NotRequired[List[UnitGetChildTypedDict]]
     r"""Child units with part details and processed images."""
-    created_from: NotRequired[Nullable[CreatedFromTypedDict]]
+    created_during: NotRequired[Nullable[CreatedDuringTypedDict]]
     r"""Run that created this unit."""
-    parent_changes: NotRequired[List[ParentChangeTypedDict]]
-    r"""Parent change history showing when the unit's parent relationships were modified."""
-    runs: NotRequired[List[UnitGetRunTypedDict]]
-    r"""All test runs performed on this unit."""
 
 
 class UnitGetResponse(BaseModel):
@@ -1303,14 +684,8 @@ class UnitGetResponse(BaseModel):
     children: Optional[List[UnitGetChild]] = None
     r"""Child units with part details and processed images."""
 
-    created_from: OptionalNullable[CreatedFrom] = UNSET
+    created_during: OptionalNullable[CreatedDuring] = UNSET
     r"""Run that created this unit."""
-
-    parent_changes: Optional[List[ParentChange]] = None
-    r"""Parent change history showing when the unit's parent relationships were modified."""
-
-    runs: Optional[List[UnitGetRun]] = None
-    r"""All test runs performed on this unit."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -1319,16 +694,14 @@ class UnitGetResponse(BaseModel):
             "created_by_station",
             "batch",
             "children",
-            "created_from",
-            "parent_changes",
-            "runs",
+            "created_during",
         ]
         nullable_fields = [
             "created_by_user",
             "created_by_station",
             "batch",
             "parent",
-            "created_from",
+            "created_during",
         ]
         null_default_fields = []
 

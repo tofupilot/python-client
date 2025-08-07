@@ -5,7 +5,6 @@ from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
-from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
 from typing import Any, Mapping, Optional, Union
 
 
@@ -87,27 +86,36 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartGetRevisionResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.PartGetRevisionResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.RevisionNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.RevisionNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartGetRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartGetRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def get_async(
         self,
@@ -186,27 +194,36 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartGetRevisionResponse, http_res)
+            return utils.unmarshal_json(http_res.text, models.PartGetRevisionResponse)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.RevisionNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.RevisionNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartGetRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartGetRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def delete(
         self,
@@ -285,30 +302,38 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartDeleteRevisionResponse, http_res)
+            return utils.unmarshal_json(
+                http_res.text, models.PartDeleteRevisionResponse
+            )
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartDeleteRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartDeleteRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def delete_async(
         self,
@@ -387,30 +412,38 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartDeleteRevisionResponse, http_res)
+            return utils.unmarshal_json(
+                http_res.text, models.PartDeleteRevisionResponse
+            )
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.PartDeleteRevisionRevisionRevisionNumberNotFoundForPartPartNumberError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartDeleteRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartDeleteRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def update(
         self,
@@ -509,38 +542,43 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartUpdateRevisionResponse, http_res)
+            return utils.unmarshal_json(
+                http_res.text, models.PartUpdateRevisionResponse
+            )
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.AnotherRevisionWithNumberNumberAlreadyExistsForThisPartError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.AnotherRevisionWithNumberNumberAlreadyExistsForThisPartError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartUpdateRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartUpdateRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def update_async(
         self,
@@ -639,38 +677,43 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartUpdateRevisionResponse, http_res)
+            return utils.unmarshal_json(
+                http_res.text, models.PartUpdateRevisionResponse
+            )
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.RevisionRevisionNumberNotFoundForPartPartNumberUploadWithIDImageIDNotFoundError404(
-                response_data, http_res
-            )
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.AnotherRevisionWithNumberNumberAlreadyExistsForThisPartError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.AnotherRevisionWithNumberNumberAlreadyExistsForThisPartError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartUpdateRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartUpdateRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     def create(
         self,
@@ -758,35 +801,43 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartCreateRevisionResponse, http_res)
+            return utils.unmarshal_json(
+                http_res.text, models.PartCreateRevisionResponse
+            )
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartWithIDPartNumberNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.PartWithIDPartNumberNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.RevisionWithNumberNumberAlreadyExistsForThisPartError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.RevisionWithNumberNumberAlreadyExistsForThisPartError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartCreateRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartCreateRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def create_async(
         self,
@@ -874,32 +925,40 @@ class Revisions(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.PartCreateRevisionResponse, http_res)
+            return utils.unmarshal_json(
+                http_res.text, models.PartCreateRevisionResponse
+            )
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartWithIDPartNumberNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.PartWithIDPartNumberNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.RevisionWithNumberNumberAlreadyExistsForThisPartError409Data,
-                http_res,
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorCONFLICTData
             )
-            raise errors.RevisionWithNumberNumberAlreadyExistsForThisPartError409(
-                response_data, http_res
-            )
+            raise errors.ErrorCONFLICT(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.PartCreateRevisionInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.PartCreateRevisionInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )

@@ -34,30 +34,6 @@ class ProcedureUpdateRequest(BaseModel):
     ]
 
 
-class ProcedureUpdateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureUpdateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureUpdateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureUpdateNotFoundIssue(BaseModel):
-    message: str
-
-
-class ProcedureUpdateBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureUpdateBadRequestIssue(BaseModel):
-    message: str
-
-
 class ProcedureUpdateResponseTypedDict(TypedDict):
     r"""Procedure updated successfully"""
 

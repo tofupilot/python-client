@@ -20,22 +20,6 @@ class StationGetRequest(BaseModel):
     r"""Unique identifier of the station to retrieve"""
 
 
-class StationGetInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationGetInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class StationGetNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class StationGetNotFoundIssue(BaseModel):
-    message: str
-
-
 class StationGetProcedureTypedDict(TypedDict):
     id: str
     r"""Procedure ID"""

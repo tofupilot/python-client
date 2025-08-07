@@ -11,9 +11,8 @@ class TestPartRevisionFiltering:
     """Test filtering units by part numbers and revision numbers with AND logic."""
 
     @pytest.fixture
-    def test_data(self, client: TofuPilot) -> dict[str, Any]:
+    def test_data(self, client: TofuPilot, timestamp: str) -> dict[str, Any]:
         """Create test data with specific parts and revisions."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create two parts with different revisions
         part1_number = f"FILTER-PART1-{timestamp}"

@@ -35,22 +35,6 @@ class RunUpdateRequest(BaseModel):
     ]
 
 
-class RunUpdateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunUpdateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class RunUpdateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class RunUpdateNotFoundIssue(BaseModel):
-    message: str
-
-
 class RunUpdateResponseTypedDict(TypedDict):
     r"""Run attachments updated successfully"""
 

@@ -13,9 +13,8 @@ class TestPartsListSearch:
     """Test parts list search functionality."""
     
     @pytest.fixture
-    def test_parts_for_search(self, client: TofuPilot, auth_type: str) -> List[PartCreateResponse]:
+    def test_parts_for_search(self, client: TofuPilot, auth_type: str, timestamp) -> List[PartCreateResponse]:
         """Create test parts for search tests."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         created_parts: List[PartCreateResponse] = []
         
@@ -47,10 +46,9 @@ class TestPartsListSearch:
         
         return created_parts
     
-    def test_search_by_part_number(self, client: TofuPilot, test_parts_for_search: List[PartCreateResponse]) -> None:
+    def test_search_by_part_number(self, client: TofuPilot, test_parts_for_search: List[PartCreateResponse], timestamp) -> None:
         """Test searching parts by part number."""
         # Create a unique search term for this test
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_search_term = f"SEARCHNUM-{timestamp}"
         
         # Create parts with this unique search term
@@ -74,10 +72,9 @@ class TestPartsListSearch:
         found_ids = {p.id for p in result.data}
         assert found_ids == set(created_ids)
     
-    def test_search_by_part_name(self, client: TofuPilot, test_parts_for_search: List[PartCreateResponse]) -> None:
+    def test_search_by_part_name(self, client: TofuPilot, test_parts_for_search: List[PartCreateResponse], timestamp) -> None:
         """Test searching parts by name."""
         # Create a unique search term for this test
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_name_term = f"UniqueComponent-{timestamp}"
         
         # Create a part with this unique name
@@ -164,10 +161,9 @@ class TestPartsListSearch:
         assert_get_parts_success(result_spaces)
         assert len(result_spaces.data) >= 1
     
-    def test_search_by_revision_number(self, client: TofuPilot, test_parts_for_search: List[PartCreateResponse]) -> None:
+    def test_search_by_revision_number(self, client: TofuPilot, test_parts_for_search: List[PartCreateResponse], timestamp) -> None:
         """Test searching parts by revision number."""
         # Create a unique revision number for this test
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_revision = f"REV-{timestamp}"
         
         # Create a part with this unique revision

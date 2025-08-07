@@ -5,7 +5,6 @@ from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
-from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
 from typing import Any, Mapping, Optional
 
 
@@ -87,46 +86,53 @@ class Attachments(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(
-                models.AttachmentInitializeResponse, http_res
+            return utils.unmarshal_json(
+                http_res.text, models.AttachmentInitializeResponse
             )
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InvalidFileTypeFileTypeError400Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.InvalidFileTypeFileTypeError400(response_data, http_res)
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "403", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.YouMustBelongToAnOrganizationToUploadAFileError403Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorFORBIDDENData
             )
-            raise errors.YouMustBelongToAnOrganizationToUploadAFileError403(
-                response_data, http_res
-            )
+            raise errors.ErrorFORBIDDEN(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UploadNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UploadNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.AttachmentInitializeInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.AttachmentInitializeInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "502", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.FailedToGenerateUploadURLError502Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADGATEWAYData
             )
-            raise errors.FailedToGenerateUploadURLError502(response_data, http_res)
+            raise errors.ErrorBADGATEWAY(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = utils.stream_to_text(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )
 
     async def initialize_async(
         self,
@@ -205,43 +211,50 @@ class Attachments(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(
-                models.AttachmentInitializeResponse, http_res
+            return utils.unmarshal_json(
+                http_res.text, models.AttachmentInitializeResponse
             )
         if utils.match_response(http_res, "400", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.InvalidFileTypeFileTypeError400Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADREQUESTData
             )
-            raise errors.InvalidFileTypeFileTypeError400(response_data, http_res)
+            raise errors.ErrorBADREQUEST(data=response_data)
         if utils.match_response(http_res, "403", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.YouMustBelongToAnOrganizationToUploadAFileError403Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorFORBIDDENData
             )
-            raise errors.YouMustBelongToAnOrganizationToUploadAFileError403(
-                response_data, http_res
-            )
+            raise errors.ErrorFORBIDDEN(data=response_data)
         if utils.match_response(http_res, "404", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.UploadNotFoundError404Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorNOTFOUNDData
             )
-            raise errors.UploadNotFoundError404(response_data, http_res)
+            raise errors.ErrorNOTFOUND(data=response_data)
         if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.AttachmentInitializeInternalServerErrorError500Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ERRORINTERNALSERVERERRORData
             )
-            raise errors.AttachmentInitializeInternalServerErrorError500(
-                response_data, http_res
-            )
+            raise errors.ERRORINTERNALSERVERERROR(data=response_data)
         if utils.match_response(http_res, "502", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.FailedToGenerateUploadURLError502Data, http_res
+            response_data = utils.unmarshal_json(
+                http_res.text, errors.ErrorBADGATEWAYData
             )
-            raise errors.FailedToGenerateUploadURLError502(response_data, http_res)
+            raise errors.ErrorBADGATEWAY(data=response_data)
         if utils.match_response(http_res, "4XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
         if utils.match_response(http_res, "5XX", "*"):
             http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
+            raise errors.APIError(
+                "API error occurred", http_res.status_code, http_res_text, http_res
+            )
 
-        raise errors.APIError("Unexpected response received", http_res)
+        content_type = http_res.headers.get("Content-Type")
+        http_res_text = await utils.stream_to_text_async(http_res)
+        raise errors.APIError(
+            f"Unexpected response received (code: {http_res.status_code}, type: {content_type})",
+            http_res.status_code,
+            http_res_text,
+            http_res,
+        )

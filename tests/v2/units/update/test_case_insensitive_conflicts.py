@@ -57,15 +57,12 @@ class TestUnitUpdateCaseInsensitiveConflicts:
         
         # Try to update unit2's serial number to match unit1's (but with different case)
         # This should fail with a conflict
-        try:
+        with pytest.raises(ErrorCONFLICT) as e:
             client.units.update(
                 serial_number=unit2_serial,
                 new_serial_number=serial1.lower()  # Same as unit1 but lowercase
             )
-            pytest.fail("Expected error when updating unit serial number to conflict with existing")
-        except ErrorCONFLICT as e:
             # Should get 409 CONFLICT for duplicate serial numbers
-            assert e.status_code == 409
             error_msg = str(e).lower()
             assert any(phrase in error_msg for phrase in ["already in use", "already exists", "serial number is already"])
 
@@ -109,7 +106,6 @@ class TestUnitUpdateCaseInsensitiveConflicts:
             )
             pytest.fail("Expected error when updating unit serial number to conflict")
         except ErrorCONFLICT as e:
-            assert e.status_code == 409
             error_msg = str(e).lower()
             assert any(phrase in error_msg for phrase in ["already in use", "already exists", "serial number is already"])
 

@@ -21,22 +21,6 @@ class ProcedureGetRequest(BaseModel):
     r"""Unique identifier of the procedure to retrieve."""
 
 
-class ProcedureGetInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureGetInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureGetNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureGetNotFoundIssue(BaseModel):
-    message: str
-
-
 class ProcedureGetCreatedByUserTypedDict(TypedDict):
     r"""User who created this procedure."""
 

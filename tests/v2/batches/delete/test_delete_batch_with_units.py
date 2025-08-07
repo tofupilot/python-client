@@ -9,9 +9,8 @@ from ...utils import assert_station_access_forbidden
 
 class TestDeleteBatchWithUnits:
     
-    def test_delete_batch_with_units_succeeds(self, client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+    def test_delete_batch_with_units_succeeds(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test that deleting a batch with units succeeds and disassociates units."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a batch
         batch_number = f"AutomatedTest-V2-Delete-WithUnits-{timestamp}"
@@ -83,9 +82,8 @@ class TestDeleteBatchWithUnits:
             with assert_station_access_forbidden("delete batch with units"):
                 client.batches.delete(number=batch_number)
     
-    def test_delete_batch_with_multiple_units_succeeds(self, client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+    def test_delete_batch_with_multiple_units_succeeds(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test that deleting a batch with multiple units succeeds and disassociates units."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a batch
         batch_number = f"AutomatedTest-V2-Delete-MultiUnits-{timestamp}"
@@ -160,9 +158,8 @@ class TestDeleteBatchWithUnits:
             with assert_station_access_forbidden("delete batch with multiple units"):
                 client.batches.delete(number=batch_number)
     
-    def test_batch_deletion_with_unit_lifecycle(self, client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+    def test_batch_deletion_with_unit_lifecycle(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test batch deletion behavior in a complete unit lifecycle scenario."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a batch
         batch_number = f"AutomatedTest-V2-Delete-Lifecycle-{timestamp}"

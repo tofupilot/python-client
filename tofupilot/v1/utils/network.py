@@ -1,6 +1,7 @@
 from typing import Dict, List, Optional, Any, Union
 
 import requests
+import posthog
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from ..responses import HttpErrorResponse, NetworkErrorResponse, ErrorResponse
 
@@ -83,6 +84,8 @@ def handle_response(
         message = data.get("message")
         if message is not None:
             logger.success(message)
+    except Exception as e:
+        posthog.capture_exception(e)
     finally:
         # Restore logger state if needed
         if was_resumed and hasattr(logger, 'pause'):
@@ -96,6 +99,8 @@ def handle_http_error(
     logger, http_err: requests.exceptions.HTTPError
 ) -> HttpErrorResponse:
     """Handles HTTP errors and logs them."""
+
+    posthog.capture_exception(http_err)
     warnings = None
     
     # Ensure logger is active to process messages
@@ -126,6 +131,8 @@ def handle_http_error(
 
         # Log the error through the logger for proper formatting
         logger.error(error_message)
+    except Exception as e:
+        posthog.capture_exception(e)
     finally:
         # Restore logger state if needed
         if was_resumed and hasattr(logger, 'pause'):
@@ -143,6 +150,7 @@ def handle_http_error(
 
 def handle_network_error(logger, e: requests.RequestException) -> NetworkErrorResponse:
     """Handles network errors and logs them."""
+    posthog.capture_exception(e)
     # Ensure logger is active to process messages
     was_resumed = False
     if hasattr(logger, 'resume'):
@@ -158,6 +166,8 @@ def handle_network_error(logger, e: requests.RequestException) -> NetworkErrorRe
             logger.warning("SSL certificate verification error detected")
             logger.warning("This is typically caused by missing or invalid SSL certificates")
             logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
+    except Exception as e2:
+        posthog.capture_exception(e2)
     finally:
         # Restore logger state if needed
         if was_resumed and hasattr(logger, 'pause'):

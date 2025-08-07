@@ -15,17 +15,15 @@ from .utils import (
 class TestStationBasicOperations:
     """Test basic CRUD operations for stations."""
     
-    def test_station_full_lifecycle(self, client: TofuPilot, auth_type: str) -> None:
+    def test_station_full_lifecycle(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test complete station lifecycle: create, read, update, delete."""
         if auth_type == "station":
             # Skip test for station auth as they can't create/update/delete
             return
-        
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         
         # 1. Create a station
-        station_name = f"Lifecycle Test Station - {timestamp}-{unique_id}"
+        station_name = f"Lifecycle Test Station - {timestamp}"
         create_result = client.stations.create(name=station_name)
         assert_create_station_success(create_result)
         station_id = create_result.id
@@ -104,7 +102,7 @@ class TestStationBasicOperations:
             page2_ids = {s.id for s in page2.data}
             assert len(page1_ids.intersection(page2_ids)) == 0
     
-    def test_station_data_integrity(self, client: TofuPilot, auth_type: str) -> None:
+    def test_station_data_integrity(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that station data maintains integrity across operations."""
         if auth_type == "station":
             # Stations cannot list other stations - should get 403 Forbidden
@@ -114,7 +112,6 @@ class TestStationBasicOperations:
             return
         
         # For user auth, create and verify data integrity
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         station_name = f"Data Integrity Test - {timestamp}"
         
         # Create station

@@ -12,7 +12,7 @@ class TestProceduresDateFiltering:
     """Test filtering procedures by creation date."""
     
     @pytest.fixture
-    def test_procedures_with_dates(self, client: TofuPilot, auth_type: str) -> List[models.ProcedureListData]:
+    def test_procedures_with_dates(self, client: TofuPilot, auth_type: str, timestamp) -> List[models.ProcedureListData]:
         """Create test procedures or test station authorization."""
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -23,13 +23,12 @@ class TestProceduresDateFiltering:
             return []
             
         # User API can create procedures
-        base_timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         test_procedures: List[models.ProcedureListData] = []
         # Create procedures with small delays to ensure different timestamps
         for i in range(5):
             create_result = client.procedures.create(
-                name=f"DATE-FILTER-TEST-{base_timestamp}-{i:03d}"
+                name=f"DATE-FILTER-TEST-{timestamp}-{i:03d}"
             )
             assert_create_procedure_success(create_result)
             

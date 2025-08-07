@@ -26,22 +26,6 @@ class PartCreateRequest(BaseModel):
     r"""Revision identifier for the part version. If not provided, default revision identifier will be used."""
 
 
-class PartCreateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartCreateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class PartCreateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartCreateConflictIssue(BaseModel):
-    message: str
-
-
 class PartCreateResponseTypedDict(TypedDict):
     r"""Part created successfully"""
 

@@ -14,10 +14,9 @@ class TestDeleteRevision:
     """Test revision deletion scenarios."""
     
     @pytest.fixture
-    def test_part(self, client: TofuPilot, auth_type: str) -> tuple[str, str]:
+    def test_part(self, client: TofuPilot, auth_type: str, timestamp: str) -> tuple[str, str]:
         """Create a test part for revision deletion tests."""
             
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-DEL-{timestamp}-{unique_id}"
         
@@ -29,11 +28,10 @@ class TestDeleteRevision:
         return result.id, part_number
     
     @pytest.fixture
-    def test_revision(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> tuple[str, str]:
+    def test_revision(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> tuple[str, str]:
         """Create a test revision for deletion tests."""
             
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-DELETE-{timestamp}"
         result = client.parts.revisions.create(part_number=part_number
         , number=revision_number)
@@ -70,7 +68,7 @@ class TestDeleteRevision:
             revision_still_exists = any(rev.id == revision_id for rev in part_after.revisions)
             assert not revision_still_exists  # Removed from list (hard delete)
     
-    def test_delete_revision_doesnt_affect_part(self, client: TofuPilot, test_revision: tuple[str, str], test_part: tuple[str, str], auth_type: str) -> None:
+    def test_delete_revision_doesnt_affect_part(self, client: TofuPilot, test_revision: tuple[str, str], test_part: tuple[str, str], auth_type: str, timestamp) -> None:
         """Test that deleting revision doesn't affect the part."""
         revision_id, revision_number = test_revision
         part_id, part_number = test_part
@@ -83,9 +81,8 @@ class TestDeleteRevision:
             return
         
         # Create a second revision for the same part before testing
-        timestamp_before = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         second_revision = client.parts.revisions.create(part_number=part_number
-        , number=f"REV-SECOND-{timestamp_before}")
+        , number=f"REV-SECOND-{timestamp}")
         assert_create_revision_success(second_revision)
         
         # Get the part to verify the revision exists before deleting it
@@ -99,7 +96,6 @@ class TestDeleteRevision:
         assert_delete_revision_success(result)
         
         # Verify part still exists by creating a new revision for it
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         new_revision_result = client.parts.revisions.create(part_number=part_number
         , number=f"REV-AFTER-DELETE-{timestamp}")
         assert_create_revision_success(new_revision_result)
@@ -130,7 +126,7 @@ class TestDeleteRevision:
             error_message = str(exc_info.value).lower()
             assert "not found" in error_message
     
-    def test_delete_one_of_multiple_revisions(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_delete_one_of_multiple_revisions(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test deleting one revision when multiple exist for the same part."""
         
         # Stations cannot delete revisions - should get 403 Forbidden
@@ -138,14 +134,12 @@ class TestDeleteRevision:
             from ...utils import assert_station_access_forbidden
             _, part_number = test_part
             # Create a test revision to attempt deletion
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
             revision_number = f"REV-MULTI-{timestamp}"
             with assert_station_access_forbidden("delete revision"):
                 client.parts.revisions.delete(part_number=part_number, revision_number=revision_number)
             return
             
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create multiple revisions for the same part
         rev1_result = client.parts.revisions.create(part_number=part_number
@@ -219,14 +213,13 @@ class TestDeleteRevision:
             error_message = str(exc_info.value).lower()
             assert "not found" in error_message or "invalid" in error_message or "bad" in error_message
     
-    def test_delete_last_revision_deletes_part(self, client: TofuPilot, auth_type: str) -> None:
+    def test_delete_last_revision_deletes_part(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that deleting the last revision of a part also deletes the part (orphan deletion)."""
         
         # Stations cannot delete revisions - should get 403 Forbidden
         if auth_type == "station":
             from ...utils import assert_station_access_forbidden
             # Create a test part to attempt revision deletion
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
             unique_id = str(uuid.uuid4())[:8]
             part_number = f"PART-ORPHAN-{timestamp}-{unique_id}"
             revision_number = f"REV-ORPHAN-{timestamp}"
@@ -235,7 +228,6 @@ class TestDeleteRevision:
             return
         
         # Create a part with a single revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-ORPHAN-{timestamp}-{unique_id}"
         

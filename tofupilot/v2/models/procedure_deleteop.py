@@ -8,28 +8,14 @@ from typing_extensions import Annotated, TypedDict
 
 class ProcedureDeleteRequestTypedDict(TypedDict):
     id: str
+    r"""Unique identifier of the procedure to delete."""
 
 
 class ProcedureDeleteRequest(BaseModel):
     id: Annotated[
         str, FieldMetadata(path=PathParamMetadata(style="simple", explode=False))
     ]
-
-
-class ProcedureDeleteInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureDeleteInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureDeleteNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureDeleteNotFoundIssue(BaseModel):
-    message: str
+    r"""Unique identifier of the procedure to delete."""
 
 
 class ProcedureDeleteResponseTypedDict(TypedDict):

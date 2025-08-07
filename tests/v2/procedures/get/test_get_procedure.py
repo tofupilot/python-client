@@ -13,7 +13,7 @@ class TestGetProcedure:
     """Test retrieving individual procedures by ID."""
     
     @pytest.fixture
-    def test_procedure_for_get(self, client: TofuPilot, auth_type: str) -> str:
+    def test_procedure_for_get(self, client: TofuPilot, auth_type: str, timestamp) -> str:
         """Create a test procedure for user, test authorization for station."""
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -24,7 +24,6 @@ class TestGetProcedure:
             return "dummy-id-for-station-tests"
                 
         # User API can create procedures
-        timestamp = str(int(time.time() * 1000000))
         procedure_response = client.procedures.create(name=f"GET-TEST-PROC-{timestamp}")
         assert_create_procedure_success(procedure_response)
         return procedure_response.id
@@ -48,14 +47,13 @@ class TestGetProcedure:
         assert hasattr(procedure, 'recent_runs')
         assert hasattr(procedure, 'stations')
 
-    def test_get_procedure_with_runs(self, client: TofuPilot, auth_type: str, test_procedure_for_get: str):
+    def test_get_procedure_with_runs(self, client: TofuPilot, auth_type: str, test_procedure_for_get: str, timestamp):
         """Test retrieving a procedure includes recent runs."""
         if auth_type == "station":
             # Station test passes - authorization already tested in fixture
             return
             
         # User API test - use the created procedure and add runs
-        timestamp = str(int(time.time() * 1000000))
         
         # Create runs for this procedure
         run_count = 3

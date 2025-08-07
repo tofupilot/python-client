@@ -32,43 +32,13 @@ def has_parent(unit: Any) -> bool:
     """Check if unit has parent (not None and not UNSET)."""
     return unit.parent is not None and unit.parent is not UNSET
 
-
-def create_test_unit(client: TofuPilot, prefix: str) -> tuple[str, str, str]:
-    """Create a test unit and return (unit_id, serial_number, revision_id)."""
-    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
-    part_number = f"{prefix}-PART-{timestamp}"
-    revision_number = f"{prefix}-REV-{timestamp}"
-    serial_number = f"{prefix}-{timestamp}"
-    
-    # Create part and revision
-    client.parts.create(
-        number=part_number,
-        name=f"Test Part {prefix} {timestamp}"
-    )
-    
-    revision_result = client.parts.revisions.create(
-        part_number=part_number,
-        number=revision_number
-    )
-    
-    # Create unit
-    unit_result = client.units.create(
-        serial_number=serial_number,
-        part_number=part_number,
-        revision_number=revision_number,
-    )
-    
-    assert_create_unit_success(unit_result)
-    return unit_result.id, serial_number, revision_result.id
-
-
 class TestRemoveChildrenOperations:
     """All tests for successfully removing children from units."""
 
-    def test_remove_single_child(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_single_child(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test removing a single child from parent."""
-        parent_id, parent_serial, _ = create_test_unit(client, "PARENT-REMOVE")
-        child_id, child_serial, _ = create_test_unit(client, "CHILD-REMOVE")
+        parent_id, parent_serial, _ = create_test_unit("PARENT-REMOVE")
+        child_id, child_serial, _ = create_test_unit("CHILD-REMOVE")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships - test add_child fails
@@ -118,13 +88,13 @@ class TestRemoveChildrenOperations:
         assert child_unit_after is not None
         assert child_unit_after.parent is None
 
-    def test_remove_one_child_from_multiple(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_one_child_from_multiple(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test removing one child when parent has multiple children."""
-        parent_id, parent_serial, _ = create_test_unit(client, "PARENT-REMOVE-ONE")
+        parent_id, parent_serial, _ = create_test_unit("PARENT-REMOVE-ONE")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            child_id, child_serial, _ = create_test_unit(client, "CHILD-REMOVE-ONE-STATION")
+            child_id, child_serial, _ = create_test_unit("CHILD-REMOVE-ONE-STATION")
             with assert_station_access_forbidden("add child to unit"):
                 client.units.add_child(
                     serial_number=parent_serial,
@@ -141,7 +111,7 @@ class TestRemoveChildrenOperations:
         # Add three children
         children_data: List[tuple[str, str]] = []
         for i in range(3):
-            child_id, child_serial, _ = create_test_unit(client, f"CHILD-REMOVE-ONE-{i}")
+            child_id, child_serial, _ = create_test_unit(f"CHILD-REMOVE-ONE-{i}")
             children_data.append((child_id, child_serial))
             client.units.add_child(
                 serial_number=parent_serial,
@@ -176,13 +146,13 @@ class TestRemoveChildrenOperations:
         remaining_expected = {child_serial for _, child_serial in children_data[1:]}
         assert remaining_serials == remaining_expected
 
-    def test_remove_all_children_sequentially(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_all_children_sequentially(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test removing all children one by one."""
-        parent_id, parent_serial, _ = create_test_unit(client, "PARENT-REMOVE-ALL")
+        parent_id, parent_serial, _ = create_test_unit("PARENT-REMOVE-ALL")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            child_id, child_serial, _ = create_test_unit(client, "CHILD-REMOVE-ALL-STATION")
+            child_id, child_serial, _ = create_test_unit("CHILD-REMOVE-ALL-STATION")
             with assert_station_access_forbidden("add child to unit"):
                 client.units.add_child(
                     serial_number=parent_serial,
@@ -193,7 +163,7 @@ class TestRemoveChildrenOperations:
         # Add 3 children
         children_data: List[tuple[str, str]] = []
         for i in range(3):
-            child_id, child_serial, _ = create_test_unit(client, f"CHILD-REMOVE-ALL-{i}")
+            child_id, child_serial, _ = create_test_unit(f"CHILD-REMOVE-ALL-{i}")
             children_data.append((child_id, child_serial))
             client.units.add_child(
                 serial_number=parent_serial,
@@ -218,10 +188,10 @@ class TestRemoveChildrenOperations:
                 assert parent_unit.children is not None
                 assert get_children_count(parent_unit) == expected_remaining
 
-    def test_add_remove_cycle(self, client: TofuPilot, auth_type: str) -> None:
+    def test_add_remove_cycle(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test adding and removing the same child multiple times."""
-        parent_id, parent_serial, _ = create_test_unit(client, "PARENT-CYCLE")
-        child_id, child_serial, _ = create_test_unit(client, "CHILD-CYCLE")
+        parent_id, parent_serial, _ = create_test_unit("PARENT-CYCLE")
+        child_id, child_serial, _ = create_test_unit("CHILD-CYCLE")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
@@ -263,12 +233,12 @@ class TestRemoveChildrenOperations:
             assert parent_unit_after is not None
             assert not has_children(parent_unit_after) or get_children_count(parent_unit_after) == 0
 
-    def test_remove_from_multi_level_hierarchy(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_from_multi_level_hierarchy(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test removing a unit from the middle of a hierarchy."""
         # Create grandparent -> parent -> child
-        grandparent_id, grandparent_serial, _ = create_test_unit(client, "GRANDPARENT-REMOVE")
-        parent_id, parent_serial, _ = create_test_unit(client, "PARENT-MIDDLE")
-        child_id, child_serial, _ = create_test_unit(client, "CHILD-BOTTOM")
+        grandparent_id, grandparent_serial, _ = create_test_unit("GRANDPARENT-REMOVE")
+        parent_id, parent_serial, _ = create_test_unit("PARENT-MIDDLE")
+        child_id, child_serial, _ = create_test_unit("CHILD-BOTTOM")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
@@ -346,13 +316,13 @@ class TestRemoveChildrenOperations:
         else:
             assert False, "Parent should have children"
 
-    def test_remove_specific_child_by_position(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_specific_child_by_position(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test removing children from specific positions (first, middle, last)."""
-        parent_id, parent_serial, _ = create_test_unit(client, "PARENT-POSITION")
+        parent_id, parent_serial, _ = create_test_unit("PARENT-POSITION")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            child_id, child_serial, _ = create_test_unit(client, "CHILD-POS-STATION")
+            child_id, child_serial, _ = create_test_unit("CHILD-POS-STATION")
             with assert_station_access_forbidden("add child to unit"):
                 client.units.add_child(
                     serial_number=parent_serial,
@@ -363,7 +333,7 @@ class TestRemoveChildrenOperations:
         # Add 5 children
         children_data: List[tuple[str, str]] = []
         for i in range(5):
-            child_id, child_serial, _ = create_test_unit(client, f"CHILD-POS-{i}")
+            child_id, child_serial, _ = create_test_unit(f"CHILD-POS-{i}")
             children_data.append((child_id, child_serial))
             client.units.add_child(
                 serial_number=parent_serial,

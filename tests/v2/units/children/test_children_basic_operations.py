@@ -25,43 +25,13 @@ def has_parent(unit: Any) -> bool:
     """Check if unit has parent (not None and not UNSET)."""
     return hasattr(unit, 'parent') and unit.parent is not None and unit.parent is not UNSET
 
-
-def create_test_unit(client: TofuPilot, prefix: str) -> tuple[str, str, str]:
-    """Create a test unit and return (unit_id, serial_number, revision_id)."""
-    timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
-    part_number = f"{prefix}-PART-{timestamp}"
-    revision_number = f"{prefix}-REV-{timestamp}"
-    serial_number = f"{prefix}-{timestamp}"
-    
-    # Create part and revision
-    client.parts.create(
-        number=part_number,
-        name=f"Test Part {prefix} {timestamp}"
-    )
-    
-    revision_result = client.parts.revisions.create(
-        part_number=part_number,
-        number=revision_number
-    )
-    
-    # Create unit
-    unit_result = client.units.create(
-        serial_number=serial_number,
-        part_number=part_number,
-        revision_number=revision_number,
-    )
-    
-    assert_create_unit_success(unit_result)
-    return unit_result.id, serial_number, revision_result.id
-
-
 class TestUnitChildrenBasicOperations:
     """Basic integration tests combining add and remove operations."""
 
-    def test_complete_add_remove_cycle(self, client: TofuPilot, auth_type: str) -> None:
+    def test_complete_add_remove_cycle(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test complete cycle: create units, add child, verify, remove child, verify."""
-        parent_id, parent_serial, _ = create_test_unit(client, "BASIC-PARENT")
-        child_id, child_serial, _ = create_test_unit(client, "BASIC-CHILD")
+        parent_id, parent_serial, _ = create_test_unit("BASIC-PARENT")
+        child_id, child_serial, _ = create_test_unit("BASIC-CHILD")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
@@ -118,13 +88,13 @@ class TestUnitChildrenBasicOperations:
         assert child_unit_after is not None
         assert not has_parent(child_unit_after)
 
-    def test_multiple_operations_sequence(self, client: TofuPilot, auth_type: str) -> None:
+    def test_multiple_operations_sequence(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test sequence of operations: add multiple, remove one, add another."""
-        parent_id, parent_serial, _ = create_test_unit(client, "SEQ-PARENT")
+        parent_id, parent_serial, _ = create_test_unit("SEQ-PARENT")
         
         if auth_type == "station":
             # Stations cannot modify unit relationships
-            child_id, child_serial, _ = create_test_unit(client, "SEQ-CHILD-STATION")
+            child_id, child_serial, _ = create_test_unit("SEQ-CHILD-STATION")
             with assert_station_access_forbidden("add multiple children to unit"):
                 client.units.add_child(
                     serial_number=parent_serial,
@@ -135,7 +105,7 @@ class TestUnitChildrenBasicOperations:
         # Create and add 3 children
         children: List[Tuple[str, str]] = []
         for i in range(3):
-            child_id, child_serial, _ = create_test_unit(client, f"SEQ-CHILD-{i}")
+            child_id, child_serial, _ = create_test_unit(f"SEQ-CHILD-{i}")
             children.append((child_id, child_serial))
             
             add_result = client.units.add_child(
@@ -177,7 +147,7 @@ class TestUnitChildrenBasicOperations:
         assert get_children_count(parent_unit) == 2
         
         # Add a new child
-        new_child_id, new_child_serial, _ = create_test_unit(client, "SEQ-CHILD-NEW")
+        new_child_id, new_child_serial, _ = create_test_unit("SEQ-CHILD-NEW")
         add_result = client.units.add_child(
             serial_number=parent_serial,
             child_serial_number=new_child_serial,

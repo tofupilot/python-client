@@ -34,30 +34,6 @@ class BatchUpdateRequest(BaseModel):
     ]
 
 
-class BatchUpdateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchUpdateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class BatchUpdateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchUpdateConflictIssue(BaseModel):
-    message: str
-
-
-class BatchUpdateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchUpdateNotFoundIssue(BaseModel):
-    message: str
-
-
 class BatchUpdateResponseTypedDict(TypedDict):
     r"""Batch updated successfully"""
 

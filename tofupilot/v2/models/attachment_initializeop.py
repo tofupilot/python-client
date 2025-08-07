@@ -13,46 +13,6 @@ class AttachmentInitializeRequest(BaseModel):
     name: str
 
 
-class BadGatewayIssueTypedDict(TypedDict):
-    message: str
-
-
-class BadGatewayIssue(BaseModel):
-    message: str
-
-
-class AttachmentInitializeInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class AttachmentInitializeInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class AttachmentInitializeNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class AttachmentInitializeNotFoundIssue(BaseModel):
-    message: str
-
-
-class AttachmentInitializeForbiddenIssueTypedDict(TypedDict):
-    message: str
-
-
-class AttachmentInitializeForbiddenIssue(BaseModel):
-    message: str
-
-
-class AttachmentInitializeBadRequestIssueTypedDict(TypedDict):
-    message: str
-
-
-class AttachmentInitializeBadRequestIssue(BaseModel):
-    message: str
-
-
 class AttachmentInitializeResponseTypedDict(TypedDict):
     r"""Upload URL generated successfully"""
 

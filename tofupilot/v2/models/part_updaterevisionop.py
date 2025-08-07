@@ -61,30 +61,6 @@ class PartUpdateRevisionRequest(BaseModel):
     ]
 
 
-class PartUpdateRevisionInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartUpdateRevisionInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class PartUpdateRevisionConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartUpdateRevisionConflictIssue(BaseModel):
-    message: str
-
-
-class PartUpdateRevisionNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class PartUpdateRevisionNotFoundIssue(BaseModel):
-    message: str
-
-
 class PartUpdateRevisionResponseTypedDict(TypedDict):
     r"""Revision updated successfully"""
 

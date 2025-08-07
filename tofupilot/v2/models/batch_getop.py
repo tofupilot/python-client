@@ -27,22 +27,6 @@ class BatchGetRequest(BaseModel):
     r"""Number of the batch to retrieve."""
 
 
-class BatchGetInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchGetInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class BatchGetNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchGetNotFoundIssue(BaseModel):
-    message: str
-
-
 class BatchGetCreatedByUserTypedDict(TypedDict):
     r"""User who created this batch."""
 

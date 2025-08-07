@@ -8,10 +8,9 @@ from ..utils import assert_create_batch_success, assert_get_batches_success
 class TestBatchesSearch:
     """Test batches search functionality with independent test data."""
 
-    def test_basic_search_functionality(self, client: TofuPilot):
+    def test_basic_search_functionality(self, client: TofuPilot, timestamp: str):
         """Test basic search functionality works."""
         # Create test batches
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         batch1_number = f"SEARCH-TEST-ALPHA-{timestamp}"
         batch2_number = f"SEARCH-TEST-BETA-{timestamp}"
@@ -59,9 +58,8 @@ class TestBatchesSearch:
         assert isinstance(results.data, list)
         # Results can be empty or contain unrelated batches, both are valid
 
-    def test_search_with_special_characters(self, client: TofuPilot):
+    def test_search_with_special_characters(self, client: TofuPilot, timestamp: str):
         """Test search works with batches containing special characters."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         special_batch_number = f"SPECIAL_TEST-{timestamp}"
         batch = client.batches.create(number=special_batch_number)

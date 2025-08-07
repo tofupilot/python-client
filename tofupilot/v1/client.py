@@ -11,8 +11,8 @@ import json
 import requests
 import certifi
 
-from ..error_tracking import track_errors
-
+import posthog
+from ..error_tracking import ApiV1Error
 from .constants import (
     ENDPOINT,
     FILE_MAX_SIZE,
@@ -72,6 +72,7 @@ class TofuPilotClient:
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
             error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."
+            posthog.capture_exception(ApiV1Error(error))
             self._logger.error(error)
             sys.exit(1)
 
@@ -81,6 +82,7 @@ class TofuPilotClient:
             tofupilot_url = os.environ.get('TOFUPILOT_URL')
             if not tofupilot_url:
                 error = "Please set TOFUPILOT_URL environment variable."
+                posthog.capture_exception(ApiV1Error(error))
                 self._logger.error(error)
                 sys.exit(1)
             self._url = f"{tofupilot_url}/api/v1"
@@ -109,7 +111,6 @@ class TofuPilotClient:
             "Request: %s %s%s payload=%s", method, self._url, endpoint, payload
         )
 
-    @track_errors("v1.create_run")
     def create_run(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         unit_under_test: UnitUnderTest,
@@ -228,7 +229,6 @@ class TofuPilotClient:
             )
         return result
 
-    @track_errors("v1.create_run_from_openhtf_report")
     def create_run_from_openhtf_report(self, file_path: str) -> str:
         """
         Creates a run on TofuPilot from an OpenHTF JSON report.
@@ -248,7 +248,9 @@ class TofuPilotClient:
         upload_res = self._upload_and_create_from_openhtf_report(file_path)
 
         if not upload_res.get("success", False):
-            self._logger.error("OpenHTF import failed")
+            error = "OpenHTF import failed"
+            posthog.capture_exception(ApiV1Error(error))
+            self._logger.error(error)
             return ""
         
         run_id = upload_res["run_id"]
@@ -258,16 +260,20 @@ class TofuPilotClient:
         try:
             with open(file_path, "r", encoding="utf-8") as file:
                 test_record = json.load(file)
-        except FileNotFoundError:
+        except FileNotFoundError as e:
+            posthog.capture_exception(e)
             self._logger.error(f"File not found: {file_path}")
             return run_id
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as e:
+            posthog.capture_exception(e)
             self._logger.error(f"Invalid JSON: {file_path}")
             return run_id
-        except PermissionError:
+        except PermissionError as e:
+            posthog.capture_exception(e)
             self._logger.error(f"Permission denied: {file_path}")
             return run_id
         except Exception as e:
+            posthog.capture_exception(e)
             self._logger.error(f"Error: {e}")
             return run_id
 
@@ -297,7 +303,6 @@ class TofuPilotClient:
 
         return run_id
     
-    @track_errors("v1.get_runs")
     def get_runs(self, serial_number: str) -> Union[GetRunsResponse, ErrorResponse]:
         """
         Fetches all runs related to a specific unit from TofuPilot.
@@ -316,6 +321,7 @@ class TofuPilotClient:
         """
         if not serial_number:
             error_message = "A 'serial_number' is required to fetch runs."
+            posthog.capture_exception(ApiV1Error(error_message))
             self._logger.error(error_message)
             return {
                 "status_code": None,
@@ -341,8 +347,7 @@ class TofuPilotClient:
         result["success"] = result.get("success", True) # pyright: ignore[reportGeneralTypeIssues]
 
         return result
-    
-    @track_errors("v1._upload_and_create_from_openhtf_report")
+
     def _upload_and_create_from_openhtf_report(
         self,
         file_path: str,
@@ -417,7 +422,6 @@ class TofuPilotClient:
         else:
             return {**result, "upload_id": upload_id,}
 
-    @track_errors("v1._get_connection_credentials")
     def _get_connection_credentials(self) -> Union[_StreamingResult, ErrorResponse]:
         """
         Fetches credentials required to livestream test results.

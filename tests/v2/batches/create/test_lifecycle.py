@@ -6,9 +6,8 @@ from ..utils import assert_create_batch_success, assert_get_batches_success
 
 class TestBatchLifecycle:
 
-    def test_batch_with_units_association(self, client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+    def test_batch_with_units_association(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test creating a batch and associating it with units through run creation."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Stations can create batches but cannot create runs with operated_by
         # We'll handle the station case later in the run creation section
@@ -89,10 +88,10 @@ class TestBatchLifecycle:
             assert unit.part.number == part_number
             assert unit.part.revision.number == revision_number
     
-    def test_batch_creation_and_immediate_listing(self, client: TofuPilot) -> None:
+    def test_batch_creation_and_immediate_listing(self, client: TofuPilot, timestamp) -> None:
         """Test that a newly created batch appears immediately in list results."""
         # Test constants
-        BATCH_NUMBER = f"AutomatedTest-V2-Immediate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Immediate-{timestamp}"
         
         # Create batch
         create_result = client.batches.create(number=BATCH_NUMBER)

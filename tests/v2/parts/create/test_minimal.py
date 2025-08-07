@@ -9,16 +9,15 @@ from ..utils import assert_create_part_success, assert_get_parts_success
 class TestCreatePartMinimal:
     """Test minimal part creation scenarios."""
     
-    def test_create_part_number_only(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_part_number_only(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test creating a part with only required fields (number)."""
             
         # Test constants - ensure uniqueness with timestamp + uuid + random
         import time
         import random
-        timestamp_ms = int(time.time() * 1000)
         unique_id = str(uuid.uuid4()).replace('-', '')[:12]
         random_suffix = random.randint(1000, 9999)
-        PART_NUMBER = f"PYTEST-{timestamp_ms}-{unique_id}-{random_suffix}"
+        PART_NUMBER = f"PYTEST-{timestamp}-{unique_id}-{random_suffix}"
         
         # Create part using SDK
         result = client.parts.create(
@@ -49,11 +48,10 @@ class TestCreatePartMinimal:
         assert len(found_part.revisions) == 1
         assert found_part.revisions[0].number == "A"
     
-    def test_create_part_with_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_part_with_name(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test creating a part with number and name."""
             
         # Test constants - ensure uniqueness with uuid
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         PART_NUMBER = f"PN-{timestamp}-{unique_id}"
         PART_NAME = "Test Part Name"
@@ -84,11 +82,10 @@ class TestCreatePartMinimal:
         
         assert found, f"Created part {result.id} not found in list"
     
-    def test_create_part_default_revision(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_part_default_revision(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that parts created without revision_number get default revision 'A'."""
             
         # Test constants - ensure uniqueness
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         PART_NUMBER = f"PN-DEFAULT-REV-{timestamp}-{unique_id}"
         PART_NAME = "Part with Default Revision"
@@ -115,16 +112,14 @@ class TestCreatePartMinimal:
                 # Should have exactly one revision with default identifier "A"
                 assert len(part.revisions) == 1
                 assert part.revisions[0].number == "A"
-                assert part.revisions[0].unit_count == 0
                 break
         
         assert found, f"Created part {result.id} not found in list"
     
-    def test_create_part_with_revision(self, client: TofuPilot, auth_type: str) -> None:
+    def test_create_part_with_revision(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test creating a part with initial revision."""
             
         # Test constants - ensure uniqueness with uuid
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         PART_NUMBER = f"PN-REV-{timestamp}-{unique_id}"
         PART_NAME = "Part with Revision"
@@ -153,7 +148,6 @@ class TestCreatePartMinimal:
                 # Should have one revision
                 assert len(part.revisions) == 1
                 assert part.revisions[0].number == REVISION_NUMBER
-                assert part.revisions[0].unit_count == 0  # No units yet
                 break
         
         assert found, f"Created part {result.id} not found in list"

@@ -35,11 +35,9 @@ class TestGetUnitsWithFilters:
             second_ids = {unit.id for unit in second_batch.data}
             assert first_ids.isdisjoint(second_ids), "Paginated results should not overlap"
 
-    def test_response_structure(self, client: TofuPilot):
+    def test_response_structure(self, client: TofuPilot, timestamp: str):
         """Test that response has expected structure."""
         # Create test data to ensure we have a unit to test
-        from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"STRUCTURE-TEST-PART-{timestamp}"
         revision_number = f"REV-{timestamp}"
         serial_number = f"UNIT-{timestamp}"

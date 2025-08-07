@@ -16,22 +16,6 @@ class BatchDeleteRequest(BaseModel):
     ]
 
 
-class BatchDeleteInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchDeleteInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class BatchDeleteNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class BatchDeleteNotFoundIssue(BaseModel):
-    message: str
-
-
 class BatchDeleteResponseTypedDict(TypedDict):
     r"""Response for successful batch deletion"""
 

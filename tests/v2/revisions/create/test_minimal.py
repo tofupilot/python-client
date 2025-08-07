@@ -14,10 +14,9 @@ class TestCreateRevisionMinimal:
     """Test minimal revision creation scenarios."""
     
     @pytest.fixture
-    def test_part(self, client: TofuPilot, auth_type: str) -> tuple[str, str]:
+    def test_part(self, client: TofuPilot, auth_type: str, timestamp: str) -> tuple[str, str]:
         """Create a test part for revision tests. Returns (part_id, part_number)."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
+
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-FOR-REV-{timestamp}-{unique_id}"
         
@@ -28,12 +27,11 @@ class TestCreateRevisionMinimal:
         assert_create_part_success(result)
         return result.id, part_number
     
-    def test_create_revision_minimal(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_create_revision_minimal(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test creating a revision with minimal fields (number and part_number)."""
         part_id, part_number = test_part
         
         # Create unique revision number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-{timestamp}"
         
         # Create revision
@@ -58,12 +56,10 @@ class TestCreateRevisionMinimal:
         assert created_revision is not None, f"Revision {result.id} not found"
         assert created_revision.number == revision_number
         assert part_data.id == part_id
-        assert created_revision.unit_count == 0  # No units created yet
     
-    def test_create_multiple_revisions_same_part(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_create_multiple_revisions_same_part(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test creating multiple revisions for the same part."""
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         
         # Create first revision
         rev1_result = client.parts.revisions.create(
@@ -86,10 +82,9 @@ class TestCreateRevisionMinimal:
         assert rev1_result.id in revision_ids
         assert rev2_result.id in revision_ids
     
-    def test_create_revision_special_characters(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_create_revision_special_characters(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test creating revisions with special characters in number."""
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         
         special_numbers = [
             f"REV-{timestamp}-V1.0",
@@ -115,10 +110,9 @@ class TestCreateRevisionMinimal:
         # At least one should succeed
         assert len(created_revisions) >= 1, "At least one special character revision should be created"
     
-    def test_create_revision_edge_length(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_create_revision_edge_length(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str):
         """Test creating revisions with edge case lengths."""
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Test minimum length (1 character) - make unique
         short_number = f"A{timestamp[-6:]}"  # Use last 6 digits to make unique

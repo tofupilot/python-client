@@ -8,10 +8,9 @@ from ...utils import assert_station_access_forbidden
 class TestStationUpdatePermissions:
     """Test station API fails as expected when trying to update parts."""
     
-    def test_station_update_fails_as_expected(self, client: TofuPilot, auth_type: str) -> None:
+    def test_station_update_fails_as_expected(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that station API cannot update parts."""
         # First create a part to test update
-        timestamp = str(int(time.time() * 1000000))
         part_number = f"TEST-STATION-PERM-{timestamp}"
         create_result = client.parts.create(
             number=part_number,

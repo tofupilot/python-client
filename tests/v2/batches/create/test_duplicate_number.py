@@ -8,10 +8,10 @@ from ..utils import assert_create_batch_success
 
 class TestCreateBatchDuplicateNumber:
 
-    def test_duplicate_batch_number_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_duplicate_batch_number_fails(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that creating a batch with duplicate number fails within same organization."""
         # Test constants
-        BATCH_NUMBER = f"AutomatedTest-V2-Duplicate-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Duplicate-{timestamp}"
         
         # Create first batch
         result1 = client.batches.create(number=BATCH_NUMBER)
@@ -25,10 +25,9 @@ class TestCreateBatchDuplicateNumber:
         error_message = str(exc_info.value).lower()
         assert "already exists" in error_message or "conflict" in error_message or "duplicate" in error_message
     
-    def test_batch_number_uniqueness_case_insensitive(self, client: TofuPilot, auth_type: str) -> None:
+    def test_batch_number_uniqueness_case_insensitive(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that batch numbers are case-insensitive for uniqueness."""
         # Test constants
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         BATCH_NUMBER_LOWER = f"automatedtest-v2-case-{timestamp}"
         BATCH_NUMBER_UPPER = f"AUTOMATEDTEST-V2-CASE-{timestamp}"
         

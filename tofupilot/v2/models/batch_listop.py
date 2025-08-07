@@ -3,7 +3,13 @@
 from __future__ import annotations
 from datetime import datetime
 from pydantic import model_serializer
-from tofupilot.v2.types import BaseModel, Nullable, UNSET_SENTINEL
+from tofupilot.v2.types import (
+    BaseModel,
+    Nullable,
+    OptionalNullable,
+    UNSET,
+    UNSET_SENTINEL,
+)
 from tofupilot.v2.utils import FieldMetadata, QueryParamMetadata
 from typing import List, Literal, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
@@ -24,6 +30,8 @@ class BatchListRequestTypedDict(TypedDict):
     limit: NotRequired[int]
     cursor: NotRequired[int]
     search_query: NotRequired[str]
+    part_numbers: NotRequired[List[str]]
+    revision_numbers: NotRequired[List[str]]
     sort_by: NotRequired[BatchListSortBy]
     r"""Field to sort results by."""
     sort_order: NotRequired[BatchListSortOrder]
@@ -66,6 +74,16 @@ class BatchListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
+    part_numbers: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    revision_numbers: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
     sort_by: Annotated[
         Optional[BatchListSortBy],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
@@ -79,12 +97,112 @@ class BatchListRequest(BaseModel):
     r"""Sort order direction."""
 
 
-class BatchListIssueTypedDict(TypedDict):
-    message: str
+class BatchListCreatedByUserTypedDict(TypedDict):
+    r"""User who created this batch."""
+
+    id: str
+    r"""User ID."""
+    name: Nullable[str]
+    r"""User display name."""
+    image: Nullable[str]
+    r"""User profile image URL."""
 
 
-class BatchListIssue(BaseModel):
-    message: str
+class BatchListCreatedByUser(BaseModel):
+    r"""User who created this batch."""
+
+    id: str
+    r"""User ID."""
+
+    name: Nullable[str]
+    r"""User display name."""
+
+    image: Nullable[str]
+    r"""User profile image URL."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name", "image"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
+class BatchListCreatedByStationTypedDict(TypedDict):
+    r"""Station that created this batch."""
+
+    id: str
+    r"""Station ID."""
+    name: str
+    r"""Station name."""
+    image: Nullable[str]
+    r"""Station image URL."""
+
+
+class BatchListCreatedByStation(BaseModel):
+    r"""Station that created this batch."""
+
+    id: str
+    r"""Station ID."""
+
+    name: str
+    r"""Station name."""
+
+    image: Nullable[str]
+    r"""Station image URL."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["image"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
 
 
 class BatchListRevisionTypedDict(TypedDict):
@@ -94,6 +212,8 @@ class BatchListRevisionTypedDict(TypedDict):
     r"""Revision ID."""
     number: str
     r"""Revision number."""
+    image: Nullable[str]
+    r"""Revision image URL."""
 
 
 class BatchListRevision(BaseModel):
@@ -104,6 +224,39 @@ class BatchListRevision(BaseModel):
 
     number: str
     r"""Revision number."""
+
+    image: Nullable[str]
+    r"""Revision image URL."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["image"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
 
 
 class BatchListPartTypedDict(TypedDict):
@@ -164,6 +317,10 @@ class BatchListDataTypedDict(TypedDict):
     r"""ISO timestamp when the batch was created."""
     units: List[BatchListUnitTypedDict]
     r"""Units in this batch with basic information."""
+    created_by_user: NotRequired[Nullable[BatchListCreatedByUserTypedDict]]
+    r"""User who created this batch."""
+    created_by_station: NotRequired[Nullable[BatchListCreatedByStationTypedDict]]
+    r"""Station that created this batch."""
 
 
 class BatchListData(BaseModel):
@@ -178,6 +335,42 @@ class BatchListData(BaseModel):
 
     units: List[BatchListUnit]
     r"""Units in this batch with basic information."""
+
+    created_by_user: OptionalNullable[BatchListCreatedByUser] = UNSET
+    r"""User who created this batch."""
+
+    created_by_station: OptionalNullable[BatchListCreatedByStation] = UNSET
+    r"""Station that created this batch."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = ["created_by_user", "created_by_station"]
+        nullable_fields = ["created_by_user", "created_by_station"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
 
 
 class BatchListMetaTypedDict(TypedDict):

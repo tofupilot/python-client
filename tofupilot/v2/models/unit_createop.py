@@ -25,30 +25,6 @@ class UnitCreateRequest(BaseModel):
     r"""Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created."""
 
 
-class UnitCreateInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitCreateInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnitCreateConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitCreateConflictIssue(BaseModel):
-    message: str
-
-
-class UnitCreateNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitCreateNotFoundIssue(BaseModel):
-    message: str
-
-
 class UnitCreateResponseTypedDict(TypedDict):
     r"""Unit created successfully"""
 

@@ -7,10 +7,10 @@ from ..utils import assert_create_batch_success, assert_get_batches_success
 
 class TestCreateBatchMinimal:
 
-    def test_minimal_batch_creation(self, client: TofuPilot) -> None:
+    def test_minimal_batch_creation(self, client: TofuPilot, timestamp) -> None:
         """Test minimal batch creation with all required parameters."""
         # Test constants
-        BATCH_NUMBER = f"AutomatedTest-V2-Minimal-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        BATCH_NUMBER = f"AutomatedTest-V2-Minimal-{timestamp}"
         
         # Create batch using SDK
         result = client.batches.create(
@@ -28,11 +28,10 @@ class TestCreateBatchMinimal:
         assert listed_batch.id == result.id
         assert listed_batch.number == BATCH_NUMBER
         
-    def test_batch_creation_with_max_length_number(self, client: TofuPilot) -> None:
+    def test_batch_creation_with_max_length_number(self, client: TofuPilot, timestamp) -> None:
         """Test batch creation with maximum allowed length for number (60 chars)."""
         # Create a 60-character batch number with microseconds and UUID for uniqueness
         import uuid
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         prefix = f"MAX-LEN-{timestamp}-{unique_id}-"
         padding_length = 60 - len(prefix)

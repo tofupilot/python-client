@@ -8,10 +8,9 @@ from datetime import datetime, timezone
 class TestRunsNoCharacterRestrictions:
     """Verify that runs search works without character restrictions."""
 
-    def test_short_search_queries_work(self, client: TofuPilot, procedure_id: str):
+    def test_short_search_queries_work(self, client: TofuPilot, procedure_id: str, timestamp: str):
         """Test that 1-2 character searches work (previously restricted to 3+)."""
         # Create a test run with a searchable serial number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"AB-{timestamp}"
         
         run_result = client.runs.create(
@@ -37,10 +36,9 @@ class TestRunsNoCharacterRestrictions:
         assert run_result.id in found_ids, "Should find run with 2-character search"
         print("✓ 2-character search works")
 
-    def test_short_run_id_search(self, client: TofuPilot, procedure_id: str):
+    def test_short_run_id_search(self, client: TofuPilot, procedure_id: str, timestamp: str):
         """Test that run ID search works with less than 6 characters (previously restricted)."""
         # Create a test run
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"ID-TEST-{timestamp}"
         
         run_result = client.runs.create(
@@ -68,10 +66,9 @@ class TestRunsNoCharacterRestrictions:
         assert run_result.id in found_ids, f"Should find run with 5-character ID prefix: {medium_id_search}"
         print(f"✓ 5-character ID search works (searched for '{medium_id_search}')")
 
-    def test_substring_matching_everywhere(self, client: TofuPilot, procedure_id: str):
+    def test_substring_matching_everywhere(self, client: TofuPilot, procedure_id: str, timestamp: str):
         """Test that substring matching works (not just prefix matching)."""
         # Create a test run with a specific serial number pattern
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         serial_number = f"PREFIX-MIDDLE-SUFFIX-{timestamp}"
         
         run_result = client.runs.create(

@@ -13,7 +13,7 @@ class TestProceduresPagination:
     """Test pagination in procedures.list()."""
     
     @pytest.fixture
-    def test_procedures_for_pagination(self, client: TofuPilot, auth_type: str) -> List[models.ProcedureCreateResponse]:
+    def test_procedures_for_pagination(self, client: TofuPilot, auth_type: str, timestamp) -> List[models.ProcedureCreateResponse]:
         """Create test procedures for pagination tests."""
         if auth_type == "station":
             # Station should fail to create procedures (HTTP 403 FORBIDDEN)
@@ -24,7 +24,6 @@ class TestProceduresPagination:
             return []
             
         # User API can create procedures
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         
         test_procedures: List[models.ProcedureCreateResponse] = []

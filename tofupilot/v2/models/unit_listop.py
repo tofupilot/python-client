@@ -121,14 +121,6 @@ class UnitListRequest(BaseModel):
     r"""Sort order direction."""
 
 
-class UnitListIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitListIssue(BaseModel):
-    message: str
-
-
 class UnitListCreatedByUserTypedDict(TypedDict):
     r"""User who created this unit. Null if created by a station or system."""
 

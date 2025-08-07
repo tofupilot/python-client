@@ -8,17 +8,17 @@ from typing_extensions import Annotated, TypedDict
 
 class ProcedureCreateVersionRequestBodyTypedDict(TypedDict):
     tag: str
-    r"""Version tag"""
+    r"""The version tag"""
 
 
 class ProcedureCreateVersionRequestBody(BaseModel):
     tag: str
-    r"""Version tag"""
+    r"""The version tag"""
 
 
 class ProcedureCreateVersionRequestTypedDict(TypedDict):
     procedure_id: str
-    r"""Procedure ID from URL path"""
+    r"""The ID of the procedure this version belongs to"""
     request_body: ProcedureCreateVersionRequestBodyTypedDict
 
 
@@ -26,36 +26,12 @@ class ProcedureCreateVersionRequest(BaseModel):
     procedure_id: Annotated[
         str, FieldMetadata(path=PathParamMetadata(style="simple", explode=False))
     ]
-    r"""Procedure ID from URL path"""
+    r"""The ID of the procedure this version belongs to"""
 
     request_body: Annotated[
         ProcedureCreateVersionRequestBody,
         FieldMetadata(request=RequestMetadata(media_type="application/json")),
     ]
-
-
-class ProcedureCreateVersionInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureCreateVersionInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class ProcedureCreateVersionConflictIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureCreateVersionConflictIssue(BaseModel):
-    message: str
-
-
-class ProcedureCreateVersionNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class ProcedureCreateVersionNotFoundIssue(BaseModel):
-    message: str
 
 
 class ProcedureCreateVersionResponseTypedDict(TypedDict):

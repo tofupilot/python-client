@@ -25,10 +25,9 @@ def download_from_url(download_url: str) -> bytes:
 
 class TestRunsUpdate:
     
-    def test_update_run_with_attachments(self, client: tofupilot.v2.TofuPilot, procedure_id: str, auth_type: str):
+    def test_update_run_with_attachments(self, client: tofupilot.v2.TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test updating a run with attachments."""
         # First create a run with a proper serial number and part number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         now = datetime.now(timezone.utc)
         create_result = client.runs.create(
             serial_number=f"ATTACHMENT-SIMPLE-{timestamp}",
@@ -70,10 +69,9 @@ class TestRunsUpdate:
         assert hasattr(result, 'id')
         assert result.id == run_id
     
-    def test_full_attachment_lifecycle(self, client: tofupilot.v2.TofuPilot, procedure_id: str, auth_type: str):
+    def test_full_attachment_lifecycle(self, client: tofupilot.v2.TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test complete attachment lifecycle: create run, upload attachments, update run, and verify metadata."""
         # Step 1: Create a run
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         now = datetime.now(timezone.utc)
         create_result = client.runs.create(
             serial_number=f"ATTACHMENT-TESTING-{timestamp}",
@@ -160,10 +158,9 @@ class TestRunsUpdate:
             # Verify is_report is False for these test files
             assert attachment.is_report is False
     
-    def test_attachment_download_and_verify_content(self, client: tofupilot.v2.TofuPilot, procedure_id: str, auth_type: str):
+    def test_attachment_download_and_verify_content(self, client: tofupilot.v2.TofuPilot, procedure_id: str, auth_type: str, timestamp: str):
         """Test complete attachment workflow with download and content verification."""
         # Step 1: Create a run
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         now = datetime.now(timezone.utc)
         create_result = client.runs.create(
             serial_number=f"ATTACHMENT-DOWNLOAD-TEST-{timestamp}",

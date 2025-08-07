@@ -19,22 +19,6 @@ class UnitDeleteRequest(BaseModel):
     r"""Array of unit serial numbers to delete."""
 
 
-class UnitDeleteInternalServerErrorIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitDeleteInternalServerErrorIssue(BaseModel):
-    message: str
-
-
-class UnitDeleteNotFoundIssueTypedDict(TypedDict):
-    message: str
-
-
-class UnitDeleteNotFoundIssue(BaseModel):
-    message: str
-
-
 class UnitDeleteResponseTypedDict(TypedDict):
     r"""Response for successful unit deletion"""
 

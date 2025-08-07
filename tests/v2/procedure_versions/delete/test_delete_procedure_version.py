@@ -11,12 +11,11 @@ from tests.v2.procedures.utils import assert_create_procedure_success
 from tests.v2.utils import assert_station_access_forbidden
 
 
-def test_delete_procedure_version(client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+def test_delete_procedure_version(client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
     """Test deleting a procedure version."""
     if auth_type == "station":
         # Stations cannot delete procedure versions (HTTP 403 FORBIDDEN)
         from datetime import datetime, timezone
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a procedure version as a station first
         version_result = client.procedures.versions.create(
@@ -115,4 +114,4 @@ def test_delete_invalid_procedure_version_id(client: TofuPilot, auth_type: str, 
     
     error = exc_info.value
     assert error.status_code == 400
-    assert "Invalid uuid" in str(error.message)
+    assert "Invalid uuid" in str(error)

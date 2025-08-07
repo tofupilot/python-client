@@ -14,10 +14,8 @@ class TestUpdateRevisionFields:
     """Test updating revision fields."""
     
     @pytest.fixture
-    def test_part(self, client: TofuPilot, auth_type: str) -> tuple[str, str]:
+    def test_part(self, client: TofuPilot, auth_type: str, timestamp: str) -> tuple[str, str]:
         """Create a test part for revision update tests."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-UPD-{timestamp}-{unique_id}"
         
@@ -29,11 +27,10 @@ class TestUpdateRevisionFields:
         return result.id, part_number
     
     @pytest.fixture
-    def test_revision(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> tuple[str, str, str]:
+    def test_revision(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> tuple[str, str, str]:
         """Create a test revision for update tests. Returns (part_id, part_number, revision_number)."""
             
         part_id, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         revision_number = f"REV-ORIGINAL-{timestamp}"
         
         result = client.parts.revisions.create(
@@ -43,11 +40,11 @@ class TestUpdateRevisionFields:
         assert_create_revision_success(result)
         return part_id, part_number, revision_number
     
-    def test_update_revision_number(self, client: TofuPilot, test_revision: tuple[str, str, str], auth_type: str) -> None:
+    def test_update_revision_number(self, client: TofuPilot, test_revision: tuple[str, str, str], auth_type: str, timestamp: str) -> None:
         """Test updating revision number."""
             
         part_id, part_number, old_revision_number = test_revision
-        new_number = f"REV-UPDATED-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        new_number = f"REV-UPDATED-{timestamp}"
         
         # Both users and stations can update revision numbers
         
@@ -68,11 +65,10 @@ class TestUpdateRevisionFields:
         assert get_result.id == result.id
         assert get_result.number == new_number
     
-    def test_update_revision_number_to_edge_lengths(self, client: TofuPilot, test_revision: tuple[str, str, str], auth_type: str) -> None:
+    def test_update_revision_number_to_edge_lengths(self, client: TofuPilot, test_revision: tuple[str, str, str], auth_type: str, timestamp: str) -> None:
         """Test updating revision number to edge case lengths."""
             
         part_id, part_number, old_revision_number = test_revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         
         # Both users and stations can update revision numbers
         
@@ -112,11 +108,10 @@ class TestUpdateRevisionFields:
         error_message = str(exc_info.value).lower()
         assert "not found" in error_message
     
-    def test_update_to_duplicate_number_same_part_fails(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str) -> None:
+    def test_update_to_duplicate_number_same_part_fails(self, client: TofuPilot, test_part: tuple[str, str], auth_type: str, timestamp: str) -> None:
         """Test updating to duplicate revision number for same part fails."""
             
         _, part_number = test_part
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Both users and stations can update revisions
         
@@ -147,10 +142,8 @@ class TestUpdateRevisionFields:
         error_message = str(exc_info.value).lower()
         assert "already exists" in error_message or "conflict" in error_message
     
-    def test_update_to_same_number_different_parts_succeeds(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_to_same_number_different_parts_succeeds(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating to same revision number for different parts succeeds."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         unique_id = str(uuid.uuid4())[:8]
         
         # Both users and stations can update revisions across different parts
@@ -223,11 +216,11 @@ class TestUpdateRevisionFields:
         # The specific error message may vary based on implementation
         assert len(error_message) > 0  # Some error should be present
     
-    def test_update_preserves_part_relationship(self, client: TofuPilot, test_revision: tuple[str, str, str], auth_type: str) -> None:
+    def test_update_preserves_part_relationship(self, client: TofuPilot, test_revision: tuple[str, str, str], auth_type: str, timestamp: str) -> None:
         """Test that updating revision preserves part relationship."""
             
         part_id, part_number, old_revision_number = test_revision
-        new_number = f"REV-PRESERVE-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        new_number = f"REV-PRESERVE-{timestamp}"
         
         # Both users and stations can update revisions
         

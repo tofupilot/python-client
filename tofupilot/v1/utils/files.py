@@ -5,12 +5,15 @@ import os
 import sys
 from typing import List, Dict, Optional, Union
 import requests
+import posthog
 
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from .logger import LoggerStateManager
+from ...error_tracking import ApiV1Error
 
 
 def log_and_raise(logger: Logger, error_message: str):
+    posthog.capture_exception(ApiV1Error(error_message))
     logger.error(error_message)
     sys.exit(1)
 
@@ -31,9 +34,11 @@ def validate_files(
     for file_path in attachments:
         # Checking if the file exists before attempting to get its size
         if not os.path.isfile(file_path):
-            raise FileNotFoundError(
+            exception = FileNotFoundError(
                 f"The file at {file_path} does not exist or is not accessible"
             )
+            posthog.capture_exception(exception)
+            raise exception
 
         file_size = os.path.getsize(file_path)
         if file_size > max_file_size:
@@ -137,6 +142,7 @@ def notify_server(
 
         return True
     except Exception as e:
+        posthog.capture_exception(e)
         # If logger is available, log the error properly
         if logger:
             with LoggerStateManager(logger):
@@ -196,6 +202,7 @@ def upload_attachment_data(
             logger.success(f"Uploaded attachment: {name}")
         return True
     except Exception as e:
+        posthog.capture_exception(e)
         # Log error with LoggerStateManager for visibility
         with LoggerStateManager(logger):
             logger.error(f"Upload failed: {name} - {str(e)}")
@@ -233,8 +240,10 @@ def upload_attachments(
         try:
             # Verify file exists
             if not os.path.exists(file_path):
+                error_message = f"File not found: {file_path}"
+                posthog.capture_exception(ApiV1Error(error_message))
                 with LoggerStateManager(logger):
-                    logger.error(f"File not found: {file_path}")
+                    logger.error(error_message)
                 continue
 
             # Open file and prepare for upload
@@ -250,6 +259,7 @@ def upload_attachments(
                     logger, headers, url, name, data, mimetype, run_id, verify
                 )
         except Exception as e:
+            posthog.capture_exception(e)
             # Use LoggerStateManager to ensure error is visible
             with LoggerStateManager(logger):
                 logger.error(f"Upload failed: {file_path} - {str(e)}")
@@ -310,8 +320,10 @@ def process_openhtf_attachments(
         for i, phase in enumerate(phases):
             # Skip if we've reached attachment limit
             if attachment_count >= max_attachments:
+                warning_message = f"Attachment limit ({max_attachments}) reached"
+                posthog.capture_exception(ApiV1Error(warning_message))
                 with LoggerStateManager(logger):
-                    logger.warning(f"Attachment limit ({max_attachments}) reached")
+                    logger.warning(warning_message)
                 break
 
             # Get attachments based on record type
@@ -372,6 +384,7 @@ def process_openhtf_attachments(
                             "mimetype", "application/octet-stream"
                         )
                     except Exception as e:
+                        posthog.capture_exception(e)
                         with LoggerStateManager(logger):
                             logger.error(
                                 f"Failed to process attachment data: {name} - {str(e)}"
@@ -383,8 +396,10 @@ def process_openhtf_attachments(
 
                     # Handle different attachment types in OpenHTF
                     if attachment_data is None:
+                        warning_message = f"No data in: {name}"
+                        posthog.capture_exception(ApiV1Error(warning_message))
                         with LoggerStateManager(logger):
-                            logger.warning(f"No data in: {name}")
+                            logger.warning(warning_message)
                         continue
 
                     # Handle file-based attachments in different formats
@@ -401,6 +416,7 @@ def process_openhtf_attachments(
                             with open(file_path, "rb") as f:
                                 data = f.read()
                         except Exception as e:
+                            posthog.capture_exception(e)
                             with LoggerStateManager(logger):
                                 logger.error(f"Failed to read from file_path: {str(e)}")
 
@@ -415,6 +431,7 @@ def process_openhtf_attachments(
                             with open(file_path, "rb") as f:
                                 data = f.read()
                         except Exception as e:
+                            posthog.capture_exception(e)
                             with LoggerStateManager(logger):
                                 logger.error(f"Failed to read from filename: {str(e)}")
 
@@ -426,8 +443,10 @@ def process_openhtf_attachments(
 
                     # Verify we have valid data
                     if data is None:
+                        error_message = f"No valid data found for attachment: {name}"
+                        posthog.capture_exception(ApiV1Error(error_message))
                         with LoggerStateManager(logger):
-                            logger.error(f"No valid data found for attachment: {name}")
+                            logger.error(error_message)
                         continue
 
                     # Get size from attribute or calculate it
@@ -438,8 +457,10 @@ def process_openhtf_attachments(
 
                 # Skip oversized attachments
                 if attachment_size > max_file_size:
+                    warning_message = f"File too large: {name}"
+                    posthog.capture_exception(ApiV1Error(warning_message))
                     with LoggerStateManager(logger):
-                        logger.warning(f"File too large: {name}")
+                        logger.warning(warning_message)
                     continue
 
                 # Increment counter and process the attachment
@@ -460,11 +481,15 @@ def process_openhtf_attachments(
 
                     # Don't log success/failure here as it's already logged in upload_attachment_data
                 except Exception as e:
+                    posthog.capture_exception(e)
                     with LoggerStateManager(logger):
                         logger.error(
                             f"Exception during attachment upload: {name} - {str(e)}"
                         )
                 # Continue with other attachments regardless of success/failure
+    except Exception as e:
+        posthog.capture_exception(e)
+        raise e
     finally:
         # We intentionally don't pause the logger here, as in the OpenHTF implementation
         # This allows any final log messages to be visible

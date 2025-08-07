@@ -38,6 +38,3 @@ _sys.modules['tofupilot.constants.requests'] = constants.requests
 from .pytest import TofuPilotPlugIn
 
 from . import v2
-
-# Import error tracking configuration
-from .error_tracking import configure_error_tracking

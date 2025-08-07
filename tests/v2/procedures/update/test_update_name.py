@@ -15,22 +15,22 @@ class TestUpdateProcedureName:
         with assert_station_access_forbidden("create procedure"):
             client.procedures.create(name=name)
 
-    def test_update_procedure_name_success(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_name_success(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test successfully updating a procedure's name."""
         if auth_type == "station":
             # Stations cannot create procedures (HTTP 403 FORBIDDEN)
-            original_name = f"AutomatedTest-V2-Update-Original-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-Original-{timestamp}"
             with assert_station_access_forbidden("create procedure"):
                 client.procedures.create(name=original_name)
         else:
             # Users can create and update procedures
             # Create a procedure
-            original_name = f"AutomatedTest-V2-Update-Original-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-Original-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
             # Update the procedure name
-            new_name = f"AutomatedTest-V2-Update-Modified-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            new_name = f"AutomatedTest-V2-Update-Modified-{timestamp}"
             update_result = client.procedures.update(id=create_result.id, name=new_name)
             assert_update_procedure_success(update_result)
             assert update_result.id == create_result.id
@@ -42,20 +42,20 @@ class TestUpdateProcedureName:
             assert found_procedure is not None
             assert found_procedure.name == new_name
 
-    def test_update_procedure_name_with_special_characters(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_name_with_special_characters(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure name with special characters."""
         if auth_type == "station":
             # Stations cannot create procedures
-            original_name = f"UpdSpec-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"UpdSpec-{timestamp}"
             self._expect_station_create_failure(client, original_name)
         else:
             # Create a procedure
-            original_name = f"UpdSpec-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"UpdSpec-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
             # Update with special characters
-            new_name = f"UpdSpec-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}-!@#"
+            new_name = f"UpdSpec-{timestamp}-!@#"
             update_result = client.procedures.update(id=create_result.id, name=new_name)
             assert_update_procedure_success(update_result)
             
@@ -66,20 +66,20 @@ class TestUpdateProcedureName:
             assert found_procedure is not None
             assert found_procedure.name == new_name
 
-    def test_update_procedure_name_with_unicode(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_name_with_unicode(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure name with unicode characters."""
         if auth_type == "station":
             # Stations cannot create procedures
-            original_name = f"UpdUni-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"UpdUni-{timestamp}"
             self._expect_station_create_failure(client, original_name)
         else:
             # Create a procedure
-            original_name = f"UpdUni-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"UpdUni-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
             # Update with unicode characters  
-            new_name = f"UpdUni-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}-测试-café"
+            new_name = f"UpdUni-{timestamp}-测试-café"
             update_result = client.procedures.update(id=create_result.id, name=new_name)
             assert_update_procedure_success(update_result)
             
@@ -90,10 +90,10 @@ class TestUpdateProcedureName:
             assert found_procedure is not None
             assert found_procedure.name == new_name
 
-    def test_update_non_existent_procedure_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_non_existent_procedure_fails(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating a non-existent procedure fails."""
         fake_id = "00000000-0000-0000-0000-000000000000"
-        new_name = f"AutomatedTest-V2-Update-NonExistent-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        new_name = f"AutomatedTest-V2-Update-NonExistent-{timestamp}"
         
         if auth_type == "station":
             # Stations cannot update procedures - get 403 Forbidden
@@ -110,15 +110,15 @@ class TestUpdateProcedureName:
             error_message = str(exc_info.value).lower()
             assert any(keyword in error_message for keyword in ["not found", "404", "does not exist", "procedure with id"])
 
-    def test_update_procedure_empty_name_fails(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_empty_name_fails(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure with empty name fails."""
         if auth_type == "station":
             # Stations cannot create procedures
-            original_name = f"AutomatedTest-V2-Update-EmptyName-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-EmptyName-{timestamp}"
             self._expect_station_create_failure(client, original_name)
         else:
             # Create a procedure
-            original_name = f"AutomatedTest-V2-Update-EmptyName-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-EmptyName-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
@@ -130,15 +130,13 @@ class TestUpdateProcedureName:
             error_message = str(exc_info.value).lower()
             assert any(keyword in error_message for keyword in ["empty", "required", "name", "invalid", "validation"])
 
-    def test_update_procedure_duplicate_name_succeeds(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_duplicate_name_succeeds(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure to existing name succeeds (names are not unique)."""
         if auth_type == "station":
             # Stations cannot create procedures
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
             name1 = f"AutomatedTest-V2-Update-Duplicate1-{timestamp}"
             self._expect_station_create_failure(client, name1)
         else:
-            timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
             
             # Create two procedures
             name1 = f"AutomatedTest-V2-Update-Duplicate1-{timestamp}"
@@ -158,15 +156,15 @@ class TestUpdateProcedureName:
             # Verify by checking the update was successful
             assert update_result.id == create_result2.id
 
-    def test_update_procedure_same_name_succeeds(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_same_name_succeeds(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure to the same name succeeds (no-op)."""
         if auth_type == "station":
             # Stations cannot create procedures
-            original_name = f"AutomatedTest-V2-Update-SameName-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-SameName-{timestamp}"
             self._expect_station_create_failure(client, original_name)
         else:
             # Create a procedure
-            original_name = f"AutomatedTest-V2-Update-SameName-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-SameName-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
@@ -175,20 +173,20 @@ class TestUpdateProcedureName:
             assert_update_procedure_success(update_result)
             assert update_result.id == create_result.id
 
-    def test_update_procedure_long_name(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_procedure_long_name(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure with long name."""
         if auth_type == "station":
             # Stations cannot create procedures
-            original_name = f"AutomatedTest-V2-Update-LongName-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-LongName-{timestamp}"
             self._expect_station_create_failure(client, original_name)
         else:
             # Create a procedure
-            original_name = f"AutomatedTest-V2-Update-LongName-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"AutomatedTest-V2-Update-LongName-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
             # Update with long name
-            base_name = f"AutomatedTest-V2-Update-VeryLong-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            base_name = f"AutomatedTest-V2-Update-VeryLong-{timestamp}"
             long_name = base_name + "-" + "X" * (200 - len(base_name))
             
             try:
@@ -199,23 +197,23 @@ class TestUpdateProcedureName:
                 error_message = str(e).lower()
                 assert any(keyword in error_message for keyword in ["length", "long", "limit", "validation"])
 
-    def test_multiple_updates_same_procedure(self, client: TofuPilot, auth_type: str) -> None:
+    def test_multiple_updates_same_procedure(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test multiple sequential updates to the same procedure."""
         if auth_type == "station":
             # Stations cannot create procedures
-            original_name = f"UpdMult-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"UpdMult-{timestamp}"
             self._expect_station_create_failure(client, original_name)
         else:
             # Create a procedure
-            original_name = f"UpdMult-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+            original_name = f"UpdMult-{timestamp}"
             create_result = client.procedures.create(name=original_name)
             assert_create_procedure_success(create_result)
             
             # Perform multiple updates
             names = [
-                f"UpdMult-Step1-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}",
-                f"UpdMult-Step2-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}",
-                f"UpdMult-Final-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}",
+                f"UpdMult-Step1-{timestamp}",
+                f"UpdMult-Step2-{timestamp}",
+                f"UpdMult-Final-{timestamp}",
             ]
             
             for name in names:

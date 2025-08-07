@@ -11,7 +11,7 @@ from tests.v2.utils import assert_create_run_success
 from ...utils import assert_station_access_forbidden
 
 
-def test_delete_procedure_version_with_runs(client: TofuPilot, auth_type: str) -> None:
+def test_delete_procedure_version_with_runs(client: TofuPilot, auth_type: str, timestamp) -> None:
     """Test that deleting procedure versions with runs is not allowed."""
     if auth_type == "station":
         # Stations cannot create procedures (HTTP 403 FORBIDDEN)
@@ -34,7 +34,6 @@ def test_delete_procedure_version_with_runs(client: TofuPilot, auth_type: str) -
     # Create a run using this procedure version
     # The run will automatically create the unit
     now = datetime.now(timezone.utc)
-    timestamp = now.strftime('%Y%m%d-%H%M%S-%f')
     run_result = client.runs.create(
         serial_number=f"TEST-UNIT-{timestamp}",
         procedure_id=procedure_result.id,

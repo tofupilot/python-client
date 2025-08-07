@@ -13,13 +13,12 @@ class TestPartsListSorting:
     """Test parts list sorting functionality."""
     
     @pytest.fixture
-    def test_parts_for_sorting(self, client: TofuPilot, auth_type: str) -> List[PartCreateResponse]:
+    def test_parts_for_sorting(self, client: TofuPilot, auth_type: str, timestamp) -> List[PartCreateResponse]:
         """Create test parts with specific ordering for sorting tests."""
         # Skip for stations since they can't create parts
         if auth_type == "station":
             return []  # Return empty list for station tests
             
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         unique_id = str(uuid.uuid4())[:8]
         created_parts: List[PartCreateResponse] = []
         
@@ -49,9 +48,8 @@ class TestPartsListSorting:
         
         return created_parts
     
-    def test_default_sorting_by_number(self, client: TofuPilot, test_parts_for_sorting: List[PartCreateResponse]) -> None:
+    def test_default_sorting(self, client: TofuPilot, test_parts_for_sorting: List[PartCreateResponse], timestamp) -> None:
         """Test that parts are sorted by number by default."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         
         # Search for our test parts
         result = client.parts.list(search_query="SORT-")
@@ -61,10 +59,9 @@ class TestPartsListSorting:
         our_parts = [p for p in result.data if timestamp in p.number]
         
         if len(our_parts) >= 2:
-            # Verify parts are sorted by number
+            # Verify parts are sorted by creation time
             for i in range(len(our_parts) - 1):
-                assert our_parts[i].number <= our_parts[i + 1].number, \
-                    f"Parts not sorted by number: {our_parts[i].number} > {our_parts[i + 1].number}"
+                assert our_parts[i].created_at >= our_parts[i + 1].created_at
     
     def test_consistent_ordering(self, client: TofuPilot, test_parts_for_sorting: List[PartCreateResponse]) -> None:
         """Test that ordering is consistent across multiple requests."""
@@ -84,9 +81,8 @@ class TestPartsListSorting:
         for i in range(1, len(results)):
             assert results[0] == results[i], "Parts ordering is not consistent with explicit sorting"
     
-    def test_sorting_with_revisions(self, client: TofuPilot) -> None:
+    def test_sorting_with_revisions(self, client: TofuPilot, timestamp) -> None:
         """Test that parts with revisions are sorted correctly."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create parts with different revision counts
         part1_number = f"SORT-REV-A-{timestamp}"
@@ -133,9 +129,8 @@ class TestPartsListSorting:
         assert len(result.data[1].revisions) == 1
         assert result.data[1].revisions[0].number == "A"  # Default revision
     
-    def test_sorting_empty_names(self, client: TofuPilot) -> None:
+    def test_sorting_empty_names(self, client: TofuPilot, timestamp) -> None:
         """Test sorting behavior with parts that have different names."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create parts with different names (empty names not allowed)
         parts_data = [
@@ -168,9 +163,8 @@ class TestPartsListSorting:
         assert "SORT-EMPTY-B" in result.data[1].number
         assert "SORT-EMPTY-C" in result.data[2].number
     
-    def test_sorting_special_characters(self, client: TofuPilot) -> None:
+    def test_sorting_special_characters(self, client: TofuPilot, timestamp) -> None:
         """Test sorting with special characters in part numbers."""
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create parts with special characters
         special_parts = [

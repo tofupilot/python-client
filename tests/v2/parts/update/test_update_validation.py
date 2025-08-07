@@ -48,10 +48,8 @@ class TestUpdatePartValidation:
         error_message = str(exc_info.value).lower()
         assert any(keyword in error_message for keyword in ["invalid", "empty", "308", "redirect"])
     
-    def test_update_duplicate_part_number(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_duplicate_part_number(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating to a part number that already exists."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create two parts
         part1_number = f"PART1-{timestamp}"
@@ -82,10 +80,8 @@ class TestUpdatePartValidation:
             error_message = str(exc_info.value).lower()
             assert "already exists" in error_message or "conflict" in error_message or "duplicate" in error_message
     
-    def test_update_empty_part_number(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_empty_part_number(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating part with empty number."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a part
         part_number = f"PART-{timestamp}"
@@ -106,10 +102,8 @@ class TestUpdatePartValidation:
             error_message = str(exc_info.value).lower()
             assert "validation" in error_message or "invalid" in error_message or "empty" in error_message
     
-    def test_update_part_number_too_long(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_part_number_too_long(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating part with number > 60 chars."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a part
         part_number = f"PART-{timestamp}"
@@ -131,10 +125,8 @@ class TestUpdatePartValidation:
             error_message = str(exc_info.value).lower()
             assert "60" in error_message or "length" in error_message or "long" in error_message
     
-    def test_update_part_name_too_long(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_part_name_too_long(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating part with name > 255 chars."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a part
         part_number = f"PART-{timestamp}"
@@ -156,10 +148,8 @@ class TestUpdatePartValidation:
             error_message = str(exc_info.value).lower()
             assert "255" in error_message or "length" in error_message or "long" in error_message
     
-    def test_update_no_fields_provided(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_no_fields_provided(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating part without providing any fields to update."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create a part
         part_number = f"PART-{timestamp}"
@@ -177,10 +167,8 @@ class TestUpdatePartValidation:
             error_message = str(exc_info.value).lower()
             assert "at least one" in error_message or "required" in error_message or "missing" in error_message
     
-    def test_update_case_insensitive_conflict(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_case_insensitive_conflict(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test that part number uniqueness is case-insensitive on update."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         
         # Create two parts
         part1_number = f"part-lower-{timestamp}"
@@ -217,10 +205,8 @@ class TestUpdatePartValidation:
             error_message = str(exc_info.value).lower()
             assert "already exists" in error_message or "conflict" in error_message
     
-    def test_update_to_same_number(self, client: TofuPilot, auth_type: str) -> None:
+    def test_update_to_same_number(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating part to its current number (should succeed)."""
-            
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"PART-SAME-{timestamp}"
         
         # Create a part

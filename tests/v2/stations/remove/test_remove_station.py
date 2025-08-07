@@ -13,7 +13,7 @@ from ...utils import assert_station_access_forbidden
 class TestRemoveStation:
     """Test removing/deleting stations."""
     
-    def test_remove_station_without_runs(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_station_without_runs(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test removing a station that has no runs (permanent deletion)."""
         if auth_type == "station":
             # Stations cannot remove other stations (HTTP 403 FORBIDDEN)
@@ -23,7 +23,6 @@ class TestRemoveStation:
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_name = f"Station to Remove - {timestamp}"
         
         create_result = client.stations.create(name=station_name)
@@ -58,7 +57,7 @@ class TestRemoveStation:
         with pytest.raises(ErrorNOTFOUND):
             client.stations.remove(id=nonexistent_id)
     
-    def test_remove_multiple_stations(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_multiple_stations(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test removing multiple stations in sequence."""
         if auth_type == "station":
             # Stations cannot remove stations (HTTP 403 FORBIDDEN) 
@@ -68,7 +67,6 @@ class TestRemoveStation:
             return
         
         # Create multiple stations
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_ids: List[str] = []
         
         for i in range(3):
@@ -87,7 +85,7 @@ class TestRemoveStation:
             with pytest.raises(ErrorNOTFOUND):
                 client.stations.get(id=station_id)
     
-    def test_remove_station_twice(self, client: TofuPilot, auth_type: str) -> None:
+    def test_remove_station_twice(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test removing the same station twice (should fail second time)."""
         if auth_type == "station":
             # Stations cannot remove stations (HTTP 403 FORBIDDEN)
@@ -97,7 +95,6 @@ class TestRemoveStation:
             return
         
         # Create and remove a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         create_result = client.stations.create(name=f"Double Remove Test - {timestamp}")
         station_id = create_result.id
         
@@ -108,7 +105,7 @@ class TestRemoveStation:
         with pytest.raises(ErrorNOTFOUND):
             client.stations.remove(id=station_id)
     
-    def test_remove_station_with_runs_archives(self, client: TofuPilot, auth_type: str, procedure_id: str) -> None:
+    def test_remove_station_with_runs_archives(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test that removing a station with runs archives it instead of deleting."""
         if auth_type == "station":
             # Stations cannot remove stations (HTTP 403 FORBIDDEN)
@@ -118,7 +115,6 @@ class TestRemoveStation:
             return
         
         # Create a station
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')
         station_name = f"Station with Runs - {timestamp}"
         
         create_result = client.stations.create(name=station_name)

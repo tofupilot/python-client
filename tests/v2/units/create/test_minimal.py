@@ -7,10 +7,9 @@ from ..utils import assert_create_unit_success, get_unit_by_id
 
 class TestCreateUnitMinimal:
 
-    def test_minimal_unit_creation(self, client: TofuPilot) -> None:
+    def test_minimal_unit_creation(self, client: TofuPilot, timestamp: str) -> None:
         """Test minimal unit creation with all required parameters."""
         # Create test data: part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-MINIMAL-PART-{timestamp}"
         revision_number = f"REV-MINIMAL-{timestamp}"
         
@@ -26,7 +25,7 @@ class TestCreateUnitMinimal:
             number=revision_number
         )
         
-        serial_number = f"AutomatedTest-V2-Unit-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')}"
+        serial_number = f"AutomatedTest-V2-Unit-{timestamp}"
         
         # Create unit using SDK
         result = client.units.create(
@@ -47,10 +46,9 @@ class TestCreateUnitMinimal:
         assert unit.batch is None  # No batch specified
 
 
-    def test_unit_creation_with_max_length_serial_number(self, client: TofuPilot) -> None:
+    def test_unit_creation_with_max_length_serial_number(self, client: TofuPilot, timestamp: str) -> None:
         """Test unit creation with maximum allowed length for serial number (60 chars)."""
         # Create test data: part and revision
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         part_number = f"UNIT-MAXLEN-PART-{timestamp}"
         revision_number = f"REV-MAXLEN-{timestamp}"
         
@@ -68,8 +66,7 @@ class TestCreateUnitMinimal:
         
         
         # Create a 60-character serial number
-        timestamp_short = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
-        prefix = f"MAX-LEN-{timestamp_short}-"
+        prefix = f"MAX-LEN-{timestamp}-"
         padding_length = 60 - len(prefix)
         serial_number = prefix + "X" * padding_length
         

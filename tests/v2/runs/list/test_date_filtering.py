@@ -10,7 +10,7 @@ from ...utils import assert_create_run_success, assert_get_runs_success
 class TestRunsDateFiltering:
     """Test date-based filtering parameters."""
     
-    @pytest.fixture 
+    @pytest.fixture(scope="class")
     def test_runs_data(self, client: TofuPilot, procedure_id: str) -> List[models.RunCreateResponse]:
         """Create test runs with specific date characteristics."""
         

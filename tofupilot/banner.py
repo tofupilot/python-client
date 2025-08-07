@@ -37,6 +37,9 @@ def print_version_banner(current_version: str) -> None:
 
     print(banner, end="")
 
+import posthog
+from .error_tracking import ApiVersionWarning
+
 
 def check_latest_version(logger, current_version, package_name: str):
     """Checks if the package is up-to-date and emits a warning if not"""
@@ -53,9 +56,12 @@ def check_latest_version(logger, current_version, package_name: str):
                     f"You are using {package_name} version {current_version}, however version {latest_version} is available. "
                     f'You should consider upgrading via the "pip install --upgrade {package_name}" command.'
                 )
+                posthog.capture_exception(ApiVersionWarning(warning_message))
                 logger.warning(warning_message)
-        except PackageNotFoundError:
+        except PackageNotFoundError as e:
+            posthog.capture_exception(e)
             logger.info(f"Package not installed: {package_name}")
 
     except requests.RequestException as e:
+        posthog.capture_exception(e)
         logger.warning(f"Version check failed: {e}")

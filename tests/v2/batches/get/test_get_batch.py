@@ -10,10 +10,9 @@ from ..utils import assert_create_batch_success
 class TestGetBatch:
     """Test retrieving individual batches by number."""
 
-    def test_get_existing_batch(self, client: TofuPilot):
+    def test_get_existing_batch(self, client: TofuPilot, timestamp):
         """Test retrieving an existing batch by its number."""
         # Create a batch with unique number
-        timestamp = str(int(time.time() * 1000000))  # microsecond timestamp
         batch_number = f"TEST-BATCH-{timestamp}"
         create_response = client.batches.create(number=batch_number)
         assert_create_batch_success(create_response)
@@ -28,12 +27,11 @@ class TestGetBatch:
         assert hasattr(batch, 'units')
         assert batch.units == []  # New batch has no units
 
-    def test_get_batch_with_units(self, client: TofuPilot, procedure_id: str):
+    def test_get_batch_with_units(self, client: TofuPilot, procedure_id: str, timestamp):
         """Test retrieving a batch that has units."""
         from datetime import datetime, timezone
         
         # Create batch with unique number
-        timestamp = datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S-%f')
         batch_number = f"TEST-BATCH-WITH-UNITS-{timestamp}"
         batch_response = client.batches.create(number=batch_number)
         assert_create_batch_success(batch_response)
@@ -91,10 +89,9 @@ class TestGetBatch:
         with pytest.raises(ErrorNOTFOUND):
             client.batches.get(number="NONEXISTENT-BATCH-999")
 
-    def test_get_batch_created_by_user(self, client: TofuPilot, auth_type: str):
+    def test_get_batch_created_by_user(self, client: TofuPilot, auth_type: str, timestamp):
         """Test batch includes creator information."""
         # Create batch with unique number
-        timestamp = str(int(time.time() * 1000000))
         batch_number = f"TEST-BATCH-USER-{timestamp}"
         batch_response = client.batches.create(number=batch_number)
         assert_create_batch_success(batch_response)

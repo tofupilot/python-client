@@ -12,15 +12,14 @@ class TestBatchesDateFiltering:
     """Test filtering batches by creation date ranges."""
     
     @pytest.fixture
-    def test_batches_with_dates(self, client: TofuPilot) -> List[models.BatchCreateResponse]:
+    def test_batches_with_dates(self, client: TofuPilot, timestamp) -> List[models.BatchCreateResponse]:
         """Create test batches at different times for date filtering tests."""
-        base_timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
         
         test_batches: List[models.BatchCreateResponse] = []
         # Create batches with small delays to ensure different timestamps
         for i in range(5):
             batch = client.batches.create(
-                number=f"DATE-FILTER-{base_timestamp}-{i:03d}"
+                number=f"DATE-FILTER-{timestamp}-{i:03d}"
             )
             assert_create_batch_success(batch)
             test_batches.append(batch)
