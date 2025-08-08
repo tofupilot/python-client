@@ -5,7 +5,7 @@ import time
 from unittest.mock import patch
 
 from tofupilot.client import TofuPilotClient
-from ...utils import assert_create_run_success, client
+from ...utils import assert_create_run_success, validate_v1_run_creation, client, v2_client
 from tofupilot.models.models import Phase
 
 
@@ -15,7 +15,7 @@ class TestCreateRunPhaseStringOutcomes:
     def run_passed(self, request) -> bool:
         return request.param
 
-    def test_run_creation_with_phase_string_outcomes(self, client: TofuPilotClient, procedure_identifier, run_passed):
+    def test_run_creation_with_phase_string_outcomes(self, client: TofuPilotClient, v2_client, procedure_identifier, run_passed):
         """Test run creation with phase string outcomes."""
         # Adapted from https://github.com/tofupilot/examples/blob/main/qa/client/create_run/phases_string_outcome/main.py
 
@@ -62,3 +62,13 @@ class TestCreateRunPhaseStringOutcomes:
             phases=[phase],
         )
         assert_create_run_success(result)
+        
+        # Validate the created run using v2 client
+        validate_v1_run_creation(v2_client, result["id"], {
+            "serial_number": serial_number,
+            "part_number": "SI03645A",
+            # part_name is deprecated in v1 API and won't be set
+            "revision": "3.1",  # Should be "3.1", not "A"
+            "batch_number": "11-24",
+            "outcome": passed,
+        })

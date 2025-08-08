@@ -9,6 +9,7 @@ from typing import Callable, TypedDict, Optional, Literal, List, Dict, Any
 
 import tofupilot
 from tofupilot import TofuPilotClient
+import tofupilot.v2
 
 from trycast import checkcast
 
@@ -226,6 +227,15 @@ def parentless_unit_serial_number_factory(api_key: str, tofupilot_server_url: st
     
     return create
 
+# V2 client fixture for validation
+@pytest.fixture(scope="class")
+def v2_client(api_key, tofupilot_server_url) -> tofupilot.v2.TofuPilot:
+    """Create a v2 client for validating v1 created runs."""
+    return tofupilot.v2.TofuPilot(
+        api_key=api_key,
+        server_url=f"{tofupilot_server_url}/api",
+    )
+
 # Assertion helper methods
 
 def assert_create_run_success(result):
@@ -235,3 +245,66 @@ def assert_create_run_success(result):
 def assert_get_runs_success(result):
     """Helper method to assert successful get_runs_by_serial_number response."""
     checkcast(GetRunsResponse, result)
+
+def validate_v1_run_creation(v2_client, run_id: str, expected_fields: Dict[str, Any]):
+    """
+    Validate that a run created via v1 API has the expected field values.
+    Uses v2 client to fetch and verify the run.
+    
+    Args:
+        v2_client: The v2 TofuPilot client
+        run_id: The ID of the created run
+        expected_fields: Dictionary of expected field values
+            - serial_number
+            - part_number
+            - part_name
+            - revision
+            - batch_number
+            - outcome
+            - procedure_version
+    """
+    # Fetch the run using v2 client
+    run = v2_client.runs.get(id=run_id)
+    assert run.id == run_id, f"Run ID mismatch: {run.id} != {run_id}"
+    
+    # Validate unit fields
+    if "serial_number" in expected_fields:
+        assert run.unit.serial_number == expected_fields["serial_number"], \
+            f"Serial number mismatch: {run.unit.serial_number} != {expected_fields['serial_number']}"
+    
+    if "part_number" in expected_fields:
+        assert run.unit.part.number == expected_fields["part_number"], \
+            f"Part number mismatch: {run.unit.part.number} != {expected_fields['part_number']}"
+    
+    # Note: part_name is deprecated in v1 API and will use default value
+    if "part_name" in expected_fields:
+        # Skip validation for deprecated field
+        pass
+    
+    if "revision" in expected_fields:
+        # In v2 API, revision is under unit.part.revision
+        assert run.unit.part.revision.number == expected_fields["revision"], \
+            f"Revision mismatch: {run.unit.part.revision.number} != {expected_fields['revision']}"
+    
+    if "batch_number" in expected_fields and expected_fields["batch_number"]:
+        assert run.unit.batch is not None, "Batch should exist"
+        assert run.unit.batch.number == expected_fields["batch_number"], \
+            f"Batch number mismatch: {run.unit.batch.number} != {expected_fields['batch_number']}"
+    
+    # Validate run fields
+    if "outcome" in expected_fields:
+        # Convert boolean run_passed to outcome string
+        if isinstance(expected_fields["outcome"], bool):
+            expected_outcome = "PASS" if expected_fields["outcome"] else "FAIL"
+        else:
+            expected_outcome = expected_fields["outcome"]
+        assert run.outcome == expected_outcome, \
+            f"Outcome mismatch: {run.outcome} != {expected_outcome}"
+    
+    if "procedure_version" in expected_fields and expected_fields["procedure_version"]:
+        # In v2, procedure version is an object with 'tag' field
+        if hasattr(run, 'procedure') and hasattr(run.procedure, 'version'):
+            assert run.procedure.version.tag == expected_fields["procedure_version"], \
+                f"Procedure version mismatch: {run.procedure.version.tag} != {expected_fields['procedure_version']}"
+    
+    return run

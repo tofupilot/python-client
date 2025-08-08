@@ -5,10 +5,10 @@ import os
 import inspect
 from datetime import datetime, timedelta
 from unittest.mock import patch
-from ...utils import client, parentless_unit_serial_number_factory
+from ...utils import client, parentless_unit_serial_number_factory, v2_client
 
 from tofupilot.client import TofuPilotClient
-from ...utils import assert_create_run_success
+from ...utils import assert_create_run_success, validate_v1_run_creation
 from tofupilot.models.models import (
     Phase,
     Measurement,
@@ -25,23 +25,27 @@ class TestCreateRunAllParameters:
     def run_passed(self, request) -> bool:
         return request.param
 
-    def test_run_creation_with_all_possible_parameters(self, client: TofuPilotClient, procedure_identifier, parentless_unit_serial_number_factory, run_passed):
+    def test_run_creation_with_all_possible_parameters(self, client: TofuPilotClient, v2_client, procedure_identifier, parentless_unit_serial_number_factory, run_passed):
         """Test run creation with all possible parameters filled."""
         start_time = datetime.now() - timedelta(minutes=5)
         end_time = datetime.now()
         
+        # Define test data
+        unit_data = {
+            "serial_number": "AutomatedTest_AllParameters",
+            "part_number": "Number1",
+            "part_name": "All Parameters Test Unit",
+            "revision": "2.0",
+            "batch_number": "BATCH001"
+        }
+        procedure_version = "2.1.0"
+        
         result = client.create_run(
             procedure_id=procedure_identifier,
-            unit_under_test={
-                "serial_number": "AutomatedTest_AllParameters",
-                "part_number": "Number1",
-                "part_name": "All Parameters Test Unit",
-                "revision": "2.0",
-                "batch_number": "BATCH001"
-            },
+            unit_under_test=unit_data,
             run_passed=run_passed,
             procedure_name="All Parameters Test Procedure",
-            procedure_version="2.1.0",
+            procedure_version=procedure_version,
             phases=[
                 Phase(
                     name="Full Test Phase",
@@ -77,3 +81,14 @@ class TestCreateRunAllParameters:
         )
         
         assert_create_run_success(result)
+        
+        # Validate the created run using v2 client
+        validate_v1_run_creation(v2_client, result["id"], {
+            "serial_number": unit_data["serial_number"],
+            "part_number": unit_data["part_number"],
+            # part_name is deprecated in v1 API and won't be set
+            "revision": unit_data["revision"],  # This should be "2.0", not "A"
+            "batch_number": unit_data["batch_number"],
+            "outcome": run_passed,
+            "procedure_version": procedure_version
+        })

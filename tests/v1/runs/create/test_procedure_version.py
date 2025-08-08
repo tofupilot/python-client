@@ -5,7 +5,7 @@ import time
 from unittest.mock import patch
 
 from tofupilot.client import TofuPilotClient
-from ...utils import assert_create_run_success, client
+from ...utils import assert_create_run_success, validate_v1_run_creation, client, v2_client
 
 
 class TestCreateRunProcedureVersion:
@@ -14,7 +14,7 @@ class TestCreateRunProcedureVersion:
     def voltage(self, request) -> bool:
         return request.param
 
-    def test_run_creation_with_procedure_version(self, client: TofuPilotClient, procedure_identifier, voltage):
+    def test_run_creation_with_procedure_version(self, client: TofuPilotClient, v2_client, procedure_identifier, voltage):
         """Test run creation with procedure versioning."""
         # adapted from https://github.com/tofupilot/examples/blob/5cf044d0e55c11ea55114014edb206605689aa6d/qa/client/create_run/procedure_version/main.py
         
@@ -57,3 +57,12 @@ class TestCreateRunProcedureVersion:
             run_passed=passed,
         )
         assert_create_run_success(result)
+        
+        # Validate the created run using v2 client
+        validate_v1_run_creation(v2_client, result["id"], {
+            "serial_number": serial_number,
+            "part_number": "SI0364",
+            "revision": "A",  # This test expects "A"
+            "outcome": passed,
+            "procedure_version": "1.2.20",
+        })
