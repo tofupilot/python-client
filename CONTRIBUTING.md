@@ -108,6 +108,9 @@ If you need to test a new version of the Python client before making an official
 
 ### Releasing a production version of the Python Client
 
-Only members of the TofuPilot team can trigger new releases (which automatically upload to PyPI).
+Only members of the TofuPilot team are allowed to trigger new releases (which automatically upload to PyPI).
 
 However, contributions are always welcome! If you'd like to help improve the project, feel free to open an issue or submit a pull request. We appreciate your input.
+
+To trigger automatic release (upload to PyPI and creation of version tag), it is enough to change the version in `pyproject.toml` and merging to main.
+It is better however to also include a written description of the changes in the README.md

@@ -17,7 +17,6 @@ from .constants import (
     ENDPOINT,
     FILE_MAX_SIZE,
     CLIENT_MAX_ATTACHMENTS,
-    SECONDS_BEFORE_TIMEOUT,
 )
 from .models import SubUnit, UnitUnderTest, Step, Phase, Log, RunOutcome
 from .responses import (
@@ -25,6 +24,7 @@ from .responses import (
     GetRunsResponse,
     _OpenHTFImportResult,
     _StreamingResult,
+    _StreamingCredentials,
     _InitializeUploadResponse,
     ErrorResponse,
 )
@@ -43,6 +43,8 @@ from .utils import (
     process_openhtf_attachments,
 )
 from ..banner import print_banner_and_check_version
+
+from .utils import api_request
 
 
 class TofuPilotClient:
@@ -437,18 +439,15 @@ class TofuPilotClient:
                 other fields as set in handle_http_error and handle_network_error
         """
         self._log_request("GET", "/streaming")
-        try:
-            response = requests.get(
-                f"{self._url}/streaming",
-                headers=self._headers,
-                verify=self._verify,
-                timeout=SECONDS_BEFORE_TIMEOUT,
-            )
-            response.raise_for_status()
-            values = handle_response(self._logger, response)
-            return {"success": True, "values": values}
-        except requests.exceptions.HTTPError as http_err:
-            return handle_http_error(self._logger, http_err)
-        except requests.RequestException as e:
-            return handle_network_error(self._logger, e)
-
+        
+        result = api_request(
+            self._logger,
+            "GET",
+            f"{self._url}/streaming",
+            self._headers,
+            verify=self._verify,
+        )
+        if result.get("success", True):
+            return {"success": True, "values": cast(_StreamingCredentials, result)}
+        else:
+            return cast(ErrorResponse, result)

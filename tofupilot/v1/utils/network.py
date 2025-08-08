@@ -1,9 +1,51 @@
 from typing import Dict, List, Optional, Any, Union
+import tempfile
+import os
 
 import requests
+import certifi
 import posthog
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from ..responses import HttpErrorResponse, NetworkErrorResponse, ErrorResponse
+
+# Cache for certificate bundles to avoid recreating them
+_cert_bundle_cache = {}
+
+def prepare_verify_setting(verify: Optional[str]) -> str:
+    """Prepare verify setting for self-signed certificates by creating cached certificate bundle."""
+    if verify and isinstance(verify, str) and verify.endswith('.crt'):
+        try:
+            cert_mtime = os.path.getmtime(verify)
+            cache_key = f"{verify}:{cert_mtime}"
+            
+            if cache_key in _cert_bundle_cache:
+                cached_path = _cert_bundle_cache[cache_key]
+                if os.path.exists(cached_path):
+                    return cached_path
+                else:
+                    del _cert_bundle_cache[cache_key]
+            
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.pem', delete=False) as temp_bundle:
+                with open(certifi.where(), 'r') as ca_bundle:
+                    temp_bundle.write(ca_bundle.read())
+                
+                with open(verify, 'r') as custom_cert:
+                    temp_bundle.write('\n')
+                    temp_bundle.write(custom_cert.read())
+                
+                bundle_path = temp_bundle.name
+                _cert_bundle_cache[cache_key] = bundle_path
+                return bundle_path
+                
+        except (OSError, IOError):
+            return verify
+    
+    return verify
+
+
+def cleanup_temp_cert_bundle(verify_setting: str, original_verify: Optional[str]):
+    """Clean up temporary certificate bundle if it was created."""
+    pass
 
 
 def parse_error_message(response: requests.Response) -> str:
@@ -22,9 +64,11 @@ def api_request(
     data: Optional[Dict] = None, 
     params: Optional[Dict] = None,
     timeout: int = SECONDS_BEFORE_TIMEOUT,
-    verify = None, #: str | None = None,
+    verify: Optional[str] = None,
 ) -> Union[Dict[str, Any], ErrorResponse]:
     """Unified API request handler with consistent error handling"""
+    verify_setting = prepare_verify_setting(verify)
+    
     try:
         response = requests.request(
             method, url, 
@@ -32,14 +76,18 @@ def api_request(
             headers=headers,
             params=params,
             timeout=timeout,
-            verify=verify,
+            verify=verify_setting,
         )
         response.raise_for_status()
-        return handle_response(logger, response)
+        result = handle_response(logger, response)
+        
+        return result
     except requests.exceptions.HTTPError as http_err:
         return handle_http_error(logger, http_err)
     except requests.RequestException as e:
         return handle_network_error(logger, e)
+    finally:
+        cleanup_temp_cert_bundle(verify_setting, verify)
 
 
 def handle_response(
@@ -161,11 +209,13 @@ def handle_network_error(logger, e: requests.RequestException) -> NetworkErrorRe
         error_message = f"Network error: {str(e)}"
         logger.error(error_message)
         
-        # Provide SSL-specific guidance
         if isinstance(e, requests.exceptions.SSLError) or "SSL" in str(e) or "certificate verify failed" in str(e):
-            logger.warning("SSL certificate verification error detected")
-            logger.warning("This is typically caused by missing or invalid SSL certificates")
-            logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
+            if "storage." in str(e) and "certificate is not valid for" in str(e):
+                logger.warning("Certificate must include storage subdomain")
+                logger.warning("Generate wildcard certificate or add storage hostname to SAN")
+            else:
+                logger.warning("SSL certificate verification error detected")
+                logger.warning("Try: 1) pip install certifi  2) /Applications/Python*/Install Certificates.command")
     except Exception as e2:
         posthog.capture_exception(e2)
     finally:

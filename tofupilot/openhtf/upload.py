@@ -108,7 +108,6 @@ class upload:  # pylint: disable=invalid-name
                 filename,
                 inline_attachments=False,  # Exclude raw attachments
                 allow_nan=self.allow_nan,
-                indent=4,
             )
 
             # Open the custom file and write serialized test record to it
@@ -208,6 +207,7 @@ class upload:  # pylint: disable=invalid-name
                                 data=attachment_data,
                                 headers={"Content-Type": attachment.mimetype},
                                 timeout=SECONDS_BEFORE_TIMEOUT,
+                                verify=self._verify,
                             )
                         except Exception as e:
                             posthog.capture_exception(e)
@@ -220,6 +220,7 @@ class upload:  # pylint: disable=invalid-name
                             upload_id,
                             run_id,
                             logger=self._logger,
+                            verify=self._verify,
                         )
 
                         # Use LoggerStateManager to temporarily activate the logger

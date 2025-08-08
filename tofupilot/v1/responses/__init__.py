@@ -5,6 +5,7 @@ from .responses import (
 
     # Private types (used only by private methods)
     _OpenHTFImportResult,
+    _StreamingCredentials,
     _StreamingResult,
     _InitializeUploadResponse,
     

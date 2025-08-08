@@ -57,22 +57,18 @@ class SimpleStationWatcher(threading.Thread):
     def __init__(self, send_update_callback):
         super().__init__(daemon=True)
         self.send_update = send_update_callback
-        self.last_phase = None
+        self.previous_state = None
         self.stop_event = threading.Event()
 
     def run(self):
         while not self.stop_event.is_set():
             _, test_state = _get_executing_test()
             if test_state is not None:
-                current_phase = (
-                    test_state.running_phase_state.name
-                    if test_state.running_phase_state
-                    else None
-                )
-                if current_phase != self.last_phase:
-                    test_state_dict, _ = _to_dict_with_event(test_state)
+                # TODO: Add a hash to result of _to_dict_with_event to speed up comparaison
+                test_state_dict, _ = _to_dict_with_event(test_state)
+                if test_state_dict != self.previous_state:
                     self.send_update(test_state_dict)
-                    self.last_phase = current_phase
+                    self.previous_state = test_state_dict
             sleep(0.1)  # Wait for 100 milliseconds
 
     def stop(self):
@@ -124,6 +120,7 @@ class TofuPilot:
         self.mqttClient = None
         self.publishOptions = None
         self._logger = self.client._logger
+        self._reconnecting = False
         self._streaming_setup_thread = None
 
     def _upload(self, testRecord: TestRecord):
@@ -233,7 +230,7 @@ class TofuPilot:
                 
                 # various flavours of bad request/unauthorized
                 # We shouldn't retry to connect since it will fail again
-                if(400 <= status_code <= 407):
+                if isinstance(status_code, int) and 400 <= status_code <= 407:
                     return ""
                 time.sleep(1)
 
@@ -263,6 +260,7 @@ class TofuPilot:
         self.mqttClient.username_pw_set("pythonClient", token)
 
         self.mqttClient.on_message = self._on_message
+        self.mqttClient.on_connect = self._on_connect
         self.mqttClient.on_disconnect = self._on_disconnect
         self.mqttClient.on_unsubscribe = self._on_unsubscribe
 
@@ -434,6 +432,16 @@ class TofuPilot:
         if parsed["source"] == "web":
             self._handle_answer(**parsed["message"])
 
+    def _on_connect(
+        self, client, userdata, connect_flags, reason_code, properties,
+    ):
+        if self._reconnecting:
+            # Warning to be sure the log level is the same as the other message
+            self._logger.warning(
+                f"Operator UI: Reconnected"
+            )
+            self._reconnecting = False
+
     def _on_disconnect(
         self, client, userdata, disconnect_flags: mqtt.DisconnectFlags, reason_code: ReasonCode, properties
     ):
@@ -442,7 +450,7 @@ class TofuPilot:
             self._logger.warning(
                 f"Operator UI: Unexpected disconnect (code {reason_code})"
             )
-            
+            self._reconnecting = True
             self._connect_streaming()
             self.mqttClient.loop_start()
             test_state_dict, _ = _to_dict_with_event(self.test.state)

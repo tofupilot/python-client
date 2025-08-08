@@ -64,4 +64,5 @@ def check_latest_version(logger, current_version, package_name: str):
 
     except requests.RequestException as e:
         posthog.capture_exception(e)
-        logger.warning(f"Version check failed: {e}")
+        logger.warning("Failed to check version, more information in debug logs")
+        logger.debug(f"Error checking version: While connecting to PyPI: {e}")
