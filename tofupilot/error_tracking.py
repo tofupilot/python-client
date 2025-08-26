@@ -10,6 +10,7 @@ if is_telemetry_enabled():
     posthog.host = 'https://us.i.posthog.com'
     posthog.debug = False
 else:
+    posthog.api_key = 'I need to be a truthy value, even if posthog is disabled'
     posthog.disabled = True
 
 class ApiVersionWarning(Exception):

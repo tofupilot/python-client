@@ -200,6 +200,94 @@ class TestSubUnitsLifecycle:
         assert run.unit.part is not None
         assert run.unit.part.number == PART_NUMBER
 
+    def test_sub_unit_parent_change(self, client: TofuPilot, procedure_id: str) -> None:
+        """Test parentChange behavior when a sub-unit with an existing parent is assigned to a new parent."""
+        # Generate unique identifiers for this test
+        unique_id = str(uuid.uuid4())[:8]
+        
+        # Units
+        FIRST_PARENT_SERIAL = f"FirstParent-{unique_id}"
+        SECOND_PARENT_SERIAL = f"SecondParent-{unique_id}"
+        SUB_SERIAL = f"SubUnit-{unique_id}"
+        
+        # Parts
+        FIRST_PARENT_PART = f"FirstParentPart-{unique_id}"
+        SECOND_PARENT_PART = f"SecondParentPart-{unique_id}"
+        SUB_PART = f"SubPart-{unique_id}"
+        
+        # Revisions
+        FIRST_PARENT_REVISION = f"FirstParentRev-{unique_id}"
+        SECOND_PARENT_REVISION = f"SecondParentRev-{unique_id}"
+        SUB_REVISION = f"SubRev-{unique_id}"
+        
+        OUTCOME = "PASS"
+        NOW = datetime.now(timezone.utc)
+        
+        # Step 1: Create sub-unit
+        START_TIME_1 = NOW - timedelta(minutes=10)
+        END_TIME_1 = NOW - timedelta(minutes=8)
+        
+        sub_result = client.runs.create(
+            serial_number=SUB_SERIAL,
+            procedure_id=procedure_id,
+            outcome=OUTCOME,
+            part_number=SUB_PART,
+            revision_number=SUB_REVISION,
+            started_at=START_TIME_1,
+            ended_at=END_TIME_1,
+        )
+        
+        assert_create_run_success(sub_result)
+        
+        # Step 2: Create first parent with sub-unit
+        START_TIME_2 = NOW - timedelta(minutes=7)
+        END_TIME_2 = NOW - timedelta(minutes=5)
+        
+        first_parent_result = client.runs.create(
+            serial_number=FIRST_PARENT_SERIAL,
+            procedure_id=procedure_id,
+            outcome=OUTCOME,
+            part_number=FIRST_PARENT_PART,
+            revision_number=FIRST_PARENT_REVISION,
+            sub_units=[SUB_SERIAL],
+            started_at=START_TIME_2,
+            ended_at=END_TIME_2,
+        )
+        
+        assert_create_run_success(first_parent_result)
+        
+        # Verify sub-unit is linked to first parent
+        first_parent_unit = client.units.get(serial_number=FIRST_PARENT_SERIAL)
+        assert first_parent_unit.children is not None
+        assert any(c.serial_number == SUB_SERIAL for c in first_parent_unit.children)
+        
+        # Step 3: Create second parent with the same sub-unit (should trigger parentChange)
+        START_TIME_3 = NOW - timedelta(minutes=4)
+        END_TIME_3 = NOW - timedelta(minutes=2)
+        
+        second_parent_result = client.runs.create(
+            serial_number=SECOND_PARENT_SERIAL,
+            procedure_id=procedure_id,
+            outcome=OUTCOME,
+            part_number=SECOND_PARENT_PART,
+            revision_number=SECOND_PARENT_REVISION,
+            sub_units=[SUB_SERIAL],
+            started_at=START_TIME_3,
+            ended_at=END_TIME_3,
+        )
+        
+        assert_create_run_success(second_parent_result)
+        
+        # Verify sub-unit is now linked to second parent
+        second_parent_unit = client.units.get(serial_number=SECOND_PARENT_SERIAL)
+        assert second_parent_unit.children is not None
+        assert any(c.serial_number == SUB_SERIAL for c in second_parent_unit.children)
+        
+        # Verify sub-unit is no longer linked to first parent
+        first_parent_unit_updated = client.units.get(serial_number=FIRST_PARENT_SERIAL)
+        assert first_parent_unit_updated.children is None or \
+               not any(c.serial_number == SUB_SERIAL for c in first_parent_unit_updated.children)
+
     def test_run_with_single_sub_unit(self, client: TofuPilot, procedure_id: str) -> None:
         """Test that runs with a single sub-unit work properly."""
         # Generate unique identifiers for this test
