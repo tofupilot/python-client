@@ -45,7 +45,7 @@ def validate_files(
         if file_size > max_file_size:
             log_and_raise(
                 logger,
-                f"File size exceeds the maximum allowed size of {max_file_size} bytes: {file_path}",
+                f"File size ({file_size / 1024 / 1024:.2f} MB) exceeds the maximum allowed size of {max_file_size / 1024 / 1024:.2f} MB: {file_path}",
             )
 
 
