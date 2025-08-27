@@ -39,7 +39,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     # Build and distribution tools
-    "setuptools>=50.0.0",
     "build",
     "twine",
     # Testing dependencies
@@ -62,8 +61,6 @@ packages = [
 ]
 include = ["py.typed", "tofupilot/v2/py.typed"]
 
-[tool.setuptools.package-data]
-"*" = ["py.typed", "tofupilot/v2/py.typed"]
 
 [virtualenvs]
 in-project = true
