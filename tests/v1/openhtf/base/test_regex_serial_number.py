@@ -17,11 +17,11 @@ def test_procedure_verion(tofupilot_server_url, api_key, procedure_identifier, p
     )
 
     with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-        test.execute(lambda: "PCB101A123")
+        test.execute(lambda: "PCB101T5A123")
 
-    extract_id_and_check_run_exists(
-        serial_number="PCB101A123",
+    extract_id_and_check_run_exists( # Set to "First 8 characters" `^([A-Z0-9]{8})`
+        serial_number="PCB101T5A123",
         procedure_id=procedure_id,
-        part_number="PCB101",
+        part_number="PCB101T5",
         outcome="FAIL"
     )

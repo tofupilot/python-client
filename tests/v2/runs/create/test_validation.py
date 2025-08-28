@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, timezone
 import pytest
 from pydantic import ValidationError
 from tofupilot.v2 import TofuPilot
-from tofupilot.v2.errors import ErrorBADREQUEST, ErrorNOTFOUND
+from tofupilot.v2.errors import ErrorBADREQUEST, ErrorNOTFOUND, ErrorFORBIDDEN
 from ...utils import get_random_test_dates
 
 
@@ -40,19 +40,31 @@ def test_create_run_with_whitespace_serial_number(client: TofuPilot, procedure_i
     assert exc_info.value.data.issues and "serial number" in exc_info.value.data.issues[0].message.lower()
 
 
-def test_create_run_with_invalid_procedure_id(client: TofuPilot):
+def test_create_run_with_invalid_procedure_id(client: TofuPilot, auth_type):
     """Test that creating a run with non-existent procedure ID fails."""
     fake_id = str(uuid.uuid4())
     started_at, ended_at = get_random_test_dates()
-    with pytest.raises(ErrorNOTFOUND) as exc_info:
-        client.runs.create(  # type: ignore[call-arg]
-            serial_number="TEST-001",
-            procedure_id=fake_id,
-            part_number="TEST-PCB-001",
-            started_at=started_at,
-            outcome="PASS",
-            ended_at=ended_at,
-        )
+    if auth_type == 'station':
+        with pytest.raises(ErrorFORBIDDEN) as exc_info:
+            client.runs.create(  # type: ignore[call-arg]
+                serial_number="TEST-001",
+                procedure_id=fake_id,
+                part_number="TEST-PCB-001",
+                started_at=started_at,
+                outcome="PASS",
+                ended_at=ended_at,
+            )
+    else:
+
+        with pytest.raises(ErrorNOTFOUND) as exc_info:
+            client.runs.create(  # type: ignore[call-arg]
+                serial_number="TEST-001",
+                procedure_id=fake_id,
+                part_number="TEST-PCB-001",
+                started_at=started_at,
+                outcome="PASS",
+                ended_at=ended_at,
+            )
     assert "procedure" in str(exc_info.value).lower()
 
 

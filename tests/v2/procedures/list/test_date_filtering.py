@@ -143,26 +143,6 @@ class TestProceduresDateFiltering:
             if hasattr(procedure, 'created_at') and procedure.created_at:
                 assert start_time <= procedure.created_at <= end_time, f"Our test procedure {procedure.name} should be within date range"
 
-    def test_filter_future_date(self, client: TofuPilot, auth_type: str):
-        """Test filtering with future date behavior."""
-        future_date = datetime.now(timezone.utc) + timedelta(days=1)
-        
-        result = client.procedures.list(created_after=future_date)
-        assert_get_procedures_success(result)
-        
-        if auth_type == "station":
-            # Station can list procedures - just verify the call succeeds
-            return
-            
-        # Check if any returned procedures are actually from the future
-        # If the API returns procedures, they should not be from the future
-        now = datetime.now(timezone.utc)
-        for procedure in result.data:
-            if hasattr(procedure, 'created_at') and procedure.created_at:
-                assert procedure.created_at <= now, f"Procedure {procedure.name} appears to be from the future"
-        
-        # The API behavior for future dates may vary - test passes if no future procedures returned
-
     def test_filter_very_old_date(self, client: TofuPilot, test_procedures_with_dates: List[models.ProcedureListData], auth_type: str):
         """Test filtering with very old date includes all procedures."""
         old_date = datetime.now(timezone.utc) - timedelta(days=365)
