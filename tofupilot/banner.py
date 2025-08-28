@@ -52,9 +52,10 @@ def check_latest_version(logger, current_version, package_name: str):
 
         try:
             if version.parse(current_version) < version.parse(latest_version):
+                yellow = "\033[33m"
+                reset = "\033[0m"
                 warning_message = (
-                    f"You are using {package_name} version {current_version}, however version {latest_version} is available. "
-                    f'You should consider upgrading via the "pip install --upgrade {package_name}" command.'
+                    f"{yellow}Upgrade to v{latest_version} with: pip install -U {package_name}{reset}"
                 )
                 posthog.capture_exception(ApiVersionWarning(warning_message))
                 logger.warning(warning_message)
