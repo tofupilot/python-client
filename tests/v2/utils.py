@@ -50,6 +50,21 @@ def operator_email_address() -> str:
         )
     return api_key
 
+def assert_get_run_success(result: models.RunGetResponse) -> None:
+    """Assert that run get response is valid."""
+    assert checkcast(models.RunGetResponse, result)
+    assert len(result.id) > 0
+
+def assert_delete_run_success(result: models.RunDeleteResponse) -> None:
+    """Assert that run delete response is valid."""
+    assert checkcast(models.RunDeleteResponse, result)
+    assert len(result.ids) > 0
+
+def assert_update_run_success(result: models.RunUpdateResponse) -> None:
+    """Assert that run update response is valid."""
+    assert checkcast(models.RunUpdateResponse, result)
+    assert len(result.id) > 0
+
 def assert_get_runs_success(result: models.RunListResponse) -> None:
     """Assert that runs list response is valid."""
     assert checkcast(models.RunListResponse, result)
@@ -171,7 +186,7 @@ def assert_station_access_limited(operation_description: str = "operation"):
         with assert_station_access_limited("create run for unlinked procedure"):
             client.runs.create(...)
     """
-    with pytest.raises((APIError, Exception)) as exc_info:
+    with pytest.raises(APIError) as exc_info:
         yield
     
     # For limited access, we expect some kind of error but the specific type

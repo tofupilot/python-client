@@ -1,12 +1,9 @@
 """Basic integration tests for unit children endpoints."""
 
-import pytest
-from datetime import datetime, timezone
 from typing import Any, List, Tuple
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.types import UNSET
-from ..utils import assert_create_unit_success, get_unit_by_id
-from ...utils import assert_station_access_forbidden
+from ..utils import get_unit_by_id
 
 
 def has_children(unit: Any) -> bool:
@@ -25,6 +22,7 @@ def has_parent(unit: Any) -> bool:
     """Check if unit has parent (not None and not UNSET)."""
     return hasattr(unit, 'parent') and unit.parent is not None and unit.parent is not UNSET
 
+
 class TestUnitChildrenBasicOperations:
     """Basic integration tests combining add and remove operations."""
 
@@ -32,25 +30,16 @@ class TestUnitChildrenBasicOperations:
         """Test complete cycle: create units, add child, verify, remove child, verify."""
         parent_id, parent_serial, _ = create_test_unit("BASIC-PARENT")
         child_id, child_serial, _ = create_test_unit("BASIC-CHILD")
-        
-        if auth_type == "station":
-            # Stations cannot modify unit relationships
-            with assert_station_access_forbidden("add child to unit"):
-                client.units.add_child(
-                    serial_number=parent_serial,
-                    child_serial_number=child_serial,
-                )
-            return
-        
-        # Test add child endpoint
+
+        # Test add child endpoint - returns the child unit ID
         add_result = client.units.add_child(
             serial_number=parent_serial,
             child_serial_number=child_serial,
         )
-        
-        # Verify the add operation succeeded
-        assert add_result.id == parent_id
-        
+
+        # Verify the add operation succeeded (returns child ID)
+        assert add_result.id == child_id
+
         # Verify parent-child relationship was established
         parent_unit = get_unit_by_id(client, parent_id)
         assert parent_unit is not None
@@ -61,28 +50,27 @@ class TestUnitChildrenBasicOperations:
             assert parent_unit.children[0].serial_number == child_serial
         else:
             assert False, "Parent should have children"
-        
-        # Note: Due to API behavior, child unit is not directly accessible by its original ID
-        # after add_child operation. We get the child info from the parent's children list.
+
+        # Get the child info from the parent's children list
         child_from_parent = None
         if has_children(parent_unit) and isinstance(parent_unit.children, list):
             child_from_parent = parent_unit.children[0]
-        
+
         # Test remove child endpoint
         assert child_from_parent is not None, "Should have child from parent"
         remove_result = client.units.remove_child(
             serial_number=parent_serial,
             child_serial_number=child_serial,
         )
-        
+
         # Verify the remove operation succeeded
         assert remove_result.id == child_from_parent.id
-        
+
         # Verify parent-child relationship was removed
         parent_unit_after = get_unit_by_id(client, parent_id)
         assert parent_unit_after is not None
         assert not has_children(parent_unit_after) or get_children_count(parent_unit_after) == 0
-        
+
         # Verify child is restored as independent unit after remove
         child_unit_after = get_unit_by_id(client, child_from_parent.id)
         assert child_unit_after is not None
@@ -91,40 +79,31 @@ class TestUnitChildrenBasicOperations:
     def test_multiple_operations_sequence(self, client: TofuPilot, auth_type: str, create_test_unit) -> None:
         """Test sequence of operations: add multiple, remove one, add another."""
         parent_id, parent_serial, _ = create_test_unit("SEQ-PARENT")
-        
-        if auth_type == "station":
-            # Stations cannot modify unit relationships
-            child_id, child_serial, _ = create_test_unit("SEQ-CHILD-STATION")
-            with assert_station_access_forbidden("add multiple children to unit"):
-                client.units.add_child(
-                    serial_number=parent_serial,
-                    child_serial_number=child_serial,
-                )
-            return
-        
+
         # Create and add 3 children
         children: List[Tuple[str, str]] = []
         for i in range(3):
             child_id, child_serial, _ = create_test_unit(f"SEQ-CHILD-{i}")
             children.append((child_id, child_serial))
-            
+
             add_result = client.units.add_child(
                 serial_number=parent_serial,
                 child_serial_number=child_serial,
             )
-            assert add_result.id == parent_id
-        
+            # API returns the child unit ID
+            assert add_result.id == child_id
+
         # Verify 3 children
         parent_unit = get_unit_by_id(client, parent_id)
         assert parent_unit is not None
         assert has_children(parent_unit)
         assert get_children_count(parent_unit) == 3
-        
+
         # Remove the middle child - find it from parent's children list
         parent_unit_before_remove = get_unit_by_id(client, parent_id)
         assert parent_unit_before_remove is not None
         assert has_children(parent_unit_before_remove)
-        
+
         # Find the child to remove by serial number
         child_to_remove = None
         if has_children(parent_unit_before_remove) and isinstance(parent_unit_before_remove.children, list):
@@ -132,34 +111,35 @@ class TestUnitChildrenBasicOperations:
                 if child.serial_number == children[1][1]:  # Middle child serial
                     child_to_remove = child
                     break
-        
+
         assert child_to_remove is not None, "Should find middle child to remove"
         remove_result = client.units.remove_child(
             serial_number=parent_serial,
             child_serial_number=children[1][1],
         )
         assert remove_result.id == child_to_remove.id
-        
+
         # Verify 2 children remain
         parent_unit = get_unit_by_id(client, parent_id)
         assert parent_unit is not None
         assert has_children(parent_unit)
         assert get_children_count(parent_unit) == 2
-        
+
         # Add a new child
         new_child_id, new_child_serial, _ = create_test_unit("SEQ-CHILD-NEW")
         add_result = client.units.add_child(
             serial_number=parent_serial,
             child_serial_number=new_child_serial,
         )
-        assert add_result.id == parent_id
-        
+        # API returns the child unit ID
+        assert add_result.id == new_child_id
+
         # Verify 3 children again
         parent_unit = get_unit_by_id(client, parent_id)
         assert parent_unit is not None
         assert has_children(parent_unit)
         assert get_children_count(parent_unit) == 3
-        
+
         # Verify the expected children are present
         assert parent_unit is not None  # Already checked above
         assert has_children(parent_unit)

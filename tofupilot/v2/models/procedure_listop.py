@@ -43,6 +43,24 @@ class ProcedureListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["limit", "cursor", "search_query", "created_after", "created_before"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                if val is not None or k not in optional_fields:
+                    m[k] = val
+
+        return m
+
 
 class ProcedureListCreatedByUserTypedDict(TypedDict):
     r"""User who created the procedure."""
@@ -69,36 +87,26 @@ class ProcedureListCreatedByUser(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
 
 
-ProcedureListOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
+ProcedureListOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "TIMEOUT",
+    "ABORTED",
+]
 r"""Result of the test run."""
 
 
@@ -174,7 +182,7 @@ class ProcedureListData(BaseModel):
 class ProcedureListMetaTypedDict(TypedDict):
     has_more: bool
     r"""Whether there are more results available for pagination."""
-    next_cursor: Nullable[float]
+    next_cursor: Nullable[int]
     r"""Cursor value to fetch the next page of results. Use this value as the cursor parameter in the next request. Null if no more results available."""
 
 
@@ -182,35 +190,19 @@ class ProcedureListMeta(BaseModel):
     has_more: bool
     r"""Whether there are more results available for pagination."""
 
-    next_cursor: Nullable[float]
+    next_cursor: Nullable[int]
     r"""Cursor value to fetch the next page of results. Use this value as the cursor parameter in the next request. Null if no more results available."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["next_cursor"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m

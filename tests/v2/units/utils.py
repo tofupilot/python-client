@@ -6,6 +6,7 @@ from typing import Optional
 from tofupilot.v2.models.unit_deleteop import UnitDeleteResponse
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.models.unit_createop import UnitCreateResponse
+from tofupilot.v2.models.unit_getop import UnitGetResponse
 from tofupilot.v2.models.unit_listop import UnitListResponse, UnitListData
 from tofupilot.v2.models.unit_updateop import UnitUpdateResponse
 
@@ -13,6 +14,12 @@ from tofupilot.v2.models.unit_updateop import UnitUpdateResponse
 def assert_create_unit_success(result: UnitCreateResponse) -> None:
     """Assert that unit create response is valid."""
     assert checkcast(UnitCreateResponse, result)
+    assert len(result.id) > 0
+
+
+def assert_get_unit_success(result: UnitGetResponse) -> None:
+    """Assert that unit get response is valid."""
+    assert checkcast(UnitGetResponse, result)
     assert len(result.id) > 0
 
 

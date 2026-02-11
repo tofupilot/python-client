@@ -181,6 +181,79 @@ def test_all_the_things(tofupilot_server_url, api_key, stream_enabled, procedure
         test.execute(lambda: "00220D4K")
 
 
-    extract_id_and_check_run_exists(serial_number="00220D4K", part_number="PCB01", procedure_id=procedure_id)
-    
+    run = extract_id_and_check_run_exists(serial_number="00220D4K", part_number="PCB01", procedure_id=procedure_id)
 
+    # Phase structure
+    assert run.phases
+    phase_names = [phase.name for phase in run.phases]
+    expected_phases = [
+        "hello_world", "set_measurements", "dimensions", "attachments",
+        "measures_with_args", "measures_with_marginal_args", "analysis", "teardown",
+    ]
+    for name in expected_phases:
+        assert name in phase_names, f"Missing phase: {name}"
+    assert all(phase.outcome == "PASS" for phase in run.phases)
+
+    phases_by_name = {phase.name: phase for phase in run.phases}
+
+    # Measurements per phase (names)
+    def measurement_names(phase_name):
+        return [m.name for m in phases_by_name[phase_name].measurements]
+
+    assert sorted(measurement_names("hello_world")) == sorted(
+        ["widget_type", "widget_color", "widget_size", "specified_as_args"]
+    )
+    assert sorted(measurement_names("set_measurements")) == sorted(
+        ["level_none", "level_some", "level_all"]
+    )
+    assert sorted(measurement_names("measures_with_args")) == sorted(
+        ["replaced_min_only", "replaced_max_only", "replaced_min_max"]
+    )
+    assert sorted(measurement_names("measures_with_marginal_args")) == sorted(
+        ["replaced_marginal_min_only", "replaced_marginal_max_only", "replaced_marginal_min_max"]
+    )
+    assert measurement_names("attachments") == []
+    assert measurement_names("analysis") == []
+    assert measurement_names("teardown") == []
+
+    # Dimensioned measurements
+    assert sorted(measurement_names("dimensions")) == sorted(["dimensions", "lots_of_dims"])
+
+    # Scalar measurement values
+    hw = {m.name: m for m in phases_by_name["hello_world"].measurements}
+    assert hw["widget_type"].measured_value == "MyWidget"
+    assert hw["widget_color"].measured_value == "Black"
+    assert hw["widget_size"].measured_value == 3
+    assert hw["specified_as_args"].measured_value == "Measurement args specified directly"
+
+    sm = {m.name: m for m in phases_by_name["set_measurements"].measurements}
+    assert sm["level_none"].measured_value == 0
+    assert sm["level_some"].measured_value == 8
+    assert sm["level_all"].measured_value == 9
+
+    mwa = {m.name: m for m in phases_by_name["measures_with_args"].measurements}
+    assert mwa["replaced_min_only"].measured_value == 1
+    assert mwa["replaced_max_only"].measured_value == 1
+    assert mwa["replaced_min_max"].measured_value == 1
+
+    mwma = {m.name: m for m in phases_by_name["measures_with_marginal_args"].measurements}
+    assert mwma["replaced_marginal_min_only"].measured_value == 3
+    assert mwma["replaced_marginal_max_only"].measured_value == 3
+    assert mwma["replaced_marginal_min_max"].measured_value == 3
+
+    # Measurement units
+    assert hw["specified_as_args"].units == "Hz"
+
+    # Validators presence
+    for m_name in ["widget_type", "widget_size", "specified_as_args"]:
+        assert hw[m_name].validators, f"Expected validators for {m_name}"
+    for m_name in ["replaced_min_only", "replaced_max_only", "replaced_min_max"]:
+        assert mwa[m_name].validators, f"Expected validators for {m_name}"
+    for m_name in ["replaced_marginal_min_only", "replaced_marginal_max_only", "replaced_marginal_min_max"]:
+        assert mwma[m_name].validators, f"Expected validators for {m_name}"
+
+    # Attachments
+    assert run.attachments
+    attachment_names = [a.name for a in run.attachments]
+    assert "test_attachment" in attachment_names
+    assert "oscilloscope.jpeg" in attachment_names

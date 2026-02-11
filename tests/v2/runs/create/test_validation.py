@@ -4,9 +4,9 @@ import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from pydantic import ValidationError
 from tofupilot.v2 import TofuPilot
-from tofupilot.v2.errors import ErrorBADREQUEST, ErrorNOTFOUND, ErrorFORBIDDEN
+from tofupilot.v2.client_with_error_tracking import TofuPilotValidationError
+from tofupilot.v2.errors import ErrorBADREQUEST, ErrorNOTFOUND
 from ...utils import get_random_test_dates
 
 
@@ -42,9 +42,13 @@ def test_create_run_with_whitespace_serial_number(client: TofuPilot, procedure_i
 
 def test_create_run_with_invalid_procedure_id(client: TofuPilot, auth_type):
     """Test that creating a run with non-existent procedure ID fails."""
+    from tofupilot.v2.errors import ErrorFORBIDDEN
+
     fake_id = str(uuid.uuid4())
     started_at, ended_at = get_random_test_dates()
-    if auth_type == 'station':
+
+    if auth_type == "station":
+        # Stations get a business-logic 403 (not linked to procedure), not an access-control 403
         with pytest.raises(ErrorFORBIDDEN) as exc_info:
             client.runs.create(  # type: ignore[call-arg]
                 serial_number="TEST-001",
@@ -54,17 +58,18 @@ def test_create_run_with_invalid_procedure_id(client: TofuPilot, auth_type):
                 outcome="PASS",
                 ended_at=ended_at,
             )
-    else:
+        assert "not authorized" in str(exc_info.value).lower()
+        return
 
-        with pytest.raises(ErrorNOTFOUND) as exc_info:
-            client.runs.create(  # type: ignore[call-arg]
-                serial_number="TEST-001",
-                procedure_id=fake_id,
-                part_number="TEST-PCB-001",
-                started_at=started_at,
-                outcome="PASS",
-                ended_at=ended_at,
-            )
+    with pytest.raises(ErrorNOTFOUND) as exc_info:
+        client.runs.create(  # type: ignore[call-arg]
+            serial_number="TEST-001",
+            procedure_id=fake_id,
+            part_number="TEST-PCB-001",
+            started_at=started_at,
+            outcome="PASS",
+            ended_at=ended_at,
+        )
     assert "procedure" in str(exc_info.value).lower()
 
 
@@ -86,7 +91,7 @@ def test_create_run_with_malformed_procedure_id(client: TofuPilot):
 def test_create_run_with_invalid_outcome(client: TofuPilot, procedure_id: str):
     """Test that creating a run with invalid outcome value fails."""
     started_at, ended_at = get_random_test_dates()
-    with pytest.raises(ValidationError) as exc_info:
+    with pytest.raises(TofuPilotValidationError) as exc_info:
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
@@ -219,6 +224,49 @@ def test_create_run_with_invalid_operated_by(client: TofuPilot, procedure_id: st
             ended_at=ended_at,
         )
     assert exc_info.value.data.issues and ("operated_by" in exc_info.value.data.issues[0].message.lower() or "email" in exc_info.value.data.issues[0].message.lower())
+
+
+def test_create_run_with_procedure_version(client: TofuPilot, procedure_id: str):
+    """Test that creating a run with procedure_version links the run to a version."""
+    started_at, ended_at = get_random_test_dates()
+    version_tag = f"v{uuid.uuid4().hex[:8]}"
+
+    result = client.runs.create(
+        serial_number="TEST-001",
+        procedure_id=procedure_id,
+        part_number="TEST-PCB-001",
+        started_at=started_at,
+        ended_at=ended_at,
+        outcome="PASS",
+        procedure_version=version_tag,
+    )
+    assert result.id is not None
+
+    # Verify via get that the version was stored
+    run = client.runs.get(id=result.id)
+    assert run.procedure.version is not None
+    assert run.procedure.version.tag.lower() == version_tag.lower()
+
+
+def test_create_run_with_docstring(client: TofuPilot, procedure_id: str):
+    """Test that creating a run with docstring stores the documentation."""
+    started_at, ended_at = get_random_test_dates()
+    doc = "Automated regression test for power supply module."
+
+    result = client.runs.create(
+        serial_number="TEST-001",
+        procedure_id=procedure_id,
+        part_number="TEST-PCB-001",
+        started_at=started_at,
+        ended_at=ended_at,
+        outcome="PASS",
+        docstring=doc,
+    )
+    assert result.id is not None
+
+    # Verify via get that the docstring was stored
+    run = client.runs.get(id=result.id)
+    assert run.docstring == doc
 
 
 def test_create_run_without_required_fields(client: TofuPilot):

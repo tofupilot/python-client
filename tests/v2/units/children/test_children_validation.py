@@ -102,21 +102,21 @@ class TestBoundaryConditions:
         )
 
         if auth_type == "user":
-            
-            # Test adding child with long serial numbers
+
+            # Test adding child with long serial numbers (returns child ID)
             result = client.units.add_child(
                 serial_number=parent_serial,
                 child_serial_number=child_serial,
             )
-            
-            assert result.id == parent_result.id
-            
-            # Test removing child with long serial numbers
+
+            assert result.id == child_result.id
+
+            # Test removing child with long serial numbers (returns child ID)
             result = client.units.remove_child(
                 serial_number=parent_serial,
                 child_serial_number=child_serial,
             )
-            
+
             assert result.id == child_result.id
 
     def test_special_characters_in_serial_numbers(self, user_client: TofuPilot, timestamp) -> None:
@@ -151,13 +151,13 @@ class TestBoundaryConditions:
                 revision_number="REV-1"
             )
             
-            # Test operations work with special characters
+            # Test operations work with special characters (both return child ID)
             add_result = user_client.units.add_child(
                 serial_number=parent_serial,
                 child_serial_number=child_serial,
             )
-            assert add_result.id == parent_result.id
-            
+            assert add_result.id == child_result.id
+
             remove_result = user_client.units.remove_child(
                 serial_number=parent_serial,
                 child_serial_number=child_serial,

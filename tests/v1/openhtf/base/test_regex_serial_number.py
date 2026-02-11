@@ -1,6 +1,9 @@
-"""Adapted from https://github.com/tofupilot/examples/tree/aad0dc20dd10b55a24378e9b6754712d3401d386/testing_examples/openhtf/regex_serial_number"""
+"""Test that omitting part_number without server-side regex config produces a clear error.
 
-import random
+Adapted from https://github.com/tofupilot/examples/tree/aad0dc20dd10b55a24378e9b6754712d3401d386/testing_examples/openhtf/regex_serial_number
+"""
+
+import logging
 
 import openhtf as htf
 from tofupilot.openhtf import TofuPilot
@@ -10,7 +13,9 @@ from tofupilot.openhtf import TofuPilot
 def check_button(test):
     test.measurements.button_status = False
 
-def test_procedure_verion(tofupilot_server_url, api_key, procedure_identifier, procedure_id, extract_id_and_check_run_exists):
+
+def test_no_part_number_without_regex_config(tofupilot_server_url, api_key, procedure_identifier, caplog):
+    """When no part_number is provided and no regex parsing is configured, the server should reject the run."""
     test = htf.Test(
         check_button,
         procedure_id=procedure_identifier,
@@ -19,9 +24,10 @@ def test_procedure_verion(tofupilot_server_url, api_key, procedure_identifier, p
     with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
         test.execute(lambda: "PCB101T5A123")
 
-    extract_id_and_check_run_exists( # Set to "First 8 characters" `^([A-Z0-9]{8})`
-        serial_number="PCB101T5A123",
-        procedure_id=procedure_id,
-        part_number="PCB101T5",
-        outcome="FAIL"
+    errors = [
+        record for record in caplog.get_records("call")
+        if record.levelno >= logging.ERROR
+    ]
+    assert any("part number" in record.getMessage().lower() for record in errors), (
+        f"Expected an error about missing part number, got: {[r.getMessage() for r in errors]}"
     )

@@ -1,11 +1,8 @@
 """Tests for error cases when managing unit children."""
 
 import pytest
-from datetime import datetime, timezone
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2 import errors
-from ..utils import assert_create_unit_success
-from ...utils import assert_station_access_forbidden
 
 
 class TestAddChildrenErrors:
@@ -17,20 +14,11 @@ class TestAddChildrenErrors:
         """Test adding child when parent unit doesn't exist."""
         _, child_serial, _ = create_test_unit("CHILD-ORPHAN")
 
-        if auth_type == "station":
-            # Stations get 403 Forbidden before 404 Not Found
-            with assert_station_access_forbidden("add child with nonexistent parent"):
-                client.units.add_child(
-                    serial_number="NONEXISTENT-PARENT",
-                    child_serial_number=child_serial,
-                )
-        else:
-            # Users get 404 Not Found
-            with pytest.raises(errors.ErrorNOTFOUND):
-                client.units.add_child(
-                    serial_number="NONEXISTENT-PARENT",
-                    child_serial_number=child_serial,
-                )
+        with pytest.raises(errors.ErrorNOTFOUND):
+            client.units.add_child(
+                serial_number="NONEXISTENT-PARENT",
+                child_serial_number=child_serial,
+            )
 
     def test_add_child_child_not_found(
         self, client: TofuPilot, auth_type: str, create_test_unit
@@ -38,20 +26,11 @@ class TestAddChildrenErrors:
         """Test adding child when child unit doesn't exist."""
         _, parent_serial, _ = create_test_unit("PARENT-NO-CHILD")
 
-        if auth_type == "station":
-            # Stations get 403 Forbidden before 404 Not Found
-            with assert_station_access_forbidden("add nonexistent child"):
-                client.units.add_child(
-                    serial_number=parent_serial,
-                    child_serial_number="NONEXISTENT-CHILD",
-                )
-        else:
-            # Users get 404 Not Found
-            with pytest.raises(errors.ErrorNOTFOUND):
-                client.units.add_child(
-                    serial_number=parent_serial,
-                    child_serial_number="NONEXISTENT-CHILD",
-                )
+        with pytest.raises(errors.ErrorNOTFOUND):
+            client.units.add_child(
+                serial_number=parent_serial,
+                child_serial_number="NONEXISTENT-CHILD",
+            )
 
     def test_add_child_serial_number_mismatch(
         self, client: TofuPilot, auth_type: str, create_test_unit
@@ -60,22 +39,11 @@ class TestAddChildrenErrors:
         _, parent_serial, _ = create_test_unit("PARENT-MISMATCH")
         child_id, _, _ = create_test_unit("CHILD-MISMATCH")
 
-        if auth_type == "station":
-            # Stations get 403 Forbidden before validation errors
-            with assert_station_access_forbidden(
-                "add child with serial number mismatch"
-            ):
-                client.units.add_child(
-                    serial_number=parent_serial,
-                    child_serial_number="WRONG-SERIAL-NUMBER",
-                )
-        else:
-            # Users get proper validation error
-            with pytest.raises(errors.ErrorNOTFOUND):
-                client.units.add_child(
-                    serial_number=parent_serial,
-                    child_serial_number="WRONG-SERIAL-NUMBER",
-                )
+        with pytest.raises(errors.ErrorNOTFOUND):
+            client.units.add_child(
+                serial_number=parent_serial,
+                child_serial_number="WRONG-SERIAL-NUMBER",
+            )
 
 
 class TestRemoveChildrenErrors:
@@ -85,22 +53,11 @@ class TestRemoveChildrenErrors:
         self, client: TofuPilot, auth_type: str, create_test_unit
     ) -> None:
         """Test removing child when parent unit doesn't exist."""
-        if auth_type == "station":
-            # Stations get 403 Forbidden before 404 Not Found
-            with assert_station_access_forbidden(
-                "remove child with nonexistent parent"
-            ):
-                client.units.remove_child(
-                    serial_number="NONEXISTENT-PARENT",
-                    child_serial_number="SOME-CHILD",
-                )
-        else:
-            # Users get 404 Not Found
-            with pytest.raises(errors.ErrorNOTFOUND):
-                client.units.remove_child(
-                    serial_number="NONEXISTENT-PARENT",
-                    child_serial_number="SOME-CHILD",
-                )
+        with pytest.raises(errors.ErrorNOTFOUND):
+            client.units.remove_child(
+                serial_number="NONEXISTENT-PARENT",
+                child_serial_number="SOME-CHILD",
+            )
 
     def test_remove_child_child_not_found(
         self, client: TofuPilot, auth_type: str, create_test_unit
@@ -108,20 +65,11 @@ class TestRemoveChildrenErrors:
         """Test removing child when child unit doesn't exist."""
         _, parent_serial, _ = create_test_unit("PARENT-NO-REMOVE-CHILD")
 
-        if auth_type == "station":
-            # Stations get 403 Forbidden before 404 Not Found
-            with assert_station_access_forbidden("remove nonexistent child"):
-                client.units.remove_child(
-                    serial_number=parent_serial,
-                    child_serial_number="NONEXISTENT-CHILD",
-                )
-        else:
-            # Users get 404 Not Found
-            with pytest.raises(errors.ErrorNOTFOUND):
-                client.units.remove_child(
-                    serial_number=parent_serial,
-                    child_serial_number="NONEXISTENT-CHILD",
-                )
+        with pytest.raises(errors.ErrorNOTFOUND):
+            client.units.remove_child(
+                serial_number=parent_serial,
+                child_serial_number="NONEXISTENT-CHILD",
+            )
 
     def test_remove_child_not_actually_child(
         self, client: TofuPilot, auth_type: str, create_test_unit
@@ -130,37 +78,18 @@ class TestRemoveChildrenErrors:
         _, parent_serial, _ = create_test_unit("PARENT-NOT-CHILD")
         unrelated_id, unrelated_serial, _ = create_test_unit("UNRELATED")
 
-        if auth_type == "station":
-            # Stations get 403 Forbidden before 404 Not Found
-            with assert_station_access_forbidden("remove unrelated unit"):
-                client.units.remove_child(
-                    serial_number=parent_serial,
-                    child_serial_number=unrelated_serial,
-                )
-        else:
-            # Users get 404 Not Found
-            with pytest.raises(errors.ErrorNOTFOUND):
-                client.units.remove_child(
-                    serial_number=parent_serial,
-                    child_serial_number=unrelated_serial,
-                )
+        # Units exist but not in parent-child relationship - get 400 Bad Request
+        with pytest.raises(errors.ErrorBADREQUEST) as exc_info:
+            client.units.remove_child(
+                serial_number=parent_serial,
+                child_serial_number=unrelated_serial,
+            )
+        assert "is not a child of" in str(exc_info.value)
 
     def test_remove_child_serial_number_mismatch(
         self, client: TofuPilot, auth_type: str, create_test_unit
     ) -> None:
         """Test removing child with mismatched serial number."""
-        if auth_type == "station":
-            # Stations cannot modify unit relationships at all
-            _, parent_serial, _ = create_test_unit("PARENT-STATION")
-
-            with assert_station_access_forbidden("remove child with serial mismatch"):
-                client.units.remove_child(
-                    serial_number=parent_serial,
-                    child_serial_number="WRONG-SERIAL",
-                )
-            return
-
-        # For users, test the actual error case
         _, parent_serial, _ = create_test_unit("PARENT-REMOVE-MISMATCH")
         child_id, child_serial, _ = create_test_unit("CHILD-REMOVE-MISMATCH")
 
@@ -181,18 +110,6 @@ class TestRemoveChildrenErrors:
         self, client: TofuPilot, auth_type: str, create_test_unit
     ) -> None:
         """Test removing child using wrong parent serial number."""
-        if auth_type == "station":
-            # Stations cannot modify unit relationships at all
-            _, parent_serial, _ = create_test_unit("PARENT-STATION-WRONG")
-
-            with assert_station_access_forbidden("remove child from wrong parent"):
-                client.units.remove_child(
-                    serial_number=parent_serial,
-                    child_serial_number="SOME-CHILD",
-                )
-            return
-
-        # For users, test the actual error case
         _, parent1_serial, _ = create_test_unit("PARENT1-WRONG")
         _, parent2_serial, _ = create_test_unit("PARENT2-WRONG")
         child_id, child_serial, _ = create_test_unit("CHILD-WRONG-PARENT")
@@ -203,9 +120,10 @@ class TestRemoveChildrenErrors:
             child_serial_number=child_serial,
         )
 
-        # Try to remove from parent2 (wrong parent)
-        with pytest.raises(errors.ErrorNOTFOUND):
+        # Try to remove from parent2 (wrong parent) - units exist but not related
+        with pytest.raises(errors.ErrorBADREQUEST) as exc_info:
             client.units.remove_child(
                 serial_number=parent2_serial,
                 child_serial_number=child_serial,
             )
+        assert "is not a child of" in str(exc_info.value)

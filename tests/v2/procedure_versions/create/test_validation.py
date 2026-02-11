@@ -67,14 +67,21 @@ def test_create_version_invalid_procedure_id(client: TofuPilot, auth_type: str) 
 
 def test_create_version_nonexistent_procedure(client: TofuPilot, auth_type: str) -> None:
     """Test creating a procedure version for non-existent procedure."""
-    # Use a valid UUID format but non-existent procedure
     fake_uuid = "00000000-0000-0000-0000-000000000000"
-    
+
+    if auth_type == "station":
+        with assert_station_access_forbidden("create version for nonexistent procedure"):
+            client.procedures.versions.create(
+                procedure_id=fake_uuid,
+                tag="v1.0.0"
+            )
+        return
+
     with pytest.raises(ErrorNOTFOUND) as exc_info:
         client.procedures.versions.create(
             procedure_id=fake_uuid,
             tag="v1.0.0"
         )
-    
+
     error = exc_info.value
     assert "procedure" in str(error.data.message).lower()

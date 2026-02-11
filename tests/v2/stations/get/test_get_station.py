@@ -44,13 +44,8 @@ class TestGetStation:
     
     def test_get_station_nonexistent(self, client: TofuPilot, auth_type: str) -> None:
         """Test getting a station that doesn't exist."""
-        # Use a random UUID that shouldn't exist
-        nonexistent_id = str(uuid.uuid4())
-        
         with pytest.raises(ErrorNOTFOUND):
-            client.stations.get(id=nonexistent_id)
-        
-        # ErrorNOTFOUND is automatically a 404
+            client.stations.get(id=str(uuid.uuid4()))
     
     def test_get_station_with_procedures(self, client: TofuPilot, auth_type: str, procedure_id: str, timestamp) -> None:
         """Test getting a station that has linked procedures."""

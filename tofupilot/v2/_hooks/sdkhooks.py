@@ -14,11 +14,6 @@ from .types import (
 from typing import List, Optional, Tuple
 from tofupilot.v2.sdkconfiguration import SDKConfiguration
 
-# Import hooks here:
-
-# from .example_hook import ExampleHook
-
-# End of hook imports, do not modify the rest !
 
 class SDKHooks(Hooks):
     def __init__(self) -> None:
@@ -27,12 +22,6 @@ class SDKHooks(Hooks):
         self.after_success_hooks: List[AfterSuccessHook] = []
         self.after_error_hooks: List[AfterErrorHook] = []
 
-        # Register hooks here:
-
-        # self.register_hook(ExampleHook())
-
-        # End of hook registrations, do not modify the rest !
-        
     def register_sdk_init_hook(self, hook: SDKInitHook) -> None:
         self.sdk_init_hooks.append(hook)
 

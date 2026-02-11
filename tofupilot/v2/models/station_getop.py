@@ -2,10 +2,16 @@
 
 from __future__ import annotations
 from pydantic import model_serializer
-from tofupilot.v2.types import BaseModel, Nullable, UNSET_SENTINEL
+from tofupilot.v2.types import (
+    BaseModel,
+    Nullable,
+    OptionalNullable,
+    UNSET,
+    UNSET_SENTINEL,
+)
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
 from typing import List, Literal
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import Annotated, NotRequired, TypedDict
 
 
 class StationGetRequestTypedDict(TypedDict):
@@ -20,6 +26,101 @@ class StationGetRequest(BaseModel):
     r"""Unique identifier of the station to retrieve"""
 
 
+class StationGetCommitTypedDict(TypedDict):
+    sha: str
+    r"""Git commit SHA"""
+    message: str
+    r"""Git commit message"""
+    branch: Nullable[str]
+    r"""Git branch name"""
+
+
+class StationGetCommit(BaseModel):
+    sha: str
+    r"""Git commit SHA"""
+
+    message: str
+    r"""Git commit message"""
+
+    branch: Nullable[str]
+    r"""Git branch name"""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                m[k] = val
+
+        return m
+
+
+StationGetProvider = Literal[
+    "github",
+    "gitlab",
+]
+r"""Git provider"""
+
+
+class StationGetRepositoryTypedDict(TypedDict):
+    owner: str
+    r"""Repository owner"""
+    name: str
+    r"""Repository name"""
+    provider: StationGetProvider
+    r"""Git provider"""
+
+
+class StationGetRepository(BaseModel):
+    owner: str
+    r"""Repository owner"""
+
+    name: str
+    r"""Repository name"""
+
+    provider: StationGetProvider
+    r"""Git provider"""
+
+
+class StationGetDeploymentTypedDict(TypedDict):
+    r"""Deployment information for this procedure on this station"""
+
+    deployed_at: str
+    r"""When the procedure was deployed"""
+    commit: Nullable[StationGetCommitTypedDict]
+    repository: Nullable[StationGetRepositoryTypedDict]
+
+
+class StationGetDeployment(BaseModel):
+    r"""Deployment information for this procedure on this station"""
+
+    deployed_at: str
+    r"""When the procedure was deployed"""
+
+    commit: Nullable[StationGetCommit]
+
+    repository: Nullable[StationGetRepository]
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                m[k] = val
+
+        return m
+
+
 class StationGetProcedureTypedDict(TypedDict):
     id: str
     r"""Procedure ID"""
@@ -29,6 +130,8 @@ class StationGetProcedureTypedDict(TypedDict):
     r"""Procedure name"""
     runs_count: float
     r"""Number of runs created by this station in the last 7 days"""
+    deployment: NotRequired[Nullable[StationGetDeploymentTypedDict]]
+    r"""Deployment information for this procedure on this station"""
 
 
 class StationGetProcedure(BaseModel):
@@ -44,39 +147,55 @@ class StationGetProcedure(BaseModel):
     runs_count: float
     r"""Number of runs created by this station in the last 7 days"""
 
+    deployment: OptionalNullable[StationGetDeployment] = UNSET
+    r"""Deployment information for this procedure on this station"""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["identifier"]
-        null_default_fields = []
-
+        optional_fields = set(["deployment"])
+        nullable_fields = set(["identifier", "deployment"])
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
 
-ConnectionStatus = Literal["connected", "disconnected"]
+StationGetConnectionStatus = Literal[
+    "connected",
+    "disconnected",
+]
 r"""Current connection status of the station"""
+
+
+class StationGetTeamTypedDict(TypedDict):
+    r"""Team this station is assigned to"""
+
+    id: str
+    name: str
+
+
+class StationGetTeam(BaseModel):
+    r"""Team this station is assigned to"""
+
+    id: str
+
+    name: str
 
 
 class StationGetResponseTypedDict(TypedDict):
@@ -91,11 +210,13 @@ class StationGetResponseTypedDict(TypedDict):
     image: Nullable[str]
     r"""Image URL associated with the station"""
     api_key: Nullable[str]
-    r"""API key for the station"""
+    r"""API key prefix for the station (full key only shown on creation)"""
     procedures: List[StationGetProcedureTypedDict]
     r"""Procedures linked to this station with recent run counts"""
-    connection_status: Nullable[ConnectionStatus]
+    connection_status: Nullable[StationGetConnectionStatus]
     r"""Current connection status of the station"""
+    team: Nullable[StationGetTeamTypedDict]
+    r"""Team this station is assigned to"""
 
 
 class StationGetResponse(BaseModel):
@@ -114,40 +235,27 @@ class StationGetResponse(BaseModel):
     r"""Image URL associated with the station"""
 
     api_key: Nullable[str]
-    r"""API key for the station"""
+    r"""API key prefix for the station (full key only shown on creation)"""
 
     procedures: List[StationGetProcedure]
     r"""Procedures linked to this station with recent run counts"""
 
-    connection_status: Nullable[ConnectionStatus]
+    connection_status: Nullable[StationGetConnectionStatus]
     r"""Current connection status of the station"""
+
+    team: Nullable[StationGetTeam]
+    r"""Team this station is assigned to"""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["image", "api_key", "connection_status"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m

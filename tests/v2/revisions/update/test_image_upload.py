@@ -7,6 +7,7 @@ import os
 import tofupilot
 from ..utils import assert_create_revision_success, assert_update_revision_success
 from ...parts.utils import assert_create_part_success
+from ...utils import assert_station_access_forbidden
 
 
 def upload_to_presigned_url(upload_url: str, content: bytes, content_type: str = "image/png") -> None:
@@ -48,27 +49,36 @@ class TestRevisionImageUpload:
         # Step 1: Create a part and revision
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-IMG-{timestamp}-{unique_id}"
-        
+
         part_result = client.parts.create(
             number=part_number,
             name=f"Image Test Part {unique_id}"
         )
         assert_create_part_success(part_result)
-        
+
         revision_number = f"REV-IMG-{timestamp}"
         revision_result = client.parts.revisions.create(part_number=part_number
         , number=revision_number)
         assert_create_revision_success(revision_result)
         revision_id = revision_result.id
-        
+
         # Step 2: Initialize attachment for image
         attachment = client.attachments.initialize(name="revision_image.png")
-        
+
         # Step 3: Upload image content to presigned URL
         test_image = get_test_image_data()
         upload_to_presigned_url(attachment.upload_url, test_image, "image/png")
-        
+
         # Step 4: Update revision with image
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision with image"):
+                client.parts.revisions.update(
+                    part_number=part_number,
+                    revision_number=revision_number,
+                    image_id=attachment.id
+                )
+            return
+
         update_result = client.parts.revisions.update(
             part_number=part_number,
             revision_number=revision_number,
@@ -104,13 +114,22 @@ class TestRevisionImageUpload:
         upload_to_presigned_url(first_image.upload_url, first_image_data, "image/png")
         
         # Step 3: Update revision with first image
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision with image"):
+                client.parts.revisions.update(
+                    part_number=part_number,
+                    revision_number=revision_number,
+                    image_id=first_image.id
+                )
+            return
+
         update_result = client.parts.revisions.update(
             part_number=part_number,
             revision_number=revision_number,
             image_id=first_image.id
         )
         assert_update_revision_success(update_result)
-        
+
         # Step 4: Get revision to check if image URL is available
         part_data = client.parts.get(number=part_number)
         revision = None
@@ -119,19 +138,16 @@ class TestRevisionImageUpload:
                 revision = rev
                 break
         assert revision is not None, f"Revision {revision_id} not found"
-        
+
         # Check if revision has image field
         if hasattr(revision, 'image') and revision.image:
             print(f"\nRevision has image URL: {revision.image[:50]}...")
-            # If the API provides a download URL, verify the content
-            # Note: The exact field name may vary based on API implementation
-            
+
         # Step 5: Test image replacement
         second_image = client.attachments.initialize(name="second_revision_image.png")
-        # Create different image data (you could modify the PNG data slightly)
-        second_image_data = get_test_image_data()  # In real test, this would be different
+        second_image_data = get_test_image_data()
         upload_to_presigned_url(second_image.upload_url, second_image_data, "image/png")
-        
+
         # Update revision with new image
         update_result2 = client.parts.revisions.update(
             part_number=part_number,
@@ -139,7 +155,7 @@ class TestRevisionImageUpload:
             image_id=second_image.id
         )
         assert_update_revision_success(update_result2)
-        
+
         print(f"\nSuccessfully replaced revision image with {second_image.id}")
     
     def test_remove_revision_image(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
@@ -164,22 +180,30 @@ class TestRevisionImageUpload:
         attachment = client.attachments.initialize(name="temp_revision_image.png")
         test_image = get_test_image_data()
         upload_to_presigned_url(attachment.upload_url, test_image, "image/png")
-        
+
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision with image"):
+                client.parts.revisions.update(
+                    part_number=part_number,
+                    revision_number=revision_number,
+                    image_id=attachment.id
+                )
+            return
+
         update_result = client.parts.revisions.update(
             part_number=part_number,
             revision_number=revision_number,
             image_id=attachment.id
         )
         assert_update_revision_success(update_result)
-        
-        # Step 3: Remove the image by setting image_id to empty string
+
         remove_result = client.parts.revisions.update(
             part_number=part_number,
             revision_number=revision_number,
             image_id=""  # Empty string removes the image
         )
         assert_update_revision_success(remove_result)
-        
+
         # Step 4: Verify image was removed
         part_data = client.parts.get(number=part_number)
         revision = None
@@ -219,6 +243,17 @@ class TestRevisionImageUpload:
         
         # Step 3: Update both number and image in one call
         new_number = f"REV-NEW-{timestamp}"
+
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision with image and number"):
+                client.parts.revisions.update(
+                    part_number=part_number,
+                    revision_number=f"REV-OLD-{timestamp}",
+                    number=new_number,
+                    image_id=attachment.id
+                )
+            return
+
         update_result = client.parts.revisions.update(
             part_number=part_number,
             revision_number=f"REV-OLD-{timestamp}",

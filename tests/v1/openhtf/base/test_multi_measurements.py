@@ -12,7 +12,7 @@ from tofupilot.openhtf import TofuPilot
     htf.Measurement("power_mode_functional").equals("on"),
 )
 def string_test(test):
-    test.measurements.firmware_version = "1.4.3" if random.random() < 0.99 else "1.4.2"
+    test.measurements.firmware_version = "1.4.3" 
     test.measurements.power_mode_functional = "on"
 
 
@@ -134,3 +134,15 @@ def test_multi_measurements(tofupilot_server_url, api_key, procedure_identifier,
         for phase in run.phases
         if phase.name != "not_working_multi_measurements"
     ])
+
+    # Verify measurement units are preserved
+    limits_phase = run.phases[phase_names.index("measure_test_with_limits")]
+    measurements_by_name = {m.name: m for m in limits_phase.measurements}
+    assert measurements_by_name["two_limits"].units == "V"
+    assert measurements_by_name["one_limit"].units == "A"
+    assert measurements_by_name["percentage"].units == "%"
+
+    # Verify phase with no measurements has empty measurement list and PASS outcome
+    no_measure_phase = run.phases[phase_names.index("phaseresult_test")]
+    assert no_measure_phase.measurements == []
+    assert no_measure_phase.outcome == "PASS"

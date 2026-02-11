@@ -15,10 +15,17 @@ from typing import List, Literal, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
 
 
-UnitListSortBy = Literal["serial_number", "created_at"]
+UnitListSortBy = Literal[
+    "serial_number",
+    "created_at",
+]
 r"""Field to sort results by."""
 
-UnitListSortOrder = Literal["asc", "desc"]
+
+UnitListSortOrder = Literal[
+    "asc",
+    "desc",
+]
 r"""Sort order direction."""
 
 
@@ -120,6 +127,40 @@ class UnitListRequest(BaseModel):
     ] = "desc"
     r"""Sort order direction."""
 
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            [
+                "search_query",
+                "ids",
+                "serial_numbers",
+                "part_numbers",
+                "revision_numbers",
+                "batch_numbers",
+                "created_after",
+                "created_before",
+                "created_by_user_ids",
+                "created_by_station_ids",
+                "exclude_units_with_parent",
+                "limit",
+                "cursor",
+                "sort_by",
+                "sort_order",
+            ]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                if val is not None or k not in optional_fields:
+                    m[k] = val
+
+        return m
+
 
 class UnitListCreatedByUserTypedDict(TypedDict):
     r"""User who created this unit. Null if created by a station or system."""
@@ -146,30 +187,14 @@ class UnitListCreatedByUser(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name", "image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -200,30 +225,14 @@ class UnitListCreatedByStation(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -307,30 +316,14 @@ class UnitListRevision(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -365,7 +358,13 @@ class UnitListPart(BaseModel):
     r"""Revision information for this part. Every unit must have a specific revision."""
 
 
-UnitListOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
+UnitListOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "TIMEOUT",
+    "ABORTED",
+]
 r"""Final result of the test run execution."""
 
 
@@ -423,30 +422,14 @@ class LastRun(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["ended_at", "procedure"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -460,7 +443,7 @@ class UnitListDataTypedDict(TypedDict):
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
     children: List[UnitListChildTypedDict]
-    r"""Array of child units assembled into this unit. Empty array if no children."""
+    r"""Child units assembled into this unit. Limited to 10 results; use Get Unit endpoint for complete list."""
     part: UnitListPartTypedDict
     r"""Part information with the specific revision this unit is built from."""
     created_by_user: NotRequired[Nullable[UnitListCreatedByUserTypedDict]]
@@ -486,7 +469,7 @@ class UnitListData(BaseModel):
     r"""ISO 8601 timestamp when the unit was created."""
 
     children: List[UnitListChild]
-    r"""Array of child units assembled into this unit. Empty array if no children."""
+    r"""Child units assembled into this unit. Limited to 10 results; use Get Unit endpoint for complete list."""
 
     part: UnitListPart
     r"""Part information with the specific revision this unit is built from."""
@@ -508,43 +491,30 @@ class UnitListData(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = [
-            "created_by_user",
-            "created_by_station",
-            "batch",
-            "parent",
-            "last_run",
-        ]
-        nullable_fields = [
-            "created_by_user",
-            "created_by_station",
-            "batch",
-            "parent",
-            "last_run",
-        ]
-        null_default_fields = []
-
+        optional_fields = set(
+            ["created_by_user", "created_by_station", "batch", "parent", "last_run"]
+        )
+        nullable_fields = set(
+            ["created_by_user", "created_by_station", "batch", "parent", "last_run"]
+        )
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
@@ -565,30 +535,14 @@ class UnitListMeta(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["next_cursor"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m

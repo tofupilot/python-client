@@ -96,19 +96,16 @@ class TestUpdateProcedureName:
         new_name = f"AutomatedTest-V2-Update-NonExistent-{timestamp}"
         
         if auth_type == "station":
-            # Stations cannot update procedures - get 403 Forbidden
-            from tofupilot.v2.errors import APIError
-            with pytest.raises(APIError) as exc_info:
+            with assert_station_access_forbidden("update procedure"):
                 client.procedures.update(id=fake_id, name=new_name)
-            assert "403" in str(exc_info.value) or "cannot update procedures" in str(exc_info.value).lower()
-        else:
-            # Should return 404 for non-existent procedure
-            with pytest.raises(ErrorNOTFOUND) as exc_info:
-                client.procedures.update(id=fake_id, name=new_name)
-            
-            # Should contain info about procedure not being found
-            error_message = str(exc_info.value).lower()
-            assert any(keyword in error_message for keyword in ["not found", "404", "does not exist", "procedure with id"])
+            return
+
+        # Should return 404 for non-existent procedure
+        with pytest.raises(ErrorNOTFOUND) as exc_info:
+            client.procedures.update(id=fake_id, name=new_name)
+
+        error_message = str(exc_info.value).lower()
+        assert any(keyword in error_message for keyword in ["not found", "404", "does not exist", "procedure with id"])
 
     def test_update_procedure_empty_name_fails(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test updating procedure with empty name fails."""

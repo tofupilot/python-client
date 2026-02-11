@@ -29,11 +29,11 @@ class UnitRemoveChildResponseTypedDict(TypedDict):
     r"""Child unit removed successfully"""
 
     id: str
-    r"""ID of the updated unit"""
+    r"""ID of the child unit that was removed"""
 
 
 class UnitRemoveChildResponse(BaseModel):
     r"""Child unit removed successfully"""
 
     id: str
-    r"""ID of the updated unit"""
+    r"""ID of the child unit that was removed"""

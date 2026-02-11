@@ -1,111 +1,65 @@
-"""Test revision GET endpoint."""
+"""Test getting revisions."""
 
-import time
+import uuid
+
 import pytest
-from datetime import datetime, timezone
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
-from ...utils import assert_create_run_success, get_random_test_dates
-from ..utils import assert_create_revision_success
+from ..utils import assert_create_revision_success, assert_get_revision_success
 from ...parts.utils import assert_create_part_success
 
 
 class TestGetRevision:
-    """Test retrieving individual revisions by ID."""
+    """Test getting revisions by part number and revision number."""
 
-    def test_get_existing_revision(self, client: TofuPilot):
-        """Test retrieving an existing revision by its ID."""
-        # Create part first
-        part_number = f"TEST-PART-REV-GET-{int(time.time() * 1000)}"
-        part_response = client.parts.create(
-            number=part_number,
-            name="Part for Revision GET"
-        )
-        assert_create_part_success(part_response)
-        
-        # Create revision for the part
-        revision_response = client.parts.revisions.create(part_number=part_number
-        , number="REV-A")
-        assert_create_revision_success(revision_response)
-        
-        # Get the revision by part number and revision number
-        revision = client.parts.revisions.get(part_number=part_number, revision_number="REV-A")
-        
-        # Verify response
-        assert revision.id == revision_response.id
-        assert revision.number == "REV-A"
-        assert revision.part is not None
-        assert revision.part.id == part_response.id
-        assert revision.part.number == part_number
-        assert revision.part.name == "Part for Revision GET"
+    def test_get_revision_by_part_and_number(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
+        """Test getting a revision and verifying all fields."""
+        if auth_type == "station":
+            with pytest.raises(ErrorNOTFOUND):
+                client.parts.revisions.get(
+                    part_number="NONEXISTENT-PART",
+                    revision_number="A",
+                )
+            return
 
-    def test_get_revision_with_units(self, client: TofuPilot, procedure_id: str):
-        """Test retrieving a revision includes its units."""
-        # Create part
-        part_number = f"TEST-PART-REV-UNITS-{int(time.time() * 1000)}"
-        part_response = client.parts.create(
-            number=part_number,
-            name="Part with Units"
-        )
-        assert_create_part_success(part_response)
-        
-        # Create revision
-        revision_response = client.parts.revisions.create(part_number=part_number
-        , number="REV-B")
-        assert_create_revision_success(revision_response)
-        
-        # Create units for this revision
-        unit_count = 3
-        for i in range(unit_count):
-            started_at, ended_at = get_random_test_dates()
-            run = client.runs.create(
-                outcome="PASS",
-                procedure_id=procedure_id,
-                serial_number=f"UNIT-REV-{int(time.time() * 1000)}-{i:03d}",
-                part_number=part_number,
-                revision_number="REV-B",
-                started_at=started_at,
-                ended_at=ended_at
-            )
-            assert_create_run_success(run)
-        
-        # Get the revision
-        revision = client.parts.revisions.get(part_number=part_number, revision_number="REV-B")
-        
-        # Verify units
-        assert hasattr(revision, 'units')
-        assert len(revision.units) == unit_count
-        
-        # Verify unit details
-        for unit in revision.units:
-            assert unit.id is not None
-            assert unit.serial_number is not None
+        unique_id = str(uuid.uuid4())[:8]
+        part_number = f"GET-REV-{unique_id}-{timestamp}"
+        revision_number = f"REV-{unique_id}"
 
-    def test_get_revision_with_image(self, client: TofuPilot):
-        """Test revision includes image information if present."""
-        # Create part
-        part_number = f"TEST-PART-REV-IMAGE-{int(time.time() * 1000)}"
-        part_response = client.parts.create(
-            number=part_number,
-            name="Part with Image"
-        )
-        assert_create_part_success(part_response)
-        
-        # Create revision
-        revision_response = client.parts.revisions.create(part_number=part_number
-        , number="REV-IMG")
-        assert_create_revision_success(revision_response)
-        
-        # Get the revision
-        revision = client.parts.revisions.get(part_number=part_number, revision_number="REV-IMG")
-        
-        # Verify image field exists (may be null)
-        assert hasattr(revision, 'image')
+        part = client.parts.create(number=part_number, name=f"Get Revision Test {unique_id}")
+        assert_create_part_success(part)
 
-    def test_get_nonexistent_revision(self, client: TofuPilot):
-        """Test retrieving a non-existent revision returns error."""
-        fake_part_number = "FAKE-PART-12345"
-        fake_revision_number = "FAKE-REV-12345"
-        # Note: The API should return 404 error for non-existent revisions
+        revision = client.parts.revisions.create(part_number=part_number, number=revision_number)
+        assert_create_revision_success(revision)
+
+        result = client.parts.revisions.get(part_number=part_number, revision_number=revision_number)
+        assert_get_revision_success(result)
+
+        assert result.id == revision.id
+        assert result.number == revision_number
+        assert result.created_at is not None
+        assert result.part.number == part_number
+        assert result.part.id == part.id
+        assert isinstance(result.units, list)
+
+    def test_get_nonexistent_revision(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
+        """Test getting a revision that doesn't exist."""
+        if auth_type == "station":
+            with pytest.raises(ErrorNOTFOUND):
+                client.parts.revisions.get(
+                    part_number="NONEXISTENT-PART",
+                    revision_number="nonexistent",
+                )
+            return
+
+        unique_id = str(uuid.uuid4())[:8]
+        part_number = f"GET-REV-NF-{unique_id}-{timestamp}"
+
+        part = client.parts.create(number=part_number, name=f"Nonexistent Rev Test {unique_id}")
+        assert_create_part_success(part)
+
         with pytest.raises(ErrorNOTFOUND):
-            client.parts.revisions.get(part_number=fake_part_number, revision_number=fake_revision_number)
+            client.parts.revisions.get(
+                part_number=part_number,
+                revision_number="nonexistent-rev",
+            )

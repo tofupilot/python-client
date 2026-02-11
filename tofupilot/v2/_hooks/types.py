@@ -95,21 +95,6 @@ class AfterErrorHook(ABC):
 
 
 class Hooks(ABC):
-
-    def register_hook(self, hook: Union[SDKInitHook, BeforeRequestHook, AfterSuccessHook, AfterErrorHook]) -> None:
-
-        if isinstance(hook, SDKInitHook):
-            self.register_sdk_init_hook(hook)
-
-        if isinstance(hook, BeforeRequestHook):
-            self.register_before_request_hook(hook)
-
-        if isinstance(hook, AfterSuccessHook):
-            self.register_after_success_hook(hook)
-
-        if isinstance(hook, AfterErrorHook):
-            self.register_after_error_hook(hook)
-
     @abstractmethod
     def register_sdk_init_hook(self, hook: SDKInitHook):
         pass

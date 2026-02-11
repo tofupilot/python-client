@@ -2,7 +2,7 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "dependsOn": ["^build", "web#build"],
+      "dependsOn": ["^build", "@repo/web#build"],
       "outputs": ["dist"]
     }
   }

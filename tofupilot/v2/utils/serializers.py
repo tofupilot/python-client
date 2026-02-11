@@ -102,26 +102,6 @@ def validate_int(b):
     return int(b)
 
 
-def validate_open_enum(is_int: bool):
-    def validate(e):
-        if e is None:
-            return None
-
-        if isinstance(e, Unset):
-            return e
-
-        if is_int:
-            if not isinstance(e, int):
-                raise ValueError("Expected int")
-        else:
-            if not isinstance(e, str):
-                raise ValueError("Expected string")
-
-        return e
-
-    return validate
-
-
 def validate_const(v):
     def validate(c):
         # Optional[T] is a Union[T, None]
@@ -192,7 +172,9 @@ def is_union(obj: object) -> bool:
     """
     Returns True if the given object is a typing.Union or typing_extensions.Union.
     """
-    return any(obj is typing_obj for typing_obj in _get_typing_objects_by_name_of("Union"))
+    return any(
+        obj is typing_obj for typing_obj in _get_typing_objects_by_name_of("Union")
+    )
 
 
 def stream_to_text(stream: httpx.Response) -> str:
@@ -245,4 +227,3 @@ def _get_typing_objects_by_name_of(name: str) -> Tuple[Any, ...]:
             f"Neither typing nor typing_extensions has an object called {name!r}"
         )
     return result
-

@@ -34,19 +34,12 @@ class TestUpdatePartValidation:
             assert "not found" in error_message or "does not exist" in error_message
     
     def test_update_invalid_number_format(self, client: TofuPilot, auth_type: str) -> None:
-        """Test updating with invalid number format."""
-        from tofupilot.v2.errors import ErrorBADREQUEST
-        
-        # Both user and station should fail with empty number
-        with pytest.raises((APIError, ErrorBADREQUEST)) as exc_info:
+        """Test updating with empty number — resolves to a non-existent route."""
+        with pytest.raises(ErrorNOTFOUND):
             client.parts.update(
                 number="",
                 name="New Name"
             )
-        
-        # Accept redirect (308) as a valid error for empty part number
-        error_message = str(exc_info.value).lower()
-        assert any(keyword in error_message for keyword in ["invalid", "empty", "308", "redirect"])
     
     def test_update_duplicate_part_number(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test updating to a part number that already exists."""

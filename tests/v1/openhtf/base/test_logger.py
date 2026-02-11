@@ -28,6 +28,11 @@ def phase_critical_logger(test):
     return htf.PhaseResult.CONTINUE
 
 
+def phase_debug_logger(test):
+    test.logger.debug("Logging a debug in the logger")
+    return htf.PhaseResult.CONTINUE
+
+
 def test_logger(tofupilot_server_url, api_key, procedure_identifier, procedure_id, tmp_path, extract_id_and_check_run_exists):
     # Define the test plan with all steps
     test = htf.Test(
@@ -35,6 +40,7 @@ def test_logger(tofupilot_server_url, api_key, procedure_identifier, procedure_i
         phase_error_logger,
         phase_warning_logger,
         phase_critical_logger,
+        phase_debug_logger,
         procedure_id=procedure_identifier,
         part_number="00220D",
     )
@@ -58,3 +64,4 @@ def test_logger(tofupilot_server_url, api_key, procedure_identifier, procedure_i
     assert len([l for l in run.logs if l.level == "ERROR"    and l.message == "Logging error in the logger"      ]) == 1
     assert len([l for l in run.logs if l.level == "WARNING"  and l.message == "Logging a warning in the logger"  ]) == 1
     assert len([l for l in run.logs if l.level == "CRITICAL" and l.message == "Logging a critical in the logger" ]) == 1
+    assert len([l for l in run.logs if l.level == "DEBUG"    and l.message == "Logging a debug in the logger"    ]) == 1

@@ -6,6 +6,7 @@ from trycast import checkcast
 
 from tofupilot.v2.models import (
     StationCreateResponse,
+    StationGetCurrentResponse,
     StationGetResponse,
     StationListResponse,
     StationRemoveResponse,

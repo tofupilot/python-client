@@ -35,14 +35,14 @@ class UnitAddChildRequest(BaseModel):
 
 
 class UnitAddChildResponseTypedDict(TypedDict):
-    r"""Child units added successfully"""
+    r"""Child unit added successfully"""
 
     id: str
-    r"""ID of the updated unit"""
+    r"""ID of the child unit that was added"""
 
 
 class UnitAddChildResponse(BaseModel):
-    r"""Child units added successfully"""
+    r"""Child unit added successfully"""
 
     id: str
-    r"""ID of the updated unit"""
+    r"""ID of the child unit that was added"""

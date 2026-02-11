@@ -8,10 +8,10 @@ from tofupilot.openhtf import TofuPilot
 
 @htf.measures(htf.Measurement("button_status").equals(True))
 def check_button(test):
-    test.measurements.button_status = bool(random.randint(0, 1))
+    test.measurements.button_status = True
 
 
-def test_procedure_verion(tofupilot_server_url, api_key, procedure_identifier, procedure_id, extract_id_and_check_run_exists):
+def test_procedure_version(tofupilot_server_url, api_key, procedure_identifier, procedure_id, extract_id_and_check_run_exists):
     test = htf.Test(
         check_button,
         procedure_id=procedure_identifier,

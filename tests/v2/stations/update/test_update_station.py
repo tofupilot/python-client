@@ -151,3 +151,19 @@ class TestUpdateStation:
         assert updated.name == new_name
         assert updated.identifier == original.identifier  # Unchanged
         assert updated.image == original.image  # Unchanged
+
+    def test_update_station_unassign_team(self, client: TofuPilot, auth_type: str, timestamp) -> None:
+        """Test unassigning a station from its team by passing team_id=None."""
+        if auth_type == "station":
+            return
+
+        create_result = client.stations.create(name=f"Team Unassign Test - {timestamp}")
+        station_id = create_result.id
+
+        # Explicitly unassign team (null)
+        update_result = client.stations.update(id=station_id, team_id=None)
+        assert_update_station_success(update_result)
+
+        # Verify team is None
+        get_result = client.stations.get(id=station_id)
+        assert get_result.team is None

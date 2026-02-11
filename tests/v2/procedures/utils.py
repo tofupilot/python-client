@@ -8,6 +8,7 @@ from tofupilot.v2.models.procedure_createop import ProcedureCreateResponse
 from tofupilot.v2.models.procedure_listop import ProcedureListResponse, ProcedureListData
 from tofupilot.v2.models.procedure_updateop import ProcedureUpdateResponse
 from tofupilot.v2.models.procedure_deleteop import ProcedureDeleteResponse
+from tofupilot.v2.models.procedure_getop import ProcedureGetResponse
 
 
 def assert_create_procedure_success(result: ProcedureCreateResponse) -> None:
@@ -27,6 +28,13 @@ def assert_update_procedure_success(result: ProcedureUpdateResponse) -> None:
     """Assert that procedure update response is valid."""
     assert checkcast(ProcedureUpdateResponse, result)
     assert len(result.id) > 0
+
+
+def assert_get_procedure_success(result: ProcedureGetResponse) -> None:
+    """Assert that procedure get response is valid."""
+    assert checkcast(ProcedureGetResponse, result)
+    assert len(result.id) > 0
+    assert len(result.name) > 0
 
 
 def assert_delete_procedure_success(result: ProcedureDeleteResponse) -> None:

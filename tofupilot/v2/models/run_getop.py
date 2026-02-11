@@ -11,8 +11,8 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
-from typing import List, Literal, Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Any, Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 class RunGetRequestTypedDict(TypedDict):
@@ -27,7 +27,13 @@ class RunGetRequest(BaseModel):
     r"""ID of the run to retrieve."""
 
 
-RunGetOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
+RunGetOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "TIMEOUT",
+    "ABORTED",
+]
 r"""Final result of the run execution."""
 
 
@@ -61,30 +67,14 @@ class RunGetCreatedByUser(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name", "email", "image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -115,30 +105,14 @@ class RunGetCreatedByStation(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name", "image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -174,30 +148,14 @@ class RunGetOperatedBy(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["name", "email", "image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -247,30 +205,14 @@ class RunGetProcedure(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["version"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -301,30 +243,14 @@ class RunGetRevision(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = ["image"]
-        null_default_fields = []
-
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
@@ -408,45 +334,667 @@ class RunGetUnit(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["batch"]
-        nullable_fields = ["batch"]
-        null_default_fields = []
-
+        optional_fields = set(["batch"])
+        nullable_fields = set(["batch"])
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
+        return m
+
+
+RunGetPhaseOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "SKIP",
+    "ERROR",
+]
+r"""Phase execution result."""
+
+
+RunGetMeasurementOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Measurement validation result."""
+
+
+RunGetValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Validation result: PASS, FAIL, or UNSET."""
+
+
+RunGetExpectedValueTypedDict = TypeAliasType(
+    "RunGetExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+RunGetExpectedValue = TypeAliasType(
+    "RunGetExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+class RunGetValidatorTypedDict(TypedDict):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: RunGetValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+    expected_value: Nullable[RunGetExpectedValueTypedDict]
+    r"""Expected value for comparison. Type depends on measurement type."""
+    expression: str
+    r"""Human-readable expression string for display."""
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+
+class RunGetValidator(BaseModel):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: RunGetValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+
+    expected_value: Nullable[RunGetExpectedValue]
+    r"""Expected value for comparison. Type depends on measurement type."""
+
+    expression: str
+    r"""Human-readable expression string for display."""
+
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
                 m[k] = val
 
         return m
 
 
-RunGetPhaseOutcome = Literal["PASS", "FAIL", "SKIP", "ERROR"]
-r"""Phase execution result."""
+RunGetAggregationOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+
+
+RunGetValueTypedDict = TypeAliasType("RunGetValueTypedDict", Union[float, str, bool])
+r"""Computed aggregation value. Type depends on aggregation type."""
+
+
+RunGetValue = TypeAliasType("RunGetValue", Union[float, str, bool])
+r"""Computed aggregation value. Type depends on aggregation type."""
+
+
+RunGetAggregationValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Validation result: PASS, FAIL, or UNSET."""
+
+
+RunGetAggregationExpectedValueTypedDict = TypeAliasType(
+    "RunGetAggregationExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+RunGetAggregationExpectedValue = TypeAliasType(
+    "RunGetAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+class RunGetAggregationValidatorTypedDict(TypedDict):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: RunGetAggregationValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+    expected_value: Nullable[RunGetAggregationExpectedValueTypedDict]
+    r"""Expected value for comparison. Type depends on measurement type."""
+    expression: str
+    r"""Human-readable expression string for display."""
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+
+class RunGetAggregationValidator(BaseModel):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: RunGetAggregationValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+
+    expected_value: Nullable[RunGetAggregationExpectedValue]
+    r"""Expected value for comparison. Type depends on measurement type."""
+
+    expression: str
+    r"""Human-readable expression string for display."""
+
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                m[k] = val
+
+        return m
+
+
+class RunGetAggregationTypedDict(TypedDict):
+    r"""Aggregation result with computed value and optional validators."""
+
+    id: str
+    r"""Unique identifier for the aggregation."""
+    type: str
+    r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
+    outcome: Nullable[RunGetAggregationOutcome]
+    r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+    value: Nullable[RunGetValueTypedDict]
+    r"""Computed aggregation value. Type depends on aggregation type."""
+    unit: NotRequired[Nullable[str]]
+    r"""Unit of measurement for the aggregated value."""
+    validators: NotRequired[Nullable[List[RunGetAggregationValidatorTypedDict]]]
+    r"""Validators applied to the aggregated value."""
+
+
+class RunGetAggregation(BaseModel):
+    r"""Aggregation result with computed value and optional validators."""
+
+    id: str
+    r"""Unique identifier for the aggregation."""
+
+    type: str
+    r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
+
+    outcome: Nullable[RunGetAggregationOutcome]
+    r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+
+    value: Nullable[RunGetValue]
+    r"""Computed aggregation value. Type depends on aggregation type."""
+
+    unit: OptionalNullable[str] = UNSET
+    r"""Unit of measurement for the aggregated value."""
+
+    validators: OptionalNullable[List[RunGetAggregationValidator]] = UNSET
+    r"""Validators applied to the aggregated value."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["unit", "validators"])
+        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+RunGetMeasuredValueTypedDict = TypeAliasType(
+    "RunGetMeasuredValueTypedDict",
+    Union[float, str, bool, List[List[float]], Dict[str, Any], List[Any]],
+)
+r"""The actual measured value."""
+
+
+RunGetMeasuredValue = TypeAliasType(
+    "RunGetMeasuredValue",
+    Union[float, str, bool, List[List[float]], Dict[str, Any], List[Any]],
+)
+r"""The actual measured value."""
+
+
+DataSeryValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Validation result: PASS, FAIL, or UNSET."""
+
+
+DataSeryExpectedValueTypedDict = TypeAliasType(
+    "DataSeryExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+DataSeryExpectedValue = TypeAliasType(
+    "DataSeryExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+class DataSeryValidatorTypedDict(TypedDict):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: DataSeryValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+    expected_value: Nullable[DataSeryExpectedValueTypedDict]
+    r"""Expected value for comparison. Type depends on measurement type."""
+    expression: str
+    r"""Human-readable expression string for display."""
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+
+class DataSeryValidator(BaseModel):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: DataSeryValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+
+    expected_value: Nullable[DataSeryExpectedValue]
+    r"""Expected value for comparison. Type depends on measurement type."""
+
+    expression: str
+    r"""Human-readable expression string for display."""
+
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                m[k] = val
+
+        return m
+
+
+DataSeryAggregationOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+
+
+DataSeryValueTypedDict = TypeAliasType(
+    "DataSeryValueTypedDict", Union[float, str, bool]
+)
+r"""Computed aggregation value. Type depends on aggregation type."""
+
+
+DataSeryValue = TypeAliasType("DataSeryValue", Union[float, str, bool])
+r"""Computed aggregation value. Type depends on aggregation type."""
+
+
+DataSeryAggregationValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Validation result: PASS, FAIL, or UNSET."""
+
+
+DataSeryAggregationExpectedValueTypedDict = TypeAliasType(
+    "DataSeryAggregationExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+DataSeryAggregationExpectedValue = TypeAliasType(
+    "DataSeryAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+class DataSeryAggregationValidatorTypedDict(TypedDict):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: DataSeryAggregationValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+    expected_value: Nullable[DataSeryAggregationExpectedValueTypedDict]
+    r"""Expected value for comparison. Type depends on measurement type."""
+    expression: str
+    r"""Human-readable expression string for display."""
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+
+class DataSeryAggregationValidator(BaseModel):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: DataSeryAggregationValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+
+    expected_value: Nullable[DataSeryAggregationExpectedValue]
+    r"""Expected value for comparison. Type depends on measurement type."""
+
+    expression: str
+    r"""Human-readable expression string for display."""
+
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+
+            if val != UNSET_SENTINEL:
+                m[k] = val
+
+        return m
+
+
+class DataSeryAggregationTypedDict(TypedDict):
+    r"""Aggregation result with computed value and optional validators."""
+
+    id: str
+    r"""Unique identifier for the aggregation."""
+    type: str
+    r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
+    outcome: Nullable[DataSeryAggregationOutcome]
+    r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+    value: Nullable[DataSeryValueTypedDict]
+    r"""Computed aggregation value. Type depends on aggregation type."""
+    unit: NotRequired[Nullable[str]]
+    r"""Unit of measurement for the aggregated value."""
+    validators: NotRequired[Nullable[List[DataSeryAggregationValidatorTypedDict]]]
+    r"""Validators applied to the aggregated value."""
+
+
+class DataSeryAggregation(BaseModel):
+    r"""Aggregation result with computed value and optional validators."""
+
+    id: str
+    r"""Unique identifier for the aggregation."""
+
+    type: str
+    r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
+
+    outcome: Nullable[DataSeryAggregationOutcome]
+    r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+
+    value: Nullable[DataSeryValue]
+    r"""Computed aggregation value. Type depends on aggregation type."""
+
+    unit: OptionalNullable[str] = UNSET
+    r"""Unit of measurement for the aggregated value."""
+
+    validators: OptionalNullable[List[DataSeryAggregationValidator]] = UNSET
+    r"""Validators applied to the aggregated value."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["unit", "validators"])
+        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+class DataSeryTypedDict(TypedDict):
+    data: List[float]
+    units: Nullable[str]
+    validators: NotRequired[Nullable[List[DataSeryValidatorTypedDict]]]
+    aggregations: NotRequired[Nullable[List[DataSeryAggregationTypedDict]]]
+
+
+class DataSery(BaseModel):
+    data: List[float]
+
+    units: Nullable[str]
+
+    validators: OptionalNullable[List[DataSeryValidator]] = UNSET
+
+    aggregations: OptionalNullable[List[DataSeryAggregation]] = UNSET
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["validators", "aggregations"])
+        nullable_fields = set(["units", "validators", "aggregations"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
 
 
 class RunGetMeasurementTypedDict(TypedDict):
-    r"""Measurement result with validation status and limits."""
+    id: str
+    r"""Measurement ID."""
+    name: str
+    r"""Measurement name."""
+    outcome: RunGetMeasurementOutcome
+    r"""Measurement validation result."""
+    units: Nullable[str]
+    r"""Units of measurement."""
+    validators: Nullable[List[RunGetValidatorTypedDict]]
+    r"""Structured validation rules with outcome and expected values."""
+    aggregations: NotRequired[Nullable[List[RunGetAggregationTypedDict]]]
+    r"""Aggregations computed over this measurement."""
+    measured_value: NotRequired[RunGetMeasuredValueTypedDict]
+    r"""The actual measured value."""
+    data_series: NotRequired[List[DataSeryTypedDict]]
+    r"""Multi-dimensional measurement data series."""
 
 
 class RunGetMeasurement(BaseModel):
-    r"""Measurement result with validation status and limits."""
+    id: str
+    r"""Measurement ID."""
+
+    name: str
+    r"""Measurement name."""
+
+    outcome: RunGetMeasurementOutcome
+    r"""Measurement validation result."""
+
+    units: Nullable[str]
+    r"""Units of measurement."""
+
+    validators: Nullable[List[RunGetValidator]]
+    r"""Structured validation rules with outcome and expected values."""
+
+    aggregations: OptionalNullable[List[RunGetAggregation]] = UNSET
+    r"""Aggregations computed over this measurement."""
+
+    measured_value: Optional[RunGetMeasuredValue] = None
+    r"""The actual measured value."""
+
+    data_series: Optional[List[DataSery]] = None
+    r"""Multi-dimensional measurement data series."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["aggregations", "measured_value", "data_series"])
+        nullable_fields = set(["units", "validators", "aggregations"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
 
 
 class RunGetPhaseTypedDict(TypedDict):
@@ -461,11 +1009,11 @@ class RunGetPhaseTypedDict(TypedDict):
     ended_at: datetime
     r"""ISO 8601 timestamp when the phase ended."""
     duration: str
-    r"""ISO 8601 duration string for phase execution time."""
+    r"""ISO 8601 duration of the phase (computed from started_at and ended_at)."""
+    measurements: List[RunGetMeasurementTypedDict]
+    r"""Array of measurements taken during this phase."""
     docstring: NotRequired[Nullable[str]]
     r"""Phase documentation string."""
-    measurements: NotRequired[List[RunGetMeasurementTypedDict]]
-    r"""Array of measurements taken during this phase. Only returned if `all` or `measurements` is included, requires `phases` to be included)"""
 
 
 class RunGetPhase(BaseModel):
@@ -485,41 +1033,36 @@ class RunGetPhase(BaseModel):
     r"""ISO 8601 timestamp when the phase ended."""
 
     duration: str
-    r"""ISO 8601 duration string for phase execution time."""
+    r"""ISO 8601 duration of the phase (computed from started_at and ended_at)."""
+
+    measurements: List[RunGetMeasurement]
+    r"""Array of measurements taken during this phase."""
 
     docstring: OptionalNullable[str] = UNSET
     r"""Phase documentation string."""
 
-    measurements: Optional[List[RunGetMeasurement]] = None
-    r"""Array of measurements taken during this phase. Only returned if `all` or `measurements` is included, requires `phases` to be included)"""
-
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["docstring", "measurements"]
-        nullable_fields = ["docstring"]
-        null_default_fields = []
-
+        optional_fields = set(["docstring"])
+        nullable_fields = set(["docstring"])
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
@@ -560,36 +1103,37 @@ class Attachment(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["download_url"]
-        nullable_fields = ["size", "content_type", "download_url"]
-        null_default_fields = []
-
+        optional_fields = set(["download_url"])
+        nullable_fields = set(["size", "content_type", "download_url"])
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
 
-RunGetLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+RunGetLevel = Literal[
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "CRITICAL",
+]
 
 
 class RunGetLogTypedDict(TypedDict):
@@ -642,7 +1186,7 @@ class RunGetResponseTypedDict(TypedDict):
     ended_at: datetime
     r"""ISO 8601 timestamp when the run execution ended."""
     duration: str
-    r"""ISO 8601 duration string representing the total execution time."""
+    r"""ISO 8601 duration of the run (computed from started_at and ended_at)."""
     outcome: RunGetOutcome
     r"""Final result of the run execution."""
     procedure: RunGetProcedureTypedDict
@@ -682,7 +1226,7 @@ class RunGetResponse(BaseModel):
     r"""ISO 8601 timestamp when the run execution ended."""
 
     duration: str
-    r"""ISO 8601 duration string representing the total execution time."""
+    r"""ISO 8601 duration of the run (computed from started_at and ended_at)."""
 
     outcome: RunGetOutcome
     r"""Final result of the run execution."""
@@ -718,44 +1262,38 @@ class RunGetResponse(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = [
-            "docstring",
-            "created_by_user",
-            "created_by_station",
-            "operated_by",
-            "phases",
-            "attachments",
-            "logs",
-            "sub_units",
-        ]
-        nullable_fields = [
-            "docstring",
-            "created_by_user",
-            "created_by_station",
-            "operated_by",
-        ]
-        null_default_fields = []
-
+        optional_fields = set(
+            [
+                "docstring",
+                "created_by_user",
+                "created_by_station",
+                "operated_by",
+                "phases",
+                "attachments",
+                "logs",
+                "sub_units",
+            ]
+        )
+        nullable_fields = set(
+            ["docstring", "created_by_user", "created_by_station", "operated_by"]
+        )
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m

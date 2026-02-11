@@ -2,29 +2,26 @@
 
 import pytest
 from tofupilot.v2 import TofuPilot
-from tofupilot.v2.errors import APIError, ErrorBADREQUEST
+from tofupilot.v2.errors import ErrorBADREQUEST
 
 
 class TestCreateBatchValidation:
 
     def test_empty_batch_number_fails(self, client: TofuPilot, auth_type: str) -> None:
         """Test that creating a batch with empty number fails."""
-        with pytest.raises((APIError, ErrorBADREQUEST)) as exc_info:
+        with pytest.raises(ErrorBADREQUEST) as exc_info:
             client.batches.create(number="")
-        
-        # Verify the error is about validation
+
         error_message = str(exc_info.value).lower()
         assert "validation" in error_message or "invalid" in error_message or "empty" in error_message
-    
+
     def test_batch_number_too_long_fails(self, client: TofuPilot, auth_type: str) -> None:
         """Test that creating a batch with number > 100 chars fails."""
-        # Create a 101-character batch number
         BATCH_NUMBER = "X" * 101
-        
-        with pytest.raises((APIError, ErrorBADREQUEST)) as exc_info:
+
+        with pytest.raises(ErrorBADREQUEST) as exc_info:
             client.batches.create(number=BATCH_NUMBER)
-        
-        # Verify the error is about validation (backend returns generic validation message)
+
         error_message = str(exc_info.value).lower()
         assert "validation" in error_message or "invalid" in error_message or "failed" in error_message
     

@@ -1,18 +1,19 @@
-import pytest
 import os
-import re
 from pathlib import Path
 from dotenv import load_dotenv
-from typing import Union
+
+# Load environment variables FIRST, before any other imports
+env_path = Path(__file__).parent / ".env.local"
+load_dotenv(env_path, override=True)
 
 # Disable posthog during tests, needs to come before `import tofupilot`
 os.environ["DISABLE_TELEMETRY"] = "true"
 
-import tofupilot
+import pytest
+import re
+from typing import Union
 
-# Load environment variables from .env file
-env_path = Path(__file__).parent / ".env"
-load_dotenv(env_path, override=True)
+import tofupilot
 
 
 @pytest.fixture(scope="class")
@@ -128,11 +129,11 @@ def extract_run_id_from_logs(caplog):
 
 
 @pytest.fixture()
-def check_run_exists(tofupilot_server_url, user_api_key):
+def check_run_exists(tofupilot_server_url, api_key):
     """Function to check if a run exists, returns the run for further checks"""
 
     v2_client = tofupilot.v2.TofuPilot(
-        api_key=user_api_key,
+        api_key=api_key,
         server_url=f"{tofupilot_server_url}/api",
     )
 

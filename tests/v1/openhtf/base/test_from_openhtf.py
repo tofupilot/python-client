@@ -132,3 +132,30 @@ class TestCreateRunFromOpenHTF:
         # Execute the test with a specific device identifier
         with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
             test.execute(lambda: "MULTIDIM_001")
+
+    def test_upload_callback_without_context_manager(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str) -> None:
+        """Test OpenHTF run creation using upload callback directly (no TofuPilot context manager)."""
+        from tofupilot.openhtf import upload
+
+        test = Openhtf_Test(power_on_test, procedure_id=procedure_identifier, part_number="test_upload_cb")
+        test.add_output_callbacks(upload(api_key=api_key, url=tofupilot_server_url))
+        test.execute(lambda: "0001")
+
+    def test_create_run_from_openhtf_json_report(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str, check_run_exists, tmp_path) -> None:
+        """Test run creation from a pre-existing OpenHTF JSON report file."""
+        from tofupilot.v1.client import TofuPilotClient
+        from openhtf.output.callbacks import json_factory
+
+        # Run an OpenHTF test and save JSON report to disk
+        test = Openhtf_Test(power_on_test, procedure_id=procedure_identifier, part_number="test_json_import")
+        report_path = str(tmp_path / "report.json")
+        test.add_output_callbacks(json_factory.OutputToJSON(report_path, indent=4))
+        test.execute(lambda: "0001")
+
+        # Import the saved JSON report via the client method
+        client = TofuPilotClient(api_key=api_key, url=tofupilot_server_url)
+        run_id = client.create_run_from_openhtf_report(report_path)
+
+        # Verify the run was created
+        assert run_id
+        check_run_exists(run_id, serial_number="0001", part_number="test_json_import")

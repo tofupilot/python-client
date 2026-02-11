@@ -13,36 +13,32 @@ class TestCreateProcedureValidation:
     def test_empty_procedure_name_fails(self, client: TofuPilot, auth_type: str) -> None:
         """Test that creating a procedure with empty name fails."""
         if auth_type == "station":
-            # Stations cannot create procedures - get 403 before validation
-            with pytest.raises(APIError) as exc_info:
+            with assert_station_access_forbidden("create procedure"):
                 client.procedures.create(name="")
-            assert "403" in str(exc_info.value) or "cannot create procedures" in str(exc_info.value).lower()
-        else:
-            # Users get validation error
-            with pytest.raises(APIError) as exc_info:
-                client.procedures.create(name="")
-            
-            # Verify the error is about validation
-            error_message = str(exc_info.value).lower()
-            assert "validation" in error_message
-            assert exc_info.value.status_code == 400
+            return
+
+        # Users get validation error
+        with pytest.raises(APIError) as exc_info:
+            client.procedures.create(name="")
+
+        error_message = str(exc_info.value).lower()
+        assert "validation" in error_message
+        assert exc_info.value.status_code == 400
 
     def test_whitespace_only_name_fails(self, client: TofuPilot, auth_type: str) -> None:
         """Test that creating a procedure with whitespace-only name fails."""
         if auth_type == "station":
-            # Stations cannot create procedures - get 403 before validation
-            with pytest.raises(APIError) as exc_info:
+            with assert_station_access_forbidden("create procedure"):
                 client.procedures.create(name="   ")
-            assert "403" in str(exc_info.value) or "cannot create procedures" in str(exc_info.value).lower()
-        else:
-            # Users get validation error
-            with pytest.raises(APIError) as exc_info:
-                client.procedures.create(name="   ")
-            
-            # Verify the error is about validation
-            error_message = str(exc_info.value).lower()
-            assert "validation" in error_message
-            assert exc_info.value.status_code == 400
+            return
+
+        # Users get validation error
+        with pytest.raises(APIError) as exc_info:
+            client.procedures.create(name="   ")
+
+        error_message = str(exc_info.value).lower()
+        assert "validation" in error_message
+        assert exc_info.value.status_code == 400
 
     def test_create_procedure_with_leading_trailing_spaces(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test creating a procedure with leading/trailing spaces."""
@@ -71,21 +67,19 @@ class TestCreateProcedureValidation:
         """Test behavior with very long procedure names."""
         # Create a 1000-character procedure name
         PROCEDURE_NAME = "AutomatedTest-V2-VeryLong-" + "X" * 1000
-        
+
         if auth_type == "station":
-            # Stations cannot create procedures - get 403 before validation
-            with pytest.raises(APIError) as exc_info:
+            with assert_station_access_forbidden("create procedure"):
                 client.procedures.create(name=PROCEDURE_NAME)
-            assert "403" in str(exc_info.value) or "cannot create procedures" in str(exc_info.value).lower()
-        else:
-            # Users get validation error for excessively long names
-            with pytest.raises(APIError) as exc_info:
-                client.procedures.create(name=PROCEDURE_NAME)
-            
-            # Verify the error is about validation (length)
-            error_message = str(exc_info.value).lower()
-            assert "validation" in error_message
-            assert exc_info.value.status_code == 400
+            return
+
+        # Users get validation error for excessively long names
+        with pytest.raises(APIError) as exc_info:
+            client.procedures.create(name=PROCEDURE_NAME)
+
+        error_message = str(exc_info.value).lower()
+        assert "validation" in error_message
+        assert exc_info.value.status_code == 400
     
     def test_create_procedure_name_character_validation(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test various characters in procedure names."""

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
+import pydantic
 from pydantic import model_serializer
 from tofupilot.v2.types import (
     BaseModel,
@@ -11,64 +12,947 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from typing import Any, Dict, List, Literal, Optional, Union
-from typing_extensions import NotRequired, TypeAliasType, TypedDict
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
-RunCreateOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
+RunCreateOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "ERROR",
+    "TIMEOUT",
+    "ABORTED",
+]
 r"""Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption."""
 
-RunCreatePhaseOutcome = Literal["PASS", "FAIL", "SKIP", "ERROR"]
+
+RunCreatePhaseOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "SKIP",
+    "ERROR",
+]
 r"""Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed."""
 
-MeasurementOutcome = Literal["PASS", "FAIL", "UNSET"]
+
+RunCreateMeasurementOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
 r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
 
-MeasuredValue2TypedDict = TypeAliasType(
-    "MeasuredValue2TypedDict", Union[Dict[str, Any], List[Any]]
+
+XAxisValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+
+XAxisExpectedValueTypedDict = TypeAliasType(
+    "XAxisExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+XAxisExpectedValue = TypeAliasType(
+    "XAxisExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+class XAxisValidatorTypedDict(TypedDict):
+    r"""Structured validator specification with operator and expected value."""
+
+    outcome: NotRequired[Nullable[XAxisValidatorOutcome]]
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+    operator: NotRequired[Nullable[str]]
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+    expected_value: NotRequired[Nullable[XAxisExpectedValueTypedDict]]
+    r"""Expected value for comparison. Type depends on operator."""
+    expression: NotRequired[Nullable[str]]
+    r"""Original expression string for display/audit purposes."""
+    is_decisive: NotRequired[Nullable[bool]]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+
+class XAxisValidator(BaseModel):
+    r"""Structured validator specification with operator and expected value."""
+
+    outcome: OptionalNullable[XAxisValidatorOutcome] = UNSET
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+    operator: OptionalNullable[str] = UNSET
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+
+    expected_value: OptionalNullable[XAxisExpectedValue] = UNSET
+    r"""Expected value for comparison. Type depends on operator."""
+
+    expression: OptionalNullable[str] = UNSET
+    r"""Original expression string for display/audit purposes."""
+
+    is_decisive: OptionalNullable[bool] = UNSET
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        nullable_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+XAxisAggregationOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Computed result of aggregation validation. Server stores as-is."""
+
+
+XAxisValueTypedDict = TypeAliasType("XAxisValueTypedDict", Union[float, str, bool])
+r"""Computed aggregation value."""
+
+
+XAxisValue = TypeAliasType("XAxisValue", Union[float, str, bool])
+r"""Computed aggregation value."""
+
+
+XAxisAggregationValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+
+XAxisAggregationExpectedValueTypedDict = TypeAliasType(
+    "XAxisAggregationExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+XAxisAggregationExpectedValue = TypeAliasType(
+    "XAxisAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+class XAxisAggregationValidatorTypedDict(TypedDict):
+    r"""Structured validator specification with operator, expected value, and outcome."""
+
+    outcome: NotRequired[Nullable[XAxisAggregationValidatorOutcome]]
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+    operator: NotRequired[Nullable[str]]
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+    expected_value: NotRequired[Nullable[XAxisAggregationExpectedValueTypedDict]]
+    r"""Expected value for comparison. Type depends on operator."""
+    expression: NotRequired[Nullable[str]]
+    r"""Original expression string for display/audit purposes."""
+    is_decisive: NotRequired[Nullable[bool]]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+
+class XAxisAggregationValidator(BaseModel):
+    r"""Structured validator specification with operator, expected value, and outcome."""
+
+    outcome: OptionalNullable[XAxisAggregationValidatorOutcome] = UNSET
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+    operator: OptionalNullable[str] = UNSET
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+
+    expected_value: OptionalNullable[XAxisAggregationExpectedValue] = UNSET
+    r"""Expected value for comparison. Type depends on operator."""
+
+    expression: OptionalNullable[str] = UNSET
+    r"""Original expression string for display/audit purposes."""
+
+    is_decisive: OptionalNullable[bool] = UNSET
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        nullable_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+class XAxisAggregationTypedDict(TypedDict):
+    r"""Aggregation specification with computed value and optional validators."""
+
+    type: str
+    r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
+    outcome: NotRequired[Nullable[XAxisAggregationOutcome]]
+    r"""Computed result of aggregation validation. Server stores as-is."""
+    value: NotRequired[Nullable[XAxisValueTypedDict]]
+    r"""Computed aggregation value."""
+    unit: NotRequired[Nullable[str]]
+    r"""Unit for the aggregated value."""
+    validators: NotRequired[Nullable[List[XAxisAggregationValidatorTypedDict]]]
+    r"""Validators applied to the aggregated value."""
+
+
+class XAxisAggregation(BaseModel):
+    r"""Aggregation specification with computed value and optional validators."""
+
+    type: str
+    r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
+
+    outcome: OptionalNullable[XAxisAggregationOutcome] = UNSET
+    r"""Computed result of aggregation validation. Server stores as-is."""
+
+    value: OptionalNullable[XAxisValue] = UNSET
+    r"""Computed aggregation value."""
+
+    unit: OptionalNullable[str] = UNSET
+    r"""Unit for the aggregated value."""
+
+    validators: OptionalNullable[List[XAxisAggregationValidator]] = UNSET
+    r"""Validators applied to the aggregated value."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["outcome", "value", "unit", "validators"])
+        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+class XAxisTypedDict(TypedDict):
+    r"""X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations."""
+
+    data: List[float]
+    r"""Array of numeric data points for this axis."""
+    units: NotRequired[Nullable[str]]
+    r"""Unit for this axis."""
+    description: NotRequired[Nullable[str]]
+    r"""Description of this data series."""
+    validators: NotRequired[Nullable[List[XAxisValidatorTypedDict]]]
+    r"""Validators for this specific axis/series."""
+    aggregations: NotRequired[Nullable[List[XAxisAggregationTypedDict]]]
+    r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
+
+
+class XAxis(BaseModel):
+    r"""X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations."""
+
+    data: List[float]
+    r"""Array of numeric data points for this axis."""
+
+    units: OptionalNullable[str] = UNSET
+    r"""Unit for this axis."""
+
+    description: OptionalNullable[str] = UNSET
+    r"""Description of this data series."""
+
+    validators: OptionalNullable[List[XAxisValidator]] = UNSET
+    r"""Validators for this specific axis/series."""
+
+    aggregations: OptionalNullable[List[XAxisAggregation]] = UNSET
+    r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["units", "description", "validators", "aggregations"])
+        nullable_fields = set(["units", "description", "validators", "aggregations"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+YAxiValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+
+YAxiExpectedValueTypedDict = TypeAliasType(
+    "YAxiExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+YAxiExpectedValue = TypeAliasType(
+    "YAxiExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+class YAxiValidatorTypedDict(TypedDict):
+    r"""Structured validator specification with operator and expected value."""
+
+    outcome: NotRequired[Nullable[YAxiValidatorOutcome]]
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+    operator: NotRequired[Nullable[str]]
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+    expected_value: NotRequired[Nullable[YAxiExpectedValueTypedDict]]
+    r"""Expected value for comparison. Type depends on operator."""
+    expression: NotRequired[Nullable[str]]
+    r"""Original expression string for display/audit purposes."""
+    is_decisive: NotRequired[Nullable[bool]]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+
+class YAxiValidator(BaseModel):
+    r"""Structured validator specification with operator and expected value."""
+
+    outcome: OptionalNullable[YAxiValidatorOutcome] = UNSET
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+    operator: OptionalNullable[str] = UNSET
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+
+    expected_value: OptionalNullable[YAxiExpectedValue] = UNSET
+    r"""Expected value for comparison. Type depends on operator."""
+
+    expression: OptionalNullable[str] = UNSET
+    r"""Original expression string for display/audit purposes."""
+
+    is_decisive: OptionalNullable[bool] = UNSET
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        nullable_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+YAxiAggregationOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Computed result of aggregation validation. Server stores as-is."""
+
+
+YAxiValueTypedDict = TypeAliasType("YAxiValueTypedDict", Union[float, str, bool])
+r"""Computed aggregation value."""
+
+
+YAxiValue = TypeAliasType("YAxiValue", Union[float, str, bool])
+r"""Computed aggregation value."""
+
+
+YAxiAggregationValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+
+YAxiAggregationExpectedValueTypedDict = TypeAliasType(
+    "YAxiAggregationExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+YAxiAggregationExpectedValue = TypeAliasType(
+    "YAxiAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+class YAxiAggregationValidatorTypedDict(TypedDict):
+    r"""Structured validator specification with operator, expected value, and outcome."""
+
+    outcome: NotRequired[Nullable[YAxiAggregationValidatorOutcome]]
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+    operator: NotRequired[Nullable[str]]
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+    expected_value: NotRequired[Nullable[YAxiAggregationExpectedValueTypedDict]]
+    r"""Expected value for comparison. Type depends on operator."""
+    expression: NotRequired[Nullable[str]]
+    r"""Original expression string for display/audit purposes."""
+    is_decisive: NotRequired[Nullable[bool]]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+
+class YAxiAggregationValidator(BaseModel):
+    r"""Structured validator specification with operator, expected value, and outcome."""
+
+    outcome: OptionalNullable[YAxiAggregationValidatorOutcome] = UNSET
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+    operator: OptionalNullable[str] = UNSET
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+
+    expected_value: OptionalNullable[YAxiAggregationExpectedValue] = UNSET
+    r"""Expected value for comparison. Type depends on operator."""
+
+    expression: OptionalNullable[str] = UNSET
+    r"""Original expression string for display/audit purposes."""
+
+    is_decisive: OptionalNullable[bool] = UNSET
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        nullable_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+class YAxiAggregationTypedDict(TypedDict):
+    r"""Aggregation specification with computed value and optional validators."""
+
+    type: str
+    r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
+    outcome: NotRequired[Nullable[YAxiAggregationOutcome]]
+    r"""Computed result of aggregation validation. Server stores as-is."""
+    value: NotRequired[Nullable[YAxiValueTypedDict]]
+    r"""Computed aggregation value."""
+    unit: NotRequired[Nullable[str]]
+    r"""Unit for the aggregated value."""
+    validators: NotRequired[Nullable[List[YAxiAggregationValidatorTypedDict]]]
+    r"""Validators applied to the aggregated value."""
+
+
+class YAxiAggregation(BaseModel):
+    r"""Aggregation specification with computed value and optional validators."""
+
+    type: str
+    r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
+
+    outcome: OptionalNullable[YAxiAggregationOutcome] = UNSET
+    r"""Computed result of aggregation validation. Server stores as-is."""
+
+    value: OptionalNullable[YAxiValue] = UNSET
+    r"""Computed aggregation value."""
+
+    unit: OptionalNullable[str] = UNSET
+    r"""Unit for the aggregated value."""
+
+    validators: OptionalNullable[List[YAxiAggregationValidator]] = UNSET
+    r"""Validators applied to the aggregated value."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["outcome", "value", "unit", "validators"])
+        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+class YAxiTypedDict(TypedDict):
+    r"""Data series with numeric data, unit, and optional validators/aggregations."""
+
+    data: List[float]
+    r"""Array of numeric data points for this axis."""
+    units: NotRequired[Nullable[str]]
+    r"""Unit for this axis."""
+    description: NotRequired[Nullable[str]]
+    r"""Description of this data series."""
+    validators: NotRequired[Nullable[List[YAxiValidatorTypedDict]]]
+    r"""Validators for this specific axis/series."""
+    aggregations: NotRequired[Nullable[List[YAxiAggregationTypedDict]]]
+    r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
+
+
+class YAxi(BaseModel):
+    r"""Data series with numeric data, unit, and optional validators/aggregations."""
+
+    data: List[float]
+    r"""Array of numeric data points for this axis."""
+
+    units: OptionalNullable[str] = UNSET
+    r"""Unit for this axis."""
+
+    description: OptionalNullable[str] = UNSET
+    r"""Description of this data series."""
+
+    validators: OptionalNullable[List[YAxiValidator]] = UNSET
+    r"""Validators for this specific axis/series."""
+
+    aggregations: OptionalNullable[List[YAxiAggregation]] = UNSET
+    r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["units", "description", "validators", "aggregations"])
+        nullable_fields = set(["units", "description", "validators", "aggregations"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+RunCreateMeasuredValue2TypedDict = TypeAliasType(
+    "RunCreateMeasuredValue2TypedDict", Union[Dict[str, Any], List[Any]]
 )
 
 
-MeasuredValue2 = TypeAliasType("MeasuredValue2", Union[Dict[str, Any], List[Any]])
-
-
-MeasuredValue1TypedDict = TypeAliasType(
-    "MeasuredValue1TypedDict",
-    Union[float, str, bool, List[List[float]], MeasuredValue2TypedDict],
+RunCreateMeasuredValue2 = TypeAliasType(
+    "RunCreateMeasuredValue2", Union[Dict[str, Any], List[Any]]
 )
-r"""The actual value captured during measurement. Can be numeric, string, boolean, multi-dimensional array, or JSON object. The measurement type will be determined automatically by the server based on the measured_value type. If no value is provided, an empty measurement will be created."""
 
 
-MeasuredValue1 = TypeAliasType(
-    "MeasuredValue1", Union[float, str, bool, List[List[float]], MeasuredValue2]
+RunCreateMeasuredValue1TypedDict = TypeAliasType(
+    "RunCreateMeasuredValue1TypedDict",
+    Union[float, str, bool, List[List[float]], RunCreateMeasuredValue2TypedDict],
 )
-r"""The actual value captured during measurement. Can be numeric, string, boolean, multi-dimensional array, or JSON object. The measurement type will be determined automatically by the server based on the measured_value type. If no value is provided, an empty measurement will be created."""
+r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead."""
+
+
+RunCreateMeasuredValue1 = TypeAliasType(
+    "RunCreateMeasuredValue1",
+    Union[float, str, bool, List[List[float]], RunCreateMeasuredValue2],
+)
+r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead."""
 
 
 RunCreateUnitsTypedDict = TypeAliasType(
     "RunCreateUnitsTypedDict", Union[str, List[str]]
 )
-r"""Units of measurement for display purposes. Can be a single string for simple measurements or an array of strings for multi-dimensional measurements. Units help interpret and display the measured values correctly."""
+r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
 
 
 RunCreateUnits = TypeAliasType("RunCreateUnits", Union[str, List[str]])
-r"""Units of measurement for display purposes. Can be a single string for simple measurements or an array of strings for multi-dimensional measurements. Units help interpret and display the measured values correctly."""
+r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
+
+
+ValidatorsOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+
+ValidatorsExpectedValueTypedDict = TypeAliasType(
+    "ValidatorsExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+ValidatorsExpectedValue = TypeAliasType(
+    "ValidatorsExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+class ValidatorsTypedDict(TypedDict):
+    r"""Structured validator specification with operator and expected value."""
+
+    outcome: NotRequired[Nullable[ValidatorsOutcome]]
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+    operator: NotRequired[Nullable[str]]
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+    expected_value: NotRequired[Nullable[ValidatorsExpectedValueTypedDict]]
+    r"""Expected value for comparison. Type depends on operator."""
+    expression: NotRequired[Nullable[str]]
+    r"""Original expression string for display/audit purposes."""
+    is_decisive: NotRequired[Nullable[bool]]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+
+class Validators(BaseModel):
+    r"""Structured validator specification with operator and expected value."""
+
+    outcome: OptionalNullable[ValidatorsOutcome] = UNSET
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+    operator: OptionalNullable[str] = UNSET
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+
+    expected_value: OptionalNullable[ValidatorsExpectedValue] = UNSET
+    r"""Expected value for comparison. Type depends on operator."""
+
+    expression: OptionalNullable[str] = UNSET
+    r"""Original expression string for display/audit purposes."""
+
+    is_decisive: OptionalNullable[bool] = UNSET
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        nullable_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+ValidatorsUnionTypedDict = TypeAliasType(
+    "ValidatorsUnionTypedDict", Union[List[ValidatorsTypedDict], List[str]]
+)
+r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
+
+
+ValidatorsUnion = TypeAliasType("ValidatorsUnion", Union[List[Validators], List[str]])
+r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
+
+
+RunCreateAggregationOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Computed result of aggregation validation. Server stores as-is."""
+
+
+RunCreateValueTypedDict = TypeAliasType(
+    "RunCreateValueTypedDict", Union[float, str, bool]
+)
+r"""Computed aggregation value."""
+
+
+RunCreateValue = TypeAliasType("RunCreateValue", Union[float, str, bool])
+r"""Computed aggregation value."""
+
+
+RunCreateAggregationValidatorOutcome = Literal[
+    "PASS",
+    "FAIL",
+    "UNSET",
+]
+r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+
+RunCreateAggregationExpectedValueTypedDict = TypeAliasType(
+    "RunCreateAggregationExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+RunCreateAggregationExpectedValue = TypeAliasType(
+    "RunCreateAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+)
+r"""Expected value for comparison. Type depends on operator."""
+
+
+class RunCreateAggregationValidatorTypedDict(TypedDict):
+    r"""Structured validator specification with operator, expected value, and outcome."""
+
+    outcome: NotRequired[Nullable[RunCreateAggregationValidatorOutcome]]
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+    operator: NotRequired[Nullable[str]]
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+    expected_value: NotRequired[Nullable[RunCreateAggregationExpectedValueTypedDict]]
+    r"""Expected value for comparison. Type depends on operator."""
+    expression: NotRequired[Nullable[str]]
+    r"""Original expression string for display/audit purposes."""
+    is_decisive: NotRequired[Nullable[bool]]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+
+class RunCreateAggregationValidator(BaseModel):
+    r"""Structured validator specification with operator, expected value, and outcome."""
+
+    outcome: OptionalNullable[RunCreateAggregationValidatorOutcome] = UNSET
+    r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+
+    operator: OptionalNullable[str] = UNSET
+    r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
+
+    expected_value: OptionalNullable[RunCreateAggregationExpectedValue] = UNSET
+    r"""Expected value for comparison. Type depends on operator."""
+
+    expression: OptionalNullable[str] = UNSET
+    r"""Original expression string for display/audit purposes."""
+
+    is_decisive: OptionalNullable[bool] = UNSET
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        nullable_fields = set(
+            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
+        )
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
+
+
+class RunCreateAggregationTypedDict(TypedDict):
+    r"""Aggregation specification with computed value and optional validators."""
+
+    type: str
+    r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
+    outcome: NotRequired[Nullable[RunCreateAggregationOutcome]]
+    r"""Computed result of aggregation validation. Server stores as-is."""
+    value: NotRequired[Nullable[RunCreateValueTypedDict]]
+    r"""Computed aggregation value."""
+    unit: NotRequired[Nullable[str]]
+    r"""Unit for the aggregated value."""
+    validators: NotRequired[Nullable[List[RunCreateAggregationValidatorTypedDict]]]
+    r"""Validators applied to the aggregated value."""
+
+
+class RunCreateAggregation(BaseModel):
+    r"""Aggregation specification with computed value and optional validators."""
+
+    type: str
+    r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
+
+    outcome: OptionalNullable[RunCreateAggregationOutcome] = UNSET
+    r"""Computed result of aggregation validation. Server stores as-is."""
+
+    value: OptionalNullable[RunCreateValue] = UNSET
+    r"""Computed aggregation value."""
+
+    unit: OptionalNullable[str] = UNSET
+    r"""Unit for the aggregated value."""
+
+    validators: OptionalNullable[List[RunCreateAggregationValidator]] = UNSET
+    r"""Validators applied to the aggregated value."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = set(["outcome", "value", "unit", "validators"])
+        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        serialized = handler(self)
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
+
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
+
+        return m
 
 
 class RunCreateMeasurementTypedDict(TypedDict):
     name: str
     r"""Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier."""
-    outcome: MeasurementOutcome
+    outcome: RunCreateMeasurementOutcome
     r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
-    measured_value: NotRequired[Nullable[MeasuredValue1TypedDict]]
-    r"""The actual value captured during measurement. Can be numeric, string, boolean, multi-dimensional array, or JSON object. The measurement type will be determined automatically by the server based on the measured_value type. If no value is provided, an empty measurement will be created."""
+    x_axis: NotRequired[Nullable[XAxisTypedDict]]
+    r"""X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations."""
+    y_axis: NotRequired[Nullable[List[YAxiTypedDict]]]
+    r"""Y-axis data series (one or more) for multi-dimensional measurements. Each series can have its own validators and aggregations."""
+    measured_value: NotRequired[Nullable[RunCreateMeasuredValue1TypedDict]]
+    r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead."""
     units: NotRequired[Nullable[RunCreateUnitsTypedDict]]
-    r"""Units of measurement for display purposes. Can be a single string for simple measurements or an array of strings for multi-dimensional measurements. Units help interpret and display the measured values correctly."""
+    r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
     lower_limit: NotRequired[float]
-    r"""Lower specification limit for numeric measurements. Used for limit checking and Cpk calculations. Must be specified manually when calling the API directly. During OpenHTF import, may be automatically extracted from validators field."""
+    r"""Use validators with operator \">=\" instead. Will be converted to a validator automatically."""
     upper_limit: NotRequired[float]
-    r"""Upper specification limit for numeric measurements. Used for limit checking and Cpk calculations. Must be specified manually when calling the API directly. During OpenHTF import, may be automatically extracted from validators field."""
-    validators: NotRequired[Nullable[List[str]]]
-    r"""Array of validation rules as string expressions for display purposes. Common formats include range checks (3.0 <= x <= 3.6), equality (x == 5), comparisons (x > 10), percentage tolerance (x is within 5% of 100), and regex patterns."""
+    r"""Use validators with operator \"<=\" instead. Will be converted to a validator automatically."""
+    validators: NotRequired[Nullable[ValidatorsUnionTypedDict]]
+    r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
+    aggregations: NotRequired[Nullable[List[RunCreateAggregationTypedDict]]]
+    r"""Aggregations computed over measurement values (min, max, avg, etc.). Each aggregation can have its own validators."""
     docstring: NotRequired[Nullable[str]]
     r"""Additional notes or documentation about this measurement."""
 
@@ -77,61 +961,90 @@ class RunCreateMeasurement(BaseModel):
     name: str
     r"""Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier."""
 
-    outcome: MeasurementOutcome
+    outcome: RunCreateMeasurementOutcome
     r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
 
-    measured_value: OptionalNullable[MeasuredValue1] = UNSET
-    r"""The actual value captured during measurement. Can be numeric, string, boolean, multi-dimensional array, or JSON object. The measurement type will be determined automatically by the server based on the measured_value type. If no value is provided, an empty measurement will be created."""
+    x_axis: OptionalNullable[XAxis] = UNSET
+    r"""X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations."""
+
+    y_axis: OptionalNullable[List[YAxi]] = UNSET
+    r"""Y-axis data series (one or more) for multi-dimensional measurements. Each series can have its own validators and aggregations."""
+
+    measured_value: OptionalNullable[RunCreateMeasuredValue1] = UNSET
+    r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead."""
 
     units: OptionalNullable[RunCreateUnits] = UNSET
-    r"""Units of measurement for display purposes. Can be a single string for simple measurements or an array of strings for multi-dimensional measurements. Units help interpret and display the measured values correctly."""
+    r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
 
-    lower_limit: Optional[float] = None
-    r"""Lower specification limit for numeric measurements. Used for limit checking and Cpk calculations. Must be specified manually when calling the API directly. During OpenHTF import, may be automatically extracted from validators field."""
+    lower_limit: Annotated[
+        Optional[float],
+        pydantic.Field(
+            deprecated="warning: ** DEPRECATED ** - This will be removed in a future release, please migrate away from it as soon as possible."
+        ),
+    ] = None
+    r"""Use validators with operator \">=\" instead. Will be converted to a validator automatically."""
 
-    upper_limit: Optional[float] = None
-    r"""Upper specification limit for numeric measurements. Used for limit checking and Cpk calculations. Must be specified manually when calling the API directly. During OpenHTF import, may be automatically extracted from validators field."""
+    upper_limit: Annotated[
+        Optional[float],
+        pydantic.Field(
+            deprecated="warning: ** DEPRECATED ** - This will be removed in a future release, please migrate away from it as soon as possible."
+        ),
+    ] = None
+    r"""Use validators with operator \"<=\" instead. Will be converted to a validator automatically."""
 
-    validators: OptionalNullable[List[str]] = UNSET
-    r"""Array of validation rules as string expressions for display purposes. Common formats include range checks (3.0 <= x <= 3.6), equality (x == 5), comparisons (x > 10), percentage tolerance (x is within 5% of 100), and regex patterns."""
+    validators: OptionalNullable[ValidatorsUnion] = UNSET
+    r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
+
+    aggregations: OptionalNullable[List[RunCreateAggregation]] = UNSET
+    r"""Aggregations computed over measurement values (min, max, avg, etc.). Each aggregation can have its own validators."""
 
     docstring: OptionalNullable[str] = UNSET
     r"""Additional notes or documentation about this measurement."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = [
-            "measured_value",
-            "units",
-            "lower_limit",
-            "upper_limit",
-            "validators",
-            "docstring",
-        ]
-        nullable_fields = ["measured_value", "units", "validators", "docstring"]
-        null_default_fields = []
-
+        optional_fields = set(
+            [
+                "x_axis",
+                "y_axis",
+                "measured_value",
+                "units",
+                "lower_limit",
+                "upper_limit",
+                "validators",
+                "aggregations",
+                "docstring",
+            ]
+        )
+        nullable_fields = set(
+            [
+                "x_axis",
+                "y_axis",
+                "measured_value",
+                "units",
+                "validators",
+                "aggregations",
+                "docstring",
+            ]
+        )
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
@@ -172,36 +1085,37 @@ class RunCreatePhase(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["docstring", "measurements"]
-        nullable_fields = ["docstring", "measurements"]
-        null_default_fields = []
-
+        optional_fields = set(["docstring", "measurements"])
+        nullable_fields = set(["docstring", "measurements"])
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
 
-RunCreateLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+RunCreateLevel = Literal[
+    "DEBUG",
+    "INFO",
+    "WARNING",
+    "ERROR",
+    "CRITICAL",
+]
 r"""Severity level of the log message following standard system logging levels. Use DEBUG for detailed diagnostic information, INFO for general execution information, WARNING for unexpected events or potential issues, ERROR for serious problems that prevented function execution, CRITICAL for severe errors that may cause program termination."""
 
 
@@ -211,7 +1125,7 @@ class RunCreateLogTypedDict(TypedDict):
     timestamp: datetime
     r"""ISO 8601 timestamp when the log message was generated."""
     message: str
-    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged."""
+    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated."""
     source_file: str
     r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry."""
     line_number: float
@@ -226,7 +1140,7 @@ class RunCreateLog(BaseModel):
     r"""ISO 8601 timestamp when the log message was generated."""
 
     message: str
-    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged."""
+    r"""Content of the log message. Contains the actual log text describing the event, error, or information being logged. Messages longer than 10,000 characters will be truncated."""
 
     source_file: str
     r"""Name or path of the source file where the log message originated. Helps identify the code location that generated the log entry."""
@@ -311,41 +1225,38 @@ class RunCreateRequest(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = [
-            "procedure_version",
-            "operated_by",
-            "part_number",
-            "revision_number",
-            "batch_number",
-            "sub_units",
-            "docstring",
-            "phases",
-            "logs",
-        ]
-        nullable_fields = ["procedure_version"]
-        null_default_fields = []
-
+        optional_fields = set(
+            [
+                "procedure_version",
+                "operated_by",
+                "part_number",
+                "revision_number",
+                "batch_number",
+                "sub_units",
+                "docstring",
+                "phases",
+                "logs",
+            ]
+        )
+        nullable_fields = set(["procedure_version"])
         serialized = handler(self)
-
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            serialized.pop(k, None)
+            is_nullable_and_explicitly_set = (
+                k in nullable_fields
+                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
+            )
 
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
+            if val != UNSET_SENTINEL:
+                if (
+                    val is not None
+                    or k not in optional_fields
+                    or is_nullable_and_explicitly_set
+                ):
+                    m[k] = val
 
         return m
 
