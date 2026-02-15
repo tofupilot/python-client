@@ -25,7 +25,7 @@ def print_version_banner(current_version: str) -> None:
     blue = "\033[34m"
     reset = "\033[0m"
 
-    cap = f"{blue}╭{reset} {yellow}✈{reset} {blue}╮{reset}"
+    cap = f"{blue}╭{reset} {yellow}✈︎{reset} {blue}╮{reset}"
     tofu = "[•ᴗ•]"
     spac = "     "
 
