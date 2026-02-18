@@ -188,3 +188,189 @@ class TestGetRun:
         assert len(result.sub_units) >= 1
         sub_serials = [su.serial_number for su in result.sub_units]
         assert sub_serial in sub_serials
+
+    def test_get_run_includes_mdm_data_series(
+        self, client: TofuPilot, procedure_id: str
+    ) -> None:
+        """Test that get run returns multi-dimensional measurement data via data_series."""
+        started_at, ended_at = get_random_test_dates()
+        unique_id = str(uuid.uuid4())[:8]
+
+        x_data = [0.0, 1.0, 2.0, 3.0, 4.0]
+        y_voltage = [3.0, 3.2, 3.3, 3.2, 3.1]
+        y_current = [0.5, 0.6, 0.7, 0.6, 0.5]
+
+        create_result = client.runs.create(
+            serial_number=f"SN-GET-MDM-{unique_id}",
+            procedure_id=procedure_id,
+            part_number=f"PART-GET-MDM-{unique_id}",
+            started_at=started_at,
+            outcome="PASS",
+            ended_at=ended_at,
+            phases=[
+                {
+                    "name": "MDM Phase",
+                    "outcome": "PASS",
+                    "started_at": started_at,
+                    "ended_at": ended_at,
+                    "measurements": [
+                        {
+                            "name": "voltage_vs_time",
+                            "outcome": "PASS",
+                            "x_axis": {
+                                "data": x_data,
+                                "units": "s",
+                            },
+                            "y_axis": [
+                                {
+                                    "data": y_voltage,
+                                    "units": "V",
+                                },
+                                {
+                                    "data": y_current,
+                                    "units": "A",
+                                },
+                            ],
+                        }
+                    ],
+                }
+            ],
+        )
+        assert_create_run_success(create_result)
+
+        result = client.runs.get(id=create_result.id)
+        assert_get_run_success(result)
+
+        # Verify phase and measurement exist
+        assert result.phases is not None
+        assert len(result.phases) >= 1
+        phase = result.phases[0]
+        assert phase.name == "MDM Phase"
+
+        assert phase.measurements is not None
+        assert len(phase.measurements) >= 1
+        measurement = phase.measurements[0]
+        assert measurement.name == "voltage_vs_time"
+        assert measurement.outcome == "PASS"
+
+        # Verify data_series contains all axes (x + 2 y-series = 3 series)
+        assert measurement.data_series is not None
+        assert len(measurement.data_series) == 3
+
+        # Verify data values roundtrip correctly
+        returned_data = [series.data for series in measurement.data_series]
+        assert x_data in returned_data
+        assert y_voltage in returned_data
+        assert y_current in returned_data
+
+        # Verify units roundtrip correctly
+        returned_units = [series.units for series in measurement.data_series]
+        assert "s" in returned_units
+        assert "V" in returned_units
+        assert "A" in returned_units
+
+    def test_get_run_includes_mdm_with_validators_and_aggregations(
+        self, client: TofuPilot, procedure_id: str
+    ) -> None:
+        """Test that get run returns MDM validators and aggregations via data_series."""
+        started_at, ended_at = get_random_test_dates()
+        unique_id = str(uuid.uuid4())[:8]
+
+        create_result = client.runs.create(
+            serial_number=f"SN-GET-MDM-VA-{unique_id}",
+            procedure_id=procedure_id,
+            part_number=f"PART-GET-MDM-VA-{unique_id}",
+            started_at=started_at,
+            outcome="PASS",
+            ended_at=ended_at,
+            phases=[
+                {
+                    "name": "MDM Validated Phase",
+                    "outcome": "PASS",
+                    "started_at": started_at,
+                    "ended_at": ended_at,
+                    "measurements": [
+                        {
+                            "name": "temperature_sweep",
+                            "outcome": "PASS",
+                            "x_axis": {
+                                "data": [0.0, 1.0, 2.0],
+                                "units": "s",
+                                "validators": [
+                                    {
+                                        "operator": ">=",
+                                        "expected_value": 0.0,
+                                        "outcome": "PASS",
+                                    }
+                                ],
+                                "aggregations": [
+                                    {
+                                        "type": "max",
+                                        "outcome": "PASS",
+                                        "value": 2.0,
+                                        "unit": "s",
+                                    }
+                                ],
+                            },
+                            "y_axis": [
+                                {
+                                    "data": [25.0, 27.5, 26.0],
+                                    "units": "C",
+                                    "validators": [
+                                        {
+                                            "operator": "range",
+                                            "expected_value": [20.0, 30.0],
+                                            "outcome": "PASS",
+                                        }
+                                    ],
+                                    "aggregations": [
+                                        {
+                                            "type": "avg",
+                                            "outcome": "PASS",
+                                            "value": 26.17,
+                                            "unit": "C",
+                                        }
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ],
+        )
+        assert_create_run_success(create_result)
+
+        result = client.runs.get(id=create_result.id)
+        assert_get_run_success(result)
+
+        assert result.phases is not None
+        assert len(result.phases) >= 1
+        measurement = result.phases[0].measurements[0]
+        assert measurement.name == "temperature_sweep"
+        assert measurement.data_series is not None
+        assert len(measurement.data_series) == 2
+
+        # Verify at least one series has validators
+        series_with_validators = [
+            s for s in measurement.data_series if s.validators
+        ]
+        assert len(series_with_validators) >= 1
+
+        # Verify at least one series has aggregations
+        series_with_aggregations = [
+            s for s in measurement.data_series if s.aggregations
+        ]
+        assert len(series_with_aggregations) >= 1
+
+        # Verify validator details roundtrip
+        for series in series_with_validators:
+            validator = series.validators[0]
+            assert validator.outcome in ("PASS", "FAIL", "UNSET")
+            assert validator.expression is not None
+
+        # Verify aggregation details roundtrip
+        for series in series_with_aggregations:
+            agg = series.aggregations[0]
+            assert agg.type is not None
+            assert agg.outcome in ("PASS", "FAIL", "UNSET", None)
+            assert agg.value is not None

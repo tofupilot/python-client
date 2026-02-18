@@ -89,23 +89,23 @@
 
 ### 6. Runs — Validation
 
-| Scenario                          | Status      | Function Name                                   | Details                                              |
-| --------------------------------- | ----------- | ----------------------------------------------- | ---------------------------------------------------- |
-| Empty serial number → error       | ✅ Tested   | `test_create_run_with_empty_serial_number`      | ErrorBADREQUEST with "serial number"                 |
-| Whitespace serial number → error  | ✅ Tested   | `test_create_run_with_whitespace_serial_number` | ErrorBADREQUEST with "serial number"                 |
-| Invalid procedure ID → NOT_FOUND  | ✅ Tested   | `test_create_run_with_invalid_procedure_id`     | ErrorNOTFOUND or ErrorFORBIDDEN                      |
-| Malformed procedure ID → error    | ✅ Tested   | `test_create_run_with_malformed_procedure_id`   | ErrorBADREQUEST with "uuid"                          |
-| Invalid outcome → SDK error       | ✅ Tested   | `test_create_run_with_invalid_outcome`          | TofuPilotError (user, station)                       |
-| End before start → accepted       | ✅ Tested   | `test_create_run_with_end_before_start`         | Time order not enforced                              |
-| ended_at without outcome → error  | ✅ Tested   | `test_create_run_with_ended_at_but_no_outcome`  | TypeError at SDK level                               |
-| outcome without ended_at → error  | ✅ Tested   | `test_create_run_with_outcome_but_no_ended_at`  | TypeError at SDK level                               |
-| Very long serial number → error   | ✅ Tested   | `test_create_run_with_very_long_serial_number`  | 1001 chars raises ErrorBADREQUEST                    |
-| Invalid batch number → error      | ✅ Tested   | `test_create_run_with_invalid_batch_number`     | Empty batch raises ErrorBADREQUEST                   |
-| Invalid part number → error       | ✅ Tested   | `test_create_run_with_invalid_part_number`      | Empty part raises ErrorBADREQUEST                    |
-| Invalid operated_by → error       | ✅ Tested   | `test_create_run_with_invalid_operated_by`      | Non-email raises ErrorBADREQUEST                     |
-| Missing required fields → error   | ✅ Tested   | `test_create_run_without_required_fields`       | Missing serial/procedure/started_at raises TypeError |
-| Create run with procedure_version | ✅ Tested   | `test_create_run_with_procedure_version`        | Version tag stored and retrievable via get           |
-| Create run with docstring         | ✅ Tested   | `test_create_run_with_docstring`                | Docstring stored and retrievable via get             |
+| Scenario                          | Status    | Function Name                                   | Details                                              |
+| --------------------------------- | --------- | ----------------------------------------------- | ---------------------------------------------------- |
+| Empty serial number → error       | ✅ Tested | `test_create_run_with_empty_serial_number`      | ErrorBADREQUEST with "serial number"                 |
+| Whitespace serial number → error  | ✅ Tested | `test_create_run_with_whitespace_serial_number` | ErrorBADREQUEST with "serial number"                 |
+| Invalid procedure ID → NOT_FOUND  | ✅ Tested | `test_create_run_with_invalid_procedure_id`     | ErrorNOTFOUND or ErrorFORBIDDEN                      |
+| Malformed procedure ID → error    | ✅ Tested | `test_create_run_with_malformed_procedure_id`   | ErrorBADREQUEST with "uuid"                          |
+| Invalid outcome → SDK error       | ✅ Tested | `test_create_run_with_invalid_outcome`          | TofuPilotError (user, station)                       |
+| End before start → accepted       | ✅ Tested | `test_create_run_with_end_before_start`         | Time order not enforced                              |
+| ended_at without outcome → error  | ✅ Tested | `test_create_run_with_ended_at_but_no_outcome`  | TypeError at SDK level                               |
+| outcome without ended_at → error  | ✅ Tested | `test_create_run_with_outcome_but_no_ended_at`  | TypeError at SDK level                               |
+| Very long serial number → error   | ✅ Tested | `test_create_run_with_very_long_serial_number`  | 1001 chars raises ErrorBADREQUEST                    |
+| Invalid batch number → error      | ✅ Tested | `test_create_run_with_invalid_batch_number`     | Empty batch raises ErrorBADREQUEST                   |
+| Invalid part number → error       | ✅ Tested | `test_create_run_with_invalid_part_number`      | Empty part raises ErrorBADREQUEST                    |
+| Invalid operated_by → error       | ✅ Tested | `test_create_run_with_invalid_operated_by`      | Non-email raises ErrorBADREQUEST                     |
+| Missing required fields → error   | ✅ Tested | `test_create_run_without_required_fields`       | Missing serial/procedure/started_at raises TypeError |
+| Create run with procedure_version | ✅ Tested | `test_create_run_with_procedure_version`        | Version tag stored and retrievable via get           |
+| Create run with docstring         | ✅ Tested | `test_create_run_with_docstring`                | Docstring stored and retrievable via get             |
 
 ### 7. Runs — Validators
 
@@ -218,7 +218,7 @@
 | **Combined**                    |           |                                                   |                                                   |
 | Both axes with validators       | ✅ Tested | `test_both_axes_with_validators`                  | x + y validators simultaneously                   |
 | Both axes with aggregations     | ✅ Tested | `test_both_axes_with_aggregations`                | x + y aggregations simultaneously                 |
-| Comprehensive all features      | ✅ Tested | `test_comprehensive_mdm_all_features`             | Axes, validators, aggregations, nested validators |
+| Comprehensive all features      | ✅ Tested | `test_comprehensive_I _all_features`              | Axes, validators, aggregations, nested validators |
 | **Measurement-Level**           |           |                                                   |                                                   |
 | Measurement-level validators    | ✅ Tested | `test_mdm_with_measurement_level_validators`      | Validators outside axes                           |
 | Measurement-level aggregations  | ✅ Tested | `test_mdm_with_measurement_level_aggregations`    | Aggregations outside axes                         |
@@ -273,34 +273,34 @@
 
 ### 13. Stations
 
-| Scenario                       | Status      | Function Name                                   | Details                                                         |
-| ------------------------------ | ----------- | ----------------------------------------------- | --------------------------------------------------------------- |
-| **Get**                        |             |                                                 |                                                                 |
-| Get station by ID              | ✅ Tested   | `test_get_station_by_id`                        | Name, identifier, procedures, api_key, image, connection_status |
-| Get nonexistent → NOT_FOUND    | ✅ Tested   | `test_get_station_nonexistent`                  | ErrorNOTFOUND                                                   |
-| Get station with procedures    | ✅ Tested   | `test_get_station_with_procedures`              | Procedure id, name, identifier, runs_count                      |
-| Get connection status          | ✅ Tested   | `test_get_station_connection_status`            | None, "connected", or "disconnected"                            |
-| Get multiple stations          | ✅ Tested   | `test_get_multiple_stations_sequentially`       | Each retrievable by ID                                          |
-| **Remove**                     |             |                                                 |                                                                 |
-| Remove station without runs    | ✅ Tested   | `test_remove_station_without_runs`              | Station unretrievable after removal                             |
-| Remove nonexistent → NOT_FOUND | ✅ Tested   | `test_remove_station_nonexistent`               | ErrorNOTFOUND, stations get 403                                 |
-| Remove multiple stations       | ✅ Tested   | `test_remove_multiple_stations`                 | Sequential removal, all unretrievable                           |
-| Remove twice → NOT_FOUND       | ✅ Tested   | `test_remove_station_twice`                     | Second removal raises ErrorNOTFOUND                             |
-| Remove with runs → archives    | ✅ Tested   | `test_remove_station_with_runs_archives`        | Station archived, not deleted                                   |
-| **Update**                     |             |                                                 |                                                                 |
-| Update name                    | ✅ Tested   | `test_update_station_name`                      | Identifier unchanged                                            |
-| Update identifier              | ✅ Tested   | `test_update_station_identifier`                | Name unchanged                                                  |
-| Update both fields             | ✅ Tested   | `test_update_station_both_fields`               | Name + identifier simultaneously                                |
-| Update nonexistent → NOT_FOUND | ✅ Tested   | `test_update_station_nonexistent`               | ErrorNOTFOUND                                                   |
-| Remove image via update        | ✅ Tested   | `test_update_station_remove_image`              | image_id="" → image becomes None                                |
-| Partial update                 | ✅ Tested   | `test_update_station_partial_update`            | Unspecified fields unchanged                                    |
-| Update team (unassign)         | ✅ Tested   | `test_update_station_unassign_team`             | `team_id=None` → team becomes None                              |
-| **Image Upload**               |             |                                                 |                                                                 |
-| Upload image                   | ✅ Tested   | `test_update_station_with_image`                | Full init → upload → attach workflow                            |
-| Upload, verify, replace        | ✅ Tested   | `test_update_station_image_and_verify_download` | Complete image lifecycle                                        |
-| Remove image                   | ✅ Tested   | `test_remove_station_image`                     | image_id="" → None                                              |
-| Image + name update            | ✅ Tested   | `test_update_station_with_image_and_name`       | Both in single call                                             |
-| Image + identifier update      | ✅ Tested   | `test_update_station_with_image_and_identifier` | Both in single call                                             |
+| Scenario                       | Status    | Function Name                                   | Details                                                         |
+| ------------------------------ | --------- | ----------------------------------------------- | --------------------------------------------------------------- |
+| **Get**                        |           |                                                 |                                                                 |
+| Get station by ID              | ✅ Tested | `test_get_station_by_id`                        | Name, identifier, procedures, api_key, image, connection_status |
+| Get nonexistent → NOT_FOUND    | ✅ Tested | `test_get_station_nonexistent`                  | ErrorNOTFOUND                                                   |
+| Get station with procedures    | ✅ Tested | `test_get_station_with_procedures`              | Procedure id, name, identifier, runs_count                      |
+| Get connection status          | ✅ Tested | `test_get_station_connection_status`            | None, "connected", or "disconnected"                            |
+| Get multiple stations          | ✅ Tested | `test_get_multiple_stations_sequentially`       | Each retrievable by ID                                          |
+| **Remove**                     |           |                                                 |                                                                 |
+| Remove station without runs    | ✅ Tested | `test_remove_station_without_runs`              | Station unretrievable after removal                             |
+| Remove nonexistent → NOT_FOUND | ✅ Tested | `test_remove_station_nonexistent`               | ErrorNOTFOUND, stations get 403                                 |
+| Remove multiple stations       | ✅ Tested | `test_remove_multiple_stations`                 | Sequential removal, all unretrievable                           |
+| Remove twice → NOT_FOUND       | ✅ Tested | `test_remove_station_twice`                     | Second removal raises ErrorNOTFOUND                             |
+| Remove with runs → archives    | ✅ Tested | `test_remove_station_with_runs_archives`        | Station archived, not deleted                                   |
+| **Update**                     |           |                                                 |                                                                 |
+| Update name                    | ✅ Tested | `test_update_station_name`                      | Identifier unchanged                                            |
+| Update identifier              | ✅ Tested | `test_update_station_identifier`                | Name unchanged                                                  |
+| Update both fields             | ✅ Tested | `test_update_station_both_fields`               | Name + identifier simultaneously                                |
+| Update nonexistent → NOT_FOUND | ✅ Tested | `test_update_station_nonexistent`               | ErrorNOTFOUND                                                   |
+| Remove image via update        | ✅ Tested | `test_update_station_remove_image`              | image_id="" → image becomes None                                |
+| Partial update                 | ✅ Tested | `test_update_station_partial_update`            | Unspecified fields unchanged                                    |
+| Update team (unassign)         | ✅ Tested | `test_update_station_unassign_team`             | `team_id=None` → team becomes None                              |
+| **Image Upload**               |           |                                                 |                                                                 |
+| Upload image                   | ✅ Tested | `test_update_station_with_image`                | Full init → upload → attach workflow                            |
+| Upload, verify, replace        | ✅ Tested | `test_update_station_image_and_verify_download` | Complete image lifecycle                                        |
+| Remove image                   | ✅ Tested | `test_remove_station_image`                     | image_id="" → None                                              |
+| Image + name update            | ✅ Tested | `test_update_station_with_image_and_name`       | Both in single call                                             |
+| Image + identifier update      | ✅ Tested | `test_update_station_with_image_and_identifier` | Both in single call                                             |
 
 ### 14. Units
 
@@ -378,26 +378,26 @@
 
 ### 16. Runs — List (Filtering & Pagination)
 
-| Scenario                        | Status      | Function Name                           | Details                                                    |
-| ------------------------------- | ----------- | --------------------------------------- | ---------------------------------------------------------- |
-| List with outcome filter        | ✅ Tested   | `test_list_with_outcome_filter`         | PASS + FAIL runs, filter PASS only, verify FAIL excluded   |
-| List with procedure_id filter   | ✅ Tested   | `test_list_with_procedure_id_filter`    | All results have matching procedure.id                     |
-| List with serial_number filter  | ✅ Tested   | `test_list_with_serial_number_filter`   | Create with unique serial, filter, verify found            |
-| List with part_number filter    | ✅ Tested   | `test_list_with_part_number_filter`     | Create with unique part, filter, verify found              |
-| List with date range filter     | ✅ Tested   | `test_list_with_date_range_filter`      | `started_after` / `started_before` window around known run |
-| List with created_by filter     | ✅ Tested   | `test_list_with_created_by_user_filter` | Get user ID from run, filter by `created_by_user_ids`      |
-| List with duration range        | ✅ Tested   | `test_list_with_duration_range`         | 5-min run, filter PT4M–PT6M, verify found                  |
-| List pagination (cursor)        | ✅ Tested   | `test_list_pagination`                  | 3 runs, limit=1, verify has_more + cursor yields next page |
-| List sort order (asc/desc)      | ✅ Tested   | `test_list_sort_order`                  | Asc vs desc on started_at, verify first result differs     |
-| List with limit                 | ✅ Tested   | `test_list_with_limit`                  | `limit=2` → at most 2 results                              |
-| List empty result               | ✅ Tested   | `test_list_empty_result`                | Non-matching serial → empty list, no error                 |
-| List with ids filter            | ✅ Tested   | `test_list_with_ids_filter`                | Create run, filter by `ids=[id]`, verify exact match       |
-| List with procedure_versions    | ✅ Tested   | `test_list_with_procedure_versions_filter` | Create run with version tag, filter, verify found          |
-| List with revision_numbers      | ✅ Tested   | `test_list_with_revision_numbers_filter`   | Create part+revision+run, filter by revision, verify found |
-| List with ended_at date range   | ✅ Tested   | `test_list_with_ended_at_date_range`       | `ended_after` / `ended_before` window around known run     |
-| List with created_at date range | ✅ Tested   | `test_list_with_created_at_date_range`     | `created_after` / `created_before` window around new run   |
-| List with created_by_station    | ✅ Tested   | `test_list_with_created_by_station_filter` | Station-auth run, get station ID, filter, verify found     |
-| List with operated_by filter    | ✅ Tested   | `test_list_with_operated_by_filter`        | Run with `operated_by`, get operator ID, filter, verify    |
+| Scenario                        | Status    | Function Name                              | Details                                                    |
+| ------------------------------- | --------- | ------------------------------------------ | ---------------------------------------------------------- |
+| List with outcome filter        | ✅ Tested | `test_list_with_outcome_filter`            | PASS + FAIL runs, filter PASS only, verify FAIL excluded   |
+| List with procedure_id filter   | ✅ Tested | `test_list_with_procedure_id_filter`       | All results have matching procedure.id                     |
+| List with serial_number filter  | ✅ Tested | `test_list_with_serial_number_filter`      | Create with unique serial, filter, verify found            |
+| List with part_number filter    | ✅ Tested | `test_list_with_part_number_filter`        | Create with unique part, filter, verify found              |
+| List with date range filter     | ✅ Tested | `test_list_with_date_range_filter`         | `started_after` / `started_before` window around known run |
+| List with created_by filter     | ✅ Tested | `test_list_with_created_by_user_filter`    | Get user ID from run, filter by `created_by_user_ids`      |
+| List with duration range        | ✅ Tested | `test_list_with_duration_range`            | 5-min run, filter PT4M–PT6M, verify found                  |
+| List pagination (cursor)        | ✅ Tested | `test_list_pagination`                     | 3 runs, limit=1, verify has_more + cursor yields next page |
+| List sort order (asc/desc)      | ✅ Tested | `test_list_sort_order`                     | Asc vs desc on started_at, verify first result differs     |
+| List with limit                 | ✅ Tested | `test_list_with_limit`                     | `limit=2` → at most 2 results                              |
+| List empty result               | ✅ Tested | `test_list_empty_result`                   | Non-matching serial → empty list, no error                 |
+| List with ids filter            | ✅ Tested | `test_list_with_ids_filter`                | Create run, filter by `ids=[id]`, verify exact match       |
+| List with procedure_versions    | ✅ Tested | `test_list_with_procedure_versions_filter` | Create run with version tag, filter, verify found          |
+| List with revision_numbers      | ✅ Tested | `test_list_with_revision_numbers_filter`   | Create part+revision+run, filter by revision, verify found |
+| List with ended_at date range   | ✅ Tested | `test_list_with_ended_at_date_range`       | `ended_after` / `ended_before` window around known run     |
+| List with created_at date range | ✅ Tested | `test_list_with_created_at_date_range`     | `created_after` / `created_before` window around new run   |
+| List with created_by_station    | ✅ Tested | `test_list_with_created_by_station_filter` | Station-auth run, get station ID, filter, verify found     |
+| List with operated_by filter    | ✅ Tested | `test_list_with_operated_by_filter`        | Run with `operated_by`, get operator ID, filter, verify    |
 
 ### 17. Procedures — List, Get, Delete
 
@@ -429,38 +429,38 @@
 
 ### 19. Units — List, Get, Update, Delete
 
-| Scenario                            | Status      | Function Name                         | Details                                           |
-| ----------------------------------- | ----------- | ------------------------------------- | ------------------------------------------------- |
-| **List**                            |             |                                       |                                                   |
-| List all units                      | ✅ Tested   | `test_list_all_units`                 | `units.list()` → paginated list                   |
-| List with serial_number filter      | ✅ Tested   | `test_list_with_serial_number_filter` | `serial_numbers=[...]` filter                     |
-| List with part_number filter        | ✅ Tested   | `test_list_with_part_number_filter`   | `part_numbers=[...]` filter                       |
-| List with search query              | ✅ Tested   | `test_list_with_search_query`         | `search_query="..."` filter                       |
-| List exclude units with parent      | ✅ Tested   | `test_list_exclude_units_with_parent` | `exclude_units_with_parent=True` filters children |
-| List pagination (cursor)            | ✅ Tested   | `test_list_pagination`                | Multiple pages via cursor token                   |
-| List with ids filter                | ✅ Tested   | `test_list_with_ids_filter`                | Create unit, filter by `ids=[id]`, verify exact match          |
-| List with revision_numbers filter   | ✅ Tested   | `test_list_with_revision_numbers_filter`   | Filter by revision number, verify unit found                   |
-| List with batch_numbers filter      | ✅ Tested   | `test_list_with_batch_numbers_filter`      | Create unit via run with batch, filter, verify found           |
-| List with date range filter         | ✅ Tested   | `test_list_with_created_at_date_range`     | `created_after` / `created_before` window around new unit      |
-| List with created_by_user filter    | ✅ Tested   | `test_list_with_created_by_user_filter`    | Get creator user ID, filter, verify found (user auth only)     |
-| List with created_by_station filter | ✅ Tested   | `test_list_with_created_by_station_filter` | Get creator station ID, filter, verify found (station auth)    |
-| List sort order                     | ✅ Tested   | `test_list_sort_order`                     | Asc vs desc on created_at, verify first result differs         |
-| **Get**                             |             |                                       |                                                   |
-| Get unit by serial number           | ✅ Tested   | `test_get_unit_by_serial_number`      | `units.get(serial_number)` → full unit            |
-| Get nonexistent unit → NOT_FOUND    | ✅ Tested   | `test_get_nonexistent_unit`           | Invalid serial → ErrorNOTFOUND                    |
-| Get unit includes children          | ✅ Tested   | `test_get_unit_includes_children`     | Verify children list in response                  |
-| Get unit includes parent            | ✅ Tested   | `test_get_unit_includes_parent`       | Verify parent reference in response               |
-| Get unit includes runs              | ✅ Tested   | `test_get_unit_includes_runs`         | Verify created_during run on unit                 |
-| **Update**                          |             |                                       |                                                   |
-| Update serial number                | ✅ Tested   | `test_update_serial_number`           | `units.update(serial, new_serial_number="...")`   |
-| Update part/revision                | ✅ Tested   | `test_update_part_revision`           | Move unit to different part/revision              |
-| Update batch assignment             | ✅ Tested   | `test_update_batch_assignment`        | `batch_number="..."` reassigns batch              |
-| Update nonexistent unit → NOT_FOUND | ✅ Tested   | `test_update_nonexistent_unit`        | Invalid serial → ErrorNOTFOUND                    |
-| Update duplicate serial → CONFLICT  | ✅ Tested   | `test_update_duplicate_serial`        | New serial already exists → ErrorCONFLICT         |
-| **Delete**                          |             |                                       |                                                   |
-| Delete unit by serial number        | ✅ Tested   | `test_delete_unit_by_serial_number`   | `units.delete(serial_numbers=[...])`              |
-| Delete nonexistent unit → error     | ✅ Tested   | `test_delete_nonexistent_unit`        | Invalid serial → ErrorNOTFOUND                    |
-| Delete unit with children           | ✅ Tested   | `test_delete_unit_with_children`      | Parent deleted, child becomes orphan              |
+| Scenario                            | Status    | Function Name                              | Details                                                     |
+| ----------------------------------- | --------- | ------------------------------------------ | ----------------------------------------------------------- |
+| **List**                            |           |                                            |                                                             |
+| List all units                      | ✅ Tested | `test_list_all_units`                      | `units.list()` → paginated list                             |
+| List with serial_number filter      | ✅ Tested | `test_list_with_serial_number_filter`      | `serial_numbers=[...]` filter                               |
+| List with part_number filter        | ✅ Tested | `test_list_with_part_number_filter`        | `part_numbers=[...]` filter                                 |
+| List with search query              | ✅ Tested | `test_list_with_search_query`              | `search_query="..."` filter                                 |
+| List exclude units with parent      | ✅ Tested | `test_list_exclude_units_with_parent`      | `exclude_units_with_parent=True` filters children           |
+| List pagination (cursor)            | ✅ Tested | `test_list_pagination`                     | Multiple pages via cursor token                             |
+| List with ids filter                | ✅ Tested | `test_list_with_ids_filter`                | Create unit, filter by `ids=[id]`, verify exact match       |
+| List with revision_numbers filter   | ✅ Tested | `test_list_with_revision_numbers_filter`   | Filter by revision number, verify unit found                |
+| List with batch_numbers filter      | ✅ Tested | `test_list_with_batch_numbers_filter`      | Create unit via run with batch, filter, verify found        |
+| List with date range filter         | ✅ Tested | `test_list_with_created_at_date_range`     | `created_after` / `created_before` window around new unit   |
+| List with created_by_user filter    | ✅ Tested | `test_list_with_created_by_user_filter`    | Get creator user ID, filter, verify found (user auth only)  |
+| List with created_by_station filter | ✅ Tested | `test_list_with_created_by_station_filter` | Get creator station ID, filter, verify found (station auth) |
+| List sort order                     | ✅ Tested | `test_list_sort_order`                     | Asc vs desc on created_at, verify first result differs      |
+| **Get**                             |           |                                            |                                                             |
+| Get unit by serial number           | ✅ Tested | `test_get_unit_by_serial_number`           | `units.get(serial_number)` → full unit                      |
+| Get nonexistent unit → NOT_FOUND    | ✅ Tested | `test_get_nonexistent_unit`                | Invalid serial → ErrorNOTFOUND                              |
+| Get unit includes children          | ✅ Tested | `test_get_unit_includes_children`          | Verify children list in response                            |
+| Get unit includes parent            | ✅ Tested | `test_get_unit_includes_parent`            | Verify parent reference in response                         |
+| Get unit includes runs              | ✅ Tested | `test_get_unit_includes_runs`              | Verify created_during run on unit                           |
+| **Update**                          |           |                                            |                                                             |
+| Update serial number                | ✅ Tested | `test_update_serial_number`                | `units.update(serial, new_serial_number="...")`             |
+| Update part/revision                | ✅ Tested | `test_update_part_revision`                | Move unit to different part/revision                        |
+| Update batch assignment             | ✅ Tested | `test_update_batch_assignment`             | `batch_number="..."` reassigns batch                        |
+| Update nonexistent unit → NOT_FOUND | ✅ Tested | `test_update_nonexistent_unit`             | Invalid serial → ErrorNOTFOUND                              |
+| Update duplicate serial → CONFLICT  | ✅ Tested | `test_update_duplicate_serial`             | New serial already exists → ErrorCONFLICT                   |
+| **Delete**                          |           |                                            |                                                             |
+| Delete unit by serial number        | ✅ Tested | `test_delete_unit_by_serial_number`        | `units.delete(serial_numbers=[...])`                        |
+| Delete nonexistent unit → error     | ✅ Tested | `test_delete_nonexistent_unit`             | Invalid serial → ErrorNOTFOUND                              |
+| Delete unit with children           | ✅ Tested | `test_delete_unit_with_children`           | Parent deleted, child becomes orphan                        |
 
 ### 20. Stations — Create, List, Get Current
 
@@ -480,28 +480,28 @@
 
 ### 21. Batches — List, Get, Update, Delete
 
-| Scenario                             | Status    | Function Name                       | Details                                        |
-| ------------------------------------ | --------- | ----------------------------------- | ---------------------------------------------- |
-| **List**                             |           |                                     |                                                |
-| List all batches                     | ✅ Tested | `test_list_all_batches`             | `batches.list()` → paginated list              |
-| List with number filter              | ✅ Tested | `test_list_with_number_filter`      | `numbers=[...]` filter                         |
-| List with part_number filter         | ✅ Tested | `test_list_with_part_number_filter` | `part_numbers=[...]` filter                    |
-| List with search query               | ✅ Tested | `test_list_with_search_query`       | `search_query="..."` filter                    |
-| List pagination (cursor)             | ✅ Tested   | `test_list_pagination`              | Multiple pages via cursor token                |
-| List with ids filter                 | ✅ Tested   | `test_list_with_ids_filter`              | Create batch, filter by `ids=[id]`, verify exact match          |
-| List with date range filter          | ✅ Tested   | `test_list_with_created_at_date_range`   | `created_after` / `created_before` window around new batch      |
-| List with revision_numbers filter    | ✅ Tested   | `test_list_with_revision_numbers_filter` | Create part+revision+run with batch, filter by revision         |
-| List sort order                      | ✅ Tested   | `test_list_sort_order`                   | Asc vs desc on created_at, verify first result differs          |
-| **Get**                              |             |                                     |                                                |
-| Get batch by number                  | ✅ Tested   | `test_get_batch_by_number`          | `batches.get(number)` → batch with units       |
-| Get nonexistent batch → NOT_FOUND    | ✅ Tested | `test_get_nonexistent_batch`        | Invalid number → ErrorNOTFOUND                 |
-| **Update**                           |           |                                     |                                                |
-| Update batch number                  | ✅ Tested | `test_update_batch_number`          | `batches.update(number, new_number="...")`     |
-| Update nonexistent batch → NOT_FOUND | ✅ Tested | `test_update_nonexistent_batch`     | Invalid number → ErrorNOTFOUND                 |
-| Update duplicate number → CONFLICT   | ✅ Tested | `test_update_duplicate_number`      | New number already exists → ErrorCONFLICT      |
-| **Delete**                           |           |                                     |                                                |
-| Delete batch                         | ✅ Tested | `test_delete_batch`                 | `batches.delete(number)` → units disassociated |
-| Delete nonexistent batch → error     | ✅ Tested | `test_delete_nonexistent_batch`     | Invalid number → ErrorNOTFOUND                 |
+| Scenario                             | Status    | Function Name                            | Details                                                    |
+| ------------------------------------ | --------- | ---------------------------------------- | ---------------------------------------------------------- |
+| **List**                             |           |                                          |                                                            |
+| List all batches                     | ✅ Tested | `test_list_all_batches`                  | `batches.list()` → paginated list                          |
+| List with number filter              | ✅ Tested | `test_list_with_number_filter`           | `numbers=[...]` filter                                     |
+| List with part_number filter         | ✅ Tested | `test_list_with_part_number_filter`      | `part_numbers=[...]` filter                                |
+| List with search query               | ✅ Tested | `test_list_with_search_query`            | `search_query="..."` filter                                |
+| List pagination (cursor)             | ✅ Tested | `test_list_pagination`                   | Multiple pages via cursor token                            |
+| List with ids filter                 | ✅ Tested | `test_list_with_ids_filter`              | Create batch, filter by `ids=[id]`, verify exact match     |
+| List with date range filter          | ✅ Tested | `test_list_with_created_at_date_range`   | `created_after` / `created_before` window around new batch |
+| List with revision_numbers filter    | ✅ Tested | `test_list_with_revision_numbers_filter` | Create part+revision+run with batch, filter by revision    |
+| List sort order                      | ✅ Tested | `test_list_sort_order`                   | Asc vs desc on created_at, verify first result differs     |
+| **Get**                              |           |                                          |                                                            |
+| Get batch by number                  | ✅ Tested | `test_get_batch_by_number`               | `batches.get(number)` → batch with units                   |
+| Get nonexistent batch → NOT_FOUND    | ✅ Tested | `test_get_nonexistent_batch`             | Invalid number → ErrorNOTFOUND                             |
+| **Update**                           |           |                                          |                                                            |
+| Update batch number                  | ✅ Tested | `test_update_batch_number`               | `batches.update(number, new_number="...")`                 |
+| Update nonexistent batch → NOT_FOUND | ✅ Tested | `test_update_nonexistent_batch`          | Invalid number → ErrorNOTFOUND                             |
+| Update duplicate number → CONFLICT   | ✅ Tested | `test_update_duplicate_number`           | New number already exists → ErrorCONFLICT                  |
+| **Delete**                           |           |                                          |                                                            |
+| Delete batch                         | ✅ Tested | `test_delete_batch`                      | `batches.delete(number)` → units disassociated             |
+| Delete nonexistent batch → error     | ✅ Tested | `test_delete_nonexistent_batch`          | Invalid number → ErrorNOTFOUND                             |
 
 ### 22. Parts — List, Delete
 
@@ -537,11 +537,11 @@
 
 ### 25. Attachments
 
-| Scenario                           | Status      | Function Name | Details                                                |
-| ---------------------------------- | ----------- | ------------- | ------------------------------------------------------ |
-| Initialize upload (happy path)     | ✅ Tested   |               | Used in 12 tests across runs/stations/revisions        |
-| Initialize with empty name → error | ✅ Tested   | `test_initialize_with_empty_name`     | `attachments.initialize(name="")` → ErrorBADREQUEST    |
-| Initialize with very long name     | ✅ Tested   | `test_initialize_with_very_long_name` | 1001-char name → ErrorBADREQUEST                       |
+| Scenario                           | Status    | Function Name                         | Details                                             |
+| ---------------------------------- | --------- | ------------------------------------- | --------------------------------------------------- |
+| Initialize upload (happy path)     | ✅ Tested |                                       | Used in 12 tests across runs/stations/revisions     |
+| Initialize with empty name → error | ✅ Tested | `test_initialize_with_empty_name`     | `attachments.initialize(name="")` → ErrorBADREQUEST |
+| Initialize with very long name     | ✅ Tested | `test_initialize_with_very_long_name` | 1001-char name → ErrorBADREQUEST                    |
 
 ---
 
@@ -549,27 +549,27 @@
 
 > **Scenarios vs pytest items:** Each row below counts one unique test function. V2 has 346 unique test functions → **715 pytest items**: 344 functions ×2 (user + station auth), 1 function ×26 (`test_batch_number_with_invalid_characters_fails`: 13 invalid char params × 2 auth), 1 function ×1 (`test_special_characters_in_serial_numbers`: user_client only).
 
-| Category                   | Scenarios | Passed | Untested |
-| -------------------------- | --------- | ------ | -------- |
-| Batches                    | 20        | 20     | 0        |
-| Parts                      | 26        | 26     | 0        |
-| Procedure Versions         | 9         | 9      | 0        |
-| Procedures                 | 25        | 25     | 0        |
-| Revisions                  | 16        | 16     | 0        |
-| Runs — Validation          | 15        | 15     | 0        |
-| Runs — Validators          | 37        | 37     | 0        |
-| Runs — Aggregations        | 21        | 21     | 0        |
-| Runs — MDM                 | 28        | 28     | 0        |
-| Runs — Legacy Limits       | 15        | 15     | 0        |
-| Runs — Sub-Units Lifecycle | 5         | 5      | 0        |
-| Runs — Search              | 3         | 3      | 0        |
-| Runs — List                | 18        | 18     | 0        |
-| Runs — Get/Update/Delete   | 12        | 12     | 0        |
-| Stations                   | 30        | 30     | 0        |
-| Units                      | 66        | 66     | 0        |
-| User                       | 2         | 2      | 0        |
-| Attachments                | 3         | 3      | 0        |
-| **Total**                  | **351**   | **351**| **0**    |
+| Category                   | Scenarios | Passed  | Untested |
+| -------------------------- | --------- | ------- | -------- |
+| Batches                    | 20        | 20      | 0        |
+| Parts                      | 26        | 26      | 0        |
+| Procedure Versions         | 9         | 9       | 0        |
+| Procedures                 | 25        | 25      | 0        |
+| Revisions                  | 16        | 16      | 0        |
+| Runs — Validation          | 15        | 15      | 0        |
+| Runs — Validators          | 37        | 37      | 0        |
+| Runs — Aggregations        | 21        | 21      | 0        |
+| Runs — MDM                 | 28        | 28      | 0        |
+| Runs — Legacy Limits       | 15        | 15      | 0        |
+| Runs — Sub-Units Lifecycle | 5         | 5       | 0        |
+| Runs — Search              | 3         | 3       | 0        |
+| Runs — List                | 18        | 18      | 0        |
+| Runs — Get/Update/Delete   | 12        | 12      | 0        |
+| Stations                   | 30        | 30      | 0        |
+| Units                      | 66        | 66      | 0        |
+| User                       | 2         | 2       | 0        |
+| Attachments                | 3         | 3       | 0        |
+| **Total**                  | **351**   | **351** | **0**    |
 
 **V2 Coverage: 351/351 scenarios passing, 0 untested (100% method-param coverage)**
 **Pytest items: 715** (346 functions: 344×2 + 1×26 + 1×1)
