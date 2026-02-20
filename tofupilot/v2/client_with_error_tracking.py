@@ -1,15 +1,12 @@
 """TofuPilot SDK with enhanced error tracking and logging capabilities."""
 
-import json
 import os
-from typing import Optional, Union
+from typing import Optional
 
-import httpx
 from pydantic_core import ValidationError
 
 from .sdk import TofuPilot
 from .errors.tofupiloterror import TofuPilotError
-from ._hooks.types import AfterSuccessContext, AfterSuccessHook
 from ..banner import print_banner_and_check_version
 
 
@@ -18,24 +15,6 @@ def _enhance_error_message(e: TofuPilotError) -> None:
     if hasattr(e, "data") and hasattr(e.data, "issues") and e.data.issues:
         details = "; ".join(issue.message for issue in e.data.issues)
         object.__setattr__(e, "message", f"{e.message}: {details}")
-
-
-class _WarningHook(AfterSuccessHook):
-    """Surface server-side warnings from X-Warnings response header."""
-
-    def after_success(
-        self, hook_ctx: AfterSuccessContext, response: httpx.Response
-    ) -> Union[httpx.Response, Exception]:
-        raw = response.headers.get("x-warnings")
-        if not raw:
-            return response
-        try:
-            server_warnings = json.loads(raw)
-        except (json.JSONDecodeError, ValueError):
-            return response
-        for w in server_warnings:
-            print(f"\033[33m[TofuPilot] Warning: {w}\033[0m")
-        return response
 
 
 class TofuPilotValidationError(Exception):
@@ -136,10 +115,6 @@ class TofuPilotWithErrorTracking(TofuPilot):
         )
 
         print_banner_and_check_version()
-
-        # Register warning hook to surface server-side warnings
-        hooks = self.sdk_configuration.__dict__["_hooks"]
-        hooks.register_after_success_hook(_WarningHook())
 
     def __getattr__(self, name: str):
         attr = super().__getattr__(name)
