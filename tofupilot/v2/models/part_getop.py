@@ -34,8 +34,6 @@ class PartGetCreatedByUserTypedDict(TypedDict):
     r"""User ID."""
     name: Nullable[str]
     r"""User display name."""
-    image: Nullable[str]
-    r"""User profile image URL."""
 
 
 class PartGetCreatedByUser(BaseModel):
@@ -47,19 +45,32 @@ class PartGetCreatedByUser(BaseModel):
     name: Nullable[str]
     r"""User display name."""
 
-    image: Nullable[str]
-    r"""User profile image URL."""
-
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -72,8 +83,6 @@ class PartGetCreatedByStationTypedDict(TypedDict):
     r"""Station ID."""
     name: str
     r"""Station name."""
-    image: Nullable[str]
-    r"""Station image URL."""
 
 
 class PartGetCreatedByStation(BaseModel):
@@ -85,23 +94,6 @@ class PartGetCreatedByStation(BaseModel):
     name: str
     r"""Station name."""
 
-    image: Nullable[str]
-    r"""Station image URL."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        serialized = handler(self)
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                m[k] = val
-
-        return m
-
 
 class PartGetRevisionTypedDict(TypedDict):
     id: str
@@ -110,8 +102,6 @@ class PartGetRevisionTypedDict(TypedDict):
     r"""Revision number."""
     created_at: datetime
     r"""ISO 8601 timestamp when the revision was created."""
-    image: Nullable[str]
-    r"""Revision image URL."""
 
 
 class PartGetRevision(BaseModel):
@@ -123,23 +113,6 @@ class PartGetRevision(BaseModel):
 
     created_at: datetime
     r"""ISO 8601 timestamp when the revision was created."""
-
-    image: Nullable[str]
-    r"""Revision image URL."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        serialized = handler(self)
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                m[k] = val
-
-        return m
 
 
 class PartGetResponseTypedDict(TypedDict):
@@ -187,25 +160,30 @@ class PartGetResponse(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["created_by_user", "created_by_station"])
-        nullable_fields = set(["created_by_user", "created_by_station"])
+        optional_fields = ["created_by_user", "created_by_station"]
+        nullable_fields = ["created_by_user", "created_by_station"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m

@@ -2,10 +2,20 @@
 
 from typing import TYPE_CHECKING
 from importlib import import_module
-import builtins
-import sys
 
 if TYPE_CHECKING:
+    from .attachment_confirmop import (
+        AttachmentConfirmRequest,
+        AttachmentConfirmRequestTypedDict,
+        AttachmentConfirmResponse,
+        AttachmentConfirmResponseTypedDict,
+    )
+    from .attachment_deleteop import (
+        AttachmentDeleteRequest,
+        AttachmentDeleteRequestTypedDict,
+        AttachmentDeleteResponse,
+        AttachmentDeleteResponseTypedDict,
+    )
     from .attachment_initializeop import (
         AttachmentInitializeRequest,
         AttachmentInitializeRequestTypedDict,
@@ -79,6 +89,10 @@ if TYPE_CHECKING:
         ErrorINTERNALSERVERERRORIssueTypedDict,
     )
     from .errornotfound import ErrorNOTFOUNDIssue, ErrorNOTFOUNDIssueTypedDict
+    from .errorpreconditionfailed import (
+        ErrorPRECONDITIONFAILEDIssue,
+        ErrorPRECONDITIONFAILEDIssueTypedDict,
+    )
     from .errorunauthorized import (
         ErrorUNAUTHORIZEDIssue,
         ErrorUNAUTHORIZEDIssueTypedDict,
@@ -86,6 +100,10 @@ if TYPE_CHECKING:
     from .errorunprocessablecontent import (
         ErrorUNPROCESSABLECONTENTIssue,
         ErrorUNPROCESSABLECONTENTIssueTypedDict,
+    )
+    from .github_getinstallationtokenop import (
+        GithubGetInstallationTokenResponse,
+        GithubGetInstallationTokenResponseTypedDict,
     )
     from .part_createop import (
         PartCreateRequest,
@@ -226,6 +244,8 @@ if TYPE_CHECKING:
         ProcedureGetVersionResponseTypedDict,
     )
     from .procedure_listop import (
+        LinkedRepository,
+        LinkedRepositoryTypedDict,
         ProcedureListCreatedByUser,
         ProcedureListCreatedByUserTypedDict,
         ProcedureListData,
@@ -330,8 +350,6 @@ if TYPE_CHECKING:
         RunDeleteResponseTypedDict,
     )
     from .run_getop import (
-        Attachment,
-        AttachmentTypedDict,
         DataSery,
         DataSeryAggregation,
         DataSeryAggregationExpectedValue,
@@ -357,6 +375,8 @@ if TYPE_CHECKING:
         RunGetAggregationValidator,
         RunGetAggregationValidatorOutcome,
         RunGetAggregationValidatorTypedDict,
+        RunGetAttachment,
+        RunGetAttachmentTypedDict,
         RunGetBatch,
         RunGetBatchTypedDict,
         RunGetCreatedByStation,
@@ -402,7 +422,6 @@ if TYPE_CHECKING:
         SubUnitTypedDict,
     )
     from .run_listop import (
-        QueryParamOutcome,
         RunListBatch,
         RunListBatchTypedDict,
         RunListCreatedByStation,
@@ -420,6 +439,7 @@ if TYPE_CHECKING:
         RunListPartTypedDict,
         RunListProcedure,
         RunListProcedureTypedDict,
+        RunListQueryParamOutcome,
         RunListRequest,
         RunListRequestTypedDict,
         RunListResponse,
@@ -493,6 +513,8 @@ if TYPE_CHECKING:
         StationListRequestTypedDict,
         StationListResponse,
         StationListResponseTypedDict,
+        StationListTeam,
+        StationListTeamTypedDict,
     )
     from .station_removeop import (
         StationRemoveRequest,
@@ -542,6 +564,8 @@ if TYPE_CHECKING:
         ParentPartTypedDict,
         ParentRevision,
         ParentRevisionTypedDict,
+        UnitGetAttachment,
+        UnitGetAttachmentTypedDict,
         UnitGetBatch,
         UnitGetBatchTypedDict,
         UnitGetChild,
@@ -566,6 +590,7 @@ if TYPE_CHECKING:
     )
     from .unit_listop import (
         LastRun,
+        LastRunOutcome,
         LastRunTypedDict,
         UnitListBatch,
         UnitListBatchTypedDict,
@@ -579,13 +604,13 @@ if TYPE_CHECKING:
         UnitListDataTypedDict,
         UnitListMeta,
         UnitListMetaTypedDict,
-        UnitListOutcome,
         UnitListParent,
         UnitListParentTypedDict,
         UnitListPart,
         UnitListPartTypedDict,
         UnitListProcedure,
         UnitListProcedureTypedDict,
+        UnitListQueryParamOutcome,
         UnitListRequest,
         UnitListRequestTypedDict,
         UnitListResponse,
@@ -617,12 +642,18 @@ if TYPE_CHECKING:
     )
 
 __all__ = [
-    "Attachment",
+    "AttachmentConfirmRequest",
+    "AttachmentConfirmRequestTypedDict",
+    "AttachmentConfirmResponse",
+    "AttachmentConfirmResponseTypedDict",
+    "AttachmentDeleteRequest",
+    "AttachmentDeleteRequestTypedDict",
+    "AttachmentDeleteResponse",
+    "AttachmentDeleteResponseTypedDict",
     "AttachmentInitializeRequest",
     "AttachmentInitializeRequestTypedDict",
     "AttachmentInitializeResponse",
     "AttachmentInitializeResponseTypedDict",
-    "AttachmentTypedDict",
     "BatchCreateRequest",
     "BatchCreateRequestTypedDict",
     "BatchCreateResponse",
@@ -706,12 +737,19 @@ __all__ = [
     "ErrorINTERNALSERVERERRORIssueTypedDict",
     "ErrorNOTFOUNDIssue",
     "ErrorNOTFOUNDIssueTypedDict",
+    "ErrorPRECONDITIONFAILEDIssue",
+    "ErrorPRECONDITIONFAILEDIssueTypedDict",
     "ErrorUNAUTHORIZEDIssue",
     "ErrorUNAUTHORIZEDIssueTypedDict",
     "ErrorUNPROCESSABLECONTENTIssue",
     "ErrorUNPROCESSABLECONTENTIssueTypedDict",
+    "GithubGetInstallationTokenResponse",
+    "GithubGetInstallationTokenResponseTypedDict",
     "LastRun",
+    "LastRunOutcome",
     "LastRunTypedDict",
+    "LinkedRepository",
+    "LinkedRepositoryTypedDict",
     "ParentPart",
     "ParentPartTypedDict",
     "ParentRevision",
@@ -839,7 +877,6 @@ __all__ = [
     "ProcedureUpdateRequestTypedDict",
     "ProcedureUpdateResponse",
     "ProcedureUpdateResponseTypedDict",
-    "QueryParamOutcome",
     "RecentRun",
     "RecentRunTypedDict",
     "Run",
@@ -885,6 +922,8 @@ __all__ = [
     "RunGetAggregationValidator",
     "RunGetAggregationValidatorOutcome",
     "RunGetAggregationValidatorTypedDict",
+    "RunGetAttachment",
+    "RunGetAttachmentTypedDict",
     "RunGetBatch",
     "RunGetBatchTypedDict",
     "RunGetCreatedByStation",
@@ -943,6 +982,7 @@ __all__ = [
     "RunListPartTypedDict",
     "RunListProcedure",
     "RunListProcedureTypedDict",
+    "RunListQueryParamOutcome",
     "RunListRequest",
     "RunListRequestTypedDict",
     "RunListResponse",
@@ -1009,6 +1049,8 @@ __all__ = [
     "StationListRequestTypedDict",
     "StationListResponse",
     "StationListResponseTypedDict",
+    "StationListTeam",
+    "StationListTeamTypedDict",
     "StationRemoveRequest",
     "StationRemoveRequestTypedDict",
     "StationRemoveResponse",
@@ -1039,6 +1081,8 @@ __all__ = [
     "UnitDeleteRequestTypedDict",
     "UnitDeleteResponse",
     "UnitDeleteResponseTypedDict",
+    "UnitGetAttachment",
+    "UnitGetAttachmentTypedDict",
     "UnitGetBatch",
     "UnitGetBatchTypedDict",
     "UnitGetChild",
@@ -1072,13 +1116,13 @@ __all__ = [
     "UnitListDataTypedDict",
     "UnitListMeta",
     "UnitListMetaTypedDict",
-    "UnitListOutcome",
     "UnitListParent",
     "UnitListParentTypedDict",
     "UnitListPart",
     "UnitListPartTypedDict",
     "UnitListProcedure",
     "UnitListProcedureTypedDict",
+    "UnitListQueryParamOutcome",
     "UnitListRequest",
     "UnitListRequestTypedDict",
     "UnitListResponse",
@@ -1145,6 +1189,14 @@ __all__ = [
 ]
 
 _dynamic_imports: dict[str, str] = {
+    "AttachmentConfirmRequest": ".attachment_confirmop",
+    "AttachmentConfirmRequestTypedDict": ".attachment_confirmop",
+    "AttachmentConfirmResponse": ".attachment_confirmop",
+    "AttachmentConfirmResponseTypedDict": ".attachment_confirmop",
+    "AttachmentDeleteRequest": ".attachment_deleteop",
+    "AttachmentDeleteRequestTypedDict": ".attachment_deleteop",
+    "AttachmentDeleteResponse": ".attachment_deleteop",
+    "AttachmentDeleteResponseTypedDict": ".attachment_deleteop",
     "AttachmentInitializeRequest": ".attachment_initializeop",
     "AttachmentInitializeRequestTypedDict": ".attachment_initializeop",
     "AttachmentInitializeResponse": ".attachment_initializeop",
@@ -1209,10 +1261,14 @@ _dynamic_imports: dict[str, str] = {
     "ErrorINTERNALSERVERERRORIssueTypedDict": ".errorinternalservererror",
     "ErrorNOTFOUNDIssue": ".errornotfound",
     "ErrorNOTFOUNDIssueTypedDict": ".errornotfound",
+    "ErrorPRECONDITIONFAILEDIssue": ".errorpreconditionfailed",
+    "ErrorPRECONDITIONFAILEDIssueTypedDict": ".errorpreconditionfailed",
     "ErrorUNAUTHORIZEDIssue": ".errorunauthorized",
     "ErrorUNAUTHORIZEDIssueTypedDict": ".errorunauthorized",
     "ErrorUNPROCESSABLECONTENTIssue": ".errorunprocessablecontent",
     "ErrorUNPROCESSABLECONTENTIssueTypedDict": ".errorunprocessablecontent",
+    "GithubGetInstallationTokenResponse": ".github_getinstallationtokenop",
+    "GithubGetInstallationTokenResponseTypedDict": ".github_getinstallationtokenop",
     "PartCreateRequest": ".part_createop",
     "PartCreateRequestTypedDict": ".part_createop",
     "PartCreateResponse": ".part_createop",
@@ -1321,6 +1377,8 @@ _dynamic_imports: dict[str, str] = {
     "ProcedureGetVersionRequestTypedDict": ".procedure_getversionop",
     "ProcedureGetVersionResponse": ".procedure_getversionop",
     "ProcedureGetVersionResponseTypedDict": ".procedure_getversionop",
+    "LinkedRepository": ".procedure_listop",
+    "LinkedRepositoryTypedDict": ".procedure_listop",
     "ProcedureListCreatedByUser": ".procedure_listop",
     "ProcedureListCreatedByUserTypedDict": ".procedure_listop",
     "ProcedureListData": ".procedure_listop",
@@ -1417,8 +1475,6 @@ _dynamic_imports: dict[str, str] = {
     "RunDeleteRequestTypedDict": ".run_deleteop",
     "RunDeleteResponse": ".run_deleteop",
     "RunDeleteResponseTypedDict": ".run_deleteop",
-    "Attachment": ".run_getop",
-    "AttachmentTypedDict": ".run_getop",
     "DataSery": ".run_getop",
     "DataSeryAggregation": ".run_getop",
     "DataSeryAggregationExpectedValue": ".run_getop",
@@ -1444,6 +1500,8 @@ _dynamic_imports: dict[str, str] = {
     "RunGetAggregationValidator": ".run_getop",
     "RunGetAggregationValidatorOutcome": ".run_getop",
     "RunGetAggregationValidatorTypedDict": ".run_getop",
+    "RunGetAttachment": ".run_getop",
+    "RunGetAttachmentTypedDict": ".run_getop",
     "RunGetBatch": ".run_getop",
     "RunGetBatchTypedDict": ".run_getop",
     "RunGetCreatedByStation": ".run_getop",
@@ -1487,7 +1545,6 @@ _dynamic_imports: dict[str, str] = {
     "RunGetVersionTypedDict": ".run_getop",
     "SubUnit": ".run_getop",
     "SubUnitTypedDict": ".run_getop",
-    "QueryParamOutcome": ".run_listop",
     "RunListBatch": ".run_listop",
     "RunListBatchTypedDict": ".run_listop",
     "RunListCreatedByStation": ".run_listop",
@@ -1505,6 +1562,7 @@ _dynamic_imports: dict[str, str] = {
     "RunListPartTypedDict": ".run_listop",
     "RunListProcedure": ".run_listop",
     "RunListProcedureTypedDict": ".run_listop",
+    "RunListQueryParamOutcome": ".run_listop",
     "RunListRequest": ".run_listop",
     "RunListRequestTypedDict": ".run_listop",
     "RunListResponse": ".run_listop",
@@ -1569,6 +1627,8 @@ _dynamic_imports: dict[str, str] = {
     "StationListRequestTypedDict": ".station_listop",
     "StationListResponse": ".station_listop",
     "StationListResponseTypedDict": ".station_listop",
+    "StationListTeam": ".station_listop",
+    "StationListTeamTypedDict": ".station_listop",
     "StationRemoveRequest": ".station_removeop",
     "StationRemoveRequestTypedDict": ".station_removeop",
     "StationRemoveResponse": ".station_removeop",
@@ -1606,6 +1666,8 @@ _dynamic_imports: dict[str, str] = {
     "ParentPartTypedDict": ".unit_getop",
     "ParentRevision": ".unit_getop",
     "ParentRevisionTypedDict": ".unit_getop",
+    "UnitGetAttachment": ".unit_getop",
+    "UnitGetAttachmentTypedDict": ".unit_getop",
     "UnitGetBatch": ".unit_getop",
     "UnitGetBatchTypedDict": ".unit_getop",
     "UnitGetChild": ".unit_getop",
@@ -1628,6 +1690,7 @@ _dynamic_imports: dict[str, str] = {
     "UnitGetRevision": ".unit_getop",
     "UnitGetRevisionTypedDict": ".unit_getop",
     "LastRun": ".unit_listop",
+    "LastRunOutcome": ".unit_listop",
     "LastRunTypedDict": ".unit_listop",
     "UnitListBatch": ".unit_listop",
     "UnitListBatchTypedDict": ".unit_listop",
@@ -1641,13 +1704,13 @@ _dynamic_imports: dict[str, str] = {
     "UnitListDataTypedDict": ".unit_listop",
     "UnitListMeta": ".unit_listop",
     "UnitListMetaTypedDict": ".unit_listop",
-    "UnitListOutcome": ".unit_listop",
     "UnitListParent": ".unit_listop",
     "UnitListParentTypedDict": ".unit_listop",
     "UnitListPart": ".unit_listop",
     "UnitListPartTypedDict": ".unit_listop",
     "UnitListProcedure": ".unit_listop",
     "UnitListProcedureTypedDict": ".unit_listop",
+    "UnitListQueryParamOutcome": ".unit_listop",
     "UnitListRequest": ".unit_listop",
     "UnitListRequestTypedDict": ".unit_listop",
     "UnitListResponse": ".unit_listop",
@@ -1673,18 +1736,6 @@ _dynamic_imports: dict[str, str] = {
 }
 
 
-def dynamic_import(modname, retries=3):
-    for attempt in range(retries):
-        try:
-            return import_module(modname, __package__)
-        except KeyError:
-            # Clear any half-initialized module and retry
-            sys.modules.pop(modname, None)
-            if attempt == retries - 1:
-                break
-    raise KeyError(f"Failed to import module '{modname}' after {retries} attempts")
-
-
 def __getattr__(attr_name: str) -> object:
     module_name = _dynamic_imports.get(attr_name)
     if module_name is None:
@@ -1693,7 +1744,7 @@ def __getattr__(attr_name: str) -> object:
         )
 
     try:
-        module = dynamic_import(module_name)
+        module = import_module(module_name, __package__)
         result = getattr(module, attr_name)
         return result
     except ImportError as e:
@@ -1707,5 +1758,5 @@ def __getattr__(attr_name: str) -> object:
 
 
 def __dir__():
-    lazy_attrs = builtins.list(_dynamic_imports.keys())
-    return builtins.sorted(lazy_attrs)
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)

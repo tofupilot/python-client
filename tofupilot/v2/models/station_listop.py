@@ -12,6 +12,7 @@ class StationListRequestTypedDict(TypedDict):
     limit: NotRequired[int]
     cursor: NotRequired[int]
     search_query: NotRequired[str]
+    procedure_ids: NotRequired[List[str]]
 
 
 class StationListRequest(BaseModel):
@@ -30,21 +31,10 @@ class StationListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = set(["limit", "cursor", "search_query"])
-        serialized = handler(self)
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                if val is not None or k not in optional_fields:
-                    m[k] = val
-
-        return m
+    procedure_ids: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
 
 
 class StationListProcedureTypedDict(TypedDict):
@@ -68,46 +58,73 @@ class StationListProcedure(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["identifier"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
 
 
+class StationListTeamTypedDict(TypedDict):
+    r"""Team this station belongs to"""
+
+    id: str
+    r"""Team ID"""
+    name: str
+    r"""Team name"""
+
+
+class StationListTeam(BaseModel):
+    r"""Team this station belongs to"""
+
+    id: str
+    r"""Team ID"""
+
+    name: str
+    r"""Team name"""
+
+
 class StationListDataTypedDict(TypedDict):
     id: str
     r"""Unique identifier of the station"""
-    identifier: str
-    r"""Station identifier"""
     name: str
     r"""Name of the station"""
-    image: Nullable[str]
-    r"""Direct image URL for the station"""
     procedures: List[StationListProcedureTypedDict]
     r"""Procedures linked to this station"""
     procedures_count: float
     r"""Total number of procedures linked to this station"""
+    team: Nullable[StationListTeamTypedDict]
+    r"""Team this station belongs to"""
 
 
 class StationListData(BaseModel):
     id: str
     r"""Unique identifier of the station"""
 
-    identifier: str
-    r"""Station identifier"""
-
     name: str
     r"""Name of the station"""
-
-    image: Nullable[str]
-    r"""Direct image URL for the station"""
 
     procedures: List[StationListProcedure]
     r"""Procedures linked to this station"""
@@ -115,16 +132,35 @@ class StationListData(BaseModel):
     procedures_count: float
     r"""Total number of procedures linked to this station"""
 
+    team: Nullable[StationListTeam]
+    r"""Team this station belongs to"""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["team"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -150,14 +186,30 @@ class StationListMeta(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["next_cursor"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m

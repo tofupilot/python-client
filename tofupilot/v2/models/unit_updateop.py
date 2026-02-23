@@ -10,7 +10,7 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing import Optional
+from typing import List, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
 
 
@@ -23,6 +23,8 @@ class UnitUpdateRequestBodyTypedDict(TypedDict):
     r"""New revision number for the unit."""
     batch_number: NotRequired[Nullable[str]]
     r"""New batch number for the unit. Set to null to remove batch."""
+    attachments: NotRequired[List[str]]
+    r"""Array of upload IDs to attach to the unit."""
 
 
 class UnitUpdateRequestBody(BaseModel):
@@ -38,30 +40,42 @@ class UnitUpdateRequestBody(BaseModel):
     batch_number: OptionalNullable[str] = UNSET
     r"""New batch number for the unit. Set to null to remove batch."""
 
+    attachments: Optional[List[str]] = None
+    r"""Array of upload IDs to attach to the unit."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["new_serial_number", "part_number", "revision_number", "batch_number"]
-        )
-        nullable_fields = set(["batch_number"])
+        optional_fields = [
+            "new_serial_number",
+            "part_number",
+            "revision_number",
+            "batch_number",
+            "attachments",
+        ]
+        nullable_fields = ["batch_number"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 

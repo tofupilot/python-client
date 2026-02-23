@@ -3,6 +3,7 @@
 from __future__ import annotations
 from tofupilot.v2.types import BaseModel
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
+from typing import List
 from typing_extensions import Annotated, TypedDict
 
 
@@ -19,12 +20,12 @@ class BatchDeleteRequest(BaseModel):
 class BatchDeleteResponseTypedDict(TypedDict):
     r"""Response for successful batch deletion"""
 
-    id: str
-    r"""ID of the successfully deleted batch"""
+    id: List[str]
+    r"""IDs of successfully deleted batches"""
 
 
 class BatchDeleteResponse(BaseModel):
     r"""Response for successful batch deletion"""
 
-    id: str
-    r"""ID of the successfully deleted batch"""
+    id: List[str]
+    r"""IDs of successfully deleted batches"""

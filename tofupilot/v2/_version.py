@@ -5,8 +5,8 @@ import importlib.metadata
 __title__: str = "tofupilot.v2"
 __version__: str = "0.7.12"
 __openapi_doc_version__: str = "2.0.0"
-__gen_version__: str = "2.796.4"
-__user_agent__: str = "speakeasy-sdk/python 0.7.12 2.796.4 2.0.0 tofupilot.v2"
+__gen_version__: str = "2.657.1"
+__user_agent__: str = "speakeasy-sdk/python 0.7.12 2.657.1 2.0.0 tofupilot.v2"
 
 try:
     if __package__ is not None:

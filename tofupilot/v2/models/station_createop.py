@@ -2,17 +2,23 @@
 
 from __future__ import annotations
 from tofupilot.v2.types import BaseModel
-from typing_extensions import TypedDict
+from typing import Optional
+from typing_extensions import NotRequired, TypedDict
 
 
 class StationCreateRequestTypedDict(TypedDict):
     name: str
     r"""Name of the station"""
+    procedure_id: NotRequired[str]
+    r"""Optional procedure ID to link the station to"""
 
 
 class StationCreateRequest(BaseModel):
     name: str
     r"""Name of the station"""
+
+    procedure_id: Optional[str] = None
+    r"""Optional procedure ID to link the station to"""
 
 
 class StationCreateResponseTypedDict(TypedDict):

@@ -15,15 +15,207 @@ from typing import Any, Mapping, Optional
 class Procedures(BaseSDK):
     versions: Versions
 
-    def __init__(
-        self, sdk_config: SDKConfiguration, parent_ref: Optional[object] = None
-    ) -> None:
-        BaseSDK.__init__(self, sdk_config, parent_ref=parent_ref)
+    def __init__(self, sdk_config: SDKConfiguration) -> None:
+        BaseSDK.__init__(self, sdk_config)
         self.sdk_configuration = sdk_config
         self._init_sdks()
 
     def _init_sdks(self):
-        self.versions = Versions(self.sdk_configuration, parent_ref=self.parent_ref)
+        self.versions = Versions(self.sdk_configuration)
+
+    def create(
+        self,
+        *,
+        name: str,
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.ProcedureCreateResponse:
+        r"""Create procedure
+
+        Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
+
+        :param name: Name of the procedure. Must be unique within the organization.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.ProcedureCreateRequest(
+            name=name,
+        )
+
+        req = self._build_request(
+            method="POST",
+            path="/v2/procedures",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request, False, False, "json", models.ProcedureCreateRequest
+            ),
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = self.do_request(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="procedure-create",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["401", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.ProcedureCreateResponse, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
+    async def create_async(
+        self,
+        *,
+        name: str,
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.ProcedureCreateResponse:
+        r"""Create procedure
+
+        Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
+
+        :param name: Name of the procedure. Must be unique within the organization.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.ProcedureCreateRequest(
+            name=name,
+        )
+
+        req = self._build_request_async(
+            method="POST",
+            path="/v2/procedures",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request, False, False, "json", models.ProcedureCreateRequest
+            ),
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = await self.do_request_async(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="procedure-create",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["401", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.ProcedureCreateResponse, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
 
     def list(
         self,
@@ -83,7 +275,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -100,7 +291,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -195,7 +386,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -212,7 +402,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -230,202 +420,6 @@ class Procedures(BaseSDK):
                 errors.ErrorBADREQUESTData, http_res
             )
             raise errors.ErrorBADREQUEST(response_data, http_res)
-        if utils.match_response(http_res, "401", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorUNAUTHORIZEDData, http_res
-            )
-            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
-        if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorINTERNALSERVERERRORData, http_res
-            )
-            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
-        if utils.match_response(http_res, "4XX", "*"):
-            http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-        if utils.match_response(http_res, "5XX", "*"):
-            http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-
-        raise errors.APIError("Unexpected response received", http_res)
-
-    def create(
-        self,
-        *,
-        name: str,
-        retries: OptionalNullable[utils.RetryConfig] = UNSET,
-        server_url: Optional[str] = None,
-        timeout_ms: Optional[int] = None,
-        http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.ProcedureCreateResponse:
-        r"""Create procedure
-
-        Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
-
-        :param name: Name of the procedure. Must be unique within the organization.
-        :param retries: Override the default retry configuration for this method
-        :param server_url: Override the default server URL for this method
-        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
-        :param http_headers: Additional headers to set or replace on requests.
-        """
-        base_url = None
-        url_variables = None
-        if timeout_ms is None:
-            timeout_ms = self.sdk_configuration.timeout_ms
-
-        if server_url is not None:
-            base_url = server_url
-        else:
-            base_url = self._get_url(base_url, url_variables)
-
-        request = models.ProcedureCreateRequest(
-            name=name,
-        )
-
-        req = self._build_request(
-            method="POST",
-            path="/v2/procedures",
-            base_url=base_url,
-            url_variables=url_variables,
-            request=request,
-            request_body_required=True,
-            request_has_path_params=False,
-            request_has_query_params=True,
-            user_agent_header="user-agent",
-            accept_header_value="application/json",
-            http_headers=http_headers,
-            security=self.sdk_configuration.security,
-            get_serialized_body=lambda: utils.serialize_request_body(
-                request, False, False, "json", models.ProcedureCreateRequest
-            ),
-            allow_empty_value=None,
-            timeout_ms=timeout_ms,
-        )
-
-        if retries == UNSET:
-            if self.sdk_configuration.retry_config is not UNSET:
-                retries = self.sdk_configuration.retry_config
-
-        retry_config = None
-        if isinstance(retries, utils.RetryConfig):
-            retry_config = (retries, ["429", "500", "502", "503", "504"])
-
-        http_res = self.do_request(
-            hook_ctx=HookContext(
-                config=self.sdk_configuration,
-                base_url=base_url or "",
-                operation_id="procedure-create",
-                oauth2_scopes=None,
-                security_source=get_security_from_env(
-                    self.sdk_configuration.security, models.Security
-                ),
-            ),
-            request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
-            retry_config=retry_config,
-        )
-
-        response_data: Any = None
-        if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureCreateResponse, http_res)
-        if utils.match_response(http_res, "401", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorUNAUTHORIZEDData, http_res
-            )
-            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
-        if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorINTERNALSERVERERRORData, http_res
-            )
-            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
-        if utils.match_response(http_res, "4XX", "*"):
-            http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-        if utils.match_response(http_res, "5XX", "*"):
-            http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-
-        raise errors.APIError("Unexpected response received", http_res)
-
-    async def create_async(
-        self,
-        *,
-        name: str,
-        retries: OptionalNullable[utils.RetryConfig] = UNSET,
-        server_url: Optional[str] = None,
-        timeout_ms: Optional[int] = None,
-        http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.ProcedureCreateResponse:
-        r"""Create procedure
-
-        Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
-
-        :param name: Name of the procedure. Must be unique within the organization.
-        :param retries: Override the default retry configuration for this method
-        :param server_url: Override the default server URL for this method
-        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
-        :param http_headers: Additional headers to set or replace on requests.
-        """
-        base_url = None
-        url_variables = None
-        if timeout_ms is None:
-            timeout_ms = self.sdk_configuration.timeout_ms
-
-        if server_url is not None:
-            base_url = server_url
-        else:
-            base_url = self._get_url(base_url, url_variables)
-
-        request = models.ProcedureCreateRequest(
-            name=name,
-        )
-
-        req = self._build_request_async(
-            method="POST",
-            path="/v2/procedures",
-            base_url=base_url,
-            url_variables=url_variables,
-            request=request,
-            request_body_required=True,
-            request_has_path_params=False,
-            request_has_query_params=True,
-            user_agent_header="user-agent",
-            accept_header_value="application/json",
-            http_headers=http_headers,
-            security=self.sdk_configuration.security,
-            get_serialized_body=lambda: utils.serialize_request_body(
-                request, False, False, "json", models.ProcedureCreateRequest
-            ),
-            allow_empty_value=None,
-            timeout_ms=timeout_ms,
-        )
-
-        if retries == UNSET:
-            if self.sdk_configuration.retry_config is not UNSET:
-                retries = self.sdk_configuration.retry_config
-
-        retry_config = None
-        if isinstance(retries, utils.RetryConfig):
-            retry_config = (retries, ["429", "500", "502", "503", "504"])
-
-        http_res = await self.do_request_async(
-            hook_ctx=HookContext(
-                config=self.sdk_configuration,
-                base_url=base_url or "",
-                operation_id="procedure-create",
-                oauth2_scopes=None,
-                security_source=get_security_from_env(
-                    self.sdk_configuration.security, models.Security
-                ),
-            ),
-            request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
-            retry_config=retry_config,
-        )
-
-        response_data: Any = None
-        if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.ProcedureCreateResponse, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
@@ -491,7 +485,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -508,7 +501,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -589,7 +582,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -606,7 +598,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -687,7 +679,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -704,7 +695,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -790,7 +781,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -807,7 +797,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -905,7 +895,6 @@ class Procedures(BaseSDK):
                 "json",
                 models.ProcedureUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -922,7 +911,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1020,7 +1009,6 @@ class Procedures(BaseSDK):
                 "json",
                 models.ProcedureUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1037,7 +1025,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

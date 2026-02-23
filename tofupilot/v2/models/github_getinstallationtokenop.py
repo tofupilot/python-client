@@ -6,14 +6,6 @@ from tofupilot.v2.types import BaseModel
 from typing_extensions import TypedDict
 
 
-class GithubGetInstallationTokenIssueTypedDict(TypedDict):
-    message: str
-
-
-class GithubGetInstallationTokenIssue(BaseModel):
-    message: str
-
-
 class GithubGetInstallationTokenResponseTypedDict(TypedDict):
     r"""Token and expiration time, or null if no GitHub App is installed for the organization"""
 

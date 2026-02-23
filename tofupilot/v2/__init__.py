@@ -25,7 +25,7 @@ __all__ = [
     "TofuPilotBase",  # Base without error tracking
     # Version info
     "VERSION",
-    "OPENAPI_DOC_VERSION", 
+    "OPENAPI_DOC_VERSION",
     "SPEAKEASY_GENERATOR_VERSION",
     "USER_AGENT",
 ]

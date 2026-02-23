@@ -2,14 +2,12 @@
 
 import httpx
 from typing import Optional
-from dataclasses import dataclass
 
 from tofupilot.v2.errors import TofuPilotError
 
 MAX_MESSAGE_LEN = 10_000
 
 
-@dataclass(unsafe_hash=True)
 class APIError(TofuPilotError):
     """The fallback error class if no more specific error class is matched."""
 

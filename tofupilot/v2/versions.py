@@ -59,7 +59,6 @@ class Versions(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -76,7 +75,7 @@ class Versions(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-getVersion",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -160,7 +159,6 @@ class Versions(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -177,7 +175,7 @@ class Versions(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-getVersion",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -261,7 +259,6 @@ class Versions(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -278,7 +275,7 @@ class Versions(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-deleteVersion",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -367,7 +364,6 @@ class Versions(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -384,7 +380,7 @@ class Versions(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-deleteVersion",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -482,7 +478,6 @@ class Versions(BaseSDK):
                 "json",
                 models.ProcedureCreateVersionRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -499,7 +494,7 @@ class Versions(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-createVersion",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -597,7 +592,6 @@ class Versions(BaseSDK):
                 "json",
                 models.ProcedureCreateVersionRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -614,7 +608,7 @@ class Versions(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-createVersion",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

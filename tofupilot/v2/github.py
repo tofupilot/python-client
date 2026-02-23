@@ -49,7 +49,6 @@ class GitHub(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -66,13 +65,13 @@ class GitHub(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="github-getInstallationToken",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
             ),
             request=req,
-            error_status_codes=["403", "412", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "412", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -81,14 +80,19 @@ class GitHub(BaseSDK):
             return unmarshal_json_response(
                 models.GithubGetInstallationTokenResponse, http_res
             )
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
         if utils.match_response(http_res, "403", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
             raise errors.ErrorFORBIDDEN(response_data, http_res)
         if utils.match_response(http_res, "412", "application/json"):
             response_data = unmarshal_json_response(
-                errors.GITHUBINSTALLATIONSUSPENDEDError412Data, http_res
+                errors.ErrorPRECONDITIONFAILEDData, http_res
             )
-            raise errors.GITHUBINSTALLATIONSUSPENDEDError412(response_data, http_res)
+            raise errors.ErrorPRECONDITIONFAILED(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -142,7 +146,6 @@ class GitHub(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -159,13 +162,13 @@ class GitHub(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="github-getInstallationToken",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
             ),
             request=req,
-            error_status_codes=["403", "412", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "412", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -174,14 +177,19 @@ class GitHub(BaseSDK):
             return unmarshal_json_response(
                 models.GithubGetInstallationTokenResponse, http_res
             )
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
         if utils.match_response(http_res, "403", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
             raise errors.ErrorFORBIDDEN(response_data, http_res)
         if utils.match_response(http_res, "412", "application/json"):
             response_data = unmarshal_json_response(
-                errors.GITHUBINSTALLATIONSUSPENDEDError412Data, http_res
+                errors.ErrorPRECONDITIONFAILEDData, http_res
             )
-            raise errors.GITHUBINSTALLATIONSUSPENDEDError412(response_data, http_res)
+            raise errors.ErrorPRECONDITIONFAILED(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res

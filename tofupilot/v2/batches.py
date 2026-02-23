@@ -57,7 +57,6 @@ class Batches(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -74,7 +73,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -160,7 +159,6 @@ class Batches(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -177,7 +175,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -263,7 +261,6 @@ class Batches(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -280,7 +277,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -361,7 +358,6 @@ class Batches(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -378,7 +374,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -471,7 +467,6 @@ class Batches(BaseSDK):
                 "json",
                 models.BatchUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -488,7 +483,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -584,7 +579,6 @@ class Batches(BaseSDK):
                 "json",
                 models.BatchUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -601,7 +595,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -715,7 +709,6 @@ class Batches(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -732,7 +725,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -845,7 +838,6 @@ class Batches(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -862,7 +854,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -948,7 +940,6 @@ class Batches(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.BatchCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -965,7 +956,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1054,7 +1045,6 @@ class Batches(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.BatchCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1071,7 +1061,7 @@ class Batches(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="batch-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

@@ -17,17 +17,16 @@ generation:
   auth:
     oAuth2ClientCredentialsEnabled: false
     oAuth2PasswordEnabled: false
-    hoistGlobalSecurity: true
-  inferSSEOverload: true
   sdkHooksConfigAccess: true
-  schemas:
-    allOfMergeStrategy: shallowMerge
-  requestBodyFieldName: ""
-  persistentEdits: {}
   tests:
     generateTests: false
     generateNewTests: true
     skipResponseBodyAssertions: false
+  inferSSEOverload: true
+  persistentEdits: {}
+  requestBodyFieldName: ""
+  schemas:
+    allOfMergeStrategy: shallowMerge
 python:
   version: 0.7.12
   additionalDependencies:

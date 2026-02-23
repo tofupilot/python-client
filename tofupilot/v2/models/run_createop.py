@@ -15,40 +15,17 @@ from typing import Any, Dict, List, Literal, Optional, Union
 from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
-RunCreateOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "ERROR",
-    "TIMEOUT",
-    "ABORTED",
-]
+RunCreateOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption."""
 
-
-RunCreatePhaseOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "SKIP",
-    "ERROR",
-]
+RunCreatePhaseOutcome = Literal["PASS", "FAIL", "SKIP", "ERROR"]
 r"""Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed."""
 
-
-RunCreateMeasurementOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+RunCreateMeasurementOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
 
-
-XAxisValidatorOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+XAxisValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
-
 
 XAxisExpectedValueTypedDict = TypeAliasType(
     "XAxisExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
@@ -97,41 +74,49 @@ class XAxisValidator(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
-        nullable_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
+        optional_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        nullable_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
 
-XAxisAggregationOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+XAxisAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Computed result of aggregation validation. Server stores as-is."""
-
 
 XAxisValueTypedDict = TypeAliasType("XAxisValueTypedDict", Union[float, str, bool])
 r"""Computed aggregation value."""
@@ -141,13 +126,8 @@ XAxisValue = TypeAliasType("XAxisValue", Union[float, str, bool])
 r"""Computed aggregation value."""
 
 
-XAxisAggregationValidatorOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+XAxisAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
-
 
 XAxisAggregationExpectedValueTypedDict = TypeAliasType(
     "XAxisAggregationExpectedValueTypedDict",
@@ -197,30 +177,43 @@ class XAxisAggregationValidator(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
-        nullable_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
+        optional_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        nullable_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -260,26 +253,31 @@ class XAxisAggregation(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["outcome", "value", "unit", "validators"])
-        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        optional_fields = ["outcome", "value", "unit", "validators"]
+        nullable_fields = ["outcome", "value", "unit", "validators"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -319,37 +317,37 @@ class XAxis(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["units", "description", "validators", "aggregations"])
-        nullable_fields = set(["units", "description", "validators", "aggregations"])
+        optional_fields = ["units", "description", "validators", "aggregations"]
+        nullable_fields = ["units", "description", "validators", "aggregations"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
 
-YAxiValidatorOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+YAxiValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
-
 
 YAxiExpectedValueTypedDict = TypeAliasType(
     "YAxiExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
@@ -398,41 +396,49 @@ class YAxiValidator(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
-        nullable_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
+        optional_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        nullable_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
 
-YAxiAggregationOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+YAxiAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Computed result of aggregation validation. Server stores as-is."""
-
 
 YAxiValueTypedDict = TypeAliasType("YAxiValueTypedDict", Union[float, str, bool])
 r"""Computed aggregation value."""
@@ -442,13 +448,8 @@ YAxiValue = TypeAliasType("YAxiValue", Union[float, str, bool])
 r"""Computed aggregation value."""
 
 
-YAxiAggregationValidatorOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+YAxiAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
-
 
 YAxiAggregationExpectedValueTypedDict = TypeAliasType(
     "YAxiAggregationExpectedValueTypedDict",
@@ -498,30 +499,43 @@ class YAxiAggregationValidator(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
-        nullable_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
+        optional_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        nullable_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -561,26 +575,31 @@ class YAxiAggregation(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["outcome", "value", "unit", "validators"])
-        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        optional_fields = ["outcome", "value", "unit", "validators"]
+        nullable_fields = ["outcome", "value", "unit", "validators"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -620,26 +639,31 @@ class YAxi(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["units", "description", "validators", "aggregations"])
-        nullable_fields = set(["units", "description", "validators", "aggregations"])
+        optional_fields = ["units", "description", "validators", "aggregations"]
+        nullable_fields = ["units", "description", "validators", "aggregations"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -678,13 +702,8 @@ RunCreateUnits = TypeAliasType("RunCreateUnits", Union[str, List[str]])
 r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
 
 
-ValidatorsOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+ValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
-
 
 ValidatorsExpectedValueTypedDict = TypeAliasType(
     "ValidatorsExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
@@ -733,30 +752,43 @@ class Validators(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
-        nullable_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
+        optional_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        nullable_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -771,13 +803,8 @@ ValidatorsUnion = TypeAliasType("ValidatorsUnion", Union[List[Validators], List[
 r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
 
 
-RunCreateAggregationOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+RunCreateAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Computed result of aggregation validation. Server stores as-is."""
-
 
 RunCreateValueTypedDict = TypeAliasType(
     "RunCreateValueTypedDict", Union[float, str, bool]
@@ -789,13 +816,8 @@ RunCreateValue = TypeAliasType("RunCreateValue", Union[float, str, bool])
 r"""Computed aggregation value."""
 
 
-RunCreateAggregationValidatorOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "UNSET",
-]
+RunCreateAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
-
 
 RunCreateAggregationExpectedValueTypedDict = TypeAliasType(
     "RunCreateAggregationExpectedValueTypedDict",
@@ -845,30 +867,43 @@ class RunCreateAggregationValidator(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
-        nullable_fields = set(
-            ["outcome", "operator", "expected_value", "expression", "is_decisive"]
-        )
+        optional_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        nullable_fields = [
+            "outcome",
+            "operator",
+            "expected_value",
+            "expression",
+            "is_decisive",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -908,26 +943,31 @@ class RunCreateAggregation(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["outcome", "value", "unit", "validators"])
-        nullable_fields = set(["outcome", "value", "unit", "validators"])
+        optional_fields = ["outcome", "value", "unit", "validators"]
+        nullable_fields = ["outcome", "value", "unit", "validators"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -1003,48 +1043,49 @@ class RunCreateMeasurement(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            [
-                "x_axis",
-                "y_axis",
-                "measured_value",
-                "units",
-                "lower_limit",
-                "upper_limit",
-                "validators",
-                "aggregations",
-                "docstring",
-            ]
-        )
-        nullable_fields = set(
-            [
-                "x_axis",
-                "y_axis",
-                "measured_value",
-                "units",
-                "validators",
-                "aggregations",
-                "docstring",
-            ]
-        )
+        optional_fields = [
+            "x_axis",
+            "y_axis",
+            "measured_value",
+            "units",
+            "lower_limit",
+            "upper_limit",
+            "validators",
+            "aggregations",
+            "docstring",
+        ]
+        nullable_fields = [
+            "x_axis",
+            "y_axis",
+            "measured_value",
+            "units",
+            "validators",
+            "aggregations",
+            "docstring",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -1085,37 +1126,36 @@ class RunCreatePhase(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["docstring", "measurements"])
-        nullable_fields = set(["docstring", "measurements"])
+        optional_fields = ["docstring", "measurements"]
+        nullable_fields = ["docstring", "measurements"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
 
-RunCreateLevel = Literal[
-    "DEBUG",
-    "INFO",
-    "WARNING",
-    "ERROR",
-    "CRITICAL",
-]
+RunCreateLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 r"""Severity level of the log message following standard system logging levels. Use DEBUG for detailed diagnostic information, INFO for general execution information, WARNING for unexpected events or potential issues, ERROR for serious problems that prevented function execution, CRITICAL for severe errors that may cause program termination."""
 
 
@@ -1225,38 +1265,41 @@ class RunCreateRequest(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            [
-                "procedure_version",
-                "operated_by",
-                "part_number",
-                "revision_number",
-                "batch_number",
-                "sub_units",
-                "docstring",
-                "phases",
-                "logs",
-            ]
-        )
-        nullable_fields = set(["procedure_version"])
+        optional_fields = [
+            "procedure_version",
+            "operated_by",
+            "part_number",
+            "revision_number",
+            "batch_number",
+            "sub_units",
+            "docstring",
+            "phases",
+            "logs",
+        ]
+        nullable_fields = ["procedure_version"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 

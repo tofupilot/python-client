@@ -11,280 +11,6 @@ from typing import Any, List, Mapping, Optional
 
 
 class UnitsSDK(BaseSDK):
-    def list(
-        self,
-        *,
-        search_query: Optional[str] = None,
-        ids: Optional[List[str]] = None,
-        serial_numbers: Optional[List[str]] = None,
-        part_numbers: Optional[List[str]] = None,
-        revision_numbers: Optional[List[str]] = None,
-        batch_numbers: Optional[List[str]] = None,
-        created_after: Optional[datetime] = None,
-        created_before: Optional[datetime] = None,
-        created_by_user_ids: Optional[List[str]] = None,
-        created_by_station_ids: Optional[List[str]] = None,
-        exclude_units_with_parent: Optional[bool] = False,
-        limit: Optional[int] = 50,
-        cursor: Optional[int] = None,
-        sort_by: Optional[models.UnitListSortBy] = "created_at",
-        sort_order: Optional[models.UnitListSortOrder] = "desc",
-        retries: OptionalNullable[utils.RetryConfig] = UNSET,
-        server_url: Optional[str] = None,
-        timeout_ms: Optional[int] = None,
-        http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.UnitListResponse:
-        r"""List and filter units
-
-        Retrieve units with filtering and cursor-based pagination
-
-        :param search_query:
-        :param ids:
-        :param serial_numbers:
-        :param part_numbers:
-        :param revision_numbers:
-        :param batch_numbers:
-        :param created_after:
-        :param created_before:
-        :param created_by_user_ids:
-        :param created_by_station_ids:
-        :param exclude_units_with_parent:
-        :param limit:
-        :param cursor:
-        :param sort_by: Field to sort results by.
-        :param sort_order: Sort order direction.
-        :param retries: Override the default retry configuration for this method
-        :param server_url: Override the default server URL for this method
-        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
-        :param http_headers: Additional headers to set or replace on requests.
-        """
-        base_url = None
-        url_variables = None
-        if timeout_ms is None:
-            timeout_ms = self.sdk_configuration.timeout_ms
-
-        if server_url is not None:
-            base_url = server_url
-        else:
-            base_url = self._get_url(base_url, url_variables)
-
-        request = models.UnitListRequest(
-            search_query=search_query,
-            ids=ids,
-            serial_numbers=serial_numbers,
-            part_numbers=part_numbers,
-            revision_numbers=revision_numbers,
-            batch_numbers=batch_numbers,
-            created_after=created_after,
-            created_before=created_before,
-            created_by_user_ids=created_by_user_ids,
-            created_by_station_ids=created_by_station_ids,
-            exclude_units_with_parent=exclude_units_with_parent,
-            limit=limit,
-            cursor=cursor,
-            sort_by=sort_by,
-            sort_order=sort_order,
-        )
-
-        req = self._build_request(
-            method="GET",
-            path="/v2/units",
-            base_url=base_url,
-            url_variables=url_variables,
-            request=request,
-            request_body_required=False,
-            request_has_path_params=False,
-            request_has_query_params=True,
-            user_agent_header="user-agent",
-            accept_header_value="application/json",
-            http_headers=http_headers,
-            security=self.sdk_configuration.security,
-            allow_empty_value=None,
-            timeout_ms=timeout_ms,
-        )
-
-        if retries == UNSET:
-            if self.sdk_configuration.retry_config is not UNSET:
-                retries = self.sdk_configuration.retry_config
-
-        retry_config = None
-        if isinstance(retries, utils.RetryConfig):
-            retry_config = (retries, ["429", "500", "502", "503", "504"])
-
-        http_res = self.do_request(
-            hook_ctx=HookContext(
-                config=self.sdk_configuration,
-                base_url=base_url or "",
-                operation_id="unit-list",
-                oauth2_scopes=None,
-                security_source=get_security_from_env(
-                    self.sdk_configuration.security, models.Security
-                ),
-            ),
-            request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
-            retry_config=retry_config,
-        )
-
-        response_data: Any = None
-        if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitListResponse, http_res)
-        if utils.match_response(http_res, "401", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorUNAUTHORIZEDData, http_res
-            )
-            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
-        if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorINTERNALSERVERERRORData, http_res
-            )
-            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
-        if utils.match_response(http_res, "4XX", "*"):
-            http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-        if utils.match_response(http_res, "5XX", "*"):
-            http_res_text = utils.stream_to_text(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-
-        raise errors.APIError("Unexpected response received", http_res)
-
-    async def list_async(
-        self,
-        *,
-        search_query: Optional[str] = None,
-        ids: Optional[List[str]] = None,
-        serial_numbers: Optional[List[str]] = None,
-        part_numbers: Optional[List[str]] = None,
-        revision_numbers: Optional[List[str]] = None,
-        batch_numbers: Optional[List[str]] = None,
-        created_after: Optional[datetime] = None,
-        created_before: Optional[datetime] = None,
-        created_by_user_ids: Optional[List[str]] = None,
-        created_by_station_ids: Optional[List[str]] = None,
-        exclude_units_with_parent: Optional[bool] = False,
-        limit: Optional[int] = 50,
-        cursor: Optional[int] = None,
-        sort_by: Optional[models.UnitListSortBy] = "created_at",
-        sort_order: Optional[models.UnitListSortOrder] = "desc",
-        retries: OptionalNullable[utils.RetryConfig] = UNSET,
-        server_url: Optional[str] = None,
-        timeout_ms: Optional[int] = None,
-        http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.UnitListResponse:
-        r"""List and filter units
-
-        Retrieve units with filtering and cursor-based pagination
-
-        :param search_query:
-        :param ids:
-        :param serial_numbers:
-        :param part_numbers:
-        :param revision_numbers:
-        :param batch_numbers:
-        :param created_after:
-        :param created_before:
-        :param created_by_user_ids:
-        :param created_by_station_ids:
-        :param exclude_units_with_parent:
-        :param limit:
-        :param cursor:
-        :param sort_by: Field to sort results by.
-        :param sort_order: Sort order direction.
-        :param retries: Override the default retry configuration for this method
-        :param server_url: Override the default server URL for this method
-        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
-        :param http_headers: Additional headers to set or replace on requests.
-        """
-        base_url = None
-        url_variables = None
-        if timeout_ms is None:
-            timeout_ms = self.sdk_configuration.timeout_ms
-
-        if server_url is not None:
-            base_url = server_url
-        else:
-            base_url = self._get_url(base_url, url_variables)
-
-        request = models.UnitListRequest(
-            search_query=search_query,
-            ids=ids,
-            serial_numbers=serial_numbers,
-            part_numbers=part_numbers,
-            revision_numbers=revision_numbers,
-            batch_numbers=batch_numbers,
-            created_after=created_after,
-            created_before=created_before,
-            created_by_user_ids=created_by_user_ids,
-            created_by_station_ids=created_by_station_ids,
-            exclude_units_with_parent=exclude_units_with_parent,
-            limit=limit,
-            cursor=cursor,
-            sort_by=sort_by,
-            sort_order=sort_order,
-        )
-
-        req = self._build_request_async(
-            method="GET",
-            path="/v2/units",
-            base_url=base_url,
-            url_variables=url_variables,
-            request=request,
-            request_body_required=False,
-            request_has_path_params=False,
-            request_has_query_params=True,
-            user_agent_header="user-agent",
-            accept_header_value="application/json",
-            http_headers=http_headers,
-            security=self.sdk_configuration.security,
-            allow_empty_value=None,
-            timeout_ms=timeout_ms,
-        )
-
-        if retries == UNSET:
-            if self.sdk_configuration.retry_config is not UNSET:
-                retries = self.sdk_configuration.retry_config
-
-        retry_config = None
-        if isinstance(retries, utils.RetryConfig):
-            retry_config = (retries, ["429", "500", "502", "503", "504"])
-
-        http_res = await self.do_request_async(
-            hook_ctx=HookContext(
-                config=self.sdk_configuration,
-                base_url=base_url or "",
-                operation_id="unit-list",
-                oauth2_scopes=None,
-                security_source=get_security_from_env(
-                    self.sdk_configuration.security, models.Security
-                ),
-            ),
-            request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
-            retry_config=retry_config,
-        )
-
-        response_data: Any = None
-        if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.UnitListResponse, http_res)
-        if utils.match_response(http_res, "401", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorUNAUTHORIZEDData, http_res
-            )
-            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
-        if utils.match_response(http_res, "500", "application/json"):
-            response_data = unmarshal_json_response(
-                errors.ErrorINTERNALSERVERERRORData, http_res
-            )
-            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
-        if utils.match_response(http_res, "4XX", "*"):
-            http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-        if utils.match_response(http_res, "5XX", "*"):
-            http_res_text = await utils.stream_to_text_async(http_res)
-            raise errors.APIError("API error occurred", http_res, http_res_text)
-
-        raise errors.APIError("Unexpected response received", http_res)
-
     def create(
         self,
         *,
@@ -340,7 +66,6 @@ class UnitsSDK(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.UnitCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -357,7 +82,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -450,7 +175,6 @@ class UnitsSDK(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.UnitCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -467,7 +191,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -505,10 +229,324 @@ class UnitsSDK(BaseSDK):
 
         raise errors.APIError("Unexpected response received", http_res)
 
+    def list(
+        self,
+        *,
+        search_query: Optional[str] = None,
+        ids: Optional[List[str]] = None,
+        serial_numbers: Optional[List[str]] = None,
+        part_numbers: Optional[List[str]] = None,
+        revision_numbers: Optional[List[str]] = None,
+        batch_numbers: Optional[List[str]] = None,
+        procedure_ids: Optional[List[str]] = None,
+        outcomes: Optional[List[models.UnitListQueryParamOutcome]] = None,
+        started_after: Optional[datetime] = None,
+        started_before: Optional[datetime] = None,
+        latest_only: Optional[bool] = False,
+        run_count_min: Optional[int] = None,
+        run_count_max: Optional[int] = None,
+        created_after: Optional[datetime] = None,
+        created_before: Optional[datetime] = None,
+        created_by_user_ids: Optional[List[str]] = None,
+        created_by_station_ids: Optional[List[str]] = None,
+        exclude_units_with_parent: Optional[bool] = False,
+        limit: Optional[int] = 50,
+        cursor: Optional[int] = None,
+        sort_by: Optional[models.UnitListSortBy] = "created_at",
+        sort_order: Optional[models.UnitListSortOrder] = "desc",
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.UnitListResponse:
+        r"""List and filter units
+
+        Retrieve units with filtering and cursor-based pagination
+
+        :param search_query:
+        :param ids:
+        :param serial_numbers:
+        :param part_numbers:
+        :param revision_numbers:
+        :param batch_numbers:
+        :param procedure_ids:
+        :param outcomes:
+        :param started_after:
+        :param started_before:
+        :param latest_only:
+        :param run_count_min:
+        :param run_count_max:
+        :param created_after:
+        :param created_before:
+        :param created_by_user_ids:
+        :param created_by_station_ids:
+        :param exclude_units_with_parent:
+        :param limit:
+        :param cursor:
+        :param sort_by: Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run.
+        :param sort_order: Sort order direction.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.UnitListRequest(
+            search_query=search_query,
+            ids=ids,
+            serial_numbers=serial_numbers,
+            part_numbers=part_numbers,
+            revision_numbers=revision_numbers,
+            batch_numbers=batch_numbers,
+            procedure_ids=procedure_ids,
+            outcomes=outcomes,
+            started_after=started_after,
+            started_before=started_before,
+            latest_only=latest_only,
+            run_count_min=run_count_min,
+            run_count_max=run_count_max,
+            created_after=created_after,
+            created_before=created_before,
+            created_by_user_ids=created_by_user_ids,
+            created_by_station_ids=created_by_station_ids,
+            exclude_units_with_parent=exclude_units_with_parent,
+            limit=limit,
+            cursor=cursor,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+
+        req = self._build_request(
+            method="GET",
+            path="/v2/units",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=False,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = self.do_request(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="unit-list",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["401", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.UnitListResponse, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
+    async def list_async(
+        self,
+        *,
+        search_query: Optional[str] = None,
+        ids: Optional[List[str]] = None,
+        serial_numbers: Optional[List[str]] = None,
+        part_numbers: Optional[List[str]] = None,
+        revision_numbers: Optional[List[str]] = None,
+        batch_numbers: Optional[List[str]] = None,
+        procedure_ids: Optional[List[str]] = None,
+        outcomes: Optional[List[models.UnitListQueryParamOutcome]] = None,
+        started_after: Optional[datetime] = None,
+        started_before: Optional[datetime] = None,
+        latest_only: Optional[bool] = False,
+        run_count_min: Optional[int] = None,
+        run_count_max: Optional[int] = None,
+        created_after: Optional[datetime] = None,
+        created_before: Optional[datetime] = None,
+        created_by_user_ids: Optional[List[str]] = None,
+        created_by_station_ids: Optional[List[str]] = None,
+        exclude_units_with_parent: Optional[bool] = False,
+        limit: Optional[int] = 50,
+        cursor: Optional[int] = None,
+        sort_by: Optional[models.UnitListSortBy] = "created_at",
+        sort_order: Optional[models.UnitListSortOrder] = "desc",
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.UnitListResponse:
+        r"""List and filter units
+
+        Retrieve units with filtering and cursor-based pagination
+
+        :param search_query:
+        :param ids:
+        :param serial_numbers:
+        :param part_numbers:
+        :param revision_numbers:
+        :param batch_numbers:
+        :param procedure_ids:
+        :param outcomes:
+        :param started_after:
+        :param started_before:
+        :param latest_only:
+        :param run_count_min:
+        :param run_count_max:
+        :param created_after:
+        :param created_before:
+        :param created_by_user_ids:
+        :param created_by_station_ids:
+        :param exclude_units_with_parent:
+        :param limit:
+        :param cursor:
+        :param sort_by: Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run.
+        :param sort_order: Sort order direction.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.UnitListRequest(
+            search_query=search_query,
+            ids=ids,
+            serial_numbers=serial_numbers,
+            part_numbers=part_numbers,
+            revision_numbers=revision_numbers,
+            batch_numbers=batch_numbers,
+            procedure_ids=procedure_ids,
+            outcomes=outcomes,
+            started_after=started_after,
+            started_before=started_before,
+            latest_only=latest_only,
+            run_count_min=run_count_min,
+            run_count_max=run_count_max,
+            created_after=created_after,
+            created_before=created_before,
+            created_by_user_ids=created_by_user_ids,
+            created_by_station_ids=created_by_station_ids,
+            exclude_units_with_parent=exclude_units_with_parent,
+            limit=limit,
+            cursor=cursor,
+            sort_by=sort_by,
+            sort_order=sort_order,
+        )
+
+        req = self._build_request_async(
+            method="GET",
+            path="/v2/units",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=False,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = await self.do_request_async(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="unit-list",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["401", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.UnitListResponse, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
     def delete(
         self,
         *,
-        serial_numbers: Optional[List[str]] = None,
+        serial_numbers: List[str],
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -518,7 +556,7 @@ class UnitsSDK(BaseSDK):
 
         Permanently delete units by serial number. This action will remove all nested elements and relationships associated with the units.
 
-        :param serial_numbers:
+        :param serial_numbers: Array of unit serial numbers to delete.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -551,7 +589,6 @@ class UnitsSDK(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -568,7 +605,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -606,7 +643,7 @@ class UnitsSDK(BaseSDK):
     async def delete_async(
         self,
         *,
-        serial_numbers: Optional[List[str]] = None,
+        serial_numbers: List[str],
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -616,7 +653,7 @@ class UnitsSDK(BaseSDK):
 
         Permanently delete units by serial number. This action will remove all nested elements and relationships associated with the units.
 
-        :param serial_numbers:
+        :param serial_numbers: Array of unit serial numbers to delete.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -649,7 +686,6 @@ class UnitsSDK(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -666,7 +702,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -747,7 +783,6 @@ class UnitsSDK(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -764,7 +799,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -850,7 +885,6 @@ class UnitsSDK(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -867,7 +901,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -915,6 +949,7 @@ class UnitsSDK(BaseSDK):
         part_number: Optional[str] = None,
         revision_number: Optional[str] = None,
         batch_number: OptionalNullable[str] = UNSET,
+        attachments: Optional[List[str]] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -929,6 +964,7 @@ class UnitsSDK(BaseSDK):
         :param part_number: New part number for the unit.
         :param revision_number: New revision number for the unit.
         :param batch_number: New batch number for the unit. Set to null to remove batch.
+        :param attachments: Array of upload IDs to attach to the unit.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -951,6 +987,7 @@ class UnitsSDK(BaseSDK):
                 part_number=part_number,
                 revision_number=revision_number,
                 batch_number=batch_number,
+                attachments=attachments,
             ),
         )
 
@@ -970,7 +1007,6 @@ class UnitsSDK(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request.request_body, False, False, "json", models.UnitUpdateRequestBody
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -987,7 +1023,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1033,6 +1069,7 @@ class UnitsSDK(BaseSDK):
         part_number: Optional[str] = None,
         revision_number: Optional[str] = None,
         batch_number: OptionalNullable[str] = UNSET,
+        attachments: Optional[List[str]] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -1047,6 +1084,7 @@ class UnitsSDK(BaseSDK):
         :param part_number: New part number for the unit.
         :param revision_number: New revision number for the unit.
         :param batch_number: New batch number for the unit. Set to null to remove batch.
+        :param attachments: Array of upload IDs to attach to the unit.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -1069,6 +1107,7 @@ class UnitsSDK(BaseSDK):
                 part_number=part_number,
                 revision_number=revision_number,
                 batch_number=batch_number,
+                attachments=attachments,
             ),
         )
 
@@ -1088,7 +1127,6 @@ class UnitsSDK(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request.request_body, False, False, "json", models.UnitUpdateRequestBody
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1105,7 +1143,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1201,7 +1239,6 @@ class UnitsSDK(BaseSDK):
                 "json",
                 models.UnitAddChildRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1218,7 +1255,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-addChild",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1316,7 +1353,6 @@ class UnitsSDK(BaseSDK):
                 "json",
                 models.UnitAddChildRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1333,7 +1369,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-addChild",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1422,7 +1458,6 @@ class UnitsSDK(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1439,7 +1474,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-removeChild",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1528,7 +1563,6 @@ class UnitsSDK(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1545,7 +1579,7 @@ class UnitsSDK(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="unit-removeChild",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

@@ -3,9 +3,7 @@
 import asyncio
 import random
 import time
-from datetime import datetime
-from email.utils import parsedate_to_datetime
-from typing import List, Optional
+from typing import List
 
 import httpx
 
@@ -53,11 +51,9 @@ class Retries:
 
 class TemporaryError(Exception):
     response: httpx.Response
-    retry_after: Optional[int]
 
     def __init__(self, response: httpx.Response):
         self.response = response
-        self.retry_after = _parse_retry_after_header(response)
 
 
 class PermanentError(Exception):
@@ -65,62 +61,6 @@ class PermanentError(Exception):
 
     def __init__(self, inner: Exception):
         self.inner = inner
-
-
-def _parse_retry_after_header(response: httpx.Response) -> Optional[int]:
-    """Parse Retry-After header from response.
-
-    Returns:
-        Retry interval in milliseconds, or None if header is missing or invalid.
-    """
-    retry_after_header = response.headers.get("retry-after")
-    if not retry_after_header:
-        return None
-
-    try:
-        seconds = float(retry_after_header)
-        return round(seconds * 1000)
-    except ValueError:
-        pass
-
-    try:
-        retry_date = parsedate_to_datetime(retry_after_header)
-        delta = (retry_date - datetime.now(retry_date.tzinfo)).total_seconds()
-        return round(max(0, delta) * 1000)
-    except (ValueError, TypeError):
-        pass
-
-    return None
-
-
-def _get_sleep_interval(
-    exception: Exception,
-    initial_interval: int,
-    max_interval: int,
-    exponent: float,
-    retries: int,
-) -> float:
-    """Get sleep interval for retry with exponential backoff.
-
-    Args:
-        exception: The exception that triggered the retry.
-        initial_interval: Initial retry interval in milliseconds.
-        max_interval: Maximum retry interval in milliseconds.
-        exponent: Base for exponential backoff calculation.
-        retries: Current retry attempt count.
-
-    Returns:
-        Sleep interval in seconds.
-    """
-    if (
-        isinstance(exception, TemporaryError)
-        and exception.retry_after is not None
-        and exception.retry_after > 0
-    ):
-        return exception.retry_after / 1000
-
-    sleep = (initial_interval / 1000) * exponent**retries + random.uniform(0, 1)
-    return min(sleep, max_interval / 1000)
 
 
 def retry(func, retries: Retries):
@@ -243,10 +183,8 @@ def retry_with_backoff(
                     return exception.response
 
                 raise
-
-            sleep = _get_sleep_interval(
-                exception, initial_interval, max_interval, exponent, retries
-            )
+            sleep = (initial_interval / 1000) * exponent**retries + random.uniform(0, 1)
+            sleep = min(sleep, max_interval / 1000)
             time.sleep(sleep)
             retries += 1
 
@@ -273,9 +211,7 @@ async def retry_with_backoff_async(
                     return exception.response
 
                 raise
-
-            sleep = _get_sleep_interval(
-                exception, initial_interval, max_interval, exponent, retries
-            )
+            sleep = (initial_interval / 1000) * exponent**retries + random.uniform(0, 1)
+            sleep = min(sleep, max_interval / 1000)
             await asyncio.sleep(sleep)
             retries += 1

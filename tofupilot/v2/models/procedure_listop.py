@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 from datetime import datetime
+import pydantic
 from pydantic import model_serializer
 from tofupilot.v2.types import BaseModel, Nullable, UNSET_SENTINEL
 from tofupilot.v2.utils import FieldMetadata, QueryParamMetadata
@@ -43,24 +44,6 @@ class ProcedureListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = set(
-            ["limit", "cursor", "search_query", "created_after", "created_before"]
-        )
-        serialized = handler(self)
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                if val is not None or k not in optional_fields:
-                    m[k] = val
-
-        return m
-
 
 class ProcedureListCreatedByUserTypedDict(TypedDict):
     r"""User who created the procedure."""
@@ -87,26 +70,36 @@ class ProcedureListCreatedByUser(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
 
 
-ProcedureListOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "ERROR",
-    "TIMEOUT",
-    "ABORTED",
-]
+ProcedureListOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Result of the test run."""
 
 
@@ -149,6 +142,30 @@ class Run(BaseModel):
     r"""Unit associated with this run."""
 
 
+class LinkedRepositoryTypedDict(TypedDict):
+    r"""Linked GitHub repository for this procedure."""
+
+    id: str
+    r"""Unique identifier for the linked repository."""
+    name: str
+    r"""Name of the repository."""
+    full_name: str
+    r"""Full name of the repository (owner/repo)."""
+
+
+class LinkedRepository(BaseModel):
+    r"""Linked GitHub repository for this procedure."""
+
+    id: str
+    r"""Unique identifier for the linked repository."""
+
+    name: str
+    r"""Name of the repository."""
+
+    full_name: Annotated[str, pydantic.Field(alias="fullName")]
+    r"""Full name of the repository (owner/repo)."""
+
+
 class ProcedureListDataTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the procedure."""
@@ -160,6 +177,8 @@ class ProcedureListDataTypedDict(TypedDict):
     r"""User who created the procedure."""
     runs: List[RunTypedDict]
     r"""Recent runs for this procedure."""
+    linked_repository: Nullable[LinkedRepositoryTypedDict]
+    r"""Linked GitHub repository for this procedure."""
 
 
 class ProcedureListData(BaseModel):
@@ -178,6 +197,41 @@ class ProcedureListData(BaseModel):
     runs: List[Run]
     r"""Recent runs for this procedure."""
 
+    linked_repository: Annotated[
+        Nullable[LinkedRepository], pydantic.Field(alias="linkedRepository")
+    ]
+    r"""Linked GitHub repository for this procedure."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["linkedRepository"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
 
 class ProcedureListMetaTypedDict(TypedDict):
     has_more: bool
@@ -195,14 +249,30 @@ class ProcedureListMeta(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["next_cursor"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m

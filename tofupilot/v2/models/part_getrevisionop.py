@@ -31,31 +31,47 @@ class PartGetRevisionRequest(BaseModel):
 class PartGetRevisionCreatedByUserTypedDict(TypedDict):
     r"""User who created the revision."""
 
+    id: str
+    r"""Unique identifier of the user."""
     name: Nullable[str]
     r"""Name of the user who created the revision."""
-    image: Nullable[str]
-    r"""Profile image URL of the user."""
 
 
 class PartGetRevisionCreatedByUser(BaseModel):
     r"""User who created the revision."""
 
+    id: str
+    r"""Unique identifier of the user."""
+
     name: Nullable[str]
     r"""Name of the user who created the revision."""
 
-    image: Nullable[str]
-    r"""Profile image URL of the user."""
-
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -68,8 +84,6 @@ class PartGetRevisionCreatedByStationTypedDict(TypedDict):
     r"""Unique identifier of the station."""
     name: str
     r"""Name of the station."""
-    image: Nullable[str]
-    r"""Station image URL."""
 
 
 class PartGetRevisionCreatedByStation(BaseModel):
@@ -80,23 +94,6 @@ class PartGetRevisionCreatedByStation(BaseModel):
 
     name: str
     r"""Name of the station."""
-
-    image: Nullable[str]
-    r"""Station image URL."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        serialized = handler(self)
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                m[k] = val
-
-        return m
 
 
 class PartGetRevisionPartTypedDict(TypedDict):
@@ -153,8 +150,6 @@ class PartGetRevisionResponseTypedDict(TypedDict):
     r"""Station that created the revision."""
     part: PartGetRevisionPartTypedDict
     r"""Part associated with this revision."""
-    image: Nullable[str]
-    r"""Image URL associated with the revision."""
     units: List[PartGetRevisionUnitTypedDict]
     r"""List of units created with this revision."""
 
@@ -180,22 +175,35 @@ class PartGetRevisionResponse(BaseModel):
     part: PartGetRevisionPart
     r"""Part associated with this revision."""
 
-    image: Nullable[str]
-    r"""Image URL associated with the revision."""
-
     units: List[PartGetRevisionUnit]
     r"""List of units created with this revision."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["created_at", "created_by_user", "created_by_station"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
