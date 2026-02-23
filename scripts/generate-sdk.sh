@@ -195,17 +195,9 @@ def remove_problematic_examples(obj, path=""):
 remove_problematic_examples(spec)
 print("  Removed problematic examples")
 
-# Fix 4: Change security scheme from 'http' to 'apiKey' (Speakeasy compatibility)
-if 'components' in spec and 'securitySchemes' in spec['components']:
-    sec = spec['components']['securitySchemes'].get('api_key')
-    if sec and sec.get('type') == 'http':
-        spec['components']['securitySchemes']['api_key'] = {
-            'type': 'apiKey',
-            'in': 'header',
-            'name': 'Authorization',
-            'description': 'API key for authentication. Use format: Bearer YOUR_API_KEY'
-        }
-        print("  Fixed security scheme type")
+# Fix 4: Keep security scheme as http/bearer (DO NOT change to apiKey - breaks auth)
+# The original http/bearer scheme is correct and adds "Bearer " prefix automatically
+print("  Security scheme kept as http/bearer")
 
 # Fix 5: Add 401 Unauthorized to all operations that don't have it
 if 'paths' in spec:
