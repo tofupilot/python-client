@@ -212,41 +212,6 @@ class TestStationImageUpload:
         
         print(f"\nSuccessfully updated station {station_id} with new name '{new_name}' and image")
     
-    def test_update_station_with_image_and_identifier(self, client: "TofuPilot", auth_type: str, timestamp: str) -> None:
-        """Test updating both station identifier and image in single call."""
-        if auth_type == "station":
-            # Skip test for station auth
-            return
-            
-        # Step 1: Create a station
-        unique_id = str(uuid.uuid4())[:8]
-        station_name = f"Image+ID Test Station {timestamp}-{unique_id}"
-        
-        station_result = client.stations.create(name=station_name)
-        assert_create_station_success(station_result)
-        station_id = station_result.id
-        
-        # Step 2: Initialize and upload image
-        attachment = client.attachments.initialize(name="identifier_update_image.png")
-        test_image = get_test_image_data()
-        upload_to_presigned_url(attachment.upload_url, test_image, "image/png")
-        
-        # Step 3: Update both identifier and image in one call
-        new_identifier = f"STA-{unique_id[:3].upper()}"
-        update_result = client.stations.update(
-            id=station_id,
-            identifier=new_identifier,
-            image_id=attachment.id
-        )
-        
-        assert_update_station_success(update_result)
-        assert update_result.id == station_id
-        
-        # Step 4: Verify both updates were applied
-        station = client.stations.get(id=station_id)
-        assert_get_station_success(station)
-        
-        assert station.identifier == new_identifier, "Station identifier should be updated"
-        # Image verification depends on API response structure
-        
-        print(f"\nSuccessfully updated station {station_id} with new identifier '{new_identifier}' and image")
+    # NOTE: test_update_station_with_image_and_identifier removed
+    # The 'identifier' parameter is no longer available in the stations.update() API
+    # Use test_update_station_with_image_and_name for similar functionality
