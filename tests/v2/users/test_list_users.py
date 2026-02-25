@@ -2,7 +2,6 @@
 
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.models import UserListResponse
-from ..utils import assert_station_access_forbidden
 
 
 class TestListUsers:
@@ -10,11 +9,6 @@ class TestListUsers:
 
     def test_list_all_users(self, client: TofuPilot, auth_type: str) -> None:
         """Test listing all organization users returns a non-empty list with expected fields."""
-        if auth_type == "station":
-            with assert_station_access_forbidden("list users"):
-                client.user.list()
-            return
-
         result = client.user.list()
 
         assert isinstance(result, list)
@@ -29,8 +23,10 @@ class TestListUsers:
     def test_get_current_user(self, client: TofuPilot, auth_type: str) -> None:
         """Test listing with current=True returns only the authenticated user."""
         if auth_type == "station":
-            with assert_station_access_forbidden("list current user"):
-                client.user.list(current=True)
+            # Stations have no userId, current=True returns empty
+            result = client.user.list(current=True)
+            assert isinstance(result, list)
+            assert len(result) == 0
             return
 
         result = client.user.list(current=True)

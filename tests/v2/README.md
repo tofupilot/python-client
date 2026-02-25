@@ -532,8 +532,8 @@
 
 | Scenario         | Status    | Function Name           | Details                                                 |
 | ---------------- | --------- | ----------------------- | ------------------------------------------------------- |
-| List users       | ✅ Tested | `test_list_all_users`   | `user.list()` → all org users; stations get 403         |
-| Get current user | ✅ Tested | `test_get_current_user` | `user.list(current=True)` → self only; stations get 403 |
+| List users       | ✅ Tested | `test_list_all_users`   | `user.list()` → all org users (user + station auth)              |
+| Get current user | ✅ Tested | `test_get_current_user` | `user.list(current=True)` → self only; stations get empty list   |
 
 ### 25. Attachments
 
