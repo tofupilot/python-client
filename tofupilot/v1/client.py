@@ -73,7 +73,7 @@ class TofuPilotClient:
 
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/user-management#api-key."
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/dashboard/api-keys."
             posthog.capture_exception(ApiV1Error(error))
             self._logger.error(error)
             sys.exit(1)
@@ -142,22 +142,22 @@ class TofuPilotClient:
             duration (timedelta, optional):
                 The duration of the test run. Default is None.
             steps (Optional[List[Step]], optional):
-                [A list of steps included in the test run](https://tofupilot.com/docs/steps). DEPRECATED: Use phases and measurements instead. Default is None.
+                A list of steps included in the test run. DEPRECATED: Use phases and measurements instead. Default is None.
             phases (Optional[List[Phase]], optional):
-                [A list of phases included in the test run](https://tofupilot.com/docs/phases). Default is None.
+                A list of phases included in the test run. Default is None.
             sub_units (Optional[List[SubUnit]], optional):
-                [A list of sub-units included in the test run](https://tofupilot.com/docs/sub-units). Default is None.
+                A list of sub-units included in the test run. Default is None.
             attachments (Optional[List[str]], optional):
-                [A list of file paths for attachments to include with the test run](https://tofupilot.com/docs/attachments). Default is None.
+                A list of file paths for attachments to include with the test run. Default is None.
             logs (Optional[List[Log]], optional):
-                [A list of log entries for the test run](https://tofupilot.com/docs/logs). Default is None.
+                A list of log entries for the test run. Default is None.
 
         Returns:
             CreateRunResponse:
                 Dict containing run id if successful.
 
         References:
-            https://www.tofupilot.com/docs/api#create-a-run
+            https://tofupilot.com/docs
         """
         print("")
         self._logger.info("Creating run...")
@@ -239,7 +239,7 @@ class TofuPilotClient:
                 The id of the newly created run.
 
         References:
-            https://www.tofupilot.com/docs/api#create-a-run-from-a-file
+            https://tofupilot.com/docs
         """
         # Upload report and create run from file_path
         upload_res = self._upload_and_create_from_openhtf_report(file_path)
@@ -314,7 +314,7 @@ class TofuPilotClient:
                 Message returned from TofuPilot API.
 
         References:
-            https://www.tofupilot.com/docs/api#get-runs-by-serial-number
+            https://tofupilot.com/docs
         """
         if not serial_number:
             error_message = "A 'serial_number' is required to fetch runs."
