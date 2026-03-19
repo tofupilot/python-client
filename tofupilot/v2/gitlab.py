@@ -6,24 +6,22 @@ from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional
+from typing import Any, Mapping, Optional
 
 
-class User(BaseSDK):
-    def list(
+class GitLab(BaseSDK):
+    def get_installation_token(
         self,
         *,
-        current: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> List[models.UserListResponse]:
-        r"""List users
+    ) -> models.GitlabGetInstallationTokenResponse:
+        r"""Get GitLab installation token
 
-        Retrieve a list of users in your organization. Use the current parameter to get only the authenticated user profile and permissions.
+        Get the GitLab OAuth access token for authenticated API calls. Automatically refreshed if near expiration. Returns null if no GitLab is connected.
 
-        :param current:
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -38,17 +36,12 @@ class User(BaseSDK):
             base_url = server_url
         else:
             base_url = self._get_url(base_url, url_variables)
-
-        request = models.UserListRequest(
-            current=current,
-        )
-
         req = self._build_request(
             method="GET",
-            path="/v2/users",
+            path="/v2/gitlab/installation-token",
             base_url=base_url,
             url_variables=url_variables,
-            request=request,
+            request=None,
             request_body_required=False,
             request_has_path_params=False,
             request_has_query_params=True,
@@ -71,25 +64,30 @@ class User(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="user-list",
+                operation_id="gitlab-getInstallationToken",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
             ),
             request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(List[models.UserListResponse], http_res)
+            return unmarshal_json_response(
+                models.GitlabGetInstallationTokenResponse, http_res
+            )
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "403", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
+            raise errors.ErrorFORBIDDEN(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -104,20 +102,18 @@ class User(BaseSDK):
 
         raise errors.APIError("Unexpected response received", http_res)
 
-    async def list_async(
+    async def get_installation_token_async(
         self,
         *,
-        current: Optional[bool] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> List[models.UserListResponse]:
-        r"""List users
+    ) -> models.GitlabGetInstallationTokenResponse:
+        r"""Get GitLab installation token
 
-        Retrieve a list of users in your organization. Use the current parameter to get only the authenticated user profile and permissions.
+        Get the GitLab OAuth access token for authenticated API calls. Automatically refreshed if near expiration. Returns null if no GitLab is connected.
 
-        :param current:
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -132,17 +128,12 @@ class User(BaseSDK):
             base_url = server_url
         else:
             base_url = self._get_url(base_url, url_variables)
-
-        request = models.UserListRequest(
-            current=current,
-        )
-
         req = self._build_request_async(
             method="GET",
-            path="/v2/users",
+            path="/v2/gitlab/installation-token",
             base_url=base_url,
             url_variables=url_variables,
-            request=request,
+            request=None,
             request_body_required=False,
             request_has_path_params=False,
             request_has_query_params=True,
@@ -165,25 +156,30 @@ class User(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="user-list",
+                operation_id="gitlab-getInstallationToken",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
             ),
             request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(List[models.UserListResponse], http_res)
+            return unmarshal_json_response(
+                models.GitlabGetInstallationTokenResponse, http_res
+            )
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "403", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
+            raise errors.ErrorFORBIDDEN(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res

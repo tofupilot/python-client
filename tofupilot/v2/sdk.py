@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from tofupilot.v2.attachments import Attachments
     from tofupilot.v2.batches import Batches
     from tofupilot.v2.github import GitHub
+    from tofupilot.v2.gitlab import GitLab
     from tofupilot.v2.parts import Parts
     from tofupilot.v2.procedures import Procedures
     from tofupilot.v2.runs import Runs
@@ -27,7 +28,7 @@ if TYPE_CHECKING:
 
 class TofuPilot(BaseSDK):
     r"""TofuPilot APIv2: TofuPilot REST API for managing runs, units, procedures, and more.
-    https://tofupilot.com/docs/api/v2
+    https://tofupilot.com/docs/dashboard/api/v2/runs/create
     """
 
     procedures: "Procedures"
@@ -39,6 +40,7 @@ class TofuPilot(BaseSDK):
     stations: "Stations"
     user: "User"
     git_hub: "GitHub"
+    git_lab: "GitLab"
     _sub_sdk_map = {
         "procedures": ("tofupilot.v2.procedures", "Procedures"),
         "runs": ("tofupilot.v2.runs", "Runs"),
@@ -49,6 +51,7 @@ class TofuPilot(BaseSDK):
         "stations": ("tofupilot.v2.stations", "Stations"),
         "user": ("tofupilot.v2.user", "User"),
         "git_hub": ("tofupilot.v2.github", "GitHub"),
+        "git_lab": ("tofupilot.v2.gitlab", "GitLab"),
     }
 
     def __init__(

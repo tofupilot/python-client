@@ -450,7 +450,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureGetResponse:
         r"""Get procedure
 
-        Retrieve a single procedure by its ID. Returns comprehensive procedure data including recent runs and linked stations.
+        Retrieve a single procedure by ID, including recent test runs, linked stations, and version history.
 
         :param id: Unique identifier of the procedure to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -547,7 +547,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureGetResponse:
         r"""Get procedure
 
-        Retrieve a single procedure by its ID. Returns comprehensive procedure data including recent runs and linked stations.
+        Retrieve a single procedure by ID, including recent test runs, linked stations, and version history.
 
         :param id: Unique identifier of the procedure to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -644,7 +644,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureDeleteResponse:
         r"""Delete procedure
 
-        Permanently delete a procedure and all associated data. This action cannot be undone and will remove all nested elements including runs, phases, measurements, and run attachments.
+        Permanently delete a procedure, removing all associated runs, phases, measurements, and attachments.
 
         :param id: Unique identifier of the procedure to delete.
         :param retries: Override the default retry configuration for this method
@@ -746,7 +746,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureDeleteResponse:
         r"""Delete procedure
 
-        Permanently delete a procedure and all associated data. This action cannot be undone and will remove all nested elements including runs, phases, measurements, and run attachments.
+        Permanently delete a procedure, removing all associated runs, phases, measurements, and attachments.
 
         :param id: Unique identifier of the procedure to delete.
         :param retries: Override the default retry configuration for this method
@@ -849,7 +849,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureUpdateResponse:
         r"""Update procedure
 
-        Update a procedure's name. The procedure ID is specified in the URL path.
+        Update a test procedure's name or configuration. The procedure is identified by its unique ID in the URL path. Only provided fields are modified.
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.
@@ -963,7 +963,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureUpdateResponse:
         r"""Update procedure
 
-        Update a procedure's name. The procedure ID is specified in the URL path.
+        Update a test procedure's name or configuration. The procedure is identified by its unique ID in the URL path. Only provided fields are modified.
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.

@@ -22,7 +22,7 @@ class Batches(BaseSDK):
     ) -> models.BatchGetResponse:
         r"""Get batch
 
-        Retrieve a single batch by its number. Returns comprehensive batch data including associated units.
+        Retrieve a single batch by its number, including all associated units, serial numbers, and part revisions.
 
         :param number: Number of the batch to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -124,7 +124,7 @@ class Batches(BaseSDK):
     ) -> models.BatchGetResponse:
         r"""Get batch
 
-        Retrieve a single batch by its number. Returns comprehensive batch data including associated units.
+        Retrieve a single batch by its number, including all associated units, serial numbers, and part revisions.
 
         :param number: Number of the batch to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -421,7 +421,7 @@ class Batches(BaseSDK):
     ) -> models.BatchUpdateResponse:
         r"""Update batch
 
-        Update a batch number. The current batch number is specified in the URL path. Batch numbers are matched case-insensitively (e.g., \"BATCH-001\" and \"batch-001\" are considered the same).
+        Update a batch number. The current batch number is specified in the URL path with case-insensitive matching.
 
         :param number: Current batch number to update.
         :param new_number: New batch number.
@@ -533,7 +533,7 @@ class Batches(BaseSDK):
     ) -> models.BatchUpdateResponse:
         r"""Update batch
 
-        Update a batch number. The current batch number is specified in the URL path. Batch numbers are matched case-insensitively (e.g., \"BATCH-001\" and \"batch-001\" are considered the same).
+        Update a batch number. The current batch number is specified in the URL path with case-insensitive matching.
 
         :param number: Current batch number to update.
         :param new_number: New batch number.
@@ -654,7 +654,7 @@ class Batches(BaseSDK):
     ) -> models.BatchListResponse:
         r"""List and filter batches
 
-        Retrieve batches with their units (serial number, part number, revision)
+        Retrieve batches with associated units, serial numbers, and part revisions using cursor-based pagination.
 
         :param ids:
         :param numbers:
@@ -783,7 +783,7 @@ class Batches(BaseSDK):
     ) -> models.BatchListResponse:
         r"""List and filter batches
 
-        Retrieve batches with their units (serial number, part number, revision)
+        Retrieve batches with associated units, serial numbers, and part revisions using cursor-based pagination.
 
         :param ids:
         :param numbers:

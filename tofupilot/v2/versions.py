@@ -22,7 +22,7 @@ class Versions(BaseSDK):
     ) -> models.ProcedureGetVersionResponse:
         r"""Get procedure version
 
-        Retrieve a single version by its tag for a specific procedure.
+        Retrieve a single procedure version by its tag, including version metadata and configuration details.
 
         :param procedure_id: ID of the procedure that owns this version.
         :param tag: Version tag to retrieve.
@@ -122,7 +122,7 @@ class Versions(BaseSDK):
     ) -> models.ProcedureGetVersionResponse:
         r"""Get procedure version
 
-        Retrieve a single version by its tag for a specific procedure.
+        Retrieve a single procedure version by its tag, including version metadata and configuration details.
 
         :param procedure_id: ID of the procedure that owns this version.
         :param tag: Version tag to retrieve.
@@ -222,7 +222,7 @@ class Versions(BaseSDK):
     ) -> models.ProcedureDeleteVersionResponse:
         r"""Delete procedure version
 
-        Permanently delete a version for a procedure.
+        Permanently delete a procedure version by its tag. This removes the version record and all associated configuration data and cannot be undone.
 
         :param procedure_id: ID of the procedure that owns this version
         :param tag: Version tag to delete
@@ -327,7 +327,7 @@ class Versions(BaseSDK):
     ) -> models.ProcedureDeleteVersionResponse:
         r"""Delete procedure version
 
-        Permanently delete a version for a procedure.
+        Permanently delete a procedure version by its tag. This removes the version record and all associated configuration data and cannot be undone.
 
         :param procedure_id: ID of the procedure that owns this version
         :param tag: Version tag to delete
@@ -432,7 +432,7 @@ class Versions(BaseSDK):
     ) -> models.ProcedureCreateVersionResponse:
         r"""Create procedure version
 
-        Create a new version for an existing procedure.
+        Create a new version for an existing test procedure. Versions let you track procedure changes over time and maintain a history of test configurations.
 
         :param procedure_id: The ID of the procedure this version belongs to
         :param tag: The version tag
@@ -546,7 +546,7 @@ class Versions(BaseSDK):
     ) -> models.ProcedureCreateVersionResponse:
         r"""Create procedure version
 
-        Create a new version for an existing procedure.
+        Create a new version for an existing test procedure. Versions let you track procedure changes over time and maintain a history of test configurations.
 
         :param procedure_id: The ID of the procedure this version belongs to
         :param tag: The version tag

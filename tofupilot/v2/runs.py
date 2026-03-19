@@ -39,7 +39,7 @@ class Runs(BaseSDK):
     ) -> models.RunCreateResponse:
         r"""Create run
 
-        Create a new test run linking to a procedure and unit. Unit identifiers are matched case-insensitively - existing entities are reused, new ones are created automatically.
+        Create a new test run, linking it to a procedure and unit. Existing entities are reused automatically.
 
         :param outcome: Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
         :param procedure_id: Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
@@ -197,7 +197,7 @@ class Runs(BaseSDK):
     ) -> models.RunCreateResponse:
         r"""Create run
 
-        Create a new test run linking to a procedure and unit. Unit identifiers are matched case-insensitively - existing entities are reused, new ones are created automatically.
+        Create a new test run, linking it to a procedure and unit. Existing entities are reused automatically.
 
         :param outcome: Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
         :param procedure_id: Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
@@ -361,7 +361,7 @@ class Runs(BaseSDK):
     ) -> models.RunListResponse:
         r"""List and filter runs
 
-        Retrieve a paginated list of test runs with optional filtering by unit, procedure, date range, outcome, and other criteria. Supports sorting and includes run metadata.
+        Retrieve a paginated list of test runs with filtering by unit, procedure, date range, outcome, and station.
 
         :param search_query:
         :param ids:
@@ -529,7 +529,7 @@ class Runs(BaseSDK):
     ) -> models.RunListResponse:
         r"""List and filter runs
 
-        Retrieve a paginated list of test runs with optional filtering by unit, procedure, date range, outcome, and other criteria. Supports sorting and includes run metadata.
+        Retrieve a paginated list of test runs with filtering by unit, procedure, date range, outcome, and station.
 
         :param search_query:
         :param ids:
@@ -674,7 +674,7 @@ class Runs(BaseSDK):
     ) -> models.RunDeleteResponse:
         r"""Delete runs
 
-        Permanently delete one or more test runs by their IDs. This action cannot be undone and will remove all nested elements including phases, measurements, and run attachments from both database and S3 storage.
+        Permanently delete test runs by their IDs. Removes all associated phases, measurements, and attachments.
 
         :param ids: Run IDs to delete.
         :param retries: Override the default retry configuration for this method
@@ -771,7 +771,7 @@ class Runs(BaseSDK):
     ) -> models.RunDeleteResponse:
         r"""Delete runs
 
-        Permanently delete one or more test runs by their IDs. This action cannot be undone and will remove all nested elements including phases, measurements, and run attachments from both database and S3 storage.
+        Permanently delete test runs by their IDs. Removes all associated phases, measurements, and attachments.
 
         :param ids: Run IDs to delete.
         :param retries: Override the default retry configuration for this method
@@ -1073,7 +1073,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateResponse:
         r"""Update run
 
-        Update a test run with new attachments. The upload must be initialized and completed before calling this endpoint.
+        Update a test run with new attachments. File uploads must be initialized and confirmed before linking.
 
         :param id: Unique identifier of the run to update.
         :param attachments: Array of upload IDs to attach to the run.
@@ -1178,7 +1178,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateResponse:
         r"""Update run
 
-        Update a test run with new attachments. The upload must be initialized and completed before calling this endpoint.
+        Update a test run with new attachments. File uploads must be initialized and confirmed before linking.
 
         :param id: Unique identifier of the run to update.
         :param attachments: Array of upload IDs to attach to the run.

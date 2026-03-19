@@ -24,7 +24,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitCreateResponse:
         r"""Create unit
 
-        Create a new unit with a serial number and link it to a revision by part number and revision number. Units are typically created automatically during run creation, but this endpoint allows direct unit creation when needed.
+        Create a new unit with a serial number and link it to a part revision. Units represent individual hardware items tracked for manufacturing traceability.
 
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
@@ -133,7 +133,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitCreateResponse:
         r"""Create unit
 
-        Create a new unit with a serial number and link it to a revision by part number and revision number. Units are typically created automatically during run creation, but this endpoint allows direct unit creation when needed.
+        Create a new unit with a serial number and link it to a part revision. Units represent individual hardware items tracked for manufacturing traceability.
 
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
@@ -261,7 +261,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitListResponse:
         r"""List and filter units
 
-        Retrieve units with filtering and cursor-based pagination
+        Retrieve a paginated list of units with filtering by serial number, part number, and batch. Uses cursor-based pagination for efficient large dataset traversal.
 
         :param search_query:
         :param ids:
@@ -418,7 +418,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitListResponse:
         r"""List and filter units
 
-        Retrieve units with filtering and cursor-based pagination
+        Retrieve a paginated list of units with filtering by serial number, part number, and batch. Uses cursor-based pagination for efficient large dataset traversal.
 
         :param search_query:
         :param ids:
@@ -957,7 +957,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitUpdateResponse:
         r"""Update unit
 
-        Update unit properties including serial number, part number, revision, batch. The current serial number is specified in the URL path. Serial numbers are matched case-insensitively (e.g., \"UNIT-001\" and \"unit-001\" are considered the same).
+        Update unit properties including serial number, part revision, and batch assignment with case-insensitive matching.
 
         :param serial_number: Serial number of the unit to update.
         :param new_serial_number: New serial number for the unit.
@@ -1077,7 +1077,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitUpdateResponse:
         r"""Update unit
 
-        Update unit properties including serial number, part number, revision, batch. The current serial number is specified in the URL path. Serial numbers are matched case-insensitively (e.g., \"UNIT-001\" and \"unit-001\" are considered the same).
+        Update unit properties including serial number, part revision, and batch assignment with case-insensitive matching.
 
         :param serial_number: Serial number of the unit to update.
         :param new_serial_number: New serial number for the unit.
@@ -1193,7 +1193,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitAddChildResponse:
         r"""Add sub-unit
 
-        Add a sub-unit to a parent unit.
+        Add a sub-unit to a parent unit to track component assemblies and multi-level hardware traceability.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to add
@@ -1307,7 +1307,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitAddChildResponse:
         r"""Add sub-unit
 
-        Add a sub-unit to a parent unit.
+        Add a sub-unit to a parent unit to track component assemblies and multi-level hardware traceability.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to add
@@ -1421,7 +1421,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitRemoveChildResponse:
         r"""Remove sub-unit
 
-        Remove a sub-unit from a parent unit. Only removes the parent-child relationship; neither unit is deleted.
+        Remove a sub-unit relationship from a parent unit by serial number. Only unlinks the parent-child relationship; neither unit is deleted from the system.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to remove
@@ -1526,7 +1526,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitRemoveChildResponse:
         r"""Remove sub-unit
 
-        Remove a sub-unit from a parent unit. Only removes the parent-child relationship; neither unit is deleted.
+        Remove a sub-unit relationship from a parent unit by serial number. Only unlinks the parent-child relationship; neither unit is deleted from the system.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to remove
