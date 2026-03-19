@@ -165,6 +165,74 @@ class BatchListCreatedByStation(BaseModel):
     r"""Station name."""
 
 
+class BatchListRevisionTypedDict(TypedDict):
+    r"""Revision information for this unit."""
+
+    id: str
+    r"""Revision ID."""
+    number: str
+    r"""Revision number."""
+
+
+class BatchListRevision(BaseModel):
+    r"""Revision information for this unit."""
+
+    id: str
+    r"""Revision ID."""
+
+    number: str
+    r"""Revision number."""
+
+
+class BatchListPartTypedDict(TypedDict):
+    r"""Part information with revision details for this unit."""
+
+    id: str
+    r"""Part ID."""
+    number: str
+    r"""Part number."""
+    name: str
+    r"""Part name."""
+    revision: BatchListRevisionTypedDict
+    r"""Revision information for this unit."""
+
+
+class BatchListPart(BaseModel):
+    r"""Part information with revision details for this unit."""
+
+    id: str
+    r"""Part ID."""
+
+    number: str
+    r"""Part number."""
+
+    name: str
+    r"""Part name."""
+
+    revision: BatchListRevision
+    r"""Revision information for this unit."""
+
+
+class BatchListUnitTypedDict(TypedDict):
+    id: str
+    r"""Unit ID."""
+    serial_number: str
+    r"""Unit serial number."""
+    part: BatchListPartTypedDict
+    r"""Part information with revision details for this unit."""
+
+
+class BatchListUnit(BaseModel):
+    id: str
+    r"""Unit ID."""
+
+    serial_number: str
+    r"""Unit serial number."""
+
+    part: BatchListPart
+    r"""Part information with revision details for this unit."""
+
+
 class BatchListDataTypedDict(TypedDict):
     id: str
     r"""Unique identifier for the batch."""
@@ -172,8 +240,8 @@ class BatchListDataTypedDict(TypedDict):
     r"""Batch number."""
     created_at: datetime
     r"""ISO timestamp when the batch was created."""
-    unit_count: int
-    r"""Total number of units in this batch."""
+    units: List[BatchListUnitTypedDict]
+    r"""Units in this batch with basic information."""
     created_by_user: NotRequired[Nullable[BatchListCreatedByUserTypedDict]]
     r"""User who created this batch."""
     created_by_station: NotRequired[Nullable[BatchListCreatedByStationTypedDict]]
@@ -190,8 +258,8 @@ class BatchListData(BaseModel):
     created_at: datetime
     r"""ISO timestamp when the batch was created."""
 
-    unit_count: int
-    r"""Total number of units in this batch."""
+    units: List[BatchListUnit]
+    r"""Units in this batch with basic information."""
 
     created_by_user: OptionalNullable[BatchListCreatedByUser] = UNSET
     r"""User who created this batch."""

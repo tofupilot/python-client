@@ -22,7 +22,7 @@ class Stations(BaseSDK):
     ) -> models.StationCreateResponse:
         r"""Create station
 
-        Create a new test station in TofuPilot to register production equipment and link it to test procedures.
+        Create a new station.
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
@@ -125,7 +125,7 @@ class Stations(BaseSDK):
     ) -> models.StationCreateResponse:
         r"""Create station
 
-        Create a new test station in TofuPilot to register production equipment and link it to test procedures.
+        Create a new station.
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
@@ -230,7 +230,7 @@ class Stations(BaseSDK):
     ) -> models.StationListResponse:
         r"""List and filter stations
 
-        Retrieve a paginated list of test stations in your organization. Search by station name and filter by status for station fleet management.
+        Retrieve a paginated list of stations with search functionality.
 
         :param limit:
         :param cursor:
@@ -333,7 +333,7 @@ class Stations(BaseSDK):
     ) -> models.StationListResponse:
         r"""List and filter stations
 
-        Retrieve a paginated list of test stations in your organization. Search by station name and filter by status for station fleet management.
+        Retrieve a paginated list of stations with search functionality.
 
         :param limit:
         :param cursor:
@@ -613,7 +613,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetResponse:
         r"""Get station
 
-        Retrieve detailed station information including linked procedures, connection status, and recent activity.
+        Retrieve detailed information about a specific station including linked procedures and connection status.
 
         :param id: Unique identifier of the station to retrieve
         :param retries: Override the default retry configuration for this method
@@ -710,7 +710,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetResponse:
         r"""Get station
 
-        Retrieve detailed station information including linked procedures, connection status, and recent activity.
+        Retrieve detailed information about a specific station including linked procedures and connection status.
 
         :param id: Unique identifier of the station to retrieve
         :param retries: Override the default retry configuration for this method
@@ -1053,7 +1053,7 @@ class Stations(BaseSDK):
     ) -> models.StationRemoveResponse:
         r"""Remove station
 
-        Remove a test station. Deletes permanently if unused, or archives with preserved historical data if runs exist.
+        Remove a station with smart deletion behavior. If no runs exist, permanently deletes the station and all nested elements. If runs exist, archives the station (soft delete) and unlinks all procedure relationships but preserves historical data.
 
         :param id: Unique identifier of the station to remove
         :param retries: Override the default retry configuration for this method
@@ -1155,7 +1155,7 @@ class Stations(BaseSDK):
     ) -> models.StationRemoveResponse:
         r"""Remove station
 
-        Remove a test station. Deletes permanently if unused, or archives with preserved historical data if runs exist.
+        Remove a station with smart deletion behavior. If no runs exist, permanently deletes the station and all nested elements. If runs exist, archives the station (soft delete) and unlinks all procedure relationships but preserves historical data.
 
         :param id: Unique identifier of the station to remove
         :param retries: Override the default retry configuration for this method

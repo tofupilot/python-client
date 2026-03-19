@@ -455,7 +455,7 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentConfirmResponse:
         r"""Confirm upload
 
-        Confirm a file upload to TofuPilot storage. Validates the upload, fetches file metadata, and updates the attachment record.
+        Confirm that a file has been uploaded to S3. This fetches the file metadata (size, content type) from S3 and updates the database record. Call this after successfully uploading to the presigned URL.
 
         :param id: ID of the upload to confirm
         :param retries: Override the default retry configuration for this method
@@ -552,7 +552,7 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentConfirmResponse:
         r"""Confirm upload
 
-        Confirm a file upload to TofuPilot storage. Validates the upload, fetches file metadata, and updates the attachment record.
+        Confirm that a file has been uploaded to S3. This fetches the file metadata (size, content type) from S3 and updates the database record. Call this after successfully uploading to the presigned URL.
 
         :param id: ID of the upload to confirm
         :param retries: Override the default retry configuration for this method

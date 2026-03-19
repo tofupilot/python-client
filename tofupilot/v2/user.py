@@ -21,7 +21,7 @@ class User(BaseSDK):
     ) -> List[models.UserListResponse]:
         r"""List users
 
-        Retrieve a list of users in your organization. Use the current parameter to get only the authenticated user profile and permissions.
+        Retrieve a list of users. Use `current=true` to get only the authenticated user.
 
         :param current:
         :param retries: Override the default retry configuration for this method
@@ -115,7 +115,7 @@ class User(BaseSDK):
     ) -> List[models.UserListResponse]:
         r"""List users
 
-        Retrieve a list of users in your organization. Use the current parameter to get only the authenticated user profile and permissions.
+        Retrieve a list of users. Use `current=true` to get only the authenticated user.
 
         :param current:
         :param retries: Override the default retry configuration for this method
