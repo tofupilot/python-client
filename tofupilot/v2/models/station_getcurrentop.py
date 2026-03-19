@@ -74,6 +74,8 @@ class StationGetCurrentRepositoryTypedDict(TypedDict):
     r"""Repository name"""
     provider: StationGetCurrentProvider
     r"""Git provider"""
+    gitlab_project_id: Nullable[float]
+    r"""GitLab project ID (only for GitLab repos)"""
 
 
 class StationGetCurrentRepository(BaseModel):
@@ -85,6 +87,39 @@ class StationGetCurrentRepository(BaseModel):
 
     provider: StationGetCurrentProvider
     r"""Git provider"""
+
+    gitlab_project_id: Nullable[float]
+    r"""GitLab project ID (only for GitLab repos)"""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["gitlab_project_id"]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
 
 
 class StationGetCurrentDeploymentTypedDict(TypedDict):
@@ -227,6 +262,8 @@ class StationGetCurrentResponseTypedDict(TypedDict):
     r"""API key prefix for the station (full key only shown on creation)"""
     procedures: List[StationGetCurrentProcedureTypedDict]
     r"""Procedures linked to this station with recent run counts"""
+    organization_slug: str
+    r"""Slug of the organization this station belongs to"""
     connection_status: Nullable[StationGetCurrentConnectionStatus]
     r"""Current connection status of the station"""
     team: Nullable[StationGetCurrentTeamTypedDict]
@@ -247,6 +284,9 @@ class StationGetCurrentResponse(BaseModel):
 
     procedures: List[StationGetCurrentProcedure]
     r"""Procedures linked to this station with recent run counts"""
+
+    organization_slug: str
+    r"""Slug of the organization this station belongs to"""
 
     connection_status: Nullable[StationGetCurrentConnectionStatus]
     r"""Current connection status of the station"""
