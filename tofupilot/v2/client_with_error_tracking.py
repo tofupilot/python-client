@@ -73,7 +73,7 @@ class _RunsWithBetterErrors(_ResourceWithBetterErrors):
 
 
 class _AttachmentsWithUpload(_ResourceWithBetterErrors):
-    """Extends attachments resource with a convenience upload method."""
+    """Extends attachments resource with convenience upload and download methods."""
 
     def upload(self, file: Union[str, Path]) -> str:
         """Upload a file and return its attachment ID.
@@ -101,6 +101,29 @@ class _AttachmentsWithUpload(_ResourceWithBetterErrors):
             raise RuntimeError(f"File upload failed with status {resp.status_code}")
         self._resource.finalize(id=init.id)
         return init.id
+
+    def download(self, attachment, dest: Union[str, Path, None] = None) -> Path:
+        """Download an attachment to a local file.
+
+        Args:
+            attachment: An attachment object from unit.attachments or run.attachments.
+            dest: Destination path. Defaults to the attachment name in the current directory.
+
+        Returns:
+            The path to the downloaded file.
+        """
+        import httpx
+
+        url = attachment.download_url
+        if not url:
+            raise ValueError(f"Attachment '{attachment.name}' has no download URL")
+
+        dest = Path(dest) if dest else Path(attachment.name)
+        resp = httpx.get(url)
+        if resp.status_code != 200:
+            raise RuntimeError(f"Download failed with status {resp.status_code}")
+        dest.write_bytes(resp.content)
+        return dest
 
 
 class TofuPilotWithErrorTracking(TofuPilot):

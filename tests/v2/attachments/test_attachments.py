@@ -2,6 +2,7 @@
 
 import os
 import tempfile
+from types import SimpleNamespace
 
 import pytest
 import requests as http_requests
@@ -59,3 +60,31 @@ class TestAttachmentUpload:
     def test_upload_nonexistent_file(self, client: TofuPilot) -> None:
         with pytest.raises(FileNotFoundError):
             client.attachments.upload("/tmp/nonexistent_file_abc123.txt")
+
+
+class TestAttachmentDownload:
+    """Test the download() convenience method."""
+
+    def test_download_uploaded_file(self, client: TofuPilot) -> None:
+        content = b"round-trip download test"
+
+        # Initialize, upload, finalize manually to get the download URL
+        init = client.attachments.initialize(name="download_test.txt")
+        http_requests.put(init.upload_url, data=content, headers={"Content-Type": "text/plain"})
+        result = client.attachments.finalize(id=init.id)
+
+        attachment = SimpleNamespace(name="download_test.txt", download_url=result.url)
+
+        dest = tempfile.mktemp(suffix=".txt")
+        try:
+            path = client.attachments.download(attachment, dest=dest)
+            assert path.exists()
+            assert path.read_bytes() == content
+        finally:
+            if os.path.exists(dest):
+                os.unlink(dest)
+
+    def test_download_no_url(self, client: TofuPilot) -> None:
+        attachment = SimpleNamespace(name="missing.txt", download_url=None)
+        with pytest.raises(ValueError, match="no download URL"):
+            client.attachments.download(attachment)
