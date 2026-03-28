@@ -23,7 +23,7 @@ class TestDeleteUnit:
 
         result = client.units.delete(serial_numbers=[serial])
         assert_delete_unit_success(result)
-        assert unit_id in result.ids
+        assert unit_id in result.id
 
         with pytest.raises(ErrorNOTFOUND):
             client.units.get(serial_number=serial)

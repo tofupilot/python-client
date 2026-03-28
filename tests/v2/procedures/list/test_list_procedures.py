@@ -46,18 +46,18 @@ class TestListProcedures:
             return
 
         # Create 3 procedures to ensure enough data
+        unique_prefix = f"PagProc-{timestamp}-{str(uuid.uuid4())[:6]}"
         for i in range(3):
-            unique_id = str(uuid.uuid4())[:8]
-            client.procedures.create(name=f"PageTest-{i}-{unique_id}-{timestamp}")
+            client.procedures.create(name=f"{unique_prefix}-{i}")
 
         # First page
-        page1 = client.procedures.list(limit=1)
+        page1 = client.procedures.list(search_query=unique_prefix, limit=1)
         assert len(page1.data) == 1
         assert page1.meta.has_more is True
         assert page1.meta.next_cursor is not None
 
         # Second page
-        page2 = client.procedures.list(limit=1, cursor=page1.meta.next_cursor)
+        page2 = client.procedures.list(search_query=unique_prefix, limit=1, cursor=page1.meta.next_cursor)
         assert len(page2.data) == 1
         assert page2.data[0].id != page1.data[0].id
 

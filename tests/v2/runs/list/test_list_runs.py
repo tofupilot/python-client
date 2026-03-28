@@ -480,13 +480,13 @@ class TestListRuns:
         if auth_type == "station":
             return
 
+        import os
+        operator_email = os.environ.get("TOFUPILOT_EMAIL_ADDRESS_USER")
+        if not operator_email:
+            pytest.skip("TOFUPILOT_EMAIL_ADDRESS_USER not set")
+
         unique_id = str(uuid.uuid4())[:8]
         part_number = f"PART-OPR-{unique_id}"
-
-        # Get current user email to use as operator
-        users = client.user.list(current=True)
-        assert len(users) > 0
-        operator_email = users[0].email
 
         started_at, ended_at = get_random_test_dates()
         create_result = client.runs.create(

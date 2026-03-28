@@ -38,7 +38,7 @@ class TestDeleteRun:
 
         delete_result = client.runs.delete(ids=[create_result.id])
         assert_delete_run_success(delete_result)
-        assert create_result.id in delete_result.ids
+        assert create_result.id in delete_result.id
 
         with pytest.raises(ErrorNOTFOUND):
             client.runs.get(id=create_result.id)
@@ -70,7 +70,7 @@ class TestDeleteRun:
         assert_delete_run_success(delete_result)
 
         for run_id in run_ids:
-            assert run_id in delete_result.ids
+            assert run_id in delete_result.id
             with pytest.raises(ErrorNOTFOUND):
                 client.runs.get(id=run_id)
 

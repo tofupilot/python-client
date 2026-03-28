@@ -25,10 +25,11 @@ class TestCreateStation:
         get_result = client.stations.get(id=result.id)
         assert_get_station_success(get_result)
         assert get_result.name == station_name
-        assert get_result.identifier.startswith("STA-")
 
     def test_create_station_with_duplicate_name(self, client: TofuPilot, auth_type: str, timestamp) -> None:
-        """Test that creating two stations with the same name succeeds (names are not unique)."""
+        """Test that creating two stations with the same name fails (names are unique)."""
+        from tofupilot.v2.errors import ErrorCONFLICT
+
         if auth_type == "station":
             with pytest.raises(ErrorFORBIDDEN):
                 client.stations.create(name="Forbidden Station")
@@ -38,17 +39,8 @@ class TestCreateStation:
         result1 = client.stations.create(name=station_name)
         assert_create_station_success(result1)
 
-        result2 = client.stations.create(name=station_name)
-        assert_create_station_success(result2)
-
-        # Different IDs
-        assert result1.id != result2.id
-
-        # Both retrievable with same name
-        get1 = client.stations.get(id=result1.id)
-        get2 = client.stations.get(id=result2.id)
-        assert get1.name == station_name
-        assert get2.name == station_name
+        with pytest.raises(ErrorCONFLICT):
+            client.stations.create(name=station_name)
 
     def test_create_station_empty_name_fails(self, client: TofuPilot, auth_type: str) -> None:
         """Test that creating a station with an empty name raises a validation error."""

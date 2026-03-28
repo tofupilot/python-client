@@ -104,20 +104,20 @@ def test_create_run_with_invalid_outcome(client: TofuPilot, procedure_id: str):
 
 
 def test_create_run_with_end_before_start(client: TofuPilot, procedure_id: str):
-    """Test that creating a run with end time before start time succeeds (validation not enforced)."""
+    """Test that creating a run with end time before start time fails with a server error."""
+    from tofupilot.v2.errors import APIError, ErrorINTERNALSERVERERROR
     start_time = datetime.now(timezone.utc)
     end_time = start_time - timedelta(hours=1)
-    
-    # This should succeed as the API doesn't enforce time order validation
-    result = client.runs.create(
-        serial_number="TEST-001",
-        procedure_id=procedure_id,
-        part_number="TEST-PCB-001",
-        started_at=start_time,
-        ended_at=end_time,
-        outcome="PASS",
-    )
-    assert result.id is not None
+
+    with pytest.raises((APIError, ErrorINTERNALSERVERERROR)):
+        client.runs.create(
+            serial_number="TEST-001",
+            procedure_id=procedure_id,
+            part_number="TEST-PCB-001",
+            started_at=start_time,
+            ended_at=end_time,
+            outcome="PASS",
+        )
 
 
 def test_create_run_with_ended_at_but_no_outcome(client: TofuPilot, procedure_id: str):

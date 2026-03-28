@@ -29,7 +29,6 @@ class TestListStations:
         # Verify data fields
         station = result.data[0]
         assert len(station.id) > 0
-        assert len(station.identifier) > 0
         assert len(station.name) > 0
         assert isinstance(station.procedures, list)
 

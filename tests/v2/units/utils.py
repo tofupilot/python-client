@@ -39,8 +39,8 @@ def assert_update_unit_success(result: UnitUpdateResponse) -> None:
 def assert_delete_unit_success(result: UnitDeleteResponse) -> None:
     """Assert that unit delete response is valid."""
     assert checkcast(UnitDeleteResponse, result)
-    assert len(result.ids) > 0
-    for unit_id in result.ids:
+    assert len(result.id) > 0
+    for unit_id in result.id:
         assert len(unit_id) > 0
 
 

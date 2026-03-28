@@ -58,7 +58,7 @@ def assert_get_run_success(result: models.RunGetResponse) -> None:
 def assert_delete_run_success(result: models.RunDeleteResponse) -> None:
     """Assert that run delete response is valid."""
     assert checkcast(models.RunDeleteResponse, result)
-    assert len(result.ids) > 0
+    assert len(result.id) > 0
 
 def assert_update_run_success(result: models.RunUpdateResponse) -> None:
     """Assert that run update response is valid."""

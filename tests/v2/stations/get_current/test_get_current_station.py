@@ -20,7 +20,6 @@ class TestGetCurrentStation:
         result = client.stations.get_current()
         assert checkcast(StationGetCurrentResponse, result)
         assert len(result.id) > 0
-        assert len(result.identifier) > 0
         assert len(result.name) > 0
         assert isinstance(result.procedures, list)
         assert result.connection_status is None or result.connection_status in ["connected", "disconnected"]

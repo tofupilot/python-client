@@ -11,6 +11,7 @@ This test demonstrates the full attachment workflow:
 import requests as http_requests
 from tofupilot.v2 import TofuPilot
 from ..utils import assert_update_unit_success, assert_get_unit_success
+from ...utils import assert_station_access_forbidden
 
 
 class TestUnitAttachments:
@@ -18,6 +19,11 @@ class TestUnitAttachments:
 
     def test_attach_file_to_unit(self, client: TofuPilot, auth_type: str, create_test_unit, timestamp) -> None:
         """Attach a file to a unit and verify it appears on the unit."""
+        if auth_type == "station":
+            with assert_station_access_forbidden("update unit with attachment"):
+                client.units.update(serial_number="any", attachments=["fake-id"])
+            return
+
         _, serial, _ = create_test_unit("ATTACH")
 
         # Step 1: Initialize upload

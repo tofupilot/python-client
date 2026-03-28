@@ -48,7 +48,6 @@ def station_api_key() -> str:
 def user_api_key() -> str:
     # Get API key from environment
     api_key = os.environ.get("TOFUPILOT_API_KEY_USER")
-    print("CONFTEST user api key:", api_key)
 
     if not api_key:
         pytest.fail(

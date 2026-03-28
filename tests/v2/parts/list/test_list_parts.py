@@ -33,16 +33,16 @@ class TestListParts:
 
     def test_list_pagination(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test cursor-based pagination."""
+        unique_prefix = f"PAGPART-{timestamp}-{str(uuid.uuid4())[:6]}"
         for i in range(3):
-            unique_id = str(uuid.uuid4())[:8]
-            client.parts.create(number=f"PAGE-PART-{i}-{unique_id}-{timestamp}")
+            client.parts.create(number=f"{unique_prefix}-{i}")
 
-        page1 = client.parts.list(limit=1)
+        page1 = client.parts.list(search_query=unique_prefix, limit=1)
         assert len(page1.data) == 1
         assert page1.meta.has_more is True
         assert page1.meta.next_cursor is not None
 
-        page2 = client.parts.list(limit=1, cursor=page1.meta.next_cursor)
+        page2 = client.parts.list(search_query=unique_prefix, limit=1, cursor=page1.meta.next_cursor)
         assert len(page2.data) == 1
         assert page2.data[0].id != page1.data[0].id
 

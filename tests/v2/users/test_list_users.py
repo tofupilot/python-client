@@ -23,7 +23,6 @@ class TestListUsers:
     def test_get_current_user(self, client: TofuPilot, auth_type: str) -> None:
         """Test listing with current=True returns only the authenticated user."""
         if auth_type == "station":
-            # Stations have no userId, current=True returns empty
             result = client.user.list(current=True)
             assert isinstance(result, list)
             assert len(result) == 0
@@ -40,8 +39,6 @@ class TestListUsers:
         assert len(current_user.email) > 0
         assert isinstance(current_user.banned, bool)
 
-        # Current user should also appear in the full list
         all_users = client.user.list()
         all_ids = [u.id for u in all_users]
         assert current_user.id in all_ids
-
