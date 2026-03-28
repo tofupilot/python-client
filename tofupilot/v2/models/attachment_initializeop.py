@@ -7,10 +7,12 @@ from typing_extensions import TypedDict
 
 class AttachmentInitializeRequestTypedDict(TypedDict):
     name: str
+    r"""File name including extension (e.g. \"report.pdf\")"""
 
 
 class AttachmentInitializeRequest(BaseModel):
     name: str
+    r"""File name including extension (e.g. \"report.pdf\")"""
 
 
 class AttachmentInitializeResponseTypedDict(TypedDict):

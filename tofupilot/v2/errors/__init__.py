@@ -14,10 +14,6 @@ if TYPE_CHECKING:
         ErrorINTERNALSERVERERRORData,
     )
     from .errornotfound import ErrorNOTFOUND, ErrorNOTFOUNDData
-    from .errorpreconditionfailed import (
-        ErrorPRECONDITIONFAILED,
-        ErrorPRECONDITIONFAILEDData,
-    )
     from .errorunauthorized import ErrorUNAUTHORIZED, ErrorUNAUTHORIZEDData
     from .errorunprocessablecontent import (
         ErrorUNPROCESSABLECONTENT,
@@ -41,8 +37,6 @@ __all__ = [
     "ErrorINTERNALSERVERERRORData",
     "ErrorNOTFOUND",
     "ErrorNOTFOUNDData",
-    "ErrorPRECONDITIONFAILED",
-    "ErrorPRECONDITIONFAILEDData",
     "ErrorUNAUTHORIZED",
     "ErrorUNAUTHORIZEDData",
     "ErrorUNPROCESSABLECONTENT",
@@ -66,8 +60,6 @@ _dynamic_imports: dict[str, str] = {
     "ErrorINTERNALSERVERERRORData": ".errorinternalservererror",
     "ErrorNOTFOUND": ".errornotfound",
     "ErrorNOTFOUNDData": ".errornotfound",
-    "ErrorPRECONDITIONFAILED": ".errorpreconditionfailed",
-    "ErrorPRECONDITIONFAILEDData": ".errorpreconditionfailed",
     "ErrorUNAUTHORIZED": ".errorunauthorized",
     "ErrorUNAUTHORIZEDData": ".errorunauthorized",
     "ErrorUNPROCESSABLECONTENT": ".errorunprocessablecontent",

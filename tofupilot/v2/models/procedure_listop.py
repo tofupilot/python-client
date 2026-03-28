@@ -142,8 +142,11 @@ class Run(BaseModel):
     r"""Unit associated with this run."""
 
 
+ProcedureListProvider = Literal["github", "gitlab"]
+
+
 class LinkedRepositoryTypedDict(TypedDict):
-    r"""Linked GitHub repository for this procedure."""
+    r"""Linked repository for this procedure."""
 
     id: str
     r"""Unique identifier for the linked repository."""
@@ -151,10 +154,11 @@ class LinkedRepositoryTypedDict(TypedDict):
     r"""Name of the repository."""
     full_name: str
     r"""Full name of the repository (owner/repo)."""
+    provider: ProcedureListProvider
 
 
 class LinkedRepository(BaseModel):
-    r"""Linked GitHub repository for this procedure."""
+    r"""Linked repository for this procedure."""
 
     id: str
     r"""Unique identifier for the linked repository."""
@@ -164,6 +168,8 @@ class LinkedRepository(BaseModel):
 
     full_name: Annotated[str, pydantic.Field(alias="fullName")]
     r"""Full name of the repository (owner/repo)."""
+
+    provider: ProcedureListProvider
 
 
 class ProcedureListDataTypedDict(TypedDict):
@@ -178,7 +184,7 @@ class ProcedureListDataTypedDict(TypedDict):
     runs: List[RunTypedDict]
     r"""Recent runs for this procedure."""
     linked_repository: Nullable[LinkedRepositoryTypedDict]
-    r"""Linked GitHub repository for this procedure."""
+    r"""Linked repository for this procedure."""
 
 
 class ProcedureListData(BaseModel):
@@ -200,7 +206,7 @@ class ProcedureListData(BaseModel):
     linked_repository: Annotated[
         Nullable[LinkedRepository], pydantic.Field(alias="linkedRepository")
     ]
-    r"""Linked GitHub repository for this procedure."""
+    r"""Linked repository for this procedure."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):

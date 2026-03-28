@@ -6,26 +6,26 @@ from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
 from typing_extensions import Annotated, TypedDict
 
 
-class AttachmentConfirmRequestTypedDict(TypedDict):
+class AttachmentFinalizeRequestTypedDict(TypedDict):
     id: str
-    r"""ID of the upload to confirm"""
+    r"""ID of the upload to finalize"""
 
 
-class AttachmentConfirmRequest(BaseModel):
+class AttachmentFinalizeRequest(BaseModel):
     id: Annotated[
         str, FieldMetadata(path=PathParamMetadata(style="simple", explode=False))
     ]
-    r"""ID of the upload to confirm"""
+    r"""ID of the upload to finalize"""
 
 
-class AttachmentConfirmResponseTypedDict(TypedDict):
+class AttachmentFinalizeResponseTypedDict(TypedDict):
     r"""Upload metadata updated successfully"""
 
     url: str
     r"""Signed URL for accessing the uploaded file"""
 
 
-class AttachmentConfirmResponse(BaseModel):
+class AttachmentFinalizeResponse(BaseModel):
     r"""Upload metadata updated successfully"""
 
     url: str

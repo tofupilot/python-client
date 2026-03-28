@@ -957,7 +957,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitUpdateResponse:
         r"""Update unit
 
-        Update unit properties including serial number, part revision, and batch assignment with case-insensitive matching.
+        Update unit properties including serial number, part revision, batch assignment, and file attachments with case-insensitive matching.
 
         :param serial_number: Serial number of the unit to update.
         :param new_serial_number: New serial number for the unit.
@@ -1077,7 +1077,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitUpdateResponse:
         r"""Update unit
 
-        Update unit properties including serial number, part revision, and batch assignment with case-insensitive matching.
+        Update unit properties including serial number, part revision, batch assignment, and file attachments with case-insensitive matching.
 
         :param serial_number: Serial number of the unit to update.
         :param new_serial_number: New serial number for the unit.

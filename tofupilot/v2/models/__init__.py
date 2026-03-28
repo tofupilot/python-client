@@ -4,17 +4,17 @@ from typing import TYPE_CHECKING
 from importlib import import_module
 
 if TYPE_CHECKING:
-    from .attachment_confirmop import (
-        AttachmentConfirmRequest,
-        AttachmentConfirmRequestTypedDict,
-        AttachmentConfirmResponse,
-        AttachmentConfirmResponseTypedDict,
-    )
     from .attachment_deleteop import (
         AttachmentDeleteRequest,
         AttachmentDeleteRequestTypedDict,
         AttachmentDeleteResponse,
         AttachmentDeleteResponseTypedDict,
+    )
+    from .attachment_finalizeop import (
+        AttachmentFinalizeRequest,
+        AttachmentFinalizeRequestTypedDict,
+        AttachmentFinalizeResponse,
+        AttachmentFinalizeResponseTypedDict,
     )
     from .attachment_initializeop import (
         AttachmentInitializeRequest,
@@ -83,10 +83,6 @@ if TYPE_CHECKING:
         ErrorINTERNALSERVERERRORIssueTypedDict,
     )
     from .errornotfound import ErrorNOTFOUNDIssue, ErrorNOTFOUNDIssueTypedDict
-    from .errorpreconditionfailed import (
-        ErrorPRECONDITIONFAILEDIssue,
-        ErrorPRECONDITIONFAILEDIssueTypedDict,
-    )
     from .errorunauthorized import (
         ErrorUNAUTHORIZEDIssue,
         ErrorUNAUTHORIZEDIssueTypedDict,
@@ -94,14 +90,6 @@ if TYPE_CHECKING:
     from .errorunprocessablecontent import (
         ErrorUNPROCESSABLECONTENTIssue,
         ErrorUNPROCESSABLECONTENTIssueTypedDict,
-    )
-    from .github_getinstallationtokenop import (
-        GithubGetInstallationTokenResponse,
-        GithubGetInstallationTokenResponseTypedDict,
-    )
-    from .gitlab_getinstallationtokenop import (
-        GitlabGetInstallationTokenResponse,
-        GitlabGetInstallationTokenResponseTypedDict,
     )
     from .part_createop import (
         PartCreateRequest,
@@ -251,6 +239,7 @@ if TYPE_CHECKING:
         ProcedureListMeta,
         ProcedureListMetaTypedDict,
         ProcedureListOutcome,
+        ProcedureListProvider,
         ProcedureListRequest,
         ProcedureListRequestTypedDict,
         ProcedureListResponse,
@@ -640,14 +629,14 @@ if TYPE_CHECKING:
     )
 
 __all__ = [
-    "AttachmentConfirmRequest",
-    "AttachmentConfirmRequestTypedDict",
-    "AttachmentConfirmResponse",
-    "AttachmentConfirmResponseTypedDict",
     "AttachmentDeleteRequest",
     "AttachmentDeleteRequestTypedDict",
     "AttachmentDeleteResponse",
     "AttachmentDeleteResponseTypedDict",
+    "AttachmentFinalizeRequest",
+    "AttachmentFinalizeRequestTypedDict",
+    "AttachmentFinalizeResponse",
+    "AttachmentFinalizeResponseTypedDict",
     "AttachmentInitializeRequest",
     "AttachmentInitializeRequestTypedDict",
     "AttachmentInitializeResponse",
@@ -729,16 +718,10 @@ __all__ = [
     "ErrorINTERNALSERVERERRORIssueTypedDict",
     "ErrorNOTFOUNDIssue",
     "ErrorNOTFOUNDIssueTypedDict",
-    "ErrorPRECONDITIONFAILEDIssue",
-    "ErrorPRECONDITIONFAILEDIssueTypedDict",
     "ErrorUNAUTHORIZEDIssue",
     "ErrorUNAUTHORIZEDIssueTypedDict",
     "ErrorUNPROCESSABLECONTENTIssue",
     "ErrorUNPROCESSABLECONTENTIssueTypedDict",
-    "GithubGetInstallationTokenResponse",
-    "GithubGetInstallationTokenResponseTypedDict",
-    "GitlabGetInstallationTokenResponse",
-    "GitlabGetInstallationTokenResponseTypedDict",
     "LastRun",
     "LastRunOutcome",
     "LastRunTypedDict",
@@ -859,6 +842,7 @@ __all__ = [
     "ProcedureListMeta",
     "ProcedureListMetaTypedDict",
     "ProcedureListOutcome",
+    "ProcedureListProvider",
     "ProcedureListRequest",
     "ProcedureListRequestTypedDict",
     "ProcedureListResponse",
@@ -1183,14 +1167,14 @@ __all__ = [
 ]
 
 _dynamic_imports: dict[str, str] = {
-    "AttachmentConfirmRequest": ".attachment_confirmop",
-    "AttachmentConfirmRequestTypedDict": ".attachment_confirmop",
-    "AttachmentConfirmResponse": ".attachment_confirmop",
-    "AttachmentConfirmResponseTypedDict": ".attachment_confirmop",
     "AttachmentDeleteRequest": ".attachment_deleteop",
     "AttachmentDeleteRequestTypedDict": ".attachment_deleteop",
     "AttachmentDeleteResponse": ".attachment_deleteop",
     "AttachmentDeleteResponseTypedDict": ".attachment_deleteop",
+    "AttachmentFinalizeRequest": ".attachment_finalizeop",
+    "AttachmentFinalizeRequestTypedDict": ".attachment_finalizeop",
+    "AttachmentFinalizeResponse": ".attachment_finalizeop",
+    "AttachmentFinalizeResponseTypedDict": ".attachment_finalizeop",
     "AttachmentInitializeRequest": ".attachment_initializeop",
     "AttachmentInitializeRequestTypedDict": ".attachment_initializeop",
     "AttachmentInitializeResponse": ".attachment_initializeop",
@@ -1249,16 +1233,10 @@ _dynamic_imports: dict[str, str] = {
     "ErrorINTERNALSERVERERRORIssueTypedDict": ".errorinternalservererror",
     "ErrorNOTFOUNDIssue": ".errornotfound",
     "ErrorNOTFOUNDIssueTypedDict": ".errornotfound",
-    "ErrorPRECONDITIONFAILEDIssue": ".errorpreconditionfailed",
-    "ErrorPRECONDITIONFAILEDIssueTypedDict": ".errorpreconditionfailed",
     "ErrorUNAUTHORIZEDIssue": ".errorunauthorized",
     "ErrorUNAUTHORIZEDIssueTypedDict": ".errorunauthorized",
     "ErrorUNPROCESSABLECONTENTIssue": ".errorunprocessablecontent",
     "ErrorUNPROCESSABLECONTENTIssueTypedDict": ".errorunprocessablecontent",
-    "GithubGetInstallationTokenResponse": ".github_getinstallationtokenop",
-    "GithubGetInstallationTokenResponseTypedDict": ".github_getinstallationtokenop",
-    "GitlabGetInstallationTokenResponse": ".gitlab_getinstallationtokenop",
-    "GitlabGetInstallationTokenResponseTypedDict": ".gitlab_getinstallationtokenop",
     "PartCreateRequest": ".part_createop",
     "PartCreateRequestTypedDict": ".part_createop",
     "PartCreateResponse": ".part_createop",
@@ -1376,6 +1354,7 @@ _dynamic_imports: dict[str, str] = {
     "ProcedureListMeta": ".procedure_listop",
     "ProcedureListMetaTypedDict": ".procedure_listop",
     "ProcedureListOutcome": ".procedure_listop",
+    "ProcedureListProvider": ".procedure_listop",
     "ProcedureListRequest": ".procedure_listop",
     "ProcedureListRequestTypedDict": ".procedure_listop",
     "ProcedureListResponse": ".procedure_listop",

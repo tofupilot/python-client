@@ -1073,7 +1073,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateResponse:
         r"""Update run
 
-        Update a test run with new attachments. File uploads must be initialized and confirmed before linking.
+        Update a test run, including linking file attachments. Files must be uploaded via Initialize upload and Finalize upload before linking.
 
         :param id: Unique identifier of the run to update.
         :param attachments: Array of upload IDs to attach to the run.
@@ -1178,7 +1178,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateResponse:
         r"""Update run
 
-        Update a test run with new attachments. File uploads must be initialized and confirmed before linking.
+        Update a test run, including linking file attachments. Files must be uploaded via Initialize upload and Finalize upload before linking.
 
         :param id: Unique identifier of the run to update.
         :param attachments: Array of upload IDs to attach to the run.

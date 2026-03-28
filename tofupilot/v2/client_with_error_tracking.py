@@ -1,7 +1,9 @@
 """TofuPilot SDK with enhanced error tracking and logging capabilities."""
 
+import mimetypes
 import os
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Union
 
 from pydantic_core import ValidationError
 
@@ -70,6 +72,37 @@ class _RunsWithBetterErrors(_ResourceWithBetterErrors):
             raise TofuPilotValidationError(_format_validation_error(e)) from None
 
 
+class _AttachmentsWithUpload(_ResourceWithBetterErrors):
+    """Extends attachments resource with a convenience upload method."""
+
+    def upload(self, file: Union[str, Path]) -> str:
+        """Upload a file and return its attachment ID.
+
+        Handles the full upload workflow: initialize → upload to storage → finalize.
+
+        Args:
+            file: Path to the file to upload.
+
+        Returns:
+            The attachment ID (use with units.update or runs.update).
+        """
+        import httpx
+
+        file = Path(file)
+        if not file.exists():
+            raise FileNotFoundError(f"File not found: {file}")
+
+        content_type = mimetypes.guess_type(str(file))[0] or "application/octet-stream"
+
+        init = self._resource.initialize(name=file.name)
+        with open(file, "rb") as f:
+            resp = httpx.put(init.upload_url, content=f.read(), headers={"Content-Type": content_type})
+        if resp.status_code != 200:
+            raise RuntimeError(f"File upload failed with status {resp.status_code}")
+        self._resource.finalize(id=init.id)
+        return init.id
+
+
 class TofuPilotWithErrorTracking(TofuPilot):
     """
     Enhanced TofuPilot client with automatic error tracking and improved logging.
@@ -120,6 +153,8 @@ class TofuPilotWithErrorTracking(TofuPilot):
         attr = super().__getattr__(name)
         if name == 'runs':
             attr = _RunsWithBetterErrors(attr)
+        elif name == 'attachments':
+            attr = _AttachmentsWithUpload(attr)
         else:
             attr = _ResourceWithBetterErrors(attr)
         setattr(self, name, attr)

@@ -21,9 +21,9 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentInitializeResponse:
         r"""Initialize upload
 
-        Initialize a temporary upload URL for a file and return it along with the upload ID. This is the first step in the attachment upload process.
+        Get a temporary pre-signed URL to upload a file. Returns the upload ID and URL. Upload the file to the URL with a PUT request, then call Finalize upload.
 
-        :param name:
+        :param name: File name including extension (e.g. \"report.pdf\")
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -136,9 +136,9 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentInitializeResponse:
         r"""Initialize upload
 
-        Initialize a temporary upload URL for a file and return it along with the upload ID. This is the first step in the attachment upload process.
+        Get a temporary pre-signed URL to upload a file. Returns the upload ID and URL. Upload the file to the URL with a PUT request, then call Finalize upload.
 
-        :param name:
+        :param name: File name including extension (e.g. \"report.pdf\")
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -251,7 +251,7 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentDeleteResponse:
         r"""Delete attachments
 
-        Permanently delete attachments by their IDs. This removes the attachment from the database and S3 storage, and unlinks it from any runs or units.
+        Permanently delete attachments by their IDs and unlink them from any associated runs or units.
 
         :param ids: Upload IDs to delete
         :param retries: Override the default retry configuration for this method
@@ -353,7 +353,7 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentDeleteResponse:
         r"""Delete attachments
 
-        Permanently delete attachments by their IDs. This removes the attachment from the database and S3 storage, and unlinks it from any runs or units.
+        Permanently delete attachments by their IDs and unlink them from any associated runs or units.
 
         :param ids: Upload IDs to delete
         :param retries: Override the default retry configuration for this method
@@ -444,7 +444,7 @@ class Attachments(BaseSDK):
 
         raise errors.APIError("Unexpected response received", http_res)
 
-    def confirm(
+    def finalize(
         self,
         *,
         id: str,
@@ -452,12 +452,12 @@ class Attachments(BaseSDK):
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.AttachmentConfirmResponse:
-        r"""Confirm upload
+    ) -> models.AttachmentFinalizeResponse:
+        r"""Finalize upload
 
-        Confirm a file upload to TofuPilot storage. Validates the upload, fetches file metadata, and updates the attachment record.
+        Finalize a file upload after uploading to the pre-signed URL. Validates the file and records its metadata. Link the attachment to a run or unit using Update Run or Update Unit.
 
-        :param id: ID of the upload to confirm
+        :param id: ID of the upload to finalize
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -473,13 +473,13 @@ class Attachments(BaseSDK):
         else:
             base_url = self._get_url(base_url, url_variables)
 
-        request = models.AttachmentConfirmRequest(
+        request = models.AttachmentFinalizeRequest(
             id=id,
         )
 
         req = self._build_request(
             method="POST",
-            path="/v2/attachments/{id}/confirm",
+            path="/v2/attachments/{id}/finalize",
             base_url=base_url,
             url_variables=url_variables,
             request=request,
@@ -505,7 +505,7 @@ class Attachments(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="attachment-confirm",
+                operation_id="attachment-finalize",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
@@ -518,7 +518,7 @@ class Attachments(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.AttachmentConfirmResponse, http_res)
+            return unmarshal_json_response(models.AttachmentFinalizeResponse, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
@@ -541,7 +541,7 @@ class Attachments(BaseSDK):
 
         raise errors.APIError("Unexpected response received", http_res)
 
-    async def confirm_async(
+    async def finalize_async(
         self,
         *,
         id: str,
@@ -549,12 +549,12 @@ class Attachments(BaseSDK):
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.AttachmentConfirmResponse:
-        r"""Confirm upload
+    ) -> models.AttachmentFinalizeResponse:
+        r"""Finalize upload
 
-        Confirm a file upload to TofuPilot storage. Validates the upload, fetches file metadata, and updates the attachment record.
+        Finalize a file upload after uploading to the pre-signed URL. Validates the file and records its metadata. Link the attachment to a run or unit using Update Run or Update Unit.
 
-        :param id: ID of the upload to confirm
+        :param id: ID of the upload to finalize
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -570,13 +570,13 @@ class Attachments(BaseSDK):
         else:
             base_url = self._get_url(base_url, url_variables)
 
-        request = models.AttachmentConfirmRequest(
+        request = models.AttachmentFinalizeRequest(
             id=id,
         )
 
         req = self._build_request_async(
             method="POST",
-            path="/v2/attachments/{id}/confirm",
+            path="/v2/attachments/{id}/finalize",
             base_url=base_url,
             url_variables=url_variables,
             request=request,
@@ -602,7 +602,7 @@ class Attachments(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="attachment-confirm",
+                operation_id="attachment-finalize",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
@@ -615,7 +615,7 @@ class Attachments(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(models.AttachmentConfirmResponse, http_res)
+            return unmarshal_json_response(models.AttachmentFinalizeResponse, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
