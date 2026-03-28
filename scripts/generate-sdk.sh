@@ -50,71 +50,11 @@ curl -s http://localhost:3000/api/v2/openapi.json > .tmp/openapi-raw.json
 echo "🔧 Fixing OpenAPI spec for Speakeasy compatibility..."
 python3 << 'PYEOF'
 import json
-import re
 
 with open('.tmp/openapi-raw.json', 'r') as f:
     spec = json.load(f)
 
-# Fix 1: Replace references to error.X with ErrorX format before removing
-spec_str = json.dumps(spec)
-error_refs = {
-    '#/components/schemas/error.BAD_REQUEST': '#/components/schemas/ErrorBADREQUEST',
-    '#/components/schemas/error.UNAUTHORIZED': '#/components/schemas/ErrorUNAUTHORIZED',
-    '#/components/schemas/error.FORBIDDEN': '#/components/schemas/ErrorFORBIDDEN',
-    '#/components/schemas/error.NOT_FOUND': '#/components/schemas/ErrorNOTFOUND',
-    '#/components/schemas/error.CONFLICT': '#/components/schemas/ErrorCONFLICT',
-    '#/components/schemas/error.UNPROCESSABLE_CONTENT': '#/components/schemas/ErrorUNPROCESSABLECONTENT',
-    '#/components/schemas/error.INTERNAL_SERVER_ERROR': '#/components/schemas/ErrorINTERNALSERVERERROR',
-    '#/components/schemas/error.BAD_GATEWAY': '#/components/schemas/ErrorBADGATEWAY',
-    '#/components/schemas/error.PRECONDITION_FAILED': '#/components/schemas/ErrorPRECONDITIONFAILED',
-}
-for old_ref, new_ref in error_refs.items():
-    spec_str = spec_str.replace(old_ref, new_ref)
-spec = json.loads(spec_str)
-print("  Replaced error schema references")
-
-# Fix 2: Remove duplicate error schemas (error.X format - keep ErrorX format)
-if 'components' in spec and 'schemas' in spec['components']:
-    schemas_to_remove = [k for k in spec['components']['schemas'].keys() if k.startswith('error.')]
-    for schema in schemas_to_remove:
-        del spec['components']['schemas'][schema]
-    print(f"  Removed {len(schemas_to_remove)} duplicate error schemas")
-
-# Fix 3: Add ErrorPRECONDITIONFAILED schema if it doesn't exist
-if 'components' in spec and 'schemas' in spec['components']:
-    if 'ErrorPRECONDITIONFAILED' not in spec['components']['schemas']:
-        spec['components']['schemas']['ErrorPRECONDITIONFAILED'] = {
-            'type': 'object',
-            'properties': {
-                'message': {
-                    'type': 'string',
-                    'description': 'The error message',
-                    'example': 'Precondition failed',
-                },
-                'code': {
-                    'type': 'string',
-                    'description': 'The error code',
-                    'example': 'PRECONDITION_FAILED',
-                },
-                'issues': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'object',
-                        'properties': {
-                            'message': {'type': 'string'},
-                        },
-                        'required': ['message'],
-                    },
-                    'description': 'An array of issues that were responsible for the error',
-                    'example': [],
-                },
-            },
-            'required': ['message', 'code'],
-            'description': 'Precondition failed error',
-        }
-        print("  Added ErrorPRECONDITIONFAILED schema")
-
-# Fix 2: Remove x-access fields (they contain "type" which conflicts with JSON Schema)
+# Fix 1: Remove x-access fields (Speakeasy chokes on "type" inside x-access objects)
 # x-access is for documentation badges, not needed for SDK generation
 def remove_x_access(obj):
     if isinstance(obj, dict):
@@ -129,14 +69,11 @@ def remove_x_access(obj):
 remove_x_access(spec)
 print("  Removed x-access fields")
 
-# Fix 5: Convert type: "null" to nullable pattern (OpenAPI 3.0 compatibility)
-# In OpenAPI 3.0, type can't be "null", you need to use nullable: true
+# Fix 2: Convert type: "null" to nullable pattern (OpenAPI 3.0 compatibility for Speakeasy)
 def fix_null_types(obj):
     if isinstance(obj, dict):
-        # Handle oneOf/anyOf with type: "null"
         for key in ['oneOf', 'anyOf']:
             if key in obj and isinstance(obj[key], list):
-                # Remove type: "null" items and add nullable: true to remaining type
                 has_null = False
                 non_null_items = []
                 for item in obj[key]:
@@ -146,7 +83,6 @@ def fix_null_types(obj):
                         non_null_items.append(item)
 
                 if has_null and len(non_null_items) == 1:
-                    # Replace oneOf/anyOf with the single non-null type + nullable
                     single_type = non_null_items[0]
                     del obj[key]
                     obj.update(single_type)
@@ -162,14 +98,13 @@ def fix_null_types(obj):
             fix_null_types(v)
 
 fix_null_types(spec)
-print("  Fixed null type patterns")
+print("  Fixed null type patterns for Speakeasy 3.0 compat")
 
-# Fix 3: Remove examples that have "type" field with non-schema values
-def remove_problematic_examples(obj, path=""):
+# Fix 3: Remove examples with problematic "type" values that conflict with JSON Schema
+def remove_problematic_examples(obj):
     if isinstance(obj, dict):
         if 'example' in obj:
             ex = obj['example']
-            # Check if example contains objects with problematic "type" values
             def has_problematic_type(val):
                 if isinstance(val, dict):
                     if 'type' in val and val['type'] not in ['array', 'boolean', 'integer', 'number', 'object', 'string', None]:
@@ -186,43 +121,21 @@ def remove_problematic_examples(obj, path=""):
             if has_problematic_type(ex):
                 del obj['example']
 
-        for k, v in list(obj.items()):
-            remove_problematic_examples(v, f"{path}.{k}")
+        for v in list(obj.values()):
+            remove_problematic_examples(v)
     elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            remove_problematic_examples(v, f"{path}[{i}]")
+        for v in obj:
+            remove_problematic_examples(v)
 
 remove_problematic_examples(spec)
 print("  Removed problematic examples")
 
-# Fix 4: Keep security scheme as http/bearer (DO NOT change to apiKey - breaks auth)
-# The original http/bearer scheme is correct and adds "Bearer " prefix automatically
 print("  Security scheme kept as http/bearer")
-
-# Fix 5: Add 401 Unauthorized to all operations that don't have it
-if 'paths' in spec:
-    operations_updated = 0
-    for path, methods in spec['paths'].items():
-        for method, operation in methods.items():
-            if method in ['get', 'post', 'put', 'patch', 'delete'] and isinstance(operation, dict):
-                if 'responses' in operation and '401' not in operation['responses']:
-                    operation['responses']['401'] = {
-                        'description': 'Unauthorized',
-                        'content': {
-                            'application/json': {
-                                'schema': {
-                                    '$ref': '#/components/schemas/ErrorUNAUTHORIZED'
-                                }
-                            }
-                        }
-                    }
-                    operations_updated += 1
-    print(f"  Added 401 response to {operations_updated} operations")
 
 with open('.tmp/openapi-fixed.json', 'w') as f:
     json.dump(spec, f, indent=2)
 
-print("✅ OpenAPI spec fixed successfully")
+print("✅ OpenAPI spec fixed for Speakeasy")
 PYEOF
 
 # Step 4: Generate SDK using the fixed spec
