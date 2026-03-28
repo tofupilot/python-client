@@ -14,13 +14,15 @@ from typing import Any, List, Mapping, Optional
 class Parts(BaseSDK):
     revisions: Revisions
 
-    def __init__(self, sdk_config: SDKConfiguration) -> None:
-        BaseSDK.__init__(self, sdk_config)
+    def __init__(
+        self, sdk_config: SDKConfiguration, parent_ref: Optional[object] = None
+    ) -> None:
+        BaseSDK.__init__(self, sdk_config, parent_ref=parent_ref)
         self.sdk_configuration = sdk_config
         self._init_sdks()
 
     def _init_sdks(self):
-        self.revisions = Revisions(self.sdk_configuration)
+        self.revisions = Revisions(self.sdk_configuration, parent_ref=self.parent_ref)
 
     def create(
         self,
@@ -77,6 +79,7 @@ class Parts(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.PartCreateRequest
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -93,7 +96,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-create",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -183,6 +186,7 @@ class Parts(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.PartCreateRequest
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -199,7 +203,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-create",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -295,6 +299,7 @@ class Parts(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -311,7 +316,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-list",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -404,6 +409,7 @@ class Parts(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -420,7 +426,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-list",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -498,6 +504,7 @@ class Parts(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -514,7 +521,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-get",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -595,6 +602,7 @@ class Parts(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -611,7 +619,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-get",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -703,6 +711,7 @@ class Parts(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request.request_body, False, False, "json", models.PartUpdateRequestBody
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -719,7 +728,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-update",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -814,6 +823,7 @@ class Parts(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request.request_body, False, False, "json", models.PartUpdateRequestBody
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -830,7 +840,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-update",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -914,6 +924,7 @@ class Parts(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -930,7 +941,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-delete",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1011,6 +1022,7 @@ class Parts(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1027,7 +1039,7 @@ class Parts(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="part-delete",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

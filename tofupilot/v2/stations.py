@@ -62,6 +62,7 @@ class Stations(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.StationCreateRequest
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -78,7 +79,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-create",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -168,6 +169,7 @@ class Stations(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.StationCreateRequest
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -184,7 +186,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-create",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -277,6 +279,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -293,7 +296,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-list",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -380,6 +383,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -396,7 +400,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-list",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -467,6 +471,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -483,7 +488,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-getCurrent",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -557,6 +562,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -573,7 +579,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-getCurrent",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -654,6 +660,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -670,7 +677,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-get",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -751,6 +758,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -767,7 +775,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-get",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -871,6 +879,7 @@ class Stations(BaseSDK):
                 "json",
                 models.StationUpdateRequestBody,
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -887,7 +896,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-update",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -994,6 +1003,7 @@ class Stations(BaseSDK):
                 "json",
                 models.StationUpdateRequestBody,
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1010,7 +1020,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-update",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1094,6 +1104,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1110,7 +1121,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-remove",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1196,6 +1207,7 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1212,7 +1224,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-remove",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

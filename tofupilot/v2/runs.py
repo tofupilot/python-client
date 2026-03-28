@@ -105,6 +105,7 @@ class Runs(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.RunCreateRequest
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -121,7 +122,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-create",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -263,6 +264,7 @@ class Runs(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.RunCreateRequest
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -279,7 +281,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-create",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -442,6 +444,7 @@ class Runs(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -458,7 +461,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-list",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -610,6 +613,7 @@ class Runs(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -626,7 +630,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-list",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -709,6 +713,7 @@ class Runs(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -725,7 +730,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-delete",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -806,6 +811,7 @@ class Runs(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -822,7 +828,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-delete",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -903,6 +909,7 @@ class Runs(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -919,7 +926,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-get",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1005,6 +1012,7 @@ class Runs(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1021,7 +1029,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-get",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1115,6 +1123,7 @@ class Runs(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request.request_body, False, False, "json", models.RunUpdateRequestBody
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1131,7 +1140,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-update",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1220,6 +1229,7 @@ class Runs(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request.request_body, False, False, "json", models.RunUpdateRequestBody
             ),
+            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1236,7 +1246,7 @@ class Runs(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="run-update",
-                oauth2_scopes=[],
+                oauth2_scopes=None,
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
