@@ -54,22 +54,7 @@ import json
 with open('.tmp/openapi-raw.json', 'r') as f:
     spec = json.load(f)
 
-# Fix 1: Remove x-access fields (Speakeasy chokes on "type" inside x-access objects)
-# x-access is for documentation badges, not needed for SDK generation
-def remove_x_access(obj):
-    if isinstance(obj, dict):
-        if 'x-access' in obj:
-            del obj['x-access']
-        for v in obj.values():
-            remove_x_access(v)
-    elif isinstance(obj, list):
-        for v in obj:
-            remove_x_access(v)
-
-remove_x_access(spec)
-print("  Removed x-access fields")
-
-# Fix 2: Convert type: "null" to nullable pattern (OpenAPI 3.0 compatibility for Speakeasy)
+# Fix 1: Convert type: "null" to nullable pattern (OpenAPI 3.0 compatibility for Speakeasy)
 def fix_null_types(obj):
     if isinstance(obj, dict):
         for key in ['oneOf', 'anyOf']:
