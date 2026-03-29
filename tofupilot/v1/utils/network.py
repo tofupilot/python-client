@@ -100,12 +100,16 @@ def handle_response(
     """
     data = response.json()
 
+    # Non-dict responses (e.g. raw lists from GET endpoints) don't have metadata to process
+    if not isinstance(data, dict):
+        return data
+
     # Ensure logger is active to process messages
     was_resumed = False
     if hasattr(logger, 'resume'):
         logger.resume()
         was_resumed = True
-    
+
     try:
         # Process warnings
         warnings: Optional[List[str]] = data.get("warnings")

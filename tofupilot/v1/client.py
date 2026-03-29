@@ -341,7 +341,10 @@ class TofuPilotClient:
                 verify=self._verify,
             )
         )
-        result["success"] = result.get("success", True) # pyright: ignore[reportGeneralTypeIssues]
+        if isinstance(result, list):
+            result = {"success": True, "result": result}
+        else:
+            result["success"] = result.get("success", True) # pyright: ignore[reportGeneralTypeIssues]
 
         return result
 
