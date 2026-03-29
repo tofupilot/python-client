@@ -15,15 +15,13 @@ from typing import Any, Mapping, Optional
 class Procedures(BaseSDK):
     versions: Versions
 
-    def __init__(
-        self, sdk_config: SDKConfiguration, parent_ref: Optional[object] = None
-    ) -> None:
-        BaseSDK.__init__(self, sdk_config, parent_ref=parent_ref)
+    def __init__(self, sdk_config: SDKConfiguration) -> None:
+        BaseSDK.__init__(self, sdk_config)
         self.sdk_configuration = sdk_config
         self._init_sdks()
 
     def _init_sdks(self):
-        self.versions = Versions(self.sdk_configuration, parent_ref=self.parent_ref)
+        self.versions = Versions(self.sdk_configuration)
 
     def create(
         self,
@@ -74,7 +72,6 @@ class Procedures(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.ProcedureCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -91,7 +88,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -172,7 +169,6 @@ class Procedures(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.ProcedureCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -189,7 +185,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -238,7 +234,7 @@ class Procedures(BaseSDK):
 
         Retrieve procedures with optional filtering and search. Returns all procedure data including creator, recent runs, and FPY (First Pass Yield) statistics.
 
-        :param limit:
+        :param limit: Maximum number of procedures to return per page.
         :param cursor:
         :param search_query:
         :param created_after:
@@ -279,7 +275,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -296,7 +291,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -350,7 +345,7 @@ class Procedures(BaseSDK):
 
         Retrieve procedures with optional filtering and search. Returns all procedure data including creator, recent runs, and FPY (First Pass Yield) statistics.
 
-        :param limit:
+        :param limit: Maximum number of procedures to return per page.
         :param cursor:
         :param search_query:
         :param created_after:
@@ -391,7 +386,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -408,7 +402,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -491,7 +485,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -508,7 +501,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -589,7 +582,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -606,7 +598,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -687,7 +679,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -704,7 +695,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -790,7 +781,6 @@ class Procedures(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -807,7 +797,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-delete",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -905,7 +895,6 @@ class Procedures(BaseSDK):
                 "json",
                 models.ProcedureUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -922,7 +911,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1020,7 +1009,6 @@ class Procedures(BaseSDK):
                 "json",
                 models.ProcedureUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1037,7 +1025,7 @@ class Procedures(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="procedure-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),

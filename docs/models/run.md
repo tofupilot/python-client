@@ -1,0 +1,11 @@
+# Run
+
+
+## Fields
+
+| Field                                                                | Type                                                                 | Required                                                             | Description                                                          | Example                                                              |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `id`                                                                 | *str*                                                                | :heavy_check_mark:                                                   | Unique identifier for the run.                                       | 550e8400-e29b-41d4-a716-446655440002                                 |
+| `outcome`                                                            | [models.ProcedureListOutcome](../models/procedurelistoutcome.md)     | :heavy_check_mark:                                                   | Result of the test run.                                              | PASS                                                                 |
+| `started_at`                                                         | [date](https://docs.python.org/3/library/datetime.html#date-objects) | :heavy_check_mark:                                                   | ISO 8601 timestamp when the run was started.                         | 2024-01-15T14:30:00.000Z                                             |
+| `unit`                                                               | [models.ProcedureListUnit](../models/procedurelistunit.md)           | :heavy_check_mark:                                                   | Unit associated with this run.                                       |                                                                      |

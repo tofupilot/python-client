@@ -1,0 +1,11 @@
+# LinkedRepository
+
+
+## Fields
+
+| Field                                                              | Type                                                               | Required                                                           | Description                                                        | Example                                                            |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| `id`                                                               | *str*                                                              | :heavy_check_mark:                                                 | Unique identifier for the linked repository.                       | 550e8400-e29b-41d4-a716-446655440004                               |
+| `name`                                                             | *str*                                                              | :heavy_check_mark:                                                 | Name of the repository.                                            | my-repo                                                            |
+| `full_name`                                                        | *str*                                                              | :heavy_check_mark:                                                 | Full name of the repository (owner/repo).                          | org/my-repo                                                        |
+| `provider`                                                         | [models.ProcedureListProvider](../models/procedurelistprovider.md) | :heavy_check_mark:                                                 | N/A                                                                |                                                                    |

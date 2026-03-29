@@ -1,0 +1,11 @@
+# BatchGetUnit
+
+
+## Fields
+
+| Field                                                                | Type                                                                 | Required                                                             | Description                                                          | Example                                                              |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `id`                                                                 | *str*                                                                | :heavy_check_mark:                                                   | Unit ID.                                                             | 550e8400-e29b-41d4-a716-446655440000                                 |
+| `serial_number`                                                      | *str*                                                                | :heavy_check_mark:                                                   | Unit serial number.                                                  | SN-2024-001234                                                       |
+| `created_at`                                                         | [date](https://docs.python.org/3/library/datetime.html#date-objects) | :heavy_check_mark:                                                   | ISO 8601 timestamp when the unit was created.                        | 2024-01-15T10:30:00Z                                                 |
+| `part`                                                               | [models.BatchGetPart](../models/batchgetpart.md)                     | :heavy_check_mark:                                                   | Part information with revision details for this unit.                |                                                                      |

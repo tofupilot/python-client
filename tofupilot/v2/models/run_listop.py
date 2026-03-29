@@ -15,14 +15,7 @@ from typing import List, Literal, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
 
 
-RunListQueryParamOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "ERROR",
-    "TIMEOUT",
-    "ABORTED",
-]
-
+RunListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
 RunListSortBy = Literal[
     "started_at",
@@ -35,11 +28,7 @@ RunListSortBy = Literal[
 ]
 r"""Field to sort results by."""
 
-
-RunListSortOrder = Literal[
-    "asc",
-    "desc",
-]
+RunListSortOrder = Literal["asc", "desc"]
 r"""Sort order direction."""
 
 
@@ -65,6 +54,7 @@ class RunListRequestTypedDict(TypedDict):
     created_by_station_ids: NotRequired[List[str]]
     operated_by_ids: NotRequired[List[str]]
     limit: NotRequired[int]
+    r"""Maximum number of runs to return per page."""
     cursor: NotRequired[float]
     sort_by: NotRequired[RunListSortBy]
     r"""Field to sort results by."""
@@ -177,6 +167,7 @@ class RunListRequest(BaseModel):
         Optional[int],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = 50
+    r"""Maximum number of runs to return per page."""
 
     cursor: Annotated[
         Optional[float],
@@ -195,57 +186,8 @@ class RunListRequest(BaseModel):
     ] = "desc"
     r"""Sort order direction."""
 
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = set(
-            [
-                "search_query",
-                "ids",
-                "outcomes",
-                "procedure_ids",
-                "procedure_versions",
-                "serial_numbers",
-                "part_numbers",
-                "revision_numbers",
-                "batch_numbers",
-                "duration_min",
-                "duration_max",
-                "started_after",
-                "started_before",
-                "ended_after",
-                "ended_before",
-                "created_after",
-                "created_before",
-                "created_by_user_ids",
-                "created_by_station_ids",
-                "operated_by_ids",
-                "limit",
-                "cursor",
-                "sort_by",
-                "sort_order",
-            ]
-        )
-        serialized = handler(self)
-        m = {}
 
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                if val is not None or k not in optional_fields:
-                    m[k] = val
-
-        return m
-
-
-RunListDataOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "ERROR",
-    "TIMEOUT",
-    "ABORTED",
-]
+RunListDataOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Final result of the run execution."""
 
 
@@ -274,14 +216,30 @@ class RunListCreatedByUser(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name", "email"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -331,14 +289,30 @@ class RunListOperatedBy(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name", "email"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -388,14 +362,30 @@ class RunListProcedure(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["version"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -498,26 +488,31 @@ class RunListUnit(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(["batch"])
-        nullable_fields = set(["batch"])
+        optional_fields = ["batch"]
+        nullable_fields = ["batch"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -588,30 +583,41 @@ class RunListData(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["docstring", "created_by_user", "created_by_station", "operated_by"]
-        )
-        nullable_fields = set(
-            ["docstring", "created_by_user", "created_by_station", "operated_by"]
-        )
+        optional_fields = [
+            "docstring",
+            "created_by_user",
+            "created_by_station",
+            "operated_by",
+        ]
+        nullable_fields = [
+            "docstring",
+            "created_by_user",
+            "created_by_station",
+            "operated_by",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -632,14 +638,30 @@ class RunListMeta(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["next_cursor"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m

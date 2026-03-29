@@ -1,0 +1,12 @@
+# ErrorUNPROCESSABLECONTENT
+
+Unprocessable content error
+
+
+## Fields
+
+| Field                                                                                      | Type                                                                                       | Required                                                                                   | Description                                                                                | Example                                                                                    |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `message`                                                                                  | *str*                                                                                      | :heavy_check_mark:                                                                         | The error message                                                                          | Unprocessable content                                                                      |
+| `code`                                                                                     | *str*                                                                                      | :heavy_check_mark:                                                                         | The error code                                                                             | UNPROCESSABLE_CONTENT                                                                      |
+| `issues`                                                                                   | List[[models.ErrorUNPROCESSABLECONTENTIssue](../models/errorunprocessablecontentissue.md)] | :heavy_minus_sign:                                                                         | An array of issues that were responsible for the error                                     | []                                                                                         |

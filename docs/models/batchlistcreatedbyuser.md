@@ -1,0 +1,9 @@
+# BatchListCreatedByUser
+
+
+## Fields
+
+| Field                                | Type                                 | Required                             | Description                          | Example                              |
+| ------------------------------------ | ------------------------------------ | ------------------------------------ | ------------------------------------ | ------------------------------------ |
+| `id`                                 | *str*                                | :heavy_check_mark:                   | User ID.                             | 550e8400-e29b-41d4-a716-446655440001 |
+| `name`                               | *Nullable[str]*                      | :heavy_check_mark:                   | N/A                                  | John Doe                             |

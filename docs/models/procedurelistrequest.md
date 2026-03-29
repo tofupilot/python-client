@@ -1,0 +1,12 @@
+# ProcedureListRequest
+
+
+## Fields
+
+| Field                                                                | Type                                                                 | Required                                                             | Description                                                          | Example                                                              |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `limit`                                                              | *Optional[int]*                                                      | :heavy_minus_sign:                                                   | Maximum number of procedures to return per page.                     | 20                                                                   |
+| `cursor`                                                             | *Optional[float]*                                                    | :heavy_minus_sign:                                                   | N/A                                                                  | 50                                                                   |
+| `search_query`                                                       | *Optional[str]*                                                      | :heavy_minus_sign:                                                   | N/A                                                                  | battery test                                                         |
+| `created_after`                                                      | [date](https://docs.python.org/3/library/datetime.html#date-objects) | :heavy_minus_sign:                                                   | N/A                                                                  | 2024-01-01T00:00:00.000Z                                             |
+| `created_before`                                                     | [date](https://docs.python.org/3/library/datetime.html#date-objects) | :heavy_minus_sign:                                                   | N/A                                                                  | 2024-12-31T23:59:59.999Z                                             |

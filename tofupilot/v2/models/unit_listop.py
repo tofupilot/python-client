@@ -15,29 +15,14 @@ from typing import List, Literal, Optional
 from typing_extensions import Annotated, NotRequired, TypedDict
 
 
-UnitListQueryParamOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "ERROR",
-    "TIMEOUT",
-    "ABORTED",
-]
-
+UnitListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
 UnitListSortBy = Literal[
-    "serial_number",
-    "created_at",
-    "last_run_at",
-    "part_number",
-    "last_run_procedure",
+    "serial_number", "created_at", "last_run_at", "part_number", "last_run_procedure"
 ]
 r"""Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run."""
 
-
-UnitListSortOrder = Literal[
-    "asc",
-    "desc",
-]
+UnitListSortOrder = Literal["asc", "desc"]
 r"""Sort order direction."""
 
 
@@ -50,17 +35,18 @@ class UnitListRequestTypedDict(TypedDict):
     batch_numbers: NotRequired[List[str]]
     procedure_ids: NotRequired[List[str]]
     outcomes: NotRequired[List[UnitListQueryParamOutcome]]
-    started_after: NotRequired[datetime]
-    started_before: NotRequired[datetime]
+    started_after: NotRequired[str]
+    started_before: NotRequired[str]
     latest_only: NotRequired[bool]
     run_count_min: NotRequired[int]
     run_count_max: NotRequired[int]
-    created_after: NotRequired[datetime]
-    created_before: NotRequired[datetime]
+    created_after: NotRequired[str]
+    created_before: NotRequired[str]
     created_by_user_ids: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     exclude_units_with_parent: NotRequired[bool]
     limit: NotRequired[int]
+    r"""Maximum number of units to return."""
     cursor: NotRequired[int]
     sort_by: NotRequired[UnitListSortBy]
     r"""Field to sort results by. last_run_at sorts by most recent test run date. last_run_procedure sorts by procedure name of the last run."""
@@ -110,12 +96,12 @@ class UnitListRequest(BaseModel):
     ] = None
 
     started_after: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     started_before: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -135,12 +121,12 @@ class UnitListRequest(BaseModel):
     ] = None
 
     created_after: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     created_before: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -163,6 +149,7 @@ class UnitListRequest(BaseModel):
         Optional[int],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = 50
+    r"""Maximum number of units to return."""
 
     cursor: Annotated[
         Optional[int],
@@ -180,47 +167,6 @@ class UnitListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = "desc"
     r"""Sort order direction."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = set(
-            [
-                "search_query",
-                "ids",
-                "serial_numbers",
-                "part_numbers",
-                "revision_numbers",
-                "batch_numbers",
-                "procedure_ids",
-                "outcomes",
-                "started_after",
-                "started_before",
-                "latest_only",
-                "run_count_min",
-                "run_count_max",
-                "created_after",
-                "created_before",
-                "created_by_user_ids",
-                "created_by_station_ids",
-                "exclude_units_with_parent",
-                "limit",
-                "cursor",
-                "sort_by",
-                "sort_order",
-            ]
-        )
-        serialized = handler(self)
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-
-            if val != UNSET_SENTINEL:
-                if val is not None or k not in optional_fields:
-                    m[k] = val
-
-        return m
 
 
 class UnitListCreatedByUserTypedDict(TypedDict):
@@ -243,14 +189,30 @@ class UnitListCreatedByUser(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["name"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -376,13 +338,7 @@ class UnitListPart(BaseModel):
     r"""Revision information for this part. Every unit must have a specific revision."""
 
 
-LastRunOutcome = Literal[
-    "PASS",
-    "FAIL",
-    "ERROR",
-    "TIMEOUT",
-    "ABORTED",
-]
+LastRunOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Final result of the test run execution."""
 
 
@@ -440,14 +396,30 @@ class LastRun(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["ended_at", "procedure"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m
@@ -509,30 +481,43 @@ class UnitListData(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = set(
-            ["created_by_user", "created_by_station", "batch", "parent", "last_run"]
-        )
-        nullable_fields = set(
-            ["created_by_user", "created_by_station", "batch", "parent", "last_run"]
-        )
+        optional_fields = [
+            "created_by_user",
+            "created_by_station",
+            "batch",
+            "parent",
+            "last_run",
+        ]
+        nullable_fields = [
+            "created_by_user",
+            "created_by_station",
+            "batch",
+            "parent",
+            "last_run",
+        ]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
-            is_nullable_and_explicitly_set = (
-                k in nullable_fields
-                and (self.__pydantic_fields_set__.intersection({n}))  # pylint: disable=no-member
-            )
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
-                if (
-                    val is not None
-                    or k not in optional_fields
-                    or is_nullable_and_explicitly_set
-                ):
-                    m[k] = val
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
 
         return m
 
@@ -553,14 +538,30 @@ class UnitListMeta(BaseModel):
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = ["next_cursor"]
+        null_default_fields = []
+
         serialized = handler(self)
+
         m = {}
 
         for n, f in type(self).model_fields.items():
             k = f.alias or n
             val = serialized.get(k)
+            serialized.pop(k, None)
 
-            if val != UNSET_SENTINEL:
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
                 m[k] = val
 
         return m

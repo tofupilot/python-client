@@ -1,12 +1,12 @@
 lockVersion: 2.0.0
 id: dbe569ae-2e7c-4c35-951c-fb510430ae5c
 management:
-  docChecksum: a57dca3b99c7966da966ca0b20c1fbba
+  docChecksum: 1051f20fb6a8d56fc16c81a98be154bc
   docVersion: 2.0.0
   speakeasyVersion: 1.582.0
   generationVersion: 2.657.1
-  releaseVersion: 0.7.10
-  configChecksum: e75c09de152a65f455d96f7149a6fd09
+  releaseVersion: 0.7.12
+  configChecksum: a6fcb7d1fcafa3fc3825724785898043
 features:
   python:
     additionalDependencies: 1.0.0
@@ -14,6 +14,7 @@ features:
     constsAndDefaults: 1.0.5
     core: 5.19.4
     defaultEnabledRetries: 0.2.0
+    deprecations: 3.0.2
     enumUnions: 0.1.0
     envVarSecurityUsage: 0.3.2
     flatRequests: 1.0.1
@@ -42,9 +43,17 @@ generatedFiles:
   - docs/errors/errornotfound.md
   - docs/errors/errorunauthorized.md
   - docs/errors/errorunprocessablecontent.md
-  - docs/models/attachment.md
+  - docs/models/aggregationsdataseryexpectedvalue.md
+  - docs/models/aggregationsdataseryoutcome.md
+  - docs/models/aggregationsdataseryvalidators.md
+  - docs/models/aggregationsmeasurementoutcome.md
+  - docs/models/aggregationsvalidatorsdataseryoutcome.md
+  - docs/models/aggregationsvalidatorsmeasurementoutcome.md
   - docs/models/attachmentdeleterequest.md
   - docs/models/attachmentdeleteresponse.md
+  - docs/models/attachmentfinalizerequest.md
+  - docs/models/attachmentfinalizerequestbody.md
+  - docs/models/attachmentfinalizeresponse.md
   - docs/models/attachmentinitializerequest.md
   - docs/models/attachmentinitializeresponse.md
   - docs/models/batchcreaterequest.md
@@ -58,25 +67,25 @@ generatedFiles:
   - docs/models/batchgetresponse.md
   - docs/models/batchgetrevision.md
   - docs/models/batchgetunit.md
+  - docs/models/batchlistcreatedbystation.md
+  - docs/models/batchlistcreatedbyuser.md
   - docs/models/batchlistdata.md
   - docs/models/batchlistmeta.md
-  - docs/models/batchlistpart.md
   - docs/models/batchlistrequest.md
   - docs/models/batchlistresponse.md
-  - docs/models/batchlistrevision.md
   - docs/models/batchlistsortby.md
   - docs/models/batchlistsortorder.md
-  - docs/models/batchlistunit.md
-  - docs/models/batchupdatebody.md
   - docs/models/batchupdaterequest.md
   - docs/models/batchupdaterequestbody.md
   - docs/models/batchupdateresponse.md
   - docs/models/childpart.md
   - docs/models/childrevision.md
-  - docs/models/connectionstatus.md
-  - docs/models/createdfrom.md
-  - docs/models/createdfromoutcome.md
-  - docs/models/createdfromprocedure.md
+  - docs/models/createdduring.md
+  - docs/models/datasery.md
+  - docs/models/dataseryaggregations.md
+  - docs/models/dataseryexpectedvalue.md
+  - docs/models/dataseryvalidators.md
+  - docs/models/dataseryvalue.md
   - docs/models/errorbadgatewayissue.md
   - docs/models/errorbadrequestissue.md
   - docs/models/errorconflictissue.md
@@ -86,18 +95,15 @@ generatedFiles:
   - docs/models/errorunauthorizedissue.md
   - docs/models/errorunprocessablecontentissue.md
   - docs/models/lastrun.md
-  - docs/models/measuredvalue1.md
-  - docs/models/measuredvalue2.md
+  - docs/models/lastrunoutcome.md
+  - docs/models/linkedrepository.md
+  - docs/models/measurement.md
   - docs/models/measurementoutcome.md
-  - docs/models/new.md
-  - docs/models/old.md
-  - docs/models/parentchange.md
-  - docs/models/parentchangecreatedbystation.md
-  - docs/models/parentchangecreatedbyuser.md
-  - docs/models/parentchangepart.md
-  - docs/models/parentchangeprocedure.md
-  - docs/models/parentchangerevision.md
-  - docs/models/parentchangerun.md
+  - docs/models/measurements.md
+  - docs/models/measurementsaggregationsoutcome.md
+  - docs/models/measurementsaggregationsvalidatorsoutcome.md
+  - docs/models/measurementsoutcome.md
+  - docs/models/measurementsvalidatorsoutcome.md
   - docs/models/parentpart.md
   - docs/models/parentrevision.md
   - docs/models/partcreaterequest.md
@@ -105,6 +111,8 @@ generatedFiles:
   - docs/models/partcreaterevisionrequest.md
   - docs/models/partcreaterevisionrequestbody.md
   - docs/models/partcreaterevisionresponse.md
+  - docs/models/partdeleterequest.md
+  - docs/models/partdeleteresponse.md
   - docs/models/partdeleterevisionrequest.md
   - docs/models/partdeleterevisionresponse.md
   - docs/models/partgetcreatedbystation.md
@@ -114,35 +122,20 @@ generatedFiles:
   - docs/models/partgetrevision.md
   - docs/models/partgetrevisioncreatedbystation.md
   - docs/models/partgetrevisioncreatedbyuser.md
-  - docs/models/partgetrevisionimage.md
-  - docs/models/partgetrevisionoutcome.md
   - docs/models/partgetrevisionpart.md
-  - docs/models/partgetrevisionprocedure.md
   - docs/models/partgetrevisionrequest.md
   - docs/models/partgetrevisionresponse.md
-  - docs/models/partgetrevisionrun.md
   - docs/models/partgetrevisionunit.md
   - docs/models/partlistdata.md
   - docs/models/partlistmeta.md
   - docs/models/partlistrequest.md
   - docs/models/partlistresponse.md
   - docs/models/partlistrevision.md
-  - docs/models/partlistrevisionsdata.md
-  - docs/models/partlistrevisionsmeta.md
-  - docs/models/partlistrevisionspart.md
-  - docs/models/partlistrevisionsrequest.md
-  - docs/models/partlistrevisionsresponse.md
-  - docs/models/partlistrevisionssortby.md
-  - docs/models/partlistrevisionssortorder.md
   - docs/models/partlistsortby.md
   - docs/models/partlistsortorder.md
-  - docs/models/partupdatebody.md
   - docs/models/partupdaterequest.md
   - docs/models/partupdaterequestbody.md
   - docs/models/partupdateresponse.md
-  - docs/models/partupdaterevisionbody.md
-  - docs/models/partupdaterevisionimageidenum.md
-  - docs/models/partupdaterevisionimageidunion.md
   - docs/models/partupdaterevisionrequest.md
   - docs/models/partupdaterevisionrequestbody.md
   - docs/models/partupdaterevisionresponse.md
@@ -169,40 +162,44 @@ generatedFiles:
   - docs/models/procedurelistdata.md
   - docs/models/procedurelistmeta.md
   - docs/models/procedurelistoutcome.md
+  - docs/models/procedurelistprovider.md
   - docs/models/procedurelistrequest.md
   - docs/models/procedurelistresponse.md
-  - docs/models/procedurelistrun.md
   - docs/models/procedurelistunit.md
-  - docs/models/procedurelistversionsdata.md
-  - docs/models/procedurelistversionsmeta.md
-  - docs/models/procedurelistversionsprocedure.md
-  - docs/models/procedurelistversionsrequest.md
-  - docs/models/procedurelistversionsresponse.md
-  - docs/models/procedurelistversionssortby.md
-  - docs/models/procedurelistversionssortorder.md
-  - docs/models/procedureupdatebody.md
   - docs/models/procedureupdaterequest.md
   - docs/models/procedureupdaterequestbody.md
   - docs/models/procedureupdateresponse.md
-  - docs/models/queryparamoutcome.md
   - docs/models/recentrun.md
+  - docs/models/run.md
+  - docs/models/runcreateaggregations.md
+  - docs/models/runcreateaggregationsexpectedvalue.md
+  - docs/models/runcreateaggregationsvalidators.md
+  - docs/models/runcreateexpectedvalue.md
   - docs/models/runcreatelevel.md
   - docs/models/runcreatelog.md
-  - docs/models/runcreatemeasurement.md
+  - docs/models/runcreatemeasuredvalue1.md
+  - docs/models/runcreatemeasuredvalue2.md
   - docs/models/runcreateoutcome.md
   - docs/models/runcreatephase.md
   - docs/models/runcreatephaseoutcome.md
   - docs/models/runcreaterequest.md
   - docs/models/runcreateresponse.md
   - docs/models/runcreateunits.md
+  - docs/models/runcreatevalidators.md
+  - docs/models/runcreatevalue.md
   - docs/models/rundeleterequest.md
   - docs/models/rundeleteresponse.md
+  - docs/models/rungetaggregations.md
+  - docs/models/rungetaggregationsexpectedvalue.md
+  - docs/models/rungetaggregationsvalidators.md
+  - docs/models/rungetattachment.md
   - docs/models/rungetbatch.md
   - docs/models/rungetcreatedbystation.md
   - docs/models/rungetcreatedbyuser.md
+  - docs/models/rungetexpectedvalue.md
   - docs/models/rungetlevel.md
   - docs/models/rungetlog.md
-  - docs/models/rungetmeasurement.md
+  - docs/models/rungetmeasuredvalue.md
   - docs/models/rungetoperatedby.md
   - docs/models/rungetoutcome.md
   - docs/models/rungetpart.md
@@ -213,6 +210,8 @@ generatedFiles:
   - docs/models/rungetresponse.md
   - docs/models/rungetrevision.md
   - docs/models/rungetunit.md
+  - docs/models/rungetvalidators.md
+  - docs/models/rungetvalue.md
   - docs/models/rungetversion.md
   - docs/models/runlistbatch.md
   - docs/models/runlistcreatedbystation.md
@@ -223,6 +222,7 @@ generatedFiles:
   - docs/models/runlistoperatedby.md
   - docs/models/runlistpart.md
   - docs/models/runlistprocedure.md
+  - docs/models/runlistqueryparamoutcome.md
   - docs/models/runlistrequest.md
   - docs/models/runlistresponse.md
   - docs/models/runlistrevision.md
@@ -237,25 +237,31 @@ generatedFiles:
   - docs/models/station.md
   - docs/models/stationcreaterequest.md
   - docs/models/stationcreateresponse.md
-  - docs/models/stationgetimage.md
+  - docs/models/stationgetcommit.md
+  - docs/models/stationgetconnectionstatus.md
+  - docs/models/stationgetcurrentcommit.md
+  - docs/models/stationgetcurrentconnectionstatus.md
+  - docs/models/stationgetcurrentdeployment.md
+  - docs/models/stationgetcurrentprocedure.md
+  - docs/models/stationgetcurrentprovider.md
+  - docs/models/stationgetcurrentrepository.md
+  - docs/models/stationgetcurrentresponse.md
+  - docs/models/stationgetcurrentteam.md
+  - docs/models/stationgetdeployment.md
   - docs/models/stationgetprocedure.md
+  - docs/models/stationgetprovider.md
+  - docs/models/stationgetrepository.md
   - docs/models/stationgetrequest.md
   - docs/models/stationgetresponse.md
-  - docs/models/stationlinkprocedurerequest.md
-  - docs/models/stationlinkprocedurerequestbody.md
-  - docs/models/stationlinkprocedureresponse.md
+  - docs/models/stationgetteam.md
   - docs/models/stationlistdata.md
   - docs/models/stationlistmeta.md
   - docs/models/stationlistprocedure.md
   - docs/models/stationlistrequest.md
   - docs/models/stationlistresponse.md
+  - docs/models/stationlistteam.md
   - docs/models/stationremoverequest.md
   - docs/models/stationremoveresponse.md
-  - docs/models/stationunlinkprocedurerequest.md
-  - docs/models/stationunlinkprocedureresponse.md
-  - docs/models/stationupdatebody.md
-  - docs/models/stationupdateimageidenum.md
-  - docs/models/stationupdateimageidunion.md
   - docs/models/stationupdaterequest.md
   - docs/models/stationupdaterequestbody.md
   - docs/models/stationupdateresponse.md
@@ -267,29 +273,28 @@ generatedFiles:
   - docs/models/unitcreateresponse.md
   - docs/models/unitdeleterequest.md
   - docs/models/unitdeleteresponse.md
+  - docs/models/unitgetattachment.md
   - docs/models/unitgetbatch.md
   - docs/models/unitgetchild.md
   - docs/models/unitgetcreatedbystation.md
   - docs/models/unitgetcreatedbyuser.md
+  - docs/models/unitgetoutcome.md
   - docs/models/unitgetparent.md
   - docs/models/unitgetpart.md
+  - docs/models/unitgetprocedure.md
   - docs/models/unitgetrequest.md
   - docs/models/unitgetresponse.md
   - docs/models/unitgetrevision.md
-  - docs/models/unitgetrun.md
-  - docs/models/unitgetrunoutcome.md
-  - docs/models/unitgetrunprocedure.md
-  - docs/models/unitgetunit.md
   - docs/models/unitlistbatch.md
   - docs/models/unitlistchild.md
   - docs/models/unitlistcreatedbystation.md
   - docs/models/unitlistcreatedbyuser.md
   - docs/models/unitlistdata.md
   - docs/models/unitlistmeta.md
-  - docs/models/unitlistoutcome.md
   - docs/models/unitlistparent.md
   - docs/models/unitlistpart.md
   - docs/models/unitlistprocedure.md
+  - docs/models/unitlistqueryparamoutcome.md
   - docs/models/unitlistrequest.md
   - docs/models/unitlistresponse.md
   - docs/models/unitlistrevision.md
@@ -297,11 +302,35 @@ generatedFiles:
   - docs/models/unitlistsortorder.md
   - docs/models/unitremovechildrequest.md
   - docs/models/unitremovechildresponse.md
-  - docs/models/unitupdatebody.md
   - docs/models/unitupdaterequest.md
   - docs/models/unitupdaterequestbody.md
   - docs/models/unitupdateresponse.md
+  - docs/models/userlistrequest.md
+  - docs/models/userlistresponse.md
   - docs/models/utils/retryconfig.md
+  - docs/models/validators.md
+  - docs/models/validatorsdataseryoutcome.md
+  - docs/models/validatorsmeasurementoutcome.md
+  - docs/models/xaxis.md
+  - docs/models/xaxisaggregations.md
+  - docs/models/xaxisaggregationsexpectedvalue.md
+  - docs/models/xaxisaggregationsoutcome.md
+  - docs/models/xaxisaggregationsvalidators.md
+  - docs/models/xaxisaggregationsvalidatorsoutcome.md
+  - docs/models/xaxisexpectedvalue.md
+  - docs/models/xaxisvalidators.md
+  - docs/models/xaxisvalidatorsoutcome.md
+  - docs/models/xaxisvalue.md
+  - docs/models/yaxis.md
+  - docs/models/yaxisaggregations.md
+  - docs/models/yaxisaggregationsexpectedvalue.md
+  - docs/models/yaxisaggregationsoutcome.md
+  - docs/models/yaxisaggregationsvalidators.md
+  - docs/models/yaxisaggregationsvalidatorsoutcome.md
+  - docs/models/yaxisexpectedvalue.md
+  - docs/models/yaxisvalidators.md
+  - docs/models/yaxisvalidatorsoutcome.md
+  - docs/models/yaxisvalue.md
   - docs/sdks/attachments/README.md
   - docs/sdks/batches/README.md
   - docs/sdks/parts/README.md
@@ -311,6 +340,7 @@ generatedFiles:
   - docs/sdks/stations/README.md
   - docs/sdks/tofupilot/README.md
   - docs/sdks/unitssdk/README.md
+  - docs/sdks/user/README.md
   - docs/sdks/versions/README.md
   - poetry.toml
   - py.typed
@@ -327,41 +357,42 @@ generatedFiles:
   - src/tofupilot/v2/batches.py
   - src/tofupilot/v2/errors/__init__.py
   - src/tofupilot/v2/errors/apierror.py
-  - src/tofupilot/v2/errors/error_bad_gateway.py
-  - src/tofupilot/v2/errors/error_bad_request.py
-  - src/tofupilot/v2/errors/error_conflict.py
-  - src/tofupilot/v2/errors/error_forbidden.py
-  - src/tofupilot/v2/errors/error_internal_server_error.py
-  - src/tofupilot/v2/errors/error_not_found.py
-  - src/tofupilot/v2/errors/error_unauthorized.py
-  - src/tofupilot/v2/errors/error_unprocessable_content.py
+  - src/tofupilot/v2/errors/errorbadgateway.py
+  - src/tofupilot/v2/errors/errorbadrequest.py
+  - src/tofupilot/v2/errors/errorconflict.py
+  - src/tofupilot/v2/errors/errorforbidden.py
+  - src/tofupilot/v2/errors/errorinternalservererror.py
+  - src/tofupilot/v2/errors/errornotfound.py
+  - src/tofupilot/v2/errors/errorunauthorized.py
+  - src/tofupilot/v2/errors/errorunprocessablecontent.py
   - src/tofupilot/v2/errors/no_response_error.py
   - src/tofupilot/v2/errors/responsevalidationerror.py
   - src/tofupilot/v2/errors/tofupiloterror.py
   - src/tofupilot/v2/httpclient.py
   - src/tofupilot/v2/models/__init__.py
   - src/tofupilot/v2/models/attachment_deleteop.py
+  - src/tofupilot/v2/models/attachment_finalizeop.py
   - src/tofupilot/v2/models/attachment_initializeop.py
   - src/tofupilot/v2/models/batch_createop.py
   - src/tofupilot/v2/models/batch_deleteop.py
   - src/tofupilot/v2/models/batch_getop.py
   - src/tofupilot/v2/models/batch_listop.py
   - src/tofupilot/v2/models/batch_updateop.py
-  - src/tofupilot/v2/models/error_bad_gateway.py
-  - src/tofupilot/v2/models/error_bad_request.py
-  - src/tofupilot/v2/models/error_conflict.py
-  - src/tofupilot/v2/models/error_forbidden.py
-  - src/tofupilot/v2/models/error_internal_server_error.py
-  - src/tofupilot/v2/models/error_not_found.py
-  - src/tofupilot/v2/models/error_unauthorized.py
-  - src/tofupilot/v2/models/error_unprocessable_content.py
+  - src/tofupilot/v2/models/errorbadgateway.py
+  - src/tofupilot/v2/models/errorbadrequest.py
+  - src/tofupilot/v2/models/errorconflict.py
+  - src/tofupilot/v2/models/errorforbidden.py
+  - src/tofupilot/v2/models/errorinternalservererror.py
+  - src/tofupilot/v2/models/errornotfound.py
+  - src/tofupilot/v2/models/errorunauthorized.py
+  - src/tofupilot/v2/models/errorunprocessablecontent.py
   - src/tofupilot/v2/models/part_createop.py
   - src/tofupilot/v2/models/part_createrevisionop.py
+  - src/tofupilot/v2/models/part_deleteop.py
   - src/tofupilot/v2/models/part_deleterevisionop.py
   - src/tofupilot/v2/models/part_getop.py
   - src/tofupilot/v2/models/part_getrevisionop.py
   - src/tofupilot/v2/models/part_listop.py
-  - src/tofupilot/v2/models/part_listrevisionsop.py
   - src/tofupilot/v2/models/part_updateop.py
   - src/tofupilot/v2/models/part_updaterevisionop.py
   - src/tofupilot/v2/models/procedure_createop.py
@@ -371,7 +402,6 @@ generatedFiles:
   - src/tofupilot/v2/models/procedure_getop.py
   - src/tofupilot/v2/models/procedure_getversionop.py
   - src/tofupilot/v2/models/procedure_listop.py
-  - src/tofupilot/v2/models/procedure_listversionsop.py
   - src/tofupilot/v2/models/procedure_updateop.py
   - src/tofupilot/v2/models/run_createop.py
   - src/tofupilot/v2/models/run_deleteop.py
@@ -380,11 +410,10 @@ generatedFiles:
   - src/tofupilot/v2/models/run_updateop.py
   - src/tofupilot/v2/models/security.py
   - src/tofupilot/v2/models/station_createop.py
+  - src/tofupilot/v2/models/station_getcurrentop.py
   - src/tofupilot/v2/models/station_getop.py
-  - src/tofupilot/v2/models/station_linkprocedureop.py
   - src/tofupilot/v2/models/station_listop.py
   - src/tofupilot/v2/models/station_removeop.py
-  - src/tofupilot/v2/models/station_unlinkprocedureop.py
   - src/tofupilot/v2/models/station_updateop.py
   - src/tofupilot/v2/models/unit_addchildop.py
   - src/tofupilot/v2/models/unit_createop.py
@@ -393,6 +422,7 @@ generatedFiles:
   - src/tofupilot/v2/models/unit_listop.py
   - src/tofupilot/v2/models/unit_removechildop.py
   - src/tofupilot/v2/models/unit_updateop.py
+  - src/tofupilot/v2/models/user_listop.py
   - src/tofupilot/v2/parts.py
   - src/tofupilot/v2/procedures.py
   - src/tofupilot/v2/py.typed
@@ -404,6 +434,7 @@ generatedFiles:
   - src/tofupilot/v2/types/__init__.py
   - src/tofupilot/v2/types/basemodel.py
   - src/tofupilot/v2/units_sdk.py
+  - src/tofupilot/v2/user.py
   - src/tofupilot/v2/utils/__init__.py
   - src/tofupilot/v2/utils/annotations.py
   - src/tofupilot/v2/utils/datetimes.py
@@ -434,25 +465,31 @@ examples:
           cursor: 50
       responses:
         "200":
-          application/json: {"data": [{"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Battery Test Procedure", "created_at": "2024-01-15T10:30:00.000Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@company.com"}, "runs": [{"id": "550e8400-e29b-41d4-a716-446655440002", "outcome": "PASS", "started_at": "2024-01-15T14:30:00.000Z", "unit": {"id": "550e8400-e29b-41d4-a716-446655440003"}}], "fpy": 85.5}], "meta": {"has_more": true, "next_cursor": 100}}
+          application/json: {"data": [{"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Battery Test Procedure", "created_at": "2024-01-15T10:30:00.000Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@company.com"}, "runs": [{"id": "550e8400-e29b-41d4-a716-446655440002", "outcome": "PASS", "started_at": "2024-01-15T14:30:00.000Z", "unit": {"id": "550e8400-e29b-41d4-a716-446655440003"}}], "linkedRepository": {"id": "550e8400-e29b-41d4-a716-446655440004", "name": "my-repo", "fullName": "org/my-repo", "provider": "gitlab"}}], "meta": {"has_more": true, "next_cursor": 100}}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   procedure-update:
     speakeasy-default-procedure-update:
       parameters:
         path:
           id: "550e8400-e29b-41d4-a716-446655440000"
       requestBody:
-        application/json: {"body": {"name": "<value>"}}
+        application/json: {"name": "Updated Battery Test Procedure"}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "400":
-          application/json: {"message": "Procedure name is required", "code": "BAD_REQUEST", "issues": []}
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   procedure-create:
     speakeasy-default-procedure-create:
       requestBody:
@@ -463,7 +500,9 @@ examples:
         "400":
           application/json: {"message": "Procedure name is required", "code": "BAD_REQUEST", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   procedure-delete:
     speakeasy-default-procedure-delete:
       parameters:
@@ -477,9 +516,13 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   run-list:
     speakeasy-default-run-list:
       parameters:
@@ -507,11 +550,16 @@ examples:
           sort_order: "desc"
           search_query: "SN-001234"
           cursor: 50
+          batch_numbers: ["BATCH-2024-Q1-001", "BATCH-2024-Q1-002"]
       responses:
         "200":
           application/json: {"data": [], "meta": {"has_more": true, "next_cursor": 100}}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   run-update:
     speakeasy-default-run-update:
       parameters:
@@ -523,9 +571,11 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   run-create:
     speakeasy-default-run-create:
       requestBody:
@@ -534,15 +584,17 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "400":
-          application/json: {"message": "Procedure name is required", "code": "BAD_REQUEST", "issues": []}
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
         "403":
-          application/json: {"message": "Failed to create or update part: {partNumber}.; Failed to create or update revision: {revisionNumber} for part {partNumber}.; Failed to create or update batch: {batchNumber}.; Failed to create or update unit: {serialNumber}.; Failed to create or update procedure version: {version}.", "code": "FORBIDDEN", "issues": []}
+          application/json: {"message": "Forbidden", "code": "FORBIDDEN", "issues": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "422":
-          application/json: {"message": "Part number extraction failed for serial number {serial_number}. Provide a part_number parameter explicitly or fix the regex pattern in organization settings.", "code": "UNPROCESSABLE_CONTENT", "issues": []}
+          application/json: {"message": "Unprocessable content", "code": "UNPROCESSABLE_CONTENT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   run-delete:
     speakeasy-default-run-delete:
       parameters:
@@ -552,11 +604,13 @@ examples:
         application/json: {}
       responses:
         "200":
-          application/json: {"ids": ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]}
+          application/json: {"id": ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   run-get:
     speakeasy-default-run-get:
       parameters:
@@ -564,11 +618,15 @@ examples:
           id: "550e8400-e29b-41d4-a716-446655440000"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "created_at": "2024-01-15T10:30:00Z", "started_at": "2024-01-15T10:35:00Z", "ended_at": "2024-01-15T10:37:30Z", "duration": "PT2M30S", "outcome": "PASS", "docstring": "Test run for production validation", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@example.com", "image": "https://example.com/user-avatar.jpg"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Test Station 01", "image": "https://example.com/station-01.jpg"}, "operated_by": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@example.com", "image": "https://example.com/operator-avatar.jpg"}, "procedure": {"id": "550e8400-e29b-41d4-a716-446655440003", "name": "PCB Functional Test", "version": {"id": "550e8400-e29b-41d4-a716-446655440010", "tag": "v2.1.0"}}, "unit": {"id": "550e8400-e29b-41d4-a716-446655440004", "serial_number": "SN-2024-001234", "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A", "image": "https://example.com/revision-image.jpg"}}, "batch": {"id": "550e8400-e29b-41d4-a716-446655440005", "number": "BATCH-2024-Q1-001"}}, "phases": [{"id": "550e8400-e29b-41d4-a716-446655440008", "name": "Power On Test", "outcome": "PASS", "started_at": "2024-01-15T10:35:00Z", "ended_at": "2024-01-15T10:36:30Z", "duration": "PT1M30S", "docstring": "Verifies that the board powers on correctly and all voltage rails are within spec."}], "attachments": [{"id": "550e8400-e29b-41d4-a716-446655440011", "name": "test-results.pdf", "size": 1048576, "content_type": "application/pdf", "is_report": false}], "sub_units": [{"id": "550e8400-e29b-41d4-a716-446655440000", "serial_number": "SN-SUB-001"}, {"id": "550e8400-e29b-41d4-a716-446655440001", "serial_number": "SN-SUB-002"}]}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "created_at": "2024-01-15T10:30:00Z", "started_at": "2024-01-15T10:35:00Z", "ended_at": "2024-01-15T10:37:30Z", "duration": "PT2M30S", "outcome": "PASS", "docstring": "Test run for production validation", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@example.com"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Test Station 01"}, "operated_by": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@example.com"}, "procedure": {"id": "550e8400-e29b-41d4-a716-446655440003", "name": "PCB Functional Test", "version": {"id": "550e8400-e29b-41d4-a716-446655440010", "tag": "v2.1.0"}}, "unit": {"id": "550e8400-e29b-41d4-a716-446655440004", "serial_number": "SN-2024-001234", "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A"}}, "batch": {"id": "550e8400-e29b-41d4-a716-446655440005", "number": "BATCH-2024-Q1-001"}}, "phases": [{"id": "550e8400-e29b-41d4-a716-446655440008", "name": "Power On Test", "outcome": "PASS", "started_at": "2024-01-15T10:35:00Z", "ended_at": "2024-01-15T10:36:30Z", "duration": "PT1M30S", "docstring": "Verifies that the board powers on correctly and all voltage rails are within spec.", "measurements": [{"id": "550e8400-e29b-41d4-a716-446655440009", "name": "Input Voltage", "outcome": "PASS", "units": "V", "validators": [{"outcome": "PASS", "operator": ">=", "expected_value": 3, "expression": "x >= 3.0", "is_decisive": false, "is_expression_only": false, "analytics_expression": "<value>", "has_custom_expression": true}], "aggregations": [{"id": "58c5cecf-22cd-4d13-beed-1a0031c6e750", "type": "MEAN", "outcome": "PASS", "value": 42.5, "unit": "V", "validators": null}], "measured_value": 12.05, "data_series": [{"data": [1670.92, 3326.62, 199.26], "units": "<value>", "validators": [{"outcome": "PASS", "operator": ">=", "expected_value": 3, "expression": "x >= 3.0", "is_decisive": true, "is_expression_only": true, "analytics_expression": "<value>", "has_custom_expression": false}], "aggregations": [{"id": "f8e5e83a-dc7a-435c-8007-cce58a56b0cf", "type": "MEAN", "outcome": "PASS", "value": 42.5, "unit": "V", "validators": [{"outcome": "PASS", "operator": ">=", "expected_value": 3, "expression": "x >= 3.0", "is_decisive": false, "is_expression_only": false, "analytics_expression": "<value>", "has_custom_expression": true}]}]}]}]}], "attachments": [{"id": "550e8400-e29b-41d4-a716-446655440011", "name": "test-results.pdf", "size": 1048576, "content_type": "application/pdf", "is_report": false}], "sub_units": [{"id": "550e8400-e29b-41d4-a716-446655440000", "serial_number": "SN-SUB-001", "part_number": "PART-001", "part_name": "Motor Assembly"}, {"id": "550e8400-e29b-41d4-a716-446655440001", "serial_number": "SN-SUB-002", "part_number": "PART-002", "part_name": null}]}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   attachment-initialize:
     speakeasy-default-attachment-initialize:
       requestBody:
@@ -577,15 +635,17 @@ examples:
         "200":
           application/json: {"id": "0a3d7450-e0c3-4132-9ec8-6637fabd7943", "upload_url": "https://regal-cuckoo.org/"}
         "400":
-          application/json: {"message": "Procedure name is required", "code": "BAD_REQUEST", "issues": []}
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
         "403":
-          application/json: {"message": "Failed to create or update part: {partNumber}.; Failed to create or update revision: {revisionNumber} for part {partNumber}.; Failed to create or update batch: {batchNumber}.; Failed to create or update unit: {serialNumber}.; Failed to create or update procedure version: {version}.", "code": "FORBIDDEN", "issues": []}
+          application/json: {"message": "Forbidden", "code": "FORBIDDEN", "issues": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
         "502":
-          application/json: {"message": "Failed to generate upload URL", "code": "BAD_GATEWAY", "issues": []}
+          application/json: {"message": "Bad gateway", "code": "BAD_GATEWAY", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   unit-list:
     speakeasy-default-unit-list:
       parameters:
@@ -605,39 +665,55 @@ examples:
           search_query: "SN-001234"
           cursor: 50
           exclude_units_with_parent: true
+          procedure_ids: ["550e8400-e29b-41d4-a716-446655440000"]
+          outcomes: ["FAIL", "ERROR"]
+          started_after: "2024-01-15T10:30:00Z"
+          started_before: "2024-01-15T11:30:00Z"
+          latest_only: true
+          run_count_min: 2
+          run_count_max: 5
       responses:
         "200":
           application/json: {"data": [], "meta": {"has_more": true, "next_cursor": 100}}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   unit-update:
     speakeasy-default-unit-update:
       parameters:
         path:
           serial_number: "UNIT-12345"
       requestBody:
-        application/json: {"body": {}}
+        application/json: {"new_serial_number": "UNIT-12345-NEW", "part_number": "PCB-V2.0", "revision_number": "REV-B", "batch_number": "BATCH-2024-02", "attachments": ["550e8400-e29b-41d4-a716-446655440000"]}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+        "409":
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
   unit-delete:
     speakeasy-default-unit-delete:
       parameters:
         query:
           ids: ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]
+          serial_numbers: ["UNIT-001", "UNIT-002"]
       requestBody:
         application/json: {}
       responses:
         "200":
-          application/json: {"ids": ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]}
+          application/json: {"id": ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   unit-addChild:
     speakeasy-default-unit-add-child:
       parameters:
@@ -651,11 +727,13 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "400":
-          application/json: {"message": "Procedure name is required", "code": "BAD_REQUEST", "issues": []}
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   unit-removeChild:
     speakeasy-default-unit-remove-child:
       parameters:
@@ -671,9 +749,13 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-list:
     speakeasy-default-part-list:
       parameters:
@@ -685,25 +767,29 @@ examples:
           sort_order: "desc"
       responses:
         "200":
-          application/json: {"data": [{"id": "550e8400-e29b-41d4-a716-446655440000", "number": "PCB-V2.0", "name": "Main PCB Board", "revisions": [{"id": "550e8400-e29b-41d4-a716-446655440001", "number": "REV-A", "unit_count": 15, "image": "https://example.com/revision-image.jpg"}]}], "meta": {"has_more": true, "next_cursor": 50}}
+          application/json: {"data": [{"id": "550e8400-e29b-41d4-a716-446655440000", "number": "PCB-V2.0", "name": "Main PCB Board", "created_at": "2025-10-17T16:12:28.679Z", "revisions": [{"id": "550e8400-e29b-41d4-a716-446655440001", "number": "REV-A"}]}], "meta": {"has_more": true, "next_cursor": 50}}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-update:
     speakeasy-default-part-update:
       parameters:
         path:
           number: "PCB-V2.0"
       requestBody:
-        application/json: {"body": {}}
+        application/json: {"new_number": "PCB-V3.0", "name": "Updated PCB Board"}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "PCB-V3.0", "name": "Updated PCB Board", "updated_at": "2024-01-15T10:30:00.000Z"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-create:
     speakeasy-default-part-create:
       requestBody:
@@ -712,9 +798,11 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   batch-list:
     speakeasy-default-batch-list:
       parameters:
@@ -728,11 +816,17 @@ examples:
           sort_by: "created_at"
           sort_order: "desc"
           cursor: 0
+          part_numbers: ["PCB-V1.2", "PCB-V1.3"]
+          revision_numbers: ["1.0", "1.1"]
       responses:
         "200":
           application/json: {"data": [], "meta": {"has_more": true, "next_cursor": 50}}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   batch-create:
     speakeasy-default-batch-create:
       requestBody:
@@ -741,9 +835,13 @@ examples:
         "200":
           application/json: {"id": "<id>"}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   batch-delete:
     speakeasy-default-batch-delete:
       parameters:
@@ -755,11 +853,13 @@ examples:
         application/json: {}
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
+          application/json: {"id": ["550e8400-e29b-41d4-a716-446655440000"]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   revision-list:
     speakeasy-default-revision-list:
       parameters:
@@ -826,11 +926,13 @@ examples:
           id: "550e8400-e29b-41d4-a716-446655440000"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "identifier": "PROC-001", "name": "PCB Functional Test", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@example.com", "image": "https://example.com/user-avatar.jpg"}, "runs_count": 42, "recent_runs": [], "stations": [{"id": "550e8400-e29b-41d4-a716-446655440004", "name": "Test Station 01", "identifier": "STA-01"}]}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "identifier": "PROC-001", "name": "PCB Functional Test", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "email": "john.doe@example.com"}, "runs_count": 42, "recent_runs": [], "stations": [{"id": "550e8400-e29b-41d4-a716-446655440004", "name": "Test Station 01"}]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   procedureVersion-get:
     speakeasy-default-procedure-version-get:
       parameters:
@@ -896,28 +998,35 @@ examples:
       parameters:
         query:
           s3Keys: []
+          ids: ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]
       requestBody:
         application/json: {}
       responses:
         "200":
-          application/json: {"s3Keys": ["<value 1>"]}
+          application/json: {"id": ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-11d1-80b4-00c04fd430c8"]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   unit-create:
     speakeasy-default-unit-create:
       requestBody:
-        application/json: {"serial_number": "<value>", "revision_id": "a1a0bb09-4986-4567-9f4d-cb260b05726d"}
+        application/json: {"serial_number": "SN-001234", "part_number": "PCB-V1.2", "revision_number": "REV-1.0"}
       responses:
         "200":
-          application/json: {"id": "<id>"}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   unit-get:
     speakeasy-default-unit-get:
       parameters:
@@ -925,11 +1034,15 @@ examples:
           serial_number: "SN-001234"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "serial_number": "SN-2024-001234", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "image": "https://example.com/user-avatar.jpg"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Station 01", "image": "https://example.com/station-01.jpg"}, "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A", "image": "https://example.com/revision-image.jpg"}}, "batch": {"id": "550e8400-e29b-41d4-a716-446655440005", "number": "BATCH-2024-Q1-001"}, "parent": null, "children": [{"id": "550e8400-e29b-41d4-a716-446655440005", "serial_number": "SN-2024-001235", "part": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "PCB-SUB-V1", "name": "Sub Assembly PCB", "revision": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "Rev-B", "image": "https://example.com/child-revision-image.jpg"}}}], "created_from": {"id": "550e8400-e29b-41d4-a716-446655440009", "created_at": "2024-01-15T10:20:00Z", "started_at": "2024-01-15T10:25:00Z", "outcome": "PASS", "duration": "PT5M30S", "procedure": {"id": "550e8400-e29b-41d4-a716-446655440011", "name": "PCB Assembly Procedure"}}, "parent_changes": [{"id": "550e8400-e29b-41d4-a716-446655440020", "created_at": "2024-01-15T10:40:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Station 01"}, "run": {"id": "550e8400-e29b-41d4-a716-446655440021", "procedure": {"id": "550e8400-e29b-41d4-a716-446655440003", "name": "Unit Assembly Procedure"}}, "unit": {"id": "550e8400-e29b-41d4-a716-446655440004", "serial_number": "SN-2024-001234", "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A", "image": "https://example.com/revision-image.jpg"}}}, "old": {"id": "550e8400-e29b-41d4-a716-446655440022", "serial_number": "SN-2024-001235"}, "new": {"id": "550e8400-e29b-41d4-a716-446655440023", "serial_number": "SN-2024-001236"}}], "runs": [{"id": "550e8400-e29b-41d4-a716-446655440012", "created_at": "2024-01-15T10:30:00Z", "started_at": "2024-01-15T10:35:00Z", "outcome": "PASS", "duration": "PT2M30S", "procedure": {"id": "550e8400-e29b-41d4-a716-446655440003", "name": "PCB Assembly Procedure"}}]}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "serial_number": "SN-2024-001234", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Station 01"}, "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A"}}, "batch": {"id": "550e8400-e29b-41d4-a716-446655440005", "number": "BATCH-2024-Q1-001"}, "parent": null, "children": [{"id": "550e8400-e29b-41d4-a716-446655440005", "serial_number": "SN-2024-001235", "part": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "PCB-SUB-V1", "name": "Sub Assembly PCB", "revision": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "Rev-B"}}}], "created_during": {"id": "550e8400-e29b-41d4-a716-446655440009", "created_at": "2024-01-15T10:20:00Z", "started_at": "2024-01-15T10:25:00Z", "ended_at": "2024-01-15T10:30:00Z", "duration": "PT5M", "outcome": "PASS", "procedure": {"id": "550e8400-e29b-41d4-a716-446655440011", "name": "PCB Assembly Procedure"}}, "attachments": [{"id": "550e8400-e29b-41d4-a716-446655440011", "name": "calibration-cert.pdf", "size": 1048576, "content_type": "application/pdf", "download_url": "https://s3.amazonaws.com/bucket/file?X-Amz-Algorithm=..."}]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-get:
     speakeasy-default-part-get:
       parameters:
@@ -937,11 +1050,13 @@ examples:
           number: "PCB-MAIN-001"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "PCB-MAIN-001", "name": "Main Control Board", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "image": "https://example.com/user-avatar.jpg"}, "created_by_station": null, "revisions": []}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "PCB-MAIN-001", "name": "Main Control Board", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe"}, "created_by_station": null, "revisions": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   batch-get:
     speakeasy-default-batch-get:
       parameters:
@@ -949,11 +1064,15 @@ examples:
           number: "BATCH-2024-001"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "BATCH-2024-001", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe", "image": "https://example.com/user-avatar.jpg"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Station 01", "image": "https://example.com/station-01.jpg"}, "units": [{"id": "550e8400-e29b-41d4-a716-446655440000", "serial_number": "SN-2024-001234", "created_at": "2024-01-15T10:30:00Z", "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A", "image": "https://example.com/revision-image.jpg"}}}]}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "BATCH-2024-001", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Station 01"}, "units": [{"id": "550e8400-e29b-41d4-a716-446655440000", "serial_number": "SN-2024-001234", "created_at": "2024-01-15T10:30:00Z", "part": {"id": "550e8400-e29b-41d4-a716-446655440007", "number": "PCB-MAIN-001", "name": "Main Control Board", "revision": {"id": "550e8400-e29b-41d4-a716-446655440006", "number": "REV-A"}}}]}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "400":
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   revision-get:
     speakeasy-default-revision-get:
       parameters:
@@ -970,25 +1089,32 @@ examples:
     speakeasy-default-station-list:
       parameters:
         query:
-          limit: 20
+          limit: 50
           cursor: 1
           search_query: "assembly"
+          procedure_ids: ["550e8400-e29b-41d4-a716-446655440000"]
       responses:
         "200":
-          application/json: {"data": [{"id": "550e8400-e29b-41d4-a716-446655440000", "identifier": "STA-A1B", "name": "Assembly Station 1", "image": "https://s3.amazonaws.com/bucket/station-image.jpg", "procedures": [], "procedures_count": 5}], "meta": {"has_more": true, "next_cursor": 2}}
+          application/json: {"data": [{"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Assembly Station 1", "procedures": [], "procedures_count": 5, "team": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Team"}}], "meta": {"has_more": true, "next_cursor": 2}}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   station-create:
     speakeasy-default-station-create:
       requestBody:
-        application/json: {"name": "Assembly Station 1"}
+        application/json: {"name": "Assembly Station 1", "procedure_id": "550e8400-e29b-41d4-a716-446655440000"}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+        "403":
+          application/json: {"message": "Forbidden", "code": "FORBIDDEN", "issues": []}
   station-get:
     speakeasy-default-station-get:
       parameters:
@@ -996,27 +1122,31 @@ examples:
           id: "550e8400-e29b-41d4-a716-446655440000"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "identifier": "STA-A1B", "name": "Assembly Station 1", "image": {"s3_key": "uploads/stations/550e8400-e29b-41d4-a716-446655440000.jpg"}, "api_key": "550e8400-e29b-41d4-a716-446655440001", "procedures": [], "connection_status": "connected"}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Assembly Station 1", "api_key": "550e8400...", "procedures": [], "organization_slug": "my-org", "connection_status": "connected", "team": {"id": "3d0b9c80-df6c-4342-9628-a03911bde47a", "name": "<value>"}}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   station-update:
     speakeasy-default-station-update:
       parameters:
         path:
           id: "550e8400-e29b-41d4-a716-446655440000"
       requestBody:
-        application/json: {"body": {}}
+        application/json: {"name": "Assembly Station 2", "team_id": "550e8400-e29b-41d4-a716-446655440002"}
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "identifier": "STA-B2C", "name": "Assembly Station 2"}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Assembly Station 2"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   station-remove:
     speakeasy-default-station-remove:
       parameters:
@@ -1028,11 +1158,13 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "400":
-          application/json: {"message": "Procedure name is required", "code": "BAD_REQUEST", "issues": []}
+          application/json: {"message": "Bad request", "code": "BAD_REQUEST", "issues": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   station-linkProcedure:
     speakeasy-default-station-link-procedure:
       parameters:
@@ -1097,16 +1229,18 @@ examples:
         path:
           procedure_id: "d288e698-b4c2-45d1-ad1f-f8ab3499329a"
       requestBody:
-        application/json: {"tag": "<value>"}
+        application/json: {"tag": "v1.0.0"}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   procedure-getVersion:
     speakeasy-default-procedure-get-version:
       parameters:
@@ -1117,9 +1251,11 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "tag": "v1.0.0", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440001", "name": "John Doe"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440002", "name": "Assembly Station 01"}, "procedure": {"id": "550e8400-e29b-41d4-a716-446655440003", "name": "PCB Assembly Test"}, "run_count": 42}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   procedure-deleteVersion:
     speakeasy-default-procedure-delete-version:
       parameters:
@@ -1130,11 +1266,13 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-listRevisions:
     speakeasy-default-part-list-revisions:
       parameters:
@@ -1160,11 +1298,13 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440001"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-getRevision:
     speakeasy-default-part-get-revision:
       parameters:
@@ -1173,11 +1313,13 @@ examples:
           revision_number: "REV-A"
       responses:
         "200":
-          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "REV-A", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"name": "John Doe", "image": "https://example.com/avatar.jpg"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440004", "name": "Assembly Station 1", "image": "https://example.com/station.jpg"}, "part": {"id": "550e8400-e29b-41d4-a716-446655440001", "number": "PCB-001", "name": "Main PCB Board"}, "image": {"s3_key": "revisions/550e8400-e29b-41d4-a716-446655440000/image.jpg"}, "units": []}
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "number": "REV-A", "created_at": "2024-01-15T10:30:00Z", "created_by_user": {"id": "550e8400-e29b-41d4-a716-446655440003", "name": "John Doe"}, "created_by_station": {"id": "550e8400-e29b-41d4-a716-446655440004", "name": "Assembly Station 1"}, "part": {"id": "550e8400-e29b-41d4-a716-446655440001", "number": "PCB-001", "name": "Main PCB Board"}, "units": []}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-deleteRevision:
     speakeasy-default-part-delete-revision:
       parameters:
@@ -1188,9 +1330,11 @@ examples:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   part-updateRevision:
     speakeasy-default-part-update-revision:
       parameters:
@@ -1198,30 +1342,87 @@ examples:
           part_number: "<value>"
           revision_number: "<value>"
       requestBody:
-        application/json: {"body": {}}
+        application/json: {"number": "REV-B"}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
   batch-update:
     speakeasy-default-batch-update:
       parameters:
         path:
           number: "<value>"
       requestBody:
-        application/json: {"body": {"number": "<value>"}}
+        application/json: {"new_number": "BATCH-2024-002"}
       responses:
         "200":
           application/json: {"id": "550e8400-e29b-41d4-a716-446655440000"}
         "404":
-          application/json: {"message": "Procedure not found: {id}", "code": "NOT_FOUND", "issues": []}
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
         "409":
-          application/json: {"message": "A version with this tag already exists for the procedure", "code": "CONFLICT", "issues": []}
+          application/json: {"message": "Conflict", "code": "CONFLICT", "issues": []}
         "500":
-          application/json: {"message": "Internal server error; Failed to create procedure: {error}", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+  attachment-finalize:
+    speakeasy-default-attachment-finalize:
+      parameters:
+        path:
+          id: "<id>"
+      requestBody:
+        application/json: {}
+      responses:
+        "200":
+          application/json: {"url": "https://s3.amazonaws.com/bucket/file.pdf?..."}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+        "404":
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
+        "500":
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+  part-delete:
+    speakeasy-default-part-delete:
+      parameters:
+        path:
+          number: "<value>"
+      responses:
+        "200":
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "deletedRevisionIds": ["550e8400-e29b-41d4-a716-446655440001", "550e8400-e29b-41d4-a716-446655440002"]}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+        "404":
+          application/json: {"message": "Not found", "code": "NOT_FOUND", "issues": []}
+        "500":
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+  station-getCurrent:
+    speakeasy-default-station-get-current:
+      responses:
+        "200":
+          application/json: {"id": "550e8400-e29b-41d4-a716-446655440000", "name": "Assembly Station 1", "api_key": "550e8400...", "procedures": [], "organization_slug": "my-org", "connection_status": "connected", "team": {"id": "2dfa3e1f-536a-40a4-8b62-cff35922388d", "name": "<value>"}}
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+        "403":
+          application/json: {"message": "Forbidden", "code": "FORBIDDEN", "issues": []}
+        "500":
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
+  user-list:
+    speakeasy-default-user-list:
+      parameters:
+        query:
+          current: true
+      responses:
+        "200":
+          application/json: [{"id": "550e8400-e29b-41d4-a716-446655440000", "email": "john.doe@example.com", "name": "John Doe", "image": "https://example.com/user-avatar.jpg", "banned": false}]
+        "401":
+          application/json: {"message": "Unauthorized", "code": "UNAUTHORIZED", "issues": []}
+        "500":
+          application/json: {"message": "Internal server error", "code": "INTERNAL_SERVER_ERROR", "issues": []}
 examplesVersion: 1.0.2

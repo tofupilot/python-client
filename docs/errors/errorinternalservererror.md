@@ -1,0 +1,12 @@
+# ErrorINTERNALSERVERERROR
+
+Internal server error error
+
+
+## Fields
+
+| Field                                                                                    | Type                                                                                     | Required                                                                                 | Description                                                                              | Example                                                                                  |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `message`                                                                                | *str*                                                                                    | :heavy_check_mark:                                                                       | The error message                                                                        | Internal server error                                                                    |
+| `code`                                                                                   | *str*                                                                                    | :heavy_check_mark:                                                                       | The error code                                                                           | INTERNAL_SERVER_ERROR                                                                    |
+| `issues`                                                                                 | List[[models.ErrorINTERNALSERVERERRORIssue](../models/errorinternalservererrorissue.md)] | :heavy_minus_sign:                                                                       | An array of issues that were responsible for the error                                   | []                                                                                       |

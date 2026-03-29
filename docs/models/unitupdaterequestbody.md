@@ -1,0 +1,12 @@
+# UnitUpdateRequestBody
+
+
+## Fields
+
+| Field                                                       | Type                                                        | Required                                                    | Description                                                 | Example                                                     |
+| ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
+| `new_serial_number`                                         | *Optional[str]*                                             | :heavy_minus_sign:                                          | New serial number for the unit.                             | UNIT-12345-NEW                                              |
+| `part_number`                                               | *Optional[str]*                                             | :heavy_minus_sign:                                          | New part number for the unit.                               | PCB-V2.0                                                    |
+| `revision_number`                                           | *Optional[str]*                                             | :heavy_minus_sign:                                          | New revision number for the unit.                           | REV-B                                                       |
+| `batch_number`                                              | *OptionalNullable[str]*                                     | :heavy_minus_sign:                                          | New batch number for the unit. Set to null to remove batch. | BATCH-2024-02                                               |
+| `attachments`                                               | List[*str*]                                                 | :heavy_minus_sign:                                          | Array of upload IDs to attach to the unit.                  | [<br/>"550e8400-e29b-41d4-a716-446655440000"<br/>]          |

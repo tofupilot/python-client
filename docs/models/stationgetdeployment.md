@@ -1,0 +1,10 @@
+# StationGetDeployment
+
+
+## Fields
+
+| Field                                                                      | Type                                                                       | Required                                                                   | Description                                                                | Example                                                                    |
+| -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `deployed_at`                                                              | *str*                                                                      | :heavy_check_mark:                                                         | When the procedure was deployed                                            | 2026-01-22T10:00:00Z                                                       |
+| `commit`                                                                   | [Nullable[models.StationGetCommit]](../models/stationgetcommit.md)         | :heavy_check_mark:                                                         | N/A                                                                        |                                                                            |
+| `repository`                                                               | [Nullable[models.StationGetRepository]](../models/stationgetrepository.md) | :heavy_check_mark:                                                         | N/A                                                                        |                                                                            |

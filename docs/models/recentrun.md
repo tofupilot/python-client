@@ -1,0 +1,11 @@
+# RecentRun
+
+
+## Fields
+
+| Field                                                                | Type                                                                 | Required                                                             | Description                                                          | Example                                                              |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `id`                                                                 | *str*                                                                | :heavy_check_mark:                                                   | Run ID.                                                              | 550e8400-e29b-41d4-a716-446655440003                                 |
+| `started_at`                                                         | [date](https://docs.python.org/3/library/datetime.html#date-objects) | :heavy_check_mark:                                                   | ISO 8601 timestamp when the run started.                             | 2024-01-15T10:35:00Z                                                 |
+| `outcome`                                                            | [models.ProcedureGetOutcome](../models/proceduregetoutcome.md)       | :heavy_check_mark:                                                   | Run outcome.                                                         | PASS                                                                 |
+| `unit`                                                               | [Nullable[models.ProcedureGetUnit]](../models/proceduregetunit.md)   | :heavy_check_mark:                                                   | Unit information.                                                    |                                                                      |

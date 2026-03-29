@@ -11,6 +11,7 @@ os.environ["DISABLE_TELEMETRY"] = "true"
 
 import pytest
 import re
+import requests
 from typing import Union
 
 import tofupilot
@@ -69,37 +70,47 @@ def api_key(request, user_api_key: str, station_api_key: str) -> str:
         raise ValueError(f"Unknown api_key type: {request.param}")
 
 
+@pytest.fixture(scope="session")
+def _v1_test_procedure():
+    """Create a test procedure via V2 API for V1 tests. Session-scoped to avoid recreating."""
+    url = os.environ.get("TOFUPILOT_URL")
+    api_key = os.environ.get("TOFUPILOT_API_KEY_USER")
+    if not url or not api_key:
+        pytest.fail("TOFUPILOT_URL and TOFUPILOT_API_KEY_USER must be set")
+    v2_client = tofupilot.v2.TofuPilot(
+        api_key=api_key,
+        server_url=f"{url}/api",
+    )
+    result = v2_client.procedures.create(name="V1 Test Procedure")
+    proc = v2_client.procedures.get(id=result.id)
+    # Link test station to the new procedure so station auth tests work
+    station_id = os.environ.get("TOFUPILOT_STATION_ID")
+    if station_id:
+        try:
+            requests.post(
+                f"{url}/api/trpc/station.linkProcedure",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+                json={"json": {"id": station_id, "procedure_id": proc.id}},
+                timeout=10,
+            )
+        except Exception:
+            pass
+    return {"id": proc.id, "identifier": proc.identifier or proc.id}
+
+
 @pytest.fixture(scope="class")
-def procedure_identifier(request) -> str:
-    """Update this with the procedure identifier you get in local (V1 tests only)"""
-    # Only require this fixture for v1 tests
+def procedure_identifier(request, _v1_test_procedure) -> str:
+    """Procedure identifier for V1 tests — auto-created via V2 API."""
     test_path = str(request.fspath)
     if "/v1/" not in test_path:
         pytest.skip("procedure_identifier fixture is only for v1 tests")
-
-    procedure_identifier = os.environ.get("TOFUPILOT_PROCEDURE_IDENTIFIER")
-
-    if not procedure_identifier:
-        pytest.fail(
-            "TOFUPILOT_PROCEDURE_IDENTIFIER environment variable not set. "
-            "Set it to run tests against local server:\n"
-            "export TOFUPILOT_PROCEDURE_IDENTIFIER='your-procedure-identifier'"
-        )
-    return procedure_identifier
+    return _v1_test_procedure["identifier"] or _v1_test_procedure["id"]
 
 
 @pytest.fixture(scope="class")
-def procedure_id() -> str:
-    """Update this with the procedure id you get in local (see url)"""
-    procedure_id = os.environ.get("TOFUPILOT_PROCEDURE_ID")
-
-    if not procedure_id:
-        pytest.fail(
-            "TOFUPILOT_PROCEDURE_ID environment variable not set. "
-            "Set it to run tests against local server:\n"
-            "export TOFUPILOT_PROCEDURE_ID='your-procedure-id'"
-        )
-    return procedure_id
+def procedure_id(_v1_test_procedure) -> str:
+    """Procedure UUID for V1 tests — auto-created via V2 API."""
+    return _v1_test_procedure["id"]
 
 
 @pytest.fixture()

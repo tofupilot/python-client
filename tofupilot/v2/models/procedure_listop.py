@@ -12,6 +12,7 @@ from typing_extensions import Annotated, NotRequired, TypedDict
 
 class ProcedureListRequestTypedDict(TypedDict):
     limit: NotRequired[int]
+    r"""Maximum number of procedures to return per page."""
     cursor: NotRequired[float]
     search_query: NotRequired[str]
     created_after: NotRequired[datetime]
@@ -23,6 +24,7 @@ class ProcedureListRequest(BaseModel):
         Optional[int],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = 50
+    r"""Maximum number of procedures to return per page."""
 
     cursor: Annotated[
         Optional[float],

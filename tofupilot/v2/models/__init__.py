@@ -2,8 +2,6 @@
 
 from typing import TYPE_CHECKING
 from importlib import import_module
-import builtins
-import sys
 
 if TYPE_CHECKING:
     from .attachment_deleteop import (
@@ -14,6 +12,8 @@ if TYPE_CHECKING:
     )
     from .attachment_finalizeop import (
         AttachmentFinalizeRequest,
+        AttachmentFinalizeRequestBody,
+        AttachmentFinalizeRequestBodyTypedDict,
         AttachmentFinalizeRequestTypedDict,
         AttachmentFinalizeResponse,
         AttachmentFinalizeResponseTypedDict,
@@ -168,9 +168,6 @@ if TYPE_CHECKING:
         PartUpdateResponseTypedDict,
     )
     from .part_updaterevisionop import (
-        PartUpdateRevisionImageIDEnum,
-        PartUpdateRevisionImageIDUnion,
-        PartUpdateRevisionImageIDUnionTypedDict,
         PartUpdateRevisionRequest,
         PartUpdateRevisionRequestBody,
         PartUpdateRevisionRequestBodyTypedDict,
@@ -512,9 +509,6 @@ if TYPE_CHECKING:
         StationRemoveResponseTypedDict,
     )
     from .station_updateop import (
-        StationUpdateImageIDEnum,
-        StationUpdateImageIDUnion,
-        StationUpdateImageIDUnionTypedDict,
         StationUpdateRequest,
         StationUpdateRequestBody,
         StationUpdateRequestBodyTypedDict,
@@ -636,6 +630,8 @@ __all__ = [
     "AttachmentDeleteResponse",
     "AttachmentDeleteResponseTypedDict",
     "AttachmentFinalizeRequest",
+    "AttachmentFinalizeRequestBody",
+    "AttachmentFinalizeRequestBodyTypedDict",
     "AttachmentFinalizeRequestTypedDict",
     "AttachmentFinalizeResponse",
     "AttachmentFinalizeResponseTypedDict",
@@ -791,9 +787,6 @@ __all__ = [
     "PartUpdateRequestTypedDict",
     "PartUpdateResponse",
     "PartUpdateResponseTypedDict",
-    "PartUpdateRevisionImageIDEnum",
-    "PartUpdateRevisionImageIDUnion",
-    "PartUpdateRevisionImageIDUnionTypedDict",
     "PartUpdateRevisionRequest",
     "PartUpdateRevisionRequestBody",
     "PartUpdateRevisionRequestBodyTypedDict",
@@ -1036,9 +1029,6 @@ __all__ = [
     "StationRemoveResponse",
     "StationRemoveResponseTypedDict",
     "StationTypedDict",
-    "StationUpdateImageIDEnum",
-    "StationUpdateImageIDUnion",
-    "StationUpdateImageIDUnionTypedDict",
     "StationUpdateRequest",
     "StationUpdateRequestBody",
     "StationUpdateRequestBodyTypedDict",
@@ -1174,6 +1164,8 @@ _dynamic_imports: dict[str, str] = {
     "AttachmentDeleteResponse": ".attachment_deleteop",
     "AttachmentDeleteResponseTypedDict": ".attachment_deleteop",
     "AttachmentFinalizeRequest": ".attachment_finalizeop",
+    "AttachmentFinalizeRequestBody": ".attachment_finalizeop",
+    "AttachmentFinalizeRequestBodyTypedDict": ".attachment_finalizeop",
     "AttachmentFinalizeRequestTypedDict": ".attachment_finalizeop",
     "AttachmentFinalizeResponse": ".attachment_finalizeop",
     "AttachmentFinalizeResponseTypedDict": ".attachment_finalizeop",
@@ -1297,9 +1289,6 @@ _dynamic_imports: dict[str, str] = {
     "PartUpdateRequestTypedDict": ".part_updateop",
     "PartUpdateResponse": ".part_updateop",
     "PartUpdateResponseTypedDict": ".part_updateop",
-    "PartUpdateRevisionImageIDEnum": ".part_updaterevisionop",
-    "PartUpdateRevisionImageIDUnion": ".part_updaterevisionop",
-    "PartUpdateRevisionImageIDUnionTypedDict": ".part_updaterevisionop",
     "PartUpdateRevisionRequest": ".part_updaterevisionop",
     "PartUpdateRevisionRequestBody": ".part_updaterevisionop",
     "PartUpdateRevisionRequestBodyTypedDict": ".part_updaterevisionop",
@@ -1604,9 +1593,6 @@ _dynamic_imports: dict[str, str] = {
     "StationRemoveRequestTypedDict": ".station_removeop",
     "StationRemoveResponse": ".station_removeop",
     "StationRemoveResponseTypedDict": ".station_removeop",
-    "StationUpdateImageIDEnum": ".station_updateop",
-    "StationUpdateImageIDUnion": ".station_updateop",
-    "StationUpdateImageIDUnionTypedDict": ".station_updateop",
     "StationUpdateRequest": ".station_updateop",
     "StationUpdateRequestBody": ".station_updateop",
     "StationUpdateRequestBodyTypedDict": ".station_updateop",
@@ -1707,18 +1693,6 @@ _dynamic_imports: dict[str, str] = {
 }
 
 
-def dynamic_import(modname, retries=3):
-    for attempt in range(retries):
-        try:
-            return import_module(modname, __package__)
-        except KeyError:
-            # Clear any half-initialized module and retry
-            sys.modules.pop(modname, None)
-            if attempt == retries - 1:
-                break
-    raise KeyError(f"Failed to import module '{modname}' after {retries} attempts")
-
-
 def __getattr__(attr_name: str) -> object:
     module_name = _dynamic_imports.get(attr_name)
     if module_name is None:
@@ -1727,7 +1701,7 @@ def __getattr__(attr_name: str) -> object:
         )
 
     try:
-        module = dynamic_import(module_name)
+        module = import_module(module_name, __package__)
         result = getattr(module, attr_name)
         return result
     except ImportError as e:
@@ -1741,5 +1715,5 @@ def __getattr__(attr_name: str) -> object:
 
 
 def __dir__():
-    lazy_attrs = builtins.list(_dynamic_imports.keys())
-    return builtins.sorted(lazy_attrs)
+    lazy_attrs = list(_dynamic_imports.keys())
+    return sorted(lazy_attrs)

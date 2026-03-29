@@ -6,7 +6,7 @@ from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional, Union
+from typing import Any, List, Mapping, Optional
 
 
 class Stations(BaseSDK):
@@ -62,7 +62,6 @@ class Stations(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.StationCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -79,7 +78,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -169,7 +168,6 @@ class Stations(BaseSDK):
             get_serialized_body=lambda: utils.serialize_request_body(
                 request, False, False, "json", models.StationCreateRequest
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -186,7 +184,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-create",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -240,7 +238,7 @@ class Stations(BaseSDK):
 
         Retrieve a paginated list of test stations in your organization. Search by station name and filter by status for station fleet management.
 
-        :param limit:
+        :param limit: Number of stations to return per page
         :param cursor:
         :param search_query:
         :param procedure_ids:
@@ -279,7 +277,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -296,7 +293,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -344,7 +341,7 @@ class Stations(BaseSDK):
 
         Retrieve a paginated list of test stations in your organization. Search by station name and filter by status for station fleet management.
 
-        :param limit:
+        :param limit: Number of stations to return per page
         :param cursor:
         :param search_query:
         :param procedure_ids:
@@ -383,7 +380,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -400,7 +396,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-list",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -471,7 +467,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -488,7 +483,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-getCurrent",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -562,7 +557,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -579,7 +573,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-getCurrent",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -660,7 +654,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -677,7 +670,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -758,7 +751,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -775,7 +767,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-get",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -815,12 +807,7 @@ class Stations(BaseSDK):
         *,
         id: str,
         name: Optional[str] = None,
-        image_id: Optional[
-            Union[
-                models.StationUpdateImageIDUnion,
-                models.StationUpdateImageIDUnionTypedDict,
-            ]
-        ] = None,
+        image_id: Optional[str] = None,
         team_id: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
@@ -879,7 +866,6 @@ class Stations(BaseSDK):
                 "json",
                 models.StationUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -896,7 +882,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -939,12 +925,7 @@ class Stations(BaseSDK):
         *,
         id: str,
         name: Optional[str] = None,
-        image_id: Optional[
-            Union[
-                models.StationUpdateImageIDUnion,
-                models.StationUpdateImageIDUnionTypedDict,
-            ]
-        ] = None,
+        image_id: Optional[str] = None,
         team_id: OptionalNullable[str] = UNSET,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
@@ -1003,7 +984,6 @@ class Stations(BaseSDK):
                 "json",
                 models.StationUpdateRequestBody,
             ),
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1020,7 +1000,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-update",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1104,7 +1084,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1121,7 +1100,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-remove",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
@@ -1207,7 +1186,6 @@ class Stations(BaseSDK):
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            allow_empty_value=None,
             timeout_ms=timeout_ms,
         )
 
@@ -1224,7 +1202,7 @@ class Stations(BaseSDK):
                 config=self.sdk_configuration,
                 base_url=base_url or "",
                 operation_id="station-remove",
-                oauth2_scopes=None,
+                oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
