@@ -22,27 +22,19 @@ class ProcedureGetRequest(BaseModel):
 
 
 class ProcedureGetCreatedByUserTypedDict(TypedDict):
-    r"""User who created this procedure."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
     email: Nullable[str]
-    r"""User email address."""
 
 
 class ProcedureGetCreatedByUser(BaseModel):
-    r"""User who created this procedure."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     email: Nullable[str]
-    r"""User email address."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -80,15 +72,11 @@ r"""Run outcome."""
 
 
 class ProcedureGetUnitTypedDict(TypedDict):
-    r"""Unit information."""
-
     serial_number: str
     r"""Unit serial number."""
 
 
 class ProcedureGetUnit(BaseModel):
-    r"""Unit information."""
-
     serial_number: str
     r"""Unit serial number."""
 

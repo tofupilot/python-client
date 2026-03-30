@@ -7,10 +7,7 @@ from ._version import (
     __gen_version__,
     __user_agent__,
 )
-# Import the error tracking enhanced client by default
-from .client_with_error_tracking import TofuPilotWithErrorTracking as TofuPilot
-# Still export the base SDK for those who want it
-from .sdk import TofuPilot as TofuPilotBase
+from .sdk import *
 from .sdkconfiguration import *
 
 
@@ -18,14 +15,3 @@ VERSION: str = __version__
 OPENAPI_DOC_VERSION = __openapi_doc_version__
 SPEAKEASY_GENERATOR_VERSION = __gen_version__
 USER_AGENT = __user_agent__
-
-# Export both versions
-__all__ = [
-    "TofuPilot",  # Default with error tracking
-    "TofuPilotBase",  # Base without error tracking
-    # Version info
-    "VERSION",
-    "OPENAPI_DOC_VERSION",
-    "SPEAKEASY_GENERATOR_VERSION",
-    "USER_AGENT",
-]

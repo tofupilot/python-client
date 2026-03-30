@@ -21,28 +21,25 @@ r"""Overall test result. Use PASS when test succeeds, FAIL when test fails but s
 RunCreatePhaseOutcome = Literal["PASS", "FAIL", "SKIP", "ERROR"]
 r"""Overall result of the phase execution. Use PASS when phase succeeds, FAIL when phase fails but execution completed successfully, ERROR when phase execution fails, SKIP when phase was not executed."""
 
-RunCreateMeasurementOutcome = Literal["PASS", "FAIL", "UNSET"]
+MeasurementsOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
 
-XAxisValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+XAxisValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
 XAxisExpectedValueTypedDict = TypeAliasType(
     "XAxisExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
 XAxisExpectedValue = TypeAliasType(
     "XAxisExpectedValue", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-class XAxisValidatorTypedDict(TypedDict):
+class XAxisValidatorsTypedDict(TypedDict):
     r"""Structured validator specification with operator and expected value."""
 
-    outcome: NotRequired[Nullable[XAxisValidatorOutcome]]
+    outcome: NotRequired[Nullable[XAxisValidatorsOutcome]]
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
@@ -54,10 +51,10 @@ class XAxisValidatorTypedDict(TypedDict):
     r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
 
 
-class XAxisValidator(BaseModel):
+class XAxisValidators(BaseModel):
     r"""Structured validator specification with operator and expected value."""
 
-    outcome: OptionalNullable[XAxisValidatorOutcome] = UNSET
+    outcome: OptionalNullable[XAxisValidatorsOutcome] = UNSET
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
     operator: OptionalNullable[str] = UNSET
@@ -115,41 +112,35 @@ class XAxisValidator(BaseModel):
         return m
 
 
-XAxisAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Computed result of aggregation validation. Server stores as-is."""
+XAxisAggregationsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
 XAxisValueTypedDict = TypeAliasType("XAxisValueTypedDict", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
 XAxisValue = TypeAliasType("XAxisValue", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
-XAxisAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+XAxisAggregationsValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
-XAxisAggregationExpectedValueTypedDict = TypeAliasType(
-    "XAxisAggregationExpectedValueTypedDict",
+XAxisAggregationsExpectedValueTypedDict = TypeAliasType(
+    "XAxisAggregationsExpectedValueTypedDict",
     Union[bool, float, str, List[float], List[str]],
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-XAxisAggregationExpectedValue = TypeAliasType(
-    "XAxisAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+XAxisAggregationsExpectedValue = TypeAliasType(
+    "XAxisAggregationsExpectedValue", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-class XAxisAggregationValidatorTypedDict(TypedDict):
+class XAxisAggregationsValidatorsTypedDict(TypedDict):
     r"""Structured validator specification with operator, expected value, and outcome."""
 
-    outcome: NotRequired[Nullable[XAxisAggregationValidatorOutcome]]
+    outcome: NotRequired[Nullable[XAxisAggregationsValidatorsOutcome]]
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
-    expected_value: NotRequired[Nullable[XAxisAggregationExpectedValueTypedDict]]
+    expected_value: NotRequired[Nullable[XAxisAggregationsExpectedValueTypedDict]]
     r"""Expected value for comparison. Type depends on operator."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
@@ -157,16 +148,16 @@ class XAxisAggregationValidatorTypedDict(TypedDict):
     r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
 
 
-class XAxisAggregationValidator(BaseModel):
+class XAxisAggregationsValidators(BaseModel):
     r"""Structured validator specification with operator, expected value, and outcome."""
 
-    outcome: OptionalNullable[XAxisAggregationValidatorOutcome] = UNSET
+    outcome: OptionalNullable[XAxisAggregationsValidatorsOutcome] = UNSET
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
     operator: OptionalNullable[str] = UNSET
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
-    expected_value: OptionalNullable[XAxisAggregationExpectedValue] = UNSET
+    expected_value: OptionalNullable[XAxisAggregationsExpectedValue] = UNSET
     r"""Expected value for comparison. Type depends on operator."""
 
     expression: OptionalNullable[str] = UNSET
@@ -218,28 +209,28 @@ class XAxisAggregationValidator(BaseModel):
         return m
 
 
-class XAxisAggregationTypedDict(TypedDict):
+class XAxisAggregationsTypedDict(TypedDict):
     r"""Aggregation specification with computed value and optional validators."""
 
     type: str
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
-    outcome: NotRequired[Nullable[XAxisAggregationOutcome]]
+    outcome: NotRequired[Nullable[XAxisAggregationsOutcome]]
     r"""Computed result of aggregation validation. Server stores as-is."""
     value: NotRequired[Nullable[XAxisValueTypedDict]]
     r"""Computed aggregation value."""
     unit: NotRequired[Nullable[str]]
     r"""Unit for the aggregated value."""
-    validators: NotRequired[Nullable[List[XAxisAggregationValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[XAxisAggregationsValidatorsTypedDict]]]
     r"""Validators applied to the aggregated value."""
 
 
-class XAxisAggregation(BaseModel):
+class XAxisAggregations(BaseModel):
     r"""Aggregation specification with computed value and optional validators."""
 
     type: str
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
 
-    outcome: OptionalNullable[XAxisAggregationOutcome] = UNSET
+    outcome: OptionalNullable[XAxisAggregationsOutcome] = UNSET
     r"""Computed result of aggregation validation. Server stores as-is."""
 
     value: OptionalNullable[XAxisValue] = UNSET
@@ -248,7 +239,7 @@ class XAxisAggregation(BaseModel):
     unit: OptionalNullable[str] = UNSET
     r"""Unit for the aggregated value."""
 
-    validators: OptionalNullable[List[XAxisAggregationValidator]] = UNSET
+    validators: OptionalNullable[List[XAxisAggregationsValidators]] = UNSET
     r"""Validators applied to the aggregated value."""
 
     @model_serializer(mode="wrap")
@@ -291,9 +282,9 @@ class XAxisTypedDict(TypedDict):
     r"""Unit for this axis."""
     description: NotRequired[Nullable[str]]
     r"""Description of this data series."""
-    validators: NotRequired[Nullable[List[XAxisValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[XAxisValidatorsTypedDict]]]
     r"""Validators for this specific axis/series."""
-    aggregations: NotRequired[Nullable[List[XAxisAggregationTypedDict]]]
+    aggregations: NotRequired[Nullable[List[XAxisAggregationsTypedDict]]]
     r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
 
 
@@ -309,10 +300,10 @@ class XAxis(BaseModel):
     description: OptionalNullable[str] = UNSET
     r"""Description of this data series."""
 
-    validators: OptionalNullable[List[XAxisValidator]] = UNSET
+    validators: OptionalNullable[List[XAxisValidators]] = UNSET
     r"""Validators for this specific axis/series."""
 
-    aggregations: OptionalNullable[List[XAxisAggregation]] = UNSET
+    aggregations: OptionalNullable[List[XAxisAggregations]] = UNSET
     r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
 
     @model_serializer(mode="wrap")
@@ -346,29 +337,26 @@ class XAxis(BaseModel):
         return m
 
 
-YAxiValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+YAxisValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
-YAxiExpectedValueTypedDict = TypeAliasType(
-    "YAxiExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+YAxisExpectedValueTypedDict = TypeAliasType(
+    "YAxisExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-YAxiExpectedValue = TypeAliasType(
-    "YAxiExpectedValue", Union[bool, float, str, List[float], List[str]]
+YAxisExpectedValue = TypeAliasType(
+    "YAxisExpectedValue", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-class YAxiValidatorTypedDict(TypedDict):
+class YAxisValidatorsTypedDict(TypedDict):
     r"""Structured validator specification with operator and expected value."""
 
-    outcome: NotRequired[Nullable[YAxiValidatorOutcome]]
+    outcome: NotRequired[Nullable[YAxisValidatorsOutcome]]
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
-    expected_value: NotRequired[Nullable[YAxiExpectedValueTypedDict]]
+    expected_value: NotRequired[Nullable[YAxisExpectedValueTypedDict]]
     r"""Expected value for comparison. Type depends on operator."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
@@ -376,16 +364,16 @@ class YAxiValidatorTypedDict(TypedDict):
     r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
 
 
-class YAxiValidator(BaseModel):
+class YAxisValidators(BaseModel):
     r"""Structured validator specification with operator and expected value."""
 
-    outcome: OptionalNullable[YAxiValidatorOutcome] = UNSET
+    outcome: OptionalNullable[YAxisValidatorsOutcome] = UNSET
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
     operator: OptionalNullable[str] = UNSET
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
-    expected_value: OptionalNullable[YAxiExpectedValue] = UNSET
+    expected_value: OptionalNullable[YAxisExpectedValue] = UNSET
     r"""Expected value for comparison. Type depends on operator."""
 
     expression: OptionalNullable[str] = UNSET
@@ -437,41 +425,35 @@ class YAxiValidator(BaseModel):
         return m
 
 
-YAxiAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Computed result of aggregation validation. Server stores as-is."""
+YAxisAggregationsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
-YAxiValueTypedDict = TypeAliasType("YAxiValueTypedDict", Union[float, str, bool])
-r"""Computed aggregation value."""
+YAxisValueTypedDict = TypeAliasType("YAxisValueTypedDict", Union[float, str, bool])
 
 
-YAxiValue = TypeAliasType("YAxiValue", Union[float, str, bool])
-r"""Computed aggregation value."""
+YAxisValue = TypeAliasType("YAxisValue", Union[float, str, bool])
 
 
-YAxiAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+YAxisAggregationsValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
-YAxiAggregationExpectedValueTypedDict = TypeAliasType(
-    "YAxiAggregationExpectedValueTypedDict",
+YAxisAggregationsExpectedValueTypedDict = TypeAliasType(
+    "YAxisAggregationsExpectedValueTypedDict",
     Union[bool, float, str, List[float], List[str]],
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-YAxiAggregationExpectedValue = TypeAliasType(
-    "YAxiAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+YAxisAggregationsExpectedValue = TypeAliasType(
+    "YAxisAggregationsExpectedValue", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-class YAxiAggregationValidatorTypedDict(TypedDict):
+class YAxisAggregationsValidatorsTypedDict(TypedDict):
     r"""Structured validator specification with operator, expected value, and outcome."""
 
-    outcome: NotRequired[Nullable[YAxiAggregationValidatorOutcome]]
+    outcome: NotRequired[Nullable[YAxisAggregationsValidatorsOutcome]]
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
-    expected_value: NotRequired[Nullable[YAxiAggregationExpectedValueTypedDict]]
+    expected_value: NotRequired[Nullable[YAxisAggregationsExpectedValueTypedDict]]
     r"""Expected value for comparison. Type depends on operator."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
@@ -479,16 +461,16 @@ class YAxiAggregationValidatorTypedDict(TypedDict):
     r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
 
 
-class YAxiAggregationValidator(BaseModel):
+class YAxisAggregationsValidators(BaseModel):
     r"""Structured validator specification with operator, expected value, and outcome."""
 
-    outcome: OptionalNullable[YAxiAggregationValidatorOutcome] = UNSET
+    outcome: OptionalNullable[YAxisAggregationsValidatorsOutcome] = UNSET
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
     operator: OptionalNullable[str] = UNSET
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
-    expected_value: OptionalNullable[YAxiAggregationExpectedValue] = UNSET
+    expected_value: OptionalNullable[YAxisAggregationsExpectedValue] = UNSET
     r"""Expected value for comparison. Type depends on operator."""
 
     expression: OptionalNullable[str] = UNSET
@@ -540,37 +522,37 @@ class YAxiAggregationValidator(BaseModel):
         return m
 
 
-class YAxiAggregationTypedDict(TypedDict):
+class YAxisAggregationsTypedDict(TypedDict):
     r"""Aggregation specification with computed value and optional validators."""
 
     type: str
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
-    outcome: NotRequired[Nullable[YAxiAggregationOutcome]]
+    outcome: NotRequired[Nullable[YAxisAggregationsOutcome]]
     r"""Computed result of aggregation validation. Server stores as-is."""
-    value: NotRequired[Nullable[YAxiValueTypedDict]]
+    value: NotRequired[Nullable[YAxisValueTypedDict]]
     r"""Computed aggregation value."""
     unit: NotRequired[Nullable[str]]
     r"""Unit for the aggregated value."""
-    validators: NotRequired[Nullable[List[YAxiAggregationValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[YAxisAggregationsValidatorsTypedDict]]]
     r"""Validators applied to the aggregated value."""
 
 
-class YAxiAggregation(BaseModel):
+class YAxisAggregations(BaseModel):
     r"""Aggregation specification with computed value and optional validators."""
 
     type: str
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
 
-    outcome: OptionalNullable[YAxiAggregationOutcome] = UNSET
+    outcome: OptionalNullable[YAxisAggregationsOutcome] = UNSET
     r"""Computed result of aggregation validation. Server stores as-is."""
 
-    value: OptionalNullable[YAxiValue] = UNSET
+    value: OptionalNullable[YAxisValue] = UNSET
     r"""Computed aggregation value."""
 
     unit: OptionalNullable[str] = UNSET
     r"""Unit for the aggregated value."""
 
-    validators: OptionalNullable[List[YAxiAggregationValidator]] = UNSET
+    validators: OptionalNullable[List[YAxisAggregationsValidators]] = UNSET
     r"""Validators applied to the aggregated value."""
 
     @model_serializer(mode="wrap")
@@ -604,7 +586,7 @@ class YAxiAggregation(BaseModel):
         return m
 
 
-class YAxiTypedDict(TypedDict):
+class YAxisTypedDict(TypedDict):
     r"""Data series with numeric data, unit, and optional validators/aggregations."""
 
     data: List[float]
@@ -613,13 +595,13 @@ class YAxiTypedDict(TypedDict):
     r"""Unit for this axis."""
     description: NotRequired[Nullable[str]]
     r"""Description of this data series."""
-    validators: NotRequired[Nullable[List[YAxiValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[YAxisValidatorsTypedDict]]]
     r"""Validators for this specific axis/series."""
-    aggregations: NotRequired[Nullable[List[YAxiAggregationTypedDict]]]
+    aggregations: NotRequired[Nullable[List[YAxisAggregationsTypedDict]]]
     r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
 
 
-class YAxi(BaseModel):
+class YAxis(BaseModel):
     r"""Data series with numeric data, unit, and optional validators/aggregations."""
 
     data: List[float]
@@ -631,10 +613,10 @@ class YAxi(BaseModel):
     description: OptionalNullable[str] = UNSET
     r"""Description of this data series."""
 
-    validators: OptionalNullable[List[YAxiValidator]] = UNSET
+    validators: OptionalNullable[List[YAxisValidators]] = UNSET
     r"""Validators for this specific axis/series."""
 
-    aggregations: OptionalNullable[List[YAxiAggregation]] = UNSET
+    aggregations: OptionalNullable[List[YAxisAggregations]] = UNSET
     r"""Aggregations computed over this axis data (min, max, avg, etc.)."""
 
     @model_serializer(mode="wrap")
@@ -695,36 +677,31 @@ r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with
 RunCreateUnitsTypedDict = TypeAliasType(
     "RunCreateUnitsTypedDict", Union[str, List[str]]
 )
-r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
 
 
 RunCreateUnits = TypeAliasType("RunCreateUnits", Union[str, List[str]])
-r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
 
 
-ValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+MeasurementsValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
-ValidatorsExpectedValueTypedDict = TypeAliasType(
-    "ValidatorsExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
+RunCreateExpectedValueTypedDict = TypeAliasType(
+    "RunCreateExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-ValidatorsExpectedValue = TypeAliasType(
-    "ValidatorsExpectedValue", Union[bool, float, str, List[float], List[str]]
+RunCreateExpectedValue = TypeAliasType(
+    "RunCreateExpectedValue", Union[bool, float, str, List[float], List[str]]
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-class ValidatorsTypedDict(TypedDict):
+class RunCreateValidatorsTypedDict(TypedDict):
     r"""Structured validator specification with operator and expected value."""
 
-    outcome: NotRequired[Nullable[ValidatorsOutcome]]
+    outcome: NotRequired[Nullable[MeasurementsValidatorsOutcome]]
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
-    expected_value: NotRequired[Nullable[ValidatorsExpectedValueTypedDict]]
+    expected_value: NotRequired[Nullable[RunCreateExpectedValueTypedDict]]
     r"""Expected value for comparison. Type depends on operator."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
@@ -732,16 +709,16 @@ class ValidatorsTypedDict(TypedDict):
     r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
 
 
-class Validators(BaseModel):
+class RunCreateValidators(BaseModel):
     r"""Structured validator specification with operator and expected value."""
 
-    outcome: OptionalNullable[ValidatorsOutcome] = UNSET
+    outcome: OptionalNullable[MeasurementsValidatorsOutcome] = UNSET
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
     operator: OptionalNullable[str] = UNSET
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
-    expected_value: OptionalNullable[ValidatorsExpectedValue] = UNSET
+    expected_value: OptionalNullable[RunCreateExpectedValue] = UNSET
     r"""Expected value for comparison. Type depends on operator."""
 
     expression: OptionalNullable[str] = UNSET
@@ -793,53 +770,48 @@ class Validators(BaseModel):
         return m
 
 
-ValidatorsUnionTypedDict = TypeAliasType(
-    "ValidatorsUnionTypedDict", Union[List[ValidatorsTypedDict], List[str]]
+ValidatorsTypedDict = TypeAliasType(
+    "ValidatorsTypedDict", Union[List[RunCreateValidatorsTypedDict], List[str]]
 )
 r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
 
 
-ValidatorsUnion = TypeAliasType("ValidatorsUnion", Union[List[Validators], List[str]])
+Validators = TypeAliasType("Validators", Union[List[RunCreateValidators], List[str]])
 r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
 
 
-RunCreateAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Computed result of aggregation validation. Server stores as-is."""
+MeasurementsAggregationsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
 RunCreateValueTypedDict = TypeAliasType(
     "RunCreateValueTypedDict", Union[float, str, bool]
 )
-r"""Computed aggregation value."""
 
 
 RunCreateValue = TypeAliasType("RunCreateValue", Union[float, str, bool])
-r"""Computed aggregation value."""
 
 
-RunCreateAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
+MeasurementsAggregationsValidatorsOutcome = Literal["PASS", "FAIL", "UNSET"]
 
-RunCreateAggregationExpectedValueTypedDict = TypeAliasType(
-    "RunCreateAggregationExpectedValueTypedDict",
+RunCreateAggregationsExpectedValueTypedDict = TypeAliasType(
+    "RunCreateAggregationsExpectedValueTypedDict",
     Union[bool, float, str, List[float], List[str]],
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-RunCreateAggregationExpectedValue = TypeAliasType(
-    "RunCreateAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+RunCreateAggregationsExpectedValue = TypeAliasType(
+    "RunCreateAggregationsExpectedValue",
+    Union[bool, float, str, List[float], List[str]],
 )
-r"""Expected value for comparison. Type depends on operator."""
 
 
-class RunCreateAggregationValidatorTypedDict(TypedDict):
+class RunCreateAggregationsValidatorsTypedDict(TypedDict):
     r"""Structured validator specification with operator, expected value, and outcome."""
 
-    outcome: NotRequired[Nullable[RunCreateAggregationValidatorOutcome]]
+    outcome: NotRequired[Nullable[MeasurementsAggregationsValidatorsOutcome]]
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
     operator: NotRequired[Nullable[str]]
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
-    expected_value: NotRequired[Nullable[RunCreateAggregationExpectedValueTypedDict]]
+    expected_value: NotRequired[Nullable[RunCreateAggregationsExpectedValueTypedDict]]
     r"""Expected value for comparison. Type depends on operator."""
     expression: NotRequired[Nullable[str]]
     r"""Original expression string for display/audit purposes."""
@@ -847,16 +819,16 @@ class RunCreateAggregationValidatorTypedDict(TypedDict):
     r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators. Defaults to true."""
 
 
-class RunCreateAggregationValidator(BaseModel):
+class RunCreateAggregationsValidators(BaseModel):
     r"""Structured validator specification with operator, expected value, and outcome."""
 
-    outcome: OptionalNullable[RunCreateAggregationValidatorOutcome] = UNSET
+    outcome: OptionalNullable[MeasurementsAggregationsValidatorsOutcome] = UNSET
     r"""Pre-computed validation result from test framework. Server stores as-is, does not re-evaluate."""
 
     operator: OptionalNullable[str] = UNSET
     r"""Comparison operator: \">\", \">=\", \"<\", \"<=\", \"==\", \"!=\", \"matches\", \"in\", \"range\" """
 
-    expected_value: OptionalNullable[RunCreateAggregationExpectedValue] = UNSET
+    expected_value: OptionalNullable[RunCreateAggregationsExpectedValue] = UNSET
     r"""Expected value for comparison. Type depends on operator."""
 
     expression: OptionalNullable[str] = UNSET
@@ -908,28 +880,28 @@ class RunCreateAggregationValidator(BaseModel):
         return m
 
 
-class RunCreateAggregationTypedDict(TypedDict):
+class RunCreateAggregationsTypedDict(TypedDict):
     r"""Aggregation specification with computed value and optional validators."""
 
     type: str
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
-    outcome: NotRequired[Nullable[RunCreateAggregationOutcome]]
+    outcome: NotRequired[Nullable[MeasurementsAggregationsOutcome]]
     r"""Computed result of aggregation validation. Server stores as-is."""
     value: NotRequired[Nullable[RunCreateValueTypedDict]]
     r"""Computed aggregation value."""
     unit: NotRequired[Nullable[str]]
     r"""Unit for the aggregated value."""
-    validators: NotRequired[Nullable[List[RunCreateAggregationValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[RunCreateAggregationsValidatorsTypedDict]]]
     r"""Validators applied to the aggregated value."""
 
 
-class RunCreateAggregation(BaseModel):
+class RunCreateAggregations(BaseModel):
     r"""Aggregation specification with computed value and optional validators."""
 
     type: str
     r"""Aggregation function: \"min\", \"max\", \"avg\", \"sum\", \"count\", \"std\", \"median\", \"percentile_95\", etc."""
 
-    outcome: OptionalNullable[RunCreateAggregationOutcome] = UNSET
+    outcome: OptionalNullable[MeasurementsAggregationsOutcome] = UNSET
     r"""Computed result of aggregation validation. Server stores as-is."""
 
     value: OptionalNullable[RunCreateValue] = UNSET
@@ -938,7 +910,7 @@ class RunCreateAggregation(BaseModel):
     unit: OptionalNullable[str] = UNSET
     r"""Unit for the aggregated value."""
 
-    validators: OptionalNullable[List[RunCreateAggregationValidator]] = UNSET
+    validators: OptionalNullable[List[RunCreateAggregationsValidators]] = UNSET
     r"""Validators applied to the aggregated value."""
 
     @model_serializer(mode="wrap")
@@ -972,46 +944,41 @@ class RunCreateAggregation(BaseModel):
         return m
 
 
-class RunCreateMeasurementTypedDict(TypedDict):
+class MeasurementsTypedDict(TypedDict):
     name: str
     r"""Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier."""
-    outcome: RunCreateMeasurementOutcome
+    outcome: MeasurementsOutcome
     r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
     x_axis: NotRequired[Nullable[XAxisTypedDict]]
-    r"""Data series with numeric data, unit, and optional validators/aggregations."""
-    y_axis: NotRequired[Nullable[List[YAxiTypedDict]]]
+    r"""X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations."""
+    y_axis: NotRequired[Nullable[List[YAxisTypedDict]]]
     r"""Y-axis data series (one or more) for multi-dimensional measurements. Each series can have its own validators and aggregations."""
     measured_value: NotRequired[Nullable[RunCreateMeasuredValue1TypedDict]]
-    r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead."""
     units: NotRequired[Nullable[RunCreateUnitsTypedDict]]
     r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
     lower_limit: NotRequired[float]
     r"""Use validators with operator \">=\" instead. Will be converted to a validator automatically."""
     upper_limit: NotRequired[float]
     r"""Use validators with operator \"<=\" instead. Will be converted to a validator automatically."""
-    validators: NotRequired[Nullable[ValidatorsUnionTypedDict]]
-    r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
-    aggregations: NotRequired[Nullable[List[RunCreateAggregationTypedDict]]]
-    r"""Aggregations computed over measurement values (min, max, avg, etc.). Each aggregation can have its own validators."""
+    validators: NotRequired[Nullable[ValidatorsTypedDict]]
+    aggregations: NotRequired[Nullable[List[RunCreateAggregationsTypedDict]]]
     docstring: NotRequired[Nullable[str]]
-    r"""Additional notes or documentation about this measurement."""
 
 
-class RunCreateMeasurement(BaseModel):
+class Measurements(BaseModel):
     name: str
     r"""Name identifier for the measurement. Each measurement should have a descriptive name that identifies the specific data point being captured. Analytics at measurement level are computed using this name as unique identifier."""
 
-    outcome: RunCreateMeasurementOutcome
+    outcome: MeasurementsOutcome
     r"""Result of the measurement validation. Use PASS when measurement meets all criteria, FAIL when measurement is outside acceptable limits or validation fails, UNSET when no validation was performed."""
 
     x_axis: OptionalNullable[XAxis] = UNSET
-    r"""Data series with numeric data, unit, and optional validators/aggregations."""
+    r"""X-axis data series for multi-dimensional measurements. Use with y_axis for structured multi-dimensional data with per-axis validators/aggregations."""
 
-    y_axis: OptionalNullable[List[YAxi]] = UNSET
+    y_axis: OptionalNullable[List[YAxis]] = UNSET
     r"""Y-axis data series (one or more) for multi-dimensional measurements. Each series can have its own validators and aggregations."""
 
     measured_value: OptionalNullable[RunCreateMeasuredValue1] = UNSET
-    r"""The actual value captured. [LEGACY for multi-dim] For multi-dimensional with per-axis validators/aggregations, use x_axis/y_axis instead."""
 
     units: OptionalNullable[RunCreateUnits] = UNSET
     r"""[LEGACY for multi-dim] Units of measurement. For structured multi-dimensional, use units within x_axis/y_axis instead."""
@@ -1032,14 +999,11 @@ class RunCreateMeasurement(BaseModel):
     ] = None
     r"""Use validators with operator \"<=\" instead. Will be converted to a validator automatically."""
 
-    validators: OptionalNullable[ValidatorsUnion] = UNSET
-    r"""Validators for this measurement. Use structured ValidatorSpec objects with operator and expected_value. Legacy string format (e.g. \"x >= 3\") is also accepted and stored as expression."""
+    validators: OptionalNullable[Validators] = UNSET
 
-    aggregations: OptionalNullable[List[RunCreateAggregation]] = UNSET
-    r"""Aggregations computed over measurement values (min, max, avg, etc.). Each aggregation can have its own validators."""
+    aggregations: OptionalNullable[List[RunCreateAggregations]] = UNSET
 
     docstring: OptionalNullable[str] = UNSET
-    r"""Additional notes or documentation about this measurement."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -1100,11 +1064,7 @@ class RunCreatePhaseTypedDict(TypedDict):
     ended_at: datetime
     r"""ISO 8601 timestamp when the phase execution completed."""
     docstring: NotRequired[Nullable[str]]
-    r"""Additional notes or documentation about this test phase."""
-    measurements: NotRequired[Nullable[List[RunCreateMeasurementTypedDict]]]
-    r"""Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data."""
-    retry_count: NotRequired[int]
-    r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
+    measurements: NotRequired[Nullable[List[MeasurementsTypedDict]]]
 
 
 class RunCreatePhase(BaseModel):
@@ -1121,17 +1081,12 @@ class RunCreatePhase(BaseModel):
     r"""ISO 8601 timestamp when the phase execution completed."""
 
     docstring: OptionalNullable[str] = UNSET
-    r"""Additional notes or documentation about this test phase."""
 
-    measurements: OptionalNullable[List[RunCreateMeasurement]] = UNSET
-    r"""Array of measurements collected during this phase. Each measurement captures specific test data points with values, limits, and validation results. If no measurements are specified, the phase will be created without measurement data."""
-
-    retry_count: Optional[int] = 0
-    r"""Zero-based retry attempt index for this phase. 0 = first attempt, 1 = first retry, etc. When a phase is retried, all attempts are stored with the same name and increasing retry_count."""
+    measurements: OptionalNullable[List[Measurements]] = UNSET
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["docstring", "measurements", "retry_count"]
+        optional_fields = ["docstring", "measurements"]
         nullable_fields = ["docstring", "measurements"]
         null_default_fields = []
 
@@ -1206,7 +1161,6 @@ class RunCreateRequestTypedDict(TypedDict):
     serial_number: str
     r"""Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created."""
     procedure_version: NotRequired[Nullable[str]]
-    r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
     operated_by: NotRequired[str]
     r"""Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test."""
     part_number: NotRequired[str]
@@ -1242,7 +1196,6 @@ class RunCreateRequest(BaseModel):
     r"""Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created."""
 
     procedure_version: OptionalNullable[str] = UNSET
-    r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
 
     operated_by: Optional[str] = None
     r"""Email address of the operator who executed the test run. The operator must exist as a user in the system. The run will be linked to this user to track who performed the test."""

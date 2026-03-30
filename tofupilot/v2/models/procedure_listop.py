@@ -148,8 +148,6 @@ ProcedureListProvider = Literal["github", "gitlab"]
 
 
 class LinkedRepositoryTypedDict(TypedDict):
-    r"""Linked repository for this procedure."""
-
     id: str
     r"""Unique identifier for the linked repository."""
     name: str
@@ -160,8 +158,6 @@ class LinkedRepositoryTypedDict(TypedDict):
 
 
 class LinkedRepository(BaseModel):
-    r"""Linked repository for this procedure."""
-
     id: str
     r"""Unique identifier for the linked repository."""
 

@@ -99,7 +99,7 @@ class _AttachmentsWithUpload(_ResourceWithBetterErrors):
             resp = httpx.put(init.upload_url, content=f.read(), headers={"Content-Type": content_type})
         if resp.status_code != 200:
             raise RuntimeError(f"File upload failed with status {resp.status_code}")
-        self._resource.finalize(id=init.id, request_body={})
+        self._resource.finalize(id=init.id)
         return init.id
 
     def download(self, attachment, dest: Union[str, Path, None] = None) -> Path:

@@ -34,22 +34,16 @@ class ProcedureGetVersionRequest(BaseModel):
 
 
 class ProcedureGetVersionCreatedByUserTypedDict(TypedDict):
-    r"""User who created this procedure version."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
 
 
 class ProcedureGetVersionCreatedByUser(BaseModel):
-    r"""User who created this procedure version."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -83,8 +77,6 @@ class ProcedureGetVersionCreatedByUser(BaseModel):
 
 
 class ProcedureGetVersionCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this procedure version."""
-
     id: str
     r"""Station ID."""
     name: str
@@ -92,8 +84,6 @@ class ProcedureGetVersionCreatedByStationTypedDict(TypedDict):
 
 
 class ProcedureGetVersionCreatedByStation(BaseModel):
-    r"""Station that created this procedure version."""
-
     id: str
     r"""Station ID."""
 

@@ -25,8 +25,8 @@ r"""Sort order direction."""
 class BatchListRequestTypedDict(TypedDict):
     ids: NotRequired[List[str]]
     numbers: NotRequired[List[str]]
-    created_after: NotRequired[datetime]
-    created_before: NotRequired[datetime]
+    created_after: NotRequired[str]
+    created_before: NotRequired[str]
     limit: NotRequired[int]
     r"""Maximum number of batches to return. Use `cursor` to fetch additional results."""
     cursor: NotRequired[int]
@@ -51,12 +51,12 @@ class BatchListRequest(BaseModel):
     ] = None
 
     created_after: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     created_before: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -100,22 +100,16 @@ class BatchListRequest(BaseModel):
 
 
 class BatchListCreatedByUserTypedDict(TypedDict):
-    r"""User who created this batch."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
 
 
 class BatchListCreatedByUser(BaseModel):
-    r"""User who created this batch."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -149,8 +143,6 @@ class BatchListCreatedByUser(BaseModel):
 
 
 class BatchListCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this batch."""
-
     id: str
     r"""Station ID."""
     name: str
@@ -158,8 +150,6 @@ class BatchListCreatedByStationTypedDict(TypedDict):
 
 
 class BatchListCreatedByStation(BaseModel):
-    r"""Station that created this batch."""
-
     id: str
     r"""Station ID."""
 

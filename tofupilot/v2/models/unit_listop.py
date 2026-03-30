@@ -35,13 +35,13 @@ class UnitListRequestTypedDict(TypedDict):
     batch_numbers: NotRequired[List[str]]
     procedure_ids: NotRequired[List[str]]
     outcomes: NotRequired[List[UnitListQueryParamOutcome]]
-    started_after: NotRequired[datetime]
-    started_before: NotRequired[datetime]
+    started_after: NotRequired[str]
+    started_before: NotRequired[str]
     latest_only: NotRequired[bool]
     run_count_min: NotRequired[int]
     run_count_max: NotRequired[int]
-    created_after: NotRequired[datetime]
-    created_before: NotRequired[datetime]
+    created_after: NotRequired[str]
+    created_before: NotRequired[str]
     created_by_user_ids: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     exclude_units_with_parent: NotRequired[bool]
@@ -96,12 +96,12 @@ class UnitListRequest(BaseModel):
     ] = None
 
     started_after: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     started_before: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -121,12 +121,12 @@ class UnitListRequest(BaseModel):
     ] = None
 
     created_after: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     created_before: Annotated[
-        Optional[datetime],
+        Optional[str],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -170,8 +170,6 @@ class UnitListRequest(BaseModel):
 
 
 class UnitListCreatedByUserTypedDict(TypedDict):
-    r"""User who created this unit. Null if created by a station or system."""
-
     id: str
     r"""Unique identifier for the user."""
     name: Nullable[str]
@@ -179,8 +177,6 @@ class UnitListCreatedByUserTypedDict(TypedDict):
 
 
 class UnitListCreatedByUser(BaseModel):
-    r"""User who created this unit. Null if created by a station or system."""
-
     id: str
     r"""Unique identifier for the user."""
 
@@ -219,8 +215,6 @@ class UnitListCreatedByUser(BaseModel):
 
 
 class UnitListCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this unit. Null if created by a user."""
-
     id: str
     r"""Unique identifier for the station."""
     name: str
@@ -228,8 +222,6 @@ class UnitListCreatedByStationTypedDict(TypedDict):
 
 
 class UnitListCreatedByStation(BaseModel):
-    r"""Station that created this unit. Null if created by a user."""
-
     id: str
     r"""Unique identifier for the station."""
 
@@ -238,8 +230,6 @@ class UnitListCreatedByStation(BaseModel):
 
 
 class UnitListBatchTypedDict(TypedDict):
-    r"""Production batch this unit belongs to. Null if not part of a batch."""
-
     id: str
     r"""Unique identifier for the batch."""
     number: str
@@ -247,8 +237,6 @@ class UnitListBatchTypedDict(TypedDict):
 
 
 class UnitListBatch(BaseModel):
-    r"""Production batch this unit belongs to. Null if not part of a batch."""
-
     id: str
     r"""Unique identifier for the batch."""
 
@@ -257,8 +245,6 @@ class UnitListBatch(BaseModel):
 
 
 class UnitListParentTypedDict(TypedDict):
-    r"""Parent unit in the assembly hierarchy. Null if this is a top-level unit."""
-
     id: str
     r"""Unique identifier for the parent unit."""
     serial_number: str
@@ -266,8 +252,6 @@ class UnitListParentTypedDict(TypedDict):
 
 
 class UnitListParent(BaseModel):
-    r"""Parent unit in the assembly hierarchy. Null if this is a top-level unit."""
-
     id: str
     r"""Unique identifier for the parent unit."""
 
@@ -343,8 +327,6 @@ r"""Final result of the test run execution."""
 
 
 class UnitListProcedureTypedDict(TypedDict):
-    r"""Test procedure that was executed. Null if run had no associated procedure."""
-
     id: str
     r"""Unique identifier for the procedure."""
     name: str
@@ -352,8 +334,6 @@ class UnitListProcedureTypedDict(TypedDict):
 
 
 class UnitListProcedure(BaseModel):
-    r"""Test procedure that was executed. Null if run had no associated procedure."""
-
     id: str
     r"""Unique identifier for the procedure."""
 
@@ -362,8 +342,6 @@ class UnitListProcedure(BaseModel):
 
 
 class LastRunTypedDict(TypedDict):
-    r"""Most recent test run performed on this unit. Null if no runs have been executed."""
-
     id: str
     r"""Unique identifier for the run."""
     outcome: LastRunOutcome
@@ -377,8 +355,6 @@ class LastRunTypedDict(TypedDict):
 
 
 class LastRun(BaseModel):
-    r"""Most recent test run performed on this unit. Null if no runs have been executed."""
-
     id: str
     r"""Unique identifier for the run."""
 

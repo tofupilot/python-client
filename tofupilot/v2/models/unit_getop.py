@@ -28,22 +28,16 @@ class UnitGetRequest(BaseModel):
 
 
 class UnitGetCreatedByUserTypedDict(TypedDict):
-    r"""User who created this unit."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
 
 
 class UnitGetCreatedByUser(BaseModel):
-    r"""User who created this unit."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -77,8 +71,6 @@ class UnitGetCreatedByUser(BaseModel):
 
 
 class UnitGetCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this unit."""
-
     id: str
     r"""Station ID."""
     name: str
@@ -86,8 +78,6 @@ class UnitGetCreatedByStationTypedDict(TypedDict):
 
 
 class UnitGetCreatedByStation(BaseModel):
-    r"""Station that created this unit."""
-
     id: str
     r"""Station ID."""
 
@@ -144,8 +134,6 @@ class UnitGetPart(BaseModel):
 
 
 class UnitGetBatchTypedDict(TypedDict):
-    r"""Batch information for this unit."""
-
     id: str
     r"""Batch ID."""
     number: str
@@ -153,8 +141,6 @@ class UnitGetBatchTypedDict(TypedDict):
 
 
 class UnitGetBatch(BaseModel):
-    r"""Batch information for this unit."""
-
     id: str
     r"""Batch ID."""
 
@@ -163,8 +149,6 @@ class UnitGetBatch(BaseModel):
 
 
 class ParentRevisionTypedDict(TypedDict):
-    r"""Part revision information."""
-
     id: str
     r"""Revision ID."""
     number: str
@@ -172,8 +156,6 @@ class ParentRevisionTypedDict(TypedDict):
 
 
 class ParentRevision(BaseModel):
-    r"""Part revision information."""
-
     id: str
     r"""Revision ID."""
 
@@ -182,8 +164,6 @@ class ParentRevision(BaseModel):
 
 
 class ParentPartTypedDict(TypedDict):
-    r"""Part information for the parent unit."""
-
     id: str
     r"""Part ID."""
     number: str
@@ -195,8 +175,6 @@ class ParentPartTypedDict(TypedDict):
 
 
 class ParentPart(BaseModel):
-    r"""Part information for the parent unit."""
-
     id: str
     r"""Part ID."""
 
@@ -241,8 +219,6 @@ class ParentPart(BaseModel):
 
 
 class UnitGetParentTypedDict(TypedDict):
-    r"""Parent unit information with part details and processed images."""
-
     id: str
     r"""Unit ID."""
     serial_number: str
@@ -252,8 +228,6 @@ class UnitGetParentTypedDict(TypedDict):
 
 
 class UnitGetParent(BaseModel):
-    r"""Parent unit information with part details and processed images."""
-
     id: str
     r"""Unit ID."""
 
@@ -295,8 +269,6 @@ class UnitGetParent(BaseModel):
 
 
 class ChildRevisionTypedDict(TypedDict):
-    r"""Part revision information."""
-
     id: str
     r"""Revision ID."""
     number: str
@@ -304,8 +276,6 @@ class ChildRevisionTypedDict(TypedDict):
 
 
 class ChildRevision(BaseModel):
-    r"""Part revision information."""
-
     id: str
     r"""Revision ID."""
 
@@ -314,8 +284,6 @@ class ChildRevision(BaseModel):
 
 
 class ChildPartTypedDict(TypedDict):
-    r"""Part information for the child unit."""
-
     id: str
     r"""Part ID."""
     number: str
@@ -327,8 +295,6 @@ class ChildPartTypedDict(TypedDict):
 
 
 class ChildPart(BaseModel):
-    r"""Part information for the child unit."""
-
     id: str
     r"""Part ID."""
 
@@ -446,8 +412,6 @@ class UnitGetProcedure(BaseModel):
 
 
 class CreatedDuringTypedDict(TypedDict):
-    r"""Run that created this unit."""
-
     id: str
     r"""Run ID."""
     created_at: datetime
@@ -465,8 +429,6 @@ class CreatedDuringTypedDict(TypedDict):
 
 
 class CreatedDuring(BaseModel):
-    r"""Run that created this unit."""
-
     id: str
     r"""Run ID."""
 

@@ -29,8 +29,6 @@ class PartGetRevisionRequest(BaseModel):
 
 
 class PartGetRevisionCreatedByUserTypedDict(TypedDict):
-    r"""User who created the revision."""
-
     id: str
     r"""Unique identifier of the user."""
     name: Nullable[str]
@@ -38,8 +36,6 @@ class PartGetRevisionCreatedByUserTypedDict(TypedDict):
 
 
 class PartGetRevisionCreatedByUser(BaseModel):
-    r"""User who created the revision."""
-
     id: str
     r"""Unique identifier of the user."""
 
@@ -78,8 +74,6 @@ class PartGetRevisionCreatedByUser(BaseModel):
 
 
 class PartGetRevisionCreatedByStationTypedDict(TypedDict):
-    r"""Station that created the revision."""
-
     id: str
     r"""Unique identifier of the station."""
     name: str
@@ -87,8 +81,6 @@ class PartGetRevisionCreatedByStationTypedDict(TypedDict):
 
 
 class PartGetRevisionCreatedByStation(BaseModel):
-    r"""Station that created the revision."""
-
     id: str
     r"""Unique identifier of the station."""
 

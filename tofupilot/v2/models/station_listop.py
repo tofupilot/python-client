@@ -90,8 +90,6 @@ class StationListProcedure(BaseModel):
 
 
 class StationListTeamTypedDict(TypedDict):
-    r"""Team this station belongs to"""
-
     id: str
     r"""Team ID"""
     name: str
@@ -99,8 +97,6 @@ class StationListTeamTypedDict(TypedDict):
 
 
 class StationListTeam(BaseModel):
-    r"""Team this station belongs to"""
-
     id: str
     r"""Team ID"""
 

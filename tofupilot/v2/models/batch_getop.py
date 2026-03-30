@@ -28,22 +28,16 @@ class BatchGetRequest(BaseModel):
 
 
 class BatchGetCreatedByUserTypedDict(TypedDict):
-    r"""User who created this batch."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
 
 
 class BatchGetCreatedByUser(BaseModel):
-    r"""User who created this batch."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -77,8 +71,6 @@ class BatchGetCreatedByUser(BaseModel):
 
 
 class BatchGetCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this batch."""
-
     id: str
     r"""Station ID."""
     name: str
@@ -86,8 +78,6 @@ class BatchGetCreatedByStationTypedDict(TypedDict):
 
 
 class BatchGetCreatedByStation(BaseModel):
-    r"""Station that created this batch."""
-
     id: str
     r"""Station ID."""
 

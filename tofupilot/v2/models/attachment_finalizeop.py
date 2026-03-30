@@ -2,13 +2,22 @@
 
 from __future__ import annotations
 from tofupilot.v2.types import BaseModel
-from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
+from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
 from typing_extensions import Annotated, TypedDict
+
+
+class AttachmentFinalizeRequestBodyTypedDict(TypedDict):
+    pass
+
+
+class AttachmentFinalizeRequestBody(BaseModel):
+    pass
 
 
 class AttachmentFinalizeRequestTypedDict(TypedDict):
     id: str
     r"""ID of the upload to finalize"""
+    request_body: AttachmentFinalizeRequestBodyTypedDict
 
 
 class AttachmentFinalizeRequest(BaseModel):
@@ -16,6 +25,11 @@ class AttachmentFinalizeRequest(BaseModel):
         str, FieldMetadata(path=PathParamMetadata(style="simple", explode=False))
     ]
     r"""ID of the upload to finalize"""
+
+    request_body: Annotated[
+        AttachmentFinalizeRequestBody,
+        FieldMetadata(request=RequestMetadata(media_type="application/json")),
+    ]
 
 
 class AttachmentFinalizeResponseTypedDict(TypedDict):

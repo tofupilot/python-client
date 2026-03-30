@@ -123,8 +123,6 @@ class StationGetCurrentRepository(BaseModel):
 
 
 class StationGetCurrentDeploymentTypedDict(TypedDict):
-    r"""Deployment information for this procedure on this station"""
-
     deployed_at: str
     r"""When the procedure was deployed"""
     commit: Nullable[StationGetCurrentCommitTypedDict]
@@ -132,8 +130,6 @@ class StationGetCurrentDeploymentTypedDict(TypedDict):
 
 
 class StationGetCurrentDeployment(BaseModel):
-    r"""Deployment information for this procedure on this station"""
-
     deployed_at: str
     r"""When the procedure was deployed"""
 
@@ -233,19 +229,14 @@ class StationGetCurrentProcedure(BaseModel):
 
 
 StationGetCurrentConnectionStatus = Literal["connected", "disconnected"]
-r"""Current connection status of the station"""
 
 
 class StationGetCurrentTeamTypedDict(TypedDict):
-    r"""Team this station is assigned to"""
-
     id: str
     name: str
 
 
 class StationGetCurrentTeam(BaseModel):
-    r"""Team this station is assigned to"""
-
     id: str
 
     name: str

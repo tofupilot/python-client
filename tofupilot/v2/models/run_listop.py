@@ -192,27 +192,19 @@ r"""Final result of the run execution."""
 
 
 class RunListCreatedByUserTypedDict(TypedDict):
-    r"""User whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
     email: Nullable[str]
-    r"""User email address."""
 
 
 class RunListCreatedByUser(BaseModel):
-    r"""User whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     email: Nullable[str]
-    r"""User email address."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -246,8 +238,6 @@ class RunListCreatedByUser(BaseModel):
 
 
 class RunListCreatedByStationTypedDict(TypedDict):
-    r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
-
     id: str
     r"""Station ID."""
     name: str
@@ -255,8 +245,6 @@ class RunListCreatedByStationTypedDict(TypedDict):
 
 
 class RunListCreatedByStation(BaseModel):
-    r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
-
     id: str
     r"""Station ID."""
 
@@ -265,27 +253,19 @@ class RunListCreatedByStation(BaseModel):
 
 
 class RunListOperatedByTypedDict(TypedDict):
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
-
     id: str
     r"""Operator ID."""
     name: Nullable[str]
-    r"""Operator display name."""
     email: Nullable[str]
-    r"""Operator email address."""
 
 
 class RunListOperatedBy(BaseModel):
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
-
     id: str
     r"""Operator ID."""
 
     name: Nullable[str]
-    r"""Operator display name."""
 
     email: Nullable[str]
-    r"""Operator email address."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -319,8 +299,6 @@ class RunListOperatedBy(BaseModel):
 
 
 class RunListVersionTypedDict(TypedDict):
-    r"""Version of the procedure used for this run."""
-
     id: str
     r"""Procedure version ID."""
     tag: str
@@ -328,8 +306,6 @@ class RunListVersionTypedDict(TypedDict):
 
 
 class RunListVersion(BaseModel):
-    r"""Version of the procedure used for this run."""
-
     id: str
     r"""Procedure version ID."""
 
@@ -440,8 +416,6 @@ class RunListPart(BaseModel):
 
 
 class RunListBatchTypedDict(TypedDict):
-    r"""Batch information for this unit."""
-
     id: str
     r"""Batch ID."""
     number: str
@@ -449,8 +423,6 @@ class RunListBatchTypedDict(TypedDict):
 
 
 class RunListBatch(BaseModel):
-    r"""Batch information for this unit."""
-
     id: str
     r"""Batch ID."""
 

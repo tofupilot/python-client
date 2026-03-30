@@ -28,22 +28,16 @@ class PartGetRequest(BaseModel):
 
 
 class PartGetCreatedByUserTypedDict(TypedDict):
-    r"""User who created this part."""
-
     id: str
     r"""User ID."""
     name: Nullable[str]
-    r"""User display name."""
 
 
 class PartGetCreatedByUser(BaseModel):
-    r"""User who created this part."""
-
     id: str
     r"""User ID."""
 
     name: Nullable[str]
-    r"""User display name."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
@@ -77,8 +71,6 @@ class PartGetCreatedByUser(BaseModel):
 
 
 class PartGetCreatedByStationTypedDict(TypedDict):
-    r"""Station that created this part."""
-
     id: str
     r"""Station ID."""
     name: str
@@ -86,8 +78,6 @@ class PartGetCreatedByStationTypedDict(TypedDict):
 
 
 class PartGetCreatedByStation(BaseModel):
-    r"""Station that created this part."""
-
     id: str
     r"""Station ID."""
 
