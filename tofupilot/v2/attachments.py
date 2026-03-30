@@ -6,7 +6,7 @@ from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional, Union
+from typing import Any, List, Mapping, Optional
 
 
 class Attachments(BaseSDK):
@@ -448,10 +448,6 @@ class Attachments(BaseSDK):
         self,
         *,
         id: str,
-        request_body: Union[
-            models.AttachmentFinalizeRequestBody,
-            models.AttachmentFinalizeRequestBodyTypedDict,
-        ],
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -462,7 +458,6 @@ class Attachments(BaseSDK):
         Finalize a file upload after uploading to the pre-signed URL. Validates the file and records its metadata. Link the attachment to a run or unit using Update Run or Update Unit.
 
         :param id: ID of the upload to finalize
-        :param request_body:
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -480,9 +475,6 @@ class Attachments(BaseSDK):
 
         request = models.AttachmentFinalizeRequest(
             id=id,
-            request_body=utils.get_pydantic_model(
-                request_body, models.AttachmentFinalizeRequestBody
-            ),
         )
 
         req = self._build_request(
@@ -491,20 +483,13 @@ class Attachments(BaseSDK):
             base_url=base_url,
             url_variables=url_variables,
             request=request,
-            request_body_required=True,
+            request_body_required=False,
             request_has_path_params=True,
             request_has_query_params=True,
             user_agent_header="user-agent",
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            get_serialized_body=lambda: utils.serialize_request_body(
-                request.request_body,
-                False,
-                False,
-                "json",
-                models.AttachmentFinalizeRequestBody,
-            ),
             timeout_ms=timeout_ms,
         )
 
@@ -560,10 +545,6 @@ class Attachments(BaseSDK):
         self,
         *,
         id: str,
-        request_body: Union[
-            models.AttachmentFinalizeRequestBody,
-            models.AttachmentFinalizeRequestBodyTypedDict,
-        ],
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -574,7 +555,6 @@ class Attachments(BaseSDK):
         Finalize a file upload after uploading to the pre-signed URL. Validates the file and records its metadata. Link the attachment to a run or unit using Update Run or Update Unit.
 
         :param id: ID of the upload to finalize
-        :param request_body:
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -592,9 +572,6 @@ class Attachments(BaseSDK):
 
         request = models.AttachmentFinalizeRequest(
             id=id,
-            request_body=utils.get_pydantic_model(
-                request_body, models.AttachmentFinalizeRequestBody
-            ),
         )
 
         req = self._build_request_async(
@@ -603,20 +580,13 @@ class Attachments(BaseSDK):
             base_url=base_url,
             url_variables=url_variables,
             request=request,
-            request_body_required=True,
+            request_body_required=False,
             request_has_path_params=True,
             request_has_query_params=True,
             user_agent_header="user-agent",
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
-            get_serialized_body=lambda: utils.serialize_request_body(
-                request.request_body,
-                False,
-                False,
-                "json",
-                models.AttachmentFinalizeRequestBody,
-            ),
             timeout_ms=timeout_ms,
         )
 

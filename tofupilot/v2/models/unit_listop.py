@@ -35,13 +35,13 @@ class UnitListRequestTypedDict(TypedDict):
     batch_numbers: NotRequired[List[str]]
     procedure_ids: NotRequired[List[str]]
     outcomes: NotRequired[List[UnitListQueryParamOutcome]]
-    started_after: NotRequired[str]
-    started_before: NotRequired[str]
+    started_after: NotRequired[datetime]
+    started_before: NotRequired[datetime]
     latest_only: NotRequired[bool]
     run_count_min: NotRequired[int]
     run_count_max: NotRequired[int]
-    created_after: NotRequired[str]
-    created_before: NotRequired[str]
+    created_after: NotRequired[datetime]
+    created_before: NotRequired[datetime]
     created_by_user_ids: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     exclude_units_with_parent: NotRequired[bool]
@@ -96,12 +96,12 @@ class UnitListRequest(BaseModel):
     ] = None
 
     started_after: Annotated[
-        Optional[str],
+        Optional[datetime],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     started_before: Annotated[
-        Optional[str],
+        Optional[datetime],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
@@ -121,12 +121,12 @@ class UnitListRequest(BaseModel):
     ] = None
 
     created_after: Annotated[
-        Optional[str],
+        Optional[datetime],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
     created_before: Annotated[
-        Optional[str],
+        Optional[datetime],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 

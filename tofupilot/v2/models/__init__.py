@@ -12,8 +12,6 @@ if TYPE_CHECKING:
     )
     from .attachment_finalizeop import (
         AttachmentFinalizeRequest,
-        AttachmentFinalizeRequestBody,
-        AttachmentFinalizeRequestBodyTypedDict,
         AttachmentFinalizeRequestTypedDict,
         AttachmentFinalizeResponse,
         AttachmentFinalizeResponseTypedDict,
@@ -630,8 +628,6 @@ __all__ = [
     "AttachmentDeleteResponse",
     "AttachmentDeleteResponseTypedDict",
     "AttachmentFinalizeRequest",
-    "AttachmentFinalizeRequestBody",
-    "AttachmentFinalizeRequestBodyTypedDict",
     "AttachmentFinalizeRequestTypedDict",
     "AttachmentFinalizeResponse",
     "AttachmentFinalizeResponseTypedDict",
@@ -1164,8 +1160,6 @@ _dynamic_imports: dict[str, str] = {
     "AttachmentDeleteResponse": ".attachment_deleteop",
     "AttachmentDeleteResponseTypedDict": ".attachment_deleteop",
     "AttachmentFinalizeRequest": ".attachment_finalizeop",
-    "AttachmentFinalizeRequestBody": ".attachment_finalizeop",
-    "AttachmentFinalizeRequestBodyTypedDict": ".attachment_finalizeop",
     "AttachmentFinalizeRequestTypedDict": ".attachment_finalizeop",
     "AttachmentFinalizeResponse": ".attachment_finalizeop",
     "AttachmentFinalizeResponseTypedDict": ".attachment_finalizeop",
