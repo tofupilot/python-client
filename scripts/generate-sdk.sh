@@ -38,6 +38,9 @@ else
     INIT_BACKUP_EXISTS=false
 fi
 
+# Backup root pyproject.toml (Speakeasy overwrites it with name="tofupilot.v2")
+cp pyproject.toml /tmp/root-pyproject.toml.backup
+
 # Step 2: Remove old v2 directory and create temp directory
 echo "🗑️  Removing old v2 directory..."
 rm -rf tofupilot/v2
@@ -233,5 +236,10 @@ __all__ = [
 ]
 EOF
 fi
+
+# Restore root pyproject.toml (prevents Speakeasy from changing package name)
+echo "📦 Restoring root pyproject.toml..."
+cp /tmp/root-pyproject.toml.backup pyproject.toml
+rm /tmp/root-pyproject.toml.backup
 
 echo "✅ SDK generation complete with error tracking preserved!"
