@@ -1,5 +1,5 @@
 {
-  "name": "python-client",
+  "name": "python",
   "scripts": {
     "build": "source venv/bin/activate && python -m build",
     "generate:sdk": "./scripts/generate-sdk.sh"

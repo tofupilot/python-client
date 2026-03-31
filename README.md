@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/tofupilot.svg)](https://badge.fury.io/py/tofupilot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/upview/8e092a304bae7d91aa154e19bdf694a4/raw/python-client-tests.json)](https://github.com/tofupilot/python-client)
+[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/upview/8e092a304bae7d91aa154e19bdf694a4/raw/python-client-tests.json)](https://github.com/tofupilot/python)
 
 The official Python client for [TofuPilot](https://tofupilot.com). Integrate your hardware test runs into one app with just a few lines of Python.
 

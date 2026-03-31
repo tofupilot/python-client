@@ -10,11 +10,11 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 ### Reporting Bugs
 
-If you find a bug, please open an issue [here](https://github.com/tofupilot/python-client/issues) with detailed information on how to reproduce it.
+If you find a bug, please open an issue [here](https://github.com/tofupilot/python/issues) with detailed information on how to reproduce it.
 
 ### Suggesting Features
 
-You can suggest new features by opening an issue [here](https://github.com/tofupilot/python-client/issues).
+You can suggest new features by opening an issue [here](https://github.com/tofupilot/python/issues).
 
 ### Submitting Pull Requests
 
@@ -26,7 +26,7 @@ You can suggest new features by opening an issue [here](https://github.com/tofup
    - `feat:` for new features (SemVer minor).
    - `feat!:`, `fix!:`, etc., for breaking changes (SemVer major).
 5. Push to your branch.
-6. Create a pull request [here](https://github.com/tofupilot/python-client/pulls).
+6. Create a pull request [here](https://github.com/tofupilot/python/pulls).
 
 ## Development Setup
 
@@ -34,7 +34,7 @@ To set up a local development environment:
 
 1. Clone the repo
    ```bash
-   git clone https://github.com/tofupilot/python-client.git
+   git clone https://github.com/tofupilot/python.git
    ```
 2. Install dependencies
    ```bash
