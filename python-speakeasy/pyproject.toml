@@ -1,0 +1,100 @@
+[project]
+name = "tofupilot"
+version = "2.2.2"
+description = "Official Python client for TofuPilot with OpenHTF integration, real-time streaming and file attachment support"
+authors = [
+    { name = "TofuPilot Team", email = "hello@tofupilot.com" },
+    { name = "Speakeasy" }
+]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9.2"
+keywords = ["automatic", "hardware", "testing", "tofupilot", "openhtf", "sdk"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Manufacturing",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    # Core v1 dependencies
+    "requests>=2.25.0",
+    "packaging>=20.0",
+    "certifi>=2023.7.22",
+    "openhtf",
+    "paho-mqtt>=2.0.0",
+    "pytest>=6.0.0",
+    "posthog>=3.0.0",
+    # Core v2 dependencies
+    "httpcore>=1.0.9",
+    "httpx>=0.28.1",
+    "pydantic>=2.11.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Build and distribution tools
+    "build",
+    "twine",
+    # Testing dependencies
+    "trycast",
+    "python-dotenv",
+    # Code quality tools
+    "mypy==1.15.0",
+    "pylint==3.2.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/tofupilot/python-client"
+Documentation = "https://tofupilot.com/docs"
+Repository = "https://github.com/tofupilot/python-client"
+Issues = "https://github.com/tofupilot/python-client/issues"
+
+[tool.poetry]
+packages = [
+    { include = "tofupilot" }
+]
+include = ["py.typed", "tofupilot/v2/py.typed"]
+
+
+[virtualenvs]
+in-project = true
+
+[tool.poetry.group.dev.dependencies]
+mypy = "==1.15.0"
+pylint = "==3.2.3"
+openhtf = ">=1.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
+pythonpath = ["."]
+
+[tool.mypy]
+disable_error_code = "misc"
+explicit_package_bases = true
+mypy_path = "."
+
+[[tool.mypy.overrides]]
+module = "typing_inspect"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "jsonpath"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "openhtf.*"
+ignore_missing_imports = true
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"

@@ -1,0 +1,220 @@
+"""Test revision update with image upload."""
+
+from datetime import datetime, timezone
+import requests
+import uuid
+import os
+import tofupilot
+from ..utils import assert_create_revision_success, assert_update_revision_success
+from ...parts.utils import assert_create_part_success
+from ...utils import assert_station_access_forbidden
+
+
+def upload_to_presigned_url(upload_url: str, content: bytes, content_type: str = "image/png") -> None:
+    """Helper function to upload content to a presigned URL."""
+    response = requests.put(
+        upload_url,
+        data=content,
+        headers={"Content-Type": content_type}
+    )
+    assert response.status_code == 200, f"Upload failed with status {response.status_code}"
+
+
+def download_from_url(download_url: str) -> bytes:
+    """Helper function to download content from a URL."""
+    response = requests.get(download_url)
+    assert response.status_code == 200, f"Download failed with status {response.status_code}"
+    return response.content
+
+
+def get_test_image_data() -> bytes:
+    """Load test image data from file."""
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(current_dir, 'test_data', 'test_image.png')
+    with open(image_path, 'rb') as f:
+        return f.read()
+
+
+class TestRevisionImageUpload:
+    """Test revision image upload functionality."""
+
+    def test_update_revision_with_image(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
+        """Test updating a revision with an image attachment."""
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision with image"):
+                client.parts.revisions.update(
+                    part_number="NONEXISTENT-PART",
+                    revision_number="NONEXISTENT-REV",
+                    image_id=str(uuid.uuid4())
+                )
+            return
+
+        unique_id = str(uuid.uuid4())[:8]
+        part_number = f"PART-IMG-{timestamp}-{unique_id}"
+
+        part_result = client.parts.create(number=part_number, name=f"Image Test Part {unique_id}")
+        assert_create_part_success(part_result)
+
+        revision_number = f"REV-IMG-{timestamp}"
+        revision_result = client.parts.revisions.create(part_number=part_number, number=revision_number)
+        assert_create_revision_success(revision_result)
+        revision_id = revision_result.id
+
+        attachment = client.attachments.initialize(name="revision_image.png")
+        test_image = get_test_image_data()
+        upload_to_presigned_url(attachment.upload_url, test_image, "image/png")
+
+        update_result = client.parts.revisions.update(
+            part_number=part_number,
+            revision_number=revision_number,
+            image_id=attachment.id
+        )
+        assert_update_revision_success(update_result)
+        assert update_result.id == revision_id
+
+    def test_update_revision_image_and_verify_download(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
+        """Test complete image workflow: upload, attach to revision, and verify download."""
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision image and verify"):
+                client.parts.revisions.update(
+                    part_number="NONEXISTENT-PART",
+                    revision_number="NONEXISTENT-REV",
+                    image_id=str(uuid.uuid4())
+                )
+            return
+
+        unique_id = str(uuid.uuid4())[:8]
+        part_number = f"PART-IMG-DL-{timestamp}-{unique_id}"
+
+        part_result = client.parts.create(number=part_number, name=f"Image Download Test Part {unique_id}")
+        assert_create_part_success(part_result)
+
+        revision_number = f"REV-IMG-DL-{timestamp}"
+        revision_result = client.parts.revisions.create(part_number=part_number, number=revision_number)
+        assert_create_revision_success(revision_result)
+        revision_id = revision_result.id
+
+        first_image = client.attachments.initialize(name="first_revision_image.png")
+        first_image_data = get_test_image_data()
+        upload_to_presigned_url(first_image.upload_url, first_image_data, "image/png")
+
+        update_result = client.parts.revisions.update(
+            part_number=part_number,
+            revision_number=revision_number,
+            image_id=first_image.id
+        )
+        assert_update_revision_success(update_result)
+
+        part_data = client.parts.get(number=part_number)
+        revision = None
+        for rev in part_data.revisions:
+            if rev.id == revision_id:
+                revision = rev
+                break
+        assert revision is not None, f"Revision {revision_id} not found"
+
+        second_image = client.attachments.initialize(name="second_revision_image.png")
+        second_image_data = get_test_image_data()
+        upload_to_presigned_url(second_image.upload_url, second_image_data, "image/png")
+
+        update_result2 = client.parts.revisions.update(
+            part_number=part_number,
+            revision_number=revision_number,
+            image_id=second_image.id
+        )
+        assert_update_revision_success(update_result2)
+
+    def test_remove_revision_image(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
+        """Test removing an image from a revision."""
+        if auth_type == "station":
+            with assert_station_access_forbidden("remove revision image"):
+                client.parts.revisions.update(
+                    part_number="NONEXISTENT-PART",
+                    revision_number="NONEXISTENT-REV",
+                    image_id=str(uuid.uuid4())
+                )
+            return
+
+        unique_id = str(uuid.uuid4())[:8]
+        part_number = f"PART-IMG-REM-{timestamp}-{unique_id}"
+
+        part_result = client.parts.create(number=part_number, name=f"Image Remove Test Part {unique_id}")
+        assert_create_part_success(part_result)
+
+        revision_number = f"REV-IMG-REM-{timestamp}"
+        revision_result = client.parts.revisions.create(part_number=part_number, number=revision_number)
+        assert_create_revision_success(revision_result)
+        revision_id = revision_result.id
+
+        attachment = client.attachments.initialize(name="temp_revision_image.png")
+        test_image = get_test_image_data()
+        upload_to_presigned_url(attachment.upload_url, test_image, "image/png")
+
+        client.parts.revisions.update(
+            part_number=part_number,
+            revision_number=revision_number,
+            image_id=attachment.id
+        )
+
+        remove_result = client.parts.revisions.update(
+            part_number=part_number,
+            revision_number=revision_number,
+            image_id=""
+        )
+        assert_update_revision_success(remove_result)
+
+        part_data = client.parts.get(number=part_number)
+        revision = None
+        for rev in part_data.revisions:
+            if rev.id == revision_id:
+                revision = rev
+                break
+        assert revision is not None, f"Revision {revision_id} not found"
+
+        if hasattr(revision, 'image'):
+            assert revision.image is None or revision.image == "", "Image should be removed"
+
+    def test_update_revision_with_image_and_number(self, client: tofupilot.v2.TofuPilot, auth_type: str, timestamp: str) -> None:
+        """Test updating both revision number and image in single call."""
+        if auth_type == "station":
+            with assert_station_access_forbidden("update revision number and image"):
+                client.parts.revisions.update(
+                    part_number="NONEXISTENT-PART",
+                    revision_number="NONEXISTENT-REV",
+                    number="new",
+                    image_id=str(uuid.uuid4())
+                )
+            return
+
+        unique_id = str(uuid.uuid4())[:8]
+        part_number = f"PART-IMG-NUM-{timestamp}-{unique_id}"
+
+        part_result = client.parts.create(number=part_number, name=f"Image+Number Test Part {unique_id}")
+        assert_create_part_success(part_result)
+
+        revision_result = client.parts.revisions.create(part_number=part_number, number=f"REV-OLD-{timestamp}")
+        assert_create_revision_success(revision_result)
+        revision_id = revision_result.id
+
+        attachment = client.attachments.initialize(name="combined_update_image.png")
+        test_image = get_test_image_data()
+        upload_to_presigned_url(attachment.upload_url, test_image, "image/png")
+
+        new_number = f"REV-NEW-{timestamp}"
+        update_result = client.parts.revisions.update(
+            part_number=part_number,
+            revision_number=f"REV-OLD-{timestamp}",
+            number=new_number,
+            image_id=attachment.id
+        )
+        assert_update_revision_success(update_result)
+        assert update_result.id == revision_id
+
+        part_data = client.parts.get(number=part_number)
+        revision = None
+        for rev in part_data.revisions:
+            if rev.id == revision_id:
+                revision = rev
+                break
+        assert revision is not None, f"Revision {revision_id} not found"
+        assert revision.number == new_number, "Revision number should be updated"

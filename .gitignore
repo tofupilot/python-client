@@ -5,9 +5,6 @@ src/*.egg-info/
 **/__pycache__/
 .python-version
 pyrightconfig.json
-**/.speakeasy/temp/
-**/.speakeasy/logs/
-.speakeasy/reports
 # Ignore build artifacts
 build/
 dist/

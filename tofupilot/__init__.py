@@ -2,7 +2,7 @@
 
 This package provides both v1 and v2 API clients:
 - v1: Legacy client for backward compatibility
-- v2: New Speakeasy-generated SDK with enhanced features and error tracking
+- v2: Current SDK with enhanced features and error tracking
 
 For new projects, we recommend using the v2 client.
 

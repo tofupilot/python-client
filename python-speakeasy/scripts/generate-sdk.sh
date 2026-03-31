@@ -38,6 +38,9 @@ else
     INIT_BACKUP_EXISTS=false
 fi
 
+# Backup README.md (Speakeasy overwrites it with auto-generated content)
+cp README.md /tmp/root-readme.backup
+
 # Backup root pyproject.toml (Speakeasy overwrites it with name="tofupilot.v2")
 cp pyproject.toml /tmp/root-pyproject.toml.backup
 
@@ -236,6 +239,11 @@ __all__ = [
 ]
 EOF
 fi
+
+# Restore README.md (prevents Speakeasy from replacing our custom README)
+echo "📦 Restoring README.md..."
+cp /tmp/root-readme.backup README.md
+rm /tmp/root-readme.backup
 
 # Restore root pyproject.toml (prevents Speakeasy from changing package name)
 echo "📦 Restoring root pyproject.toml..."
