@@ -96,6 +96,9 @@ def upload_file(
         upload_url = response_json.get("uploadUrl")
         upload_id = response_json.get("id")
 
+        if not upload_id or not upload_url:
+            raise ValueError(f"Upload initialization failed: missing 'id' or 'uploadUrl' in response: {response_json}")
+
         # File storing
         with open(file_path, "rb") as file:
             content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"

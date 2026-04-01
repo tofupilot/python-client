@@ -23,13 +23,6 @@ else
     CLIENT_BACKUP_EXISTS=false
 fi
 
-if [ -f "tofupilot/v2/error_tracking_hooks.py" ]; then
-    cp tofupilot/v2/error_tracking_hooks.py /tmp/error_tracking_hooks.backup
-    HOOKS_BACKUP_EXISTS=true
-else
-    HOOKS_BACKUP_EXISTS=false
-fi
-
 # Backup custom __init__.py
 if [ -f "tofupilot/v2/__init__.py" ]; then
     cp tofupilot/v2/__init__.py /tmp/v2-init.backup
@@ -48,6 +41,7 @@ cp pyproject.toml /tmp/root-pyproject.toml.backup
 echo "🗑️  Removing old v2 directory..."
 rm -rf tofupilot/v2
 mkdir -p .tmp
+cp -r python-speakeasy/.speakeasy .tmp/.speakeasy
 
 # Step 3: Fetch and fix OpenAPI spec
 echo "📥 Fetching OpenAPI spec from localhost..."
@@ -190,12 +184,6 @@ if [ "$CLIENT_BACKUP_EXISTS" = true ]; then
     echo "📦 Restoring client_with_error_tracking.py..."
     cp /tmp/client_with_error_tracking.backup tofupilot/v2/client_with_error_tracking.py
     rm /tmp/client_with_error_tracking.backup
-fi
-
-if [ "$HOOKS_BACKUP_EXISTS" = true ]; then
-    echo "📦 Restoring error_tracking_hooks.py..."
-    cp /tmp/error_tracking_hooks.backup tofupilot/v2/error_tracking_hooks.py
-    rm /tmp/error_tracking_hooks.backup
 fi
 
 # Restore custom __init__.py or create one

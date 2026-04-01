@@ -28,7 +28,7 @@ generation:
   schemas:
     allOfMergeStrategy: shallowMerge
 python:
-  version: 0.7.12
+  version: 2.2.2
   additionalDependencies:
     dev: {}
     main: {}
