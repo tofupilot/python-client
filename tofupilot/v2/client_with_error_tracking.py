@@ -9,7 +9,6 @@ from pydantic_core import ValidationError
 
 from .sdk import TofuPilot
 from .errors.tofupiloterror import TofuPilotError
-from ..banner import print_banner_and_check_version
 
 
 def _enhance_error_message(e: TofuPilotError) -> None:
@@ -169,8 +168,6 @@ class TofuPilotWithErrorTracking(TofuPilot):
             retry_config=retry_config,
             **kwargs
         )
-
-        print_banner_and_check_version()
 
     def __getattr__(self, name: str):
         attr = super().__getattr__(name)

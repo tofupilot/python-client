@@ -42,7 +42,6 @@ from .utils import (
     api_request,
     process_openhtf_attachments,
 )
-from ..banner import print_banner_and_check_version
 
 from .utils import api_request
 
@@ -66,7 +65,7 @@ class TofuPilotClient:
         verify: Optional[str] = None,
     ):
         self._logger = setup_logger(logging.INFO)
-        self._current_version = print_banner_and_check_version()
+        self._current_version = version("tofupilot")
 
         # Configure SSL certificate validation
         self._setup_ssl_certificates()
