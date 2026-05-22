@@ -1,9 +1,9 @@
-# TofuPilot Python Client
+# TofuPilot Python SDK
 
 [![PyPI version](https://badge.fury.io/py/tofupilot.svg)](https://badge.fury.io/py/tofupilot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-The official Python client for [TofuPilot](https://tofupilot.com). Integrate your hardware test runs into one app with just a few lines of Python.
+The official Python SDK for [TofuPilot](https://tofupilot.com). Integrate your hardware test runs into one app with just a few lines of Python.
 
 ## Installation
 
@@ -165,8 +165,9 @@ python -m pytest tests/v2/
 
 ## Documentation
 
-- [Getting Started](https://tofupilot.com/docs/dashboard)
-- [API Reference](https://tofupilot.com/docs/dashboard/api/v2)
+- [Getting Started](https://tofupilot.com/docs/getting-started-with-tofupilot)
+- [Python SDK Guide](https://tofupilot.com/docs/sdk/python)
+- [API Reference](https://tofupilot.com/docs/api/rest-api)
 - [Changelog](https://tofupilot.com/changelog)
 
 ## License

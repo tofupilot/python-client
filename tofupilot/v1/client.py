@@ -72,7 +72,7 @@ class TofuPilotClient:
 
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
-            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/dashboard/api-keys."
+            error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/access/api-keys."
             posthog.capture_exception(ApiV1Error(error))
             self._logger.error(error)
             sys.exit(1)
