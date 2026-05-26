@@ -31,7 +31,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitCreateResponse:
         r"""Create unit
 
-        Create a new unit with a serial number and link it to a part revision. Units represent individual hardware items tracked for manufacturing traceability.
+        Create a unit with a serial number and link it to a part revision.
 
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
@@ -151,7 +151,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitCreateResponse:
         r"""Create unit
 
-        Create a new unit with a serial number and link it to a part revision. Units represent individual hardware items tracked for manufacturing traceability.
+        Create a unit with a serial number and link it to a part revision.
 
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
@@ -291,7 +291,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitListResponse:
         r"""List and filter units
 
-        Retrieve a paginated list of units with filtering by serial number, part number, and batch. Uses cursor-based pagination for efficient large dataset traversal.
+        List units with filtering by serial number, part number, and batch. Cursor-paginated.
 
         :param search_query:
         :param ids:
@@ -464,7 +464,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitListResponse:
         r"""List and filter units
 
-        Retrieve a paginated list of units with filtering by serial number, part number, and batch. Uses cursor-based pagination for efficient large dataset traversal.
+        List units with filtering by serial number, part number, and batch. Cursor-paginated.
 
         :param search_query:
         :param ids:
@@ -608,7 +608,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitDeleteResponse:
         r"""Delete units
 
-        Permanently delete units by serial number. This action will remove all nested elements and relationships associated with the units.
+        Delete units by serial number. Sub-units are unlinked, not deleted. Irreversible.
 
         :param serial_numbers: Array of unit serial numbers to delete.
         :param retries: Override the default retry configuration for this method
@@ -705,7 +705,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitDeleteResponse:
         r"""Delete units
 
-        Permanently delete units by serial number. This action will remove all nested elements and relationships associated with the units.
+        Delete units by serial number. Sub-units are unlinked, not deleted. Irreversible.
 
         :param serial_numbers: Array of unit serial numbers to delete.
         :param retries: Override the default retry configuration for this method
@@ -802,7 +802,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitGetResponse:
         r"""Get unit
 
-        Retrieve a single unit by its serial number. Returns comprehensive unit data including part information, parent/child relationships, and test run history.
+        Get a unit by serial number, with its part, parent/child links, and run history.
 
         :param serial_number: Serial number of the unit to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -904,7 +904,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitGetResponse:
         r"""Get unit
 
-        Retrieve a single unit by its serial number. Returns comprehensive unit data including part information, parent/child relationships, and test run history.
+        Get a unit by serial number, with its part, parent/child links, and run history.
 
         :param serial_number: Serial number of the unit to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -1018,7 +1018,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitUpdateResponse:
         r"""Update unit
 
-        Update unit properties including serial number, part revision, batch assignment, and file attachments with case-insensitive matching.
+        Update a unit: serial number, part revision, batch, and file attachments.
 
         :param serial_number: Serial number of the unit to update.
         :param new_serial_number: New serial number for the unit.
@@ -1149,7 +1149,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitUpdateResponse:
         r"""Update unit
 
-        Update unit properties including serial number, part revision, batch assignment, and file attachments with case-insensitive matching.
+        Update a unit: serial number, part revision, batch, and file attachments.
 
         :param serial_number: Serial number of the unit to update.
         :param new_serial_number: New serial number for the unit.
@@ -1269,7 +1269,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitAddChildResponse:
         r"""Add sub-unit
 
-        Add a sub-unit to a parent unit to track component assemblies and multi-level hardware traceability.
+        Link a sub-unit to a parent unit to track assemblies.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to add
@@ -1383,7 +1383,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitAddChildResponse:
         r"""Add sub-unit
 
-        Add a sub-unit to a parent unit to track component assemblies and multi-level hardware traceability.
+        Link a sub-unit to a parent unit to track assemblies.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to add
@@ -1497,7 +1497,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitRemoveChildResponse:
         r"""Remove sub-unit
 
-        Remove a sub-unit relationship from a parent unit by serial number. Only unlinks the parent-child relationship; neither unit is deleted from the system.
+        Unlink a sub-unit from its parent. Neither unit is deleted.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to remove
@@ -1602,7 +1602,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitRemoveChildResponse:
         r"""Remove sub-unit
 
-        Remove a sub-unit relationship from a parent unit by serial number. Only unlinks the parent-child relationship; neither unit is deleted from the system.
+        Unlink a sub-unit from its parent. Neither unit is deleted.
 
         :param serial_number: Serial number of the parent unit
         :param child_serial_number: Serial number of the sub-unit to remove
@@ -1707,7 +1707,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitCreateAttachmentResponse:
         r"""Attach file to unit
 
-        Create an attachment linked to a unit and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+        Attach a file to a unit. Returns an upload ID and pre-signed URL; PUT the file to the URL, then call Finalize upload to commit.
 
         :param serial_number: Serial number of the unit to attach the file to. Matched case-insensitively.
         :param name: File name including extension (e.g. \"calibration.pdf\"). Used to determine content type and display name.
@@ -1818,7 +1818,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitCreateAttachmentResponse:
         r"""Attach file to unit
 
-        Create an attachment linked to a unit and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+        Attach a file to a unit. Returns an upload ID and pre-signed URL; PUT the file to the URL, then call Finalize upload to commit.
 
         :param serial_number: Serial number of the unit to attach the file to. Matched case-insensitively.
         :param name: File name including extension (e.g. \"calibration.pdf\"). Used to determine content type and display name.
@@ -1929,7 +1929,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitDeleteAttachmentResponse:
         r"""Delete unit attachments
 
-        Delete attachments from a unit by their IDs. Removes the files from storage and unlinks them from the unit.
+        Delete attachments from a unit by ID. Removes the files from storage and unlinks them.
 
         :param serial_number: Serial number of the unit. Matched case-insensitively.
         :param ids: Attachment IDs to delete
@@ -2031,7 +2031,7 @@ class UnitsSDK(BaseSDK):
     ) -> models.UnitDeleteAttachmentResponse:
         r"""Delete unit attachments
 
-        Delete attachments from a unit by their IDs. Removes the files from storage and unlinks them from the unit.
+        Delete attachments from a unit by ID. Removes the files from storage and unlinks them.
 
         :param serial_number: Serial number of the unit. Matched case-insensitively.
         :param ids: Attachment IDs to delete

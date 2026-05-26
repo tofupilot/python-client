@@ -34,7 +34,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureCreateResponse:
         r"""Create procedure
 
-        Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
+        Create a procedure to group and track related runs.
 
         :param name: Name of the procedure. Must be unique within the organization.
         :param retries: Override the default retry configuration for this method
@@ -131,7 +131,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureCreateResponse:
         r"""Create procedure
 
-        Create a new test procedure that can be used to organize and track test runs. The procedure serves as a template or framework for organizing test execution.
+        Create a procedure to group and track related runs.
 
         :param name: Name of the procedure. Must be unique within the organization.
         :param retries: Override the default retry configuration for this method
@@ -232,7 +232,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureListResponse:
         r"""List and filter procedures
 
-        Retrieve procedures with optional filtering and search. Returns procedure data including creator and linked repository.
+        List procedures with filtering and search. Includes creator and linked repository. Cursor-paginated.
 
         :param limit: Maximum number of procedures to return per page.
         :param cursor:
@@ -343,7 +343,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureListResponse:
         r"""List and filter procedures
 
-        Retrieve procedures with optional filtering and search. Returns procedure data including creator and linked repository.
+        List procedures with filtering and search. Includes creator and linked repository. Cursor-paginated.
 
         :param limit: Maximum number of procedures to return per page.
         :param cursor:
@@ -450,7 +450,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureGetResponse:
         r"""Get procedure
 
-        Retrieve a single procedure by ID, including recent test runs, linked stations, and version history.
+        Get a procedure by ID, with recent runs, linked stations, and version history.
 
         :param id: Unique identifier of the procedure to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -547,7 +547,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureGetResponse:
         r"""Get procedure
 
-        Retrieve a single procedure by ID, including recent test runs, linked stations, and version history.
+        Get a procedure by ID, with recent runs, linked stations, and version history.
 
         :param id: Unique identifier of the procedure to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -644,7 +644,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureDeleteResponse:
         r"""Delete procedure
 
-        Permanently delete a procedure, removing all associated runs, phases, measurements, and attachments.
+        Delete a procedure and all its runs, phases, measurements, and attachments. Irreversible.
 
         :param id: Unique identifier of the procedure to delete.
         :param retries: Override the default retry configuration for this method
@@ -746,7 +746,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureDeleteResponse:
         r"""Delete procedure
 
-        Permanently delete a procedure, removing all associated runs, phases, measurements, and attachments.
+        Delete a procedure and all its runs, phases, measurements, and attachments. Irreversible.
 
         :param id: Unique identifier of the procedure to delete.
         :param retries: Override the default retry configuration for this method
@@ -854,7 +854,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureUpdateResponse:
         r"""Update procedure
 
-        Update a test procedure's name or configuration. The procedure is identified by its unique ID in the URL path. Only provided fields are modified.
+        Update a procedure's name or configuration. Only provided fields are changed.
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.
@@ -983,7 +983,7 @@ class Procedures(BaseSDK):
     ) -> models.ProcedureUpdateResponse:
         r"""Update procedure
 
-        Update a test procedure's name or configuration. The procedure is identified by its unique ID in the URL path. Only provided fields are modified.
+        Update a procedure's name or configuration. Only provided fields are changed.
 
         :param id: Unique identifier of the procedure to update.
         :param name: New name for the procedure.

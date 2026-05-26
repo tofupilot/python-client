@@ -21,7 +21,7 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentInitializeResponse:
         r"""Initialize upload
 
-        Get a temporary pre-signed URL to upload a file. Returns the upload ID and URL. Upload the file to the URL with a PUT request, then call Finalize upload.
+        Get a pre-signed URL to upload a file. Returns the upload ID and URL. PUT the file to the URL, then call Finalize upload.
 
         :param name: File name including extension (e.g. \"report.pdf\")
         :param retries: Override the default retry configuration for this method
@@ -136,7 +136,7 @@ class Attachments(BaseSDK):
     ) -> models.AttachmentInitializeResponse:
         r"""Initialize upload
 
-        Get a temporary pre-signed URL to upload a file. Returns the upload ID and URL. Upload the file to the URL with a PUT request, then call Finalize upload.
+        Get a pre-signed URL to upload a file. Returns the upload ID and URL. PUT the file to the URL, then call Finalize upload.
 
         :param name: File name including extension (e.g. \"report.pdf\")
         :param retries: Override the default retry configuration for this method

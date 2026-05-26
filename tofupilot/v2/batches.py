@@ -22,7 +22,7 @@ class Batches(BaseSDK):
     ) -> models.BatchGetResponse:
         r"""Get batch
 
-        Retrieve a single batch by its number, including all associated units, serial numbers, and part revisions.
+        Get a batch by number, with its units, serial numbers, and part revisions.
 
         :param number: Number of the batch to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -124,7 +124,7 @@ class Batches(BaseSDK):
     ) -> models.BatchGetResponse:
         r"""Get batch
 
-        Retrieve a single batch by its number, including all associated units, serial numbers, and part revisions.
+        Get a batch by number, with its units, serial numbers, and part revisions.
 
         :param number: Number of the batch to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -226,7 +226,7 @@ class Batches(BaseSDK):
     ) -> models.BatchDeleteResponse:
         r"""Delete batch
 
-        Permanently delete a batch by number. Units associated with the batch will be disassociated but not deleted. No nested elements are removed.
+        Delete a batch by number. Linked units are unlinked, not deleted.
 
         :param number:
         :param retries: Override the default retry configuration for this method
@@ -323,7 +323,7 @@ class Batches(BaseSDK):
     ) -> models.BatchDeleteResponse:
         r"""Delete batch
 
-        Permanently delete a batch by number. Units associated with the batch will be disassociated but not deleted. No nested elements are removed.
+        Delete a batch by number. Linked units are unlinked, not deleted.
 
         :param number:
         :param retries: Override the default retry configuration for this method
@@ -421,7 +421,7 @@ class Batches(BaseSDK):
     ) -> models.BatchUpdateResponse:
         r"""Update batch
 
-        Update a batch number. The current batch number is specified in the URL path with case-insensitive matching.
+        Rename a batch. The current number matches case-insensitively.
 
         :param number: Current batch number to update.
         :param new_number: New batch number.
@@ -533,7 +533,7 @@ class Batches(BaseSDK):
     ) -> models.BatchUpdateResponse:
         r"""Update batch
 
-        Update a batch number. The current batch number is specified in the URL path with case-insensitive matching.
+        Rename a batch. The current number matches case-insensitively.
 
         :param number: Current batch number to update.
         :param new_number: New batch number.
@@ -654,7 +654,7 @@ class Batches(BaseSDK):
     ) -> models.BatchListResponse:
         r"""List and filter batches
 
-        Retrieve batches with associated units, serial numbers, and part revisions using cursor-based pagination.
+        List batches with their units, serial numbers, and part revisions. Cursor-paginated.
 
         :param ids:
         :param numbers:
@@ -783,7 +783,7 @@ class Batches(BaseSDK):
     ) -> models.BatchListResponse:
         r"""List and filter batches
 
-        Retrieve batches with associated units, serial numbers, and part revisions using cursor-based pagination.
+        List batches with their units, serial numbers, and part revisions. Cursor-paginated.
 
         :param ids:
         :param numbers:
@@ -902,7 +902,7 @@ class Batches(BaseSDK):
     ) -> models.BatchCreateResponse:
         r"""Create batch
 
-        Create a new batch without any units attached. Batch numbers are matched case-insensitively (e.g., \"BATCH-001\" and \"batch-001\" are considered the same).
+        Create an empty batch. Batch numbers match case-insensitively (\"BATCH-001\" == \"batch-001\").
 
         :param number: The batch number identifier
         :param retries: Override the default retry configuration for this method
@@ -1007,7 +1007,7 @@ class Batches(BaseSDK):
     ) -> models.BatchCreateResponse:
         r"""Create batch
 
-        Create a new batch without any units attached. Batch numbers are matched case-insensitively (e.g., \"BATCH-001\" and \"batch-001\" are considered the same).
+        Create an empty batch. Batch numbers match case-insensitively (\"BATCH-001\" == \"batch-001\").
 
         :param number: The batch number identifier
         :param retries: Override the default retry configuration for this method

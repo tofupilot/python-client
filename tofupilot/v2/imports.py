@@ -6,24 +6,24 @@ from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.types import OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional
+from typing import Any, List, Mapping, Optional, Union
 
 
-class User(BaseSDK):
-    def list(
+class Imports(BaseSDK):
+    def create_from_files(
         self,
         *,
-        current: Optional[bool] = None,
+        items: Union[List[models.Item], List[models.ItemTypedDict]],
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> List[models.UserListResponse]:
-        r"""List users
+    ) -> models.ImportCreateFromFilesResponse:
+        r"""Import runs from files
 
-        Retrieve a list of users in your organization. Use the current parameter to get only the authenticated user profile and permissions.
+        Import one or more previously uploaded files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
 
-        :param current: If true, returns only the current authenticated user
+        :param items: Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -39,23 +39,26 @@ class User(BaseSDK):
         else:
             base_url = self._get_url(base_url, url_variables)
 
-        request = models.UserListRequest(
-            current=current,
+        request = models.ImportCreateFromFilesRequest(
+            items=utils.get_pydantic_model(items, List[models.Item]),
         )
 
         req = self._build_request(
-            method="GET",
-            path="/v2/users",
+            method="POST",
+            path="/v2/import",
             base_url=base_url,
             url_variables=url_variables,
             request=request,
-            request_body_required=False,
+            request_body_required=True,
             request_has_path_params=False,
             request_has_query_params=True,
             user_agent_header="user-agent",
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request, False, False, "json", models.ImportCreateFromFilesRequest
+            ),
             timeout_ms=timeout_ms,
         )
 
@@ -71,25 +74,35 @@ class User(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="user-list",
+                operation_id="import-createFromFiles",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
             ),
             request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
+            error_status_codes=["400", "401", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(List[models.UserListResponse], http_res)
+            return unmarshal_json_response(
+                models.ImportCreateFromFilesResponse, http_res
+            )
+        if utils.match_response(http_res, "400", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorBADREQUESTData, http_res
+            )
+            raise errors.ErrorBADREQUEST(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -104,20 +117,20 @@ class User(BaseSDK):
 
         raise errors.APIError("Unexpected response received", http_res)
 
-    async def list_async(
+    async def create_from_files_async(
         self,
         *,
-        current: Optional[bool] = None,
+        items: Union[List[models.Item], List[models.ItemTypedDict]],
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> List[models.UserListResponse]:
-        r"""List users
+    ) -> models.ImportCreateFromFilesResponse:
+        r"""Import runs from files
 
-        Retrieve a list of users in your organization. Use the current parameter to get only the authenticated user profile and permissions.
+        Import one or more previously uploaded files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
 
-        :param current: If true, returns only the current authenticated user
+        :param items: Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -133,23 +146,26 @@ class User(BaseSDK):
         else:
             base_url = self._get_url(base_url, url_variables)
 
-        request = models.UserListRequest(
-            current=current,
+        request = models.ImportCreateFromFilesRequest(
+            items=utils.get_pydantic_model(items, List[models.Item]),
         )
 
         req = self._build_request_async(
-            method="GET",
-            path="/v2/users",
+            method="POST",
+            path="/v2/import",
             base_url=base_url,
             url_variables=url_variables,
             request=request,
-            request_body_required=False,
+            request_body_required=True,
             request_has_path_params=False,
             request_has_query_params=True,
             user_agent_header="user-agent",
             accept_header_value="application/json",
             http_headers=http_headers,
             security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request, False, False, "json", models.ImportCreateFromFilesRequest
+            ),
             timeout_ms=timeout_ms,
         )
 
@@ -165,25 +181,35 @@ class User(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="user-list",
+                operation_id="import-createFromFiles",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
                 ),
             ),
             request=req,
-            error_status_codes=["401", "4XX", "500", "5XX"],
+            error_status_codes=["400", "401", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(List[models.UserListResponse], http_res)
+            return unmarshal_json_response(
+                models.ImportCreateFromFilesResponse, http_res
+            )
+        if utils.match_response(http_res, "400", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorBADREQUESTData, http_res
+            )
+            raise errors.ErrorBADREQUEST(response_data, http_res)
         if utils.match_response(http_res, "401", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNAUTHORIZEDData, http_res
             )
             raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res

@@ -51,7 +51,7 @@ class Runs(BaseSDK):
     ) -> models.RunCreateResponse:
         r"""Create run
 
-        Create a new test run, linking it to a procedure and unit. Existing entities are reused automatically.
+        Create a run linked to a procedure and unit. Existing procedures and units are reused automatically.
 
         :param outcome: Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
         :param procedure_id: Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
@@ -227,7 +227,7 @@ class Runs(BaseSDK):
     ) -> models.RunCreateResponse:
         r"""Create run
 
-        Create a new test run, linking it to a procedure and unit. Existing entities are reused automatically.
+        Create a run linked to a procedure and unit. Existing procedures and units are reused automatically.
 
         :param outcome: Overall test result. Use PASS when test succeeds, FAIL when test fails but script execution completed successfully, ERROR when script execution fails, TIMEOUT when test exceeds time limit, ABORTED for manual script interruption.
         :param procedure_id: Procedure ID. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
@@ -405,7 +405,7 @@ class Runs(BaseSDK):
     ) -> models.RunListResponse:
         r"""List and filter runs
 
-        Retrieve a paginated list of test runs with filtering by unit, procedure, date range, outcome, and station.
+        List runs with filtering by unit, procedure, date range, outcome, and station. Cursor-paginated.
 
         :param search_query:
         :param ids:
@@ -589,7 +589,7 @@ class Runs(BaseSDK):
     ) -> models.RunListResponse:
         r"""List and filter runs
 
-        Retrieve a paginated list of test runs with filtering by unit, procedure, date range, outcome, and station.
+        List runs with filtering by unit, procedure, date range, outcome, and station. Cursor-paginated.
 
         :param search_query:
         :param ids:
@@ -742,7 +742,7 @@ class Runs(BaseSDK):
     ) -> models.RunDeleteResponse:
         r"""Delete runs
 
-        Permanently delete test runs by their IDs. Removes all associated phases, measurements, and attachments.
+        Delete runs by ID. Also removes their phases, measurements, and attachments. Irreversible.
 
         :param ids: Run IDs to delete.
         :param retries: Override the default retry configuration for this method
@@ -839,7 +839,7 @@ class Runs(BaseSDK):
     ) -> models.RunDeleteResponse:
         r"""Delete runs
 
-        Permanently delete test runs by their IDs. Removes all associated phases, measurements, and attachments.
+        Delete runs by ID. Also removes their phases, measurements, and attachments. Irreversible.
 
         :param ids: Run IDs to delete.
         :param retries: Override the default retry configuration for this method
@@ -936,7 +936,7 @@ class Runs(BaseSDK):
     ) -> models.RunGetResponse:
         r"""Get run
 
-        Retrieve a single test run by its ID. Returns comprehensive run data including metadata, phases, measurements, and logs.
+        Get a run by ID, with its metadata, phases, measurements, and logs.
 
         :param id: ID of the run to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -1038,7 +1038,7 @@ class Runs(BaseSDK):
     ) -> models.RunGetResponse:
         r"""Get run
 
-        Retrieve a single test run by its ID. Returns comprehensive run data including metadata, phases, measurements, and logs.
+        Get a run by ID, with its metadata, phases, measurements, and logs.
 
         :param id: ID of the run to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -1141,7 +1141,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateResponse:
         r"""Update run
 
-        Update a test run, including linking file attachments. Files must be uploaded via Initialize upload and Finalize upload before linking.
+        Link uploaded files to a run. Upload files via Initialize and Finalize first, then call this to attach them.
 
         :param id: Unique identifier of the run to update.
         :param attachments: Array of upload IDs to attach to the run.
@@ -1246,7 +1246,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateResponse:
         r"""Update run
 
-        Update a test run, including linking file attachments. Files must be uploaded via Initialize upload and Finalize upload before linking.
+        Link uploaded files to a run. Upload files via Initialize and Finalize first, then call this to attach them.
 
         :param id: Unique identifier of the run to update.
         :param attachments: Array of upload IDs to attach to the run.
@@ -1351,7 +1351,7 @@ class Runs(BaseSDK):
     ) -> models.RunCreateAttachmentResponse:
         r"""Attach file to run
 
-        Create an attachment linked to a run and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+        Attach a file to a run. Returns an upload ID and pre-signed URL; PUT the file to the URL, then call Finalize upload to commit.
 
         :param id: Unique identifier of the run to attach the file to.
         :param name: File name including extension (e.g. \"report.pdf\"). Used to determine content type and display name.
@@ -1460,7 +1460,7 @@ class Runs(BaseSDK):
     ) -> models.RunCreateAttachmentResponse:
         r"""Attach file to run
 
-        Create an attachment linked to a run and get a temporary pre-signed URL. Upload the file to the URL with a PUT request to complete the attachment.
+        Attach a file to a run. Returns an upload ID and pre-signed URL; PUT the file to the URL, then call Finalize upload to commit.
 
         :param id: Unique identifier of the run to attach the file to.
         :param name: File name including extension (e.g. \"report.pdf\"). Used to determine content type and display name.
@@ -1574,7 +1574,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateMetadataResponse:
         r"""Update run metadata
 
-        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics: omitted keys preserved. Pass `null` as a value to delete a key.
+        Upsert custom metadata on a run as a key/value object. Omitted keys are preserved; pass `null` to delete a key.
 
         :param id: Unique identifier of the run to update.
         :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
@@ -1688,7 +1688,7 @@ class Runs(BaseSDK):
     ) -> models.RunUpdateMetadataResponse:
         r"""Update run metadata
 
-        Upsert custom metadata on a run. Plain object of key/value pairs. PATCH semantics: omitted keys preserved. Pass `null` as a value to delete a key.
+        Upsert custom metadata on a run as a key/value object. Omitted keys are preserved; pass `null` to delete a key.
 
         :param id: Unique identifier of the run to update.
         :param metadata: Custom metadata to upsert on the run. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.

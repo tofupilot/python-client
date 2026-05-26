@@ -35,7 +35,7 @@ class Parts(BaseSDK):
     ) -> models.PartCreateResponse:
         r"""Create part
 
-        Create a new part. Optionally create with a revision. Part numbers are matched case-insensitively (e.g., \"PART-001\" and \"part-001\" are considered the same).
+        Create a part, optionally with an initial revision. Part numbers match case-insensitively (\"PART-001\" == \"part-001\").
 
         :param number: Unique identifier number for the part.
         :param name: Human-readable name for the part. If not provided, a default name will be used.
@@ -141,7 +141,7 @@ class Parts(BaseSDK):
     ) -> models.PartCreateResponse:
         r"""Create part
 
-        Create a new part. Optionally create with a revision. Part numbers are matched case-insensitively (e.g., \"PART-001\" and \"part-001\" are considered the same).
+        Create a part, optionally with an initial revision. Part numbers match case-insensitively (\"PART-001\" == \"part-001\").
 
         :param number: Unique identifier number for the part.
         :param name: Human-readable name for the part. If not provided, a default name will be used.
@@ -250,7 +250,7 @@ class Parts(BaseSDK):
     ) -> models.PartListResponse:
         r"""List and filter parts
 
-        Retrieve a paginated list of parts and components in your organization. Filter and search by part name, number, or revision number for inventory management.
+        List parts. Filter and search by name, number, or revision number. Cursor-paginated.
 
         :param limit: Maximum number of parts to return in a single page.
         :param cursor:
@@ -359,7 +359,7 @@ class Parts(BaseSDK):
     ) -> models.PartListResponse:
         r"""List and filter parts
 
-        Retrieve a paginated list of parts and components in your organization. Filter and search by part name, number, or revision number for inventory management.
+        List parts. Filter and search by name, number, or revision number. Cursor-paginated.
 
         :param limit: Maximum number of parts to return in a single page.
         :param cursor:
@@ -463,7 +463,7 @@ class Parts(BaseSDK):
     ) -> models.PartGetResponse:
         r"""Get part
 
-        Retrieve a single part by its number, including all revisions, metadata, and linked units. Part numbers are matched case-insensitively.
+        Get a part by number, with its revisions, metadata, and linked units. Numbers match case-insensitively.
 
         :param number: Part number of the part to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -560,7 +560,7 @@ class Parts(BaseSDK):
     ) -> models.PartGetResponse:
         r"""Get part
 
-        Retrieve a single part by its number, including all revisions, metadata, and linked units. Part numbers are matched case-insensitively.
+        Get a part by number, with its revisions, metadata, and linked units. Numbers match case-insensitively.
 
         :param number: Part number of the part to retrieve.
         :param retries: Override the default retry configuration for this method
@@ -659,7 +659,7 @@ class Parts(BaseSDK):
     ) -> models.PartUpdateResponse:
         r"""Update part
 
-        Update a part's number or name. Identifies the part by its current number in the URL with case-insensitive matching.
+        Update a part's number or name. Numbers match case-insensitively.
 
         :param number: Part number of the part to update.
         :param new_number: New unique identifier number for the part.
@@ -770,7 +770,7 @@ class Parts(BaseSDK):
     ) -> models.PartUpdateResponse:
         r"""Update part
 
-        Update a part's number or name. Identifies the part by its current number in the URL with case-insensitive matching.
+        Update a part's number or name. Numbers match case-insensitively.
 
         :param number: Part number of the part to update.
         :param new_number: New unique identifier number for the part.
@@ -879,7 +879,7 @@ class Parts(BaseSDK):
     ) -> models.PartDeleteResponse:
         r"""Delete part
 
-        Permanently delete a part and all its revisions. This removes all associated data and cannot be undone.
+        Delete a part and all its revisions. Irreversible.
 
         :param number: Part number to delete.
         :param retries: Override the default retry configuration for this method
@@ -976,7 +976,7 @@ class Parts(BaseSDK):
     ) -> models.PartDeleteResponse:
         r"""Delete part
 
-        Permanently delete a part and all its revisions. This removes all associated data and cannot be undone.
+        Delete a part and all its revisions. Irreversible.
 
         :param number: Part number to delete.
         :param retries: Override the default retry configuration for this method

@@ -1345,11 +1345,16 @@ class RunCreateResponseTypedDict(TypedDict):
     r"""Run created successfully"""
 
     id: str
-    r"""Unique identifier of the created run."""
+    r"""Unique identifier of the created run. For a file that yields several runs (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document), this is the first run; see `ids` for the full set."""
+    ids: NotRequired[List[str]]
+    r"""All run identifiers created from the file. Present when the import produced more than one run; a single-run import omits it (use `id`)."""
 
 
 class RunCreateResponse(BaseModel):
     r"""Run created successfully"""
 
     id: str
-    r"""Unique identifier of the created run."""
+    r"""Unique identifier of the created run. For a file that yields several runs (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document), this is the first run; see `ids` for the full set."""
+
+    ids: Optional[List[str]] = None
+    r"""All run identifiers created from the file. Present when the import produced more than one run; a single-run import omits it (use `id`)."""

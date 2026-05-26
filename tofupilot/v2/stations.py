@@ -22,7 +22,7 @@ class Stations(BaseSDK):
     ) -> models.StationCreateResponse:
         r"""Create station
 
-        Create a new test station in TofuPilot to register production equipment and link it to test procedures.
+        Create a station to register production equipment and link it to procedures.
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
@@ -128,7 +128,7 @@ class Stations(BaseSDK):
     ) -> models.StationCreateResponse:
         r"""Create station
 
-        Create a new test station in TofuPilot to register production equipment and link it to test procedures.
+        Create a station to register production equipment and link it to procedures.
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
@@ -236,7 +236,7 @@ class Stations(BaseSDK):
     ) -> models.StationListResponse:
         r"""List and filter stations
 
-        Retrieve a paginated list of test stations in your organization. Search by station name and filter by status for station fleet management.
+        List stations. Search by name and filter by status. Cursor-paginated.
 
         :param limit: Number of stations to return per page
         :param cursor:
@@ -339,7 +339,7 @@ class Stations(BaseSDK):
     ) -> models.StationListResponse:
         r"""List and filter stations
 
-        Retrieve a paginated list of test stations in your organization. Search by station name and filter by status for station fleet management.
+        List stations. Search by name and filter by status. Cursor-paginated.
 
         :param limit: Number of stations to return per page
         :param cursor:
@@ -438,7 +438,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetCurrentResponse:
         r"""Get current station
 
-        Retrieve detailed information about the currently authenticated station including linked procedures and connection status.
+        Get the station the request is authenticated as, with its linked procedures and connection status.
 
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -528,7 +528,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetCurrentResponse:
         r"""Get current station
 
-        Retrieve detailed information about the currently authenticated station including linked procedures and connection status.
+        Get the station the request is authenticated as, with its linked procedures and connection status.
 
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -619,7 +619,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetResponse:
         r"""Get station
 
-        Retrieve detailed station information including linked procedures, connection status, and recent activity.
+        Get a station by ID, with its linked procedures, connection status, and recent activity.
 
         :param id: Unique identifier of the station to retrieve
         :param retries: Override the default retry configuration for this method
@@ -716,7 +716,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetResponse:
         r"""Get station
 
-        Retrieve detailed station information including linked procedures, connection status, and recent activity.
+        Get a station by ID, with its linked procedures, connection status, and recent activity.
 
         :param id: Unique identifier of the station to retrieve
         :param retries: Override the default retry configuration for this method
@@ -816,7 +816,7 @@ class Stations(BaseSDK):
     ) -> models.StationUpdateResponse:
         r"""Update station
 
-        Update station name and/or image. The station ID is specified in the URL path. To remove an image, pass an empty string for image_id.
+        Update a station name and/or image. Pass an empty string for image_id to remove the image.
 
         :param id: Unique identifier of the station to update
         :param name: New name for the station
@@ -934,7 +934,7 @@ class Stations(BaseSDK):
     ) -> models.StationUpdateResponse:
         r"""Update station
 
-        Update station name and/or image. The station ID is specified in the URL path. To remove an image, pass an empty string for image_id.
+        Update a station name and/or image. Pass an empty string for image_id to remove the image.
 
         :param id: Unique identifier of the station to update
         :param name: New name for the station
@@ -1049,7 +1049,7 @@ class Stations(BaseSDK):
     ) -> models.StationRemoveResponse:
         r"""Remove station
 
-        Remove a test station. Deletes permanently if unused, or archives with preserved historical data if runs exist.
+        Remove a station. Deleted if unused; archived (history preserved) if runs reference it.
 
         :param id: Unique identifier of the station to remove
         :param retries: Override the default retry configuration for this method
@@ -1151,7 +1151,7 @@ class Stations(BaseSDK):
     ) -> models.StationRemoveResponse:
         r"""Remove station
 
-        Remove a test station. Deletes permanently if unused, or archives with preserved historical data if runs exist.
+        Remove a station. Deleted if unused; archived (history preserved) if runs reference it.
 
         :param id: Unique identifier of the station to remove
         :param retries: Override the default retry configuration for this method

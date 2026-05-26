@@ -22,7 +22,7 @@ class Revisions(BaseSDK):
     ) -> models.PartGetRevisionResponse:
         r"""Get part revision
 
-        Retrieve a single part revision by its part number and revision number, including revision metadata, configuration details, and linked units.
+        Get a part revision by part number and revision number, with its metadata, configuration, and linked units.
 
         :param part_number: Part number that the revision belongs to.
         :param revision_number: Revision number to retrieve.
@@ -122,7 +122,7 @@ class Revisions(BaseSDK):
     ) -> models.PartGetRevisionResponse:
         r"""Get part revision
 
-        Retrieve a single part revision by its part number and revision number, including revision metadata, configuration details, and linked units.
+        Get a part revision by part number and revision number, with its metadata, configuration, and linked units.
 
         :param part_number: Part number that the revision belongs to.
         :param revision_number: Revision number to retrieve.
@@ -224,7 +224,7 @@ class Revisions(BaseSDK):
     ) -> models.PartUpdateRevisionResponse:
         r"""Update part revision
 
-        Update a part revision's number or image. Identifies the revision by part number and revision number in the URL.
+        Update a revision's number or image.
 
         :param part_number: Part number that the revision belongs to.
         :param revision_number: Current revision number to update.
@@ -342,7 +342,7 @@ class Revisions(BaseSDK):
     ) -> models.PartUpdateRevisionResponse:
         r"""Update part revision
 
-        Update a part revision's number or image. Identifies the revision by part number and revision number in the URL.
+        Update a revision's number or image.
 
         :param part_number: Part number that the revision belongs to.
         :param revision_number: Current revision number to update.
@@ -458,7 +458,7 @@ class Revisions(BaseSDK):
     ) -> models.PartDeleteRevisionResponse:
         r"""Delete part revision
 
-        Permanently delete a part revision by its part number and revision number. This action removes the revision and all associated data and cannot be undone.
+        Delete a part revision. Irreversible.
 
         :param part_number: Part number that the revision belongs to.
         :param revision_number: Revision number to delete.
@@ -558,7 +558,7 @@ class Revisions(BaseSDK):
     ) -> models.PartDeleteRevisionResponse:
         r"""Delete part revision
 
-        Permanently delete a part revision by its part number and revision number. This action removes the revision and all associated data and cannot be undone.
+        Delete a part revision. Irreversible.
 
         :param part_number: Part number that the revision belongs to.
         :param revision_number: Revision number to delete.
@@ -658,7 +658,7 @@ class Revisions(BaseSDK):
     ) -> models.PartCreateRevisionResponse:
         r"""Create part revision
 
-        Create a new part revision for an existing part. Revision numbers are matched case-insensitively (e.g., \"REV-A\" and \"rev-a\" are considered the same).
+        Create a revision of a part. Revision numbers match case-insensitively (\"REV-A\" == \"rev-a\").
 
         :param part_number: Part number to create a revision for.
         :param number: Revision number (e.g., version number or code).
@@ -770,7 +770,7 @@ class Revisions(BaseSDK):
     ) -> models.PartCreateRevisionResponse:
         r"""Create part revision
 
-        Create a new part revision for an existing part. Revision numbers are matched case-insensitively (e.g., \"REV-A\" and \"rev-a\" are considered the same).
+        Create a revision of a part. Revision numbers match case-insensitively (\"REV-A\" == \"rev-a\").
 
         :param part_number: Part number to create a revision for.
         :param number: Revision number (e.g., version number or code).
