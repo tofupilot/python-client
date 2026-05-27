@@ -25,12 +25,12 @@ class Item(BaseModel):
     r"""Source format of the uploaded file. OPENHTF for OpenHTF JSON logs; WATS for Virinco WATS WSJF (JSON); WSXF for WATS WSXF (XML); ATML for IEEE 1671 ATML Test Results (XML); TESTSTAND for NI TestStand native XML reports; STDF for binary STDF V4 datalogs; ATDF for ATDF (the ASCII text form of STDF). For CSV/tabular files use the dedicated tabular import endpoint."""
 
 
-class ImportCreateFromFilesRequestTypedDict(TypedDict):
+class ImportStructuredRequestTypedDict(TypedDict):
     items: List[ItemTypedDict]
     r"""Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others."""
 
 
-class ImportCreateFromFilesRequest(BaseModel):
+class ImportStructuredRequest(BaseModel):
     items: List[Item]
     r"""Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others."""
 
@@ -65,13 +65,13 @@ class Result(BaseModel):
     r"""Error message (present when success is false)."""
 
 
-class ImportCreateFromFilesResponseTypedDict(TypedDict):
+class ImportStructuredResponseTypedDict(TypedDict):
     r"""Run imported successfully"""
 
     results: List[ResultTypedDict]
 
 
-class ImportCreateFromFilesResponse(BaseModel):
+class ImportStructuredResponse(BaseModel):
     r"""Run imported successfully"""
 
     results: List[Result]

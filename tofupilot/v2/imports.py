@@ -10,7 +10,7 @@ from typing import Any, List, Mapping, Optional, Union
 
 
 class Imports(BaseSDK):
-    def create_from_files(
+    def structured(
         self,
         *,
         items: Union[List[models.Item], List[models.ItemTypedDict]],
@@ -18,10 +18,10 @@ class Imports(BaseSDK):
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.ImportCreateFromFilesResponse:
-        r"""Import runs from files
+    ) -> models.ImportStructuredResponse:
+        r"""Import runs from structured files
 
-        Import one or more previously uploaded files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
+        Import one or more previously uploaded structured files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
 
         :param items: Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
         :param retries: Override the default retry configuration for this method
@@ -39,13 +39,13 @@ class Imports(BaseSDK):
         else:
             base_url = self._get_url(base_url, url_variables)
 
-        request = models.ImportCreateFromFilesRequest(
+        request = models.ImportStructuredRequest(
             items=utils.get_pydantic_model(items, List[models.Item]),
         )
 
         req = self._build_request(
             method="POST",
-            path="/v2/import",
+            path="/v2/imports/structured",
             base_url=base_url,
             url_variables=url_variables,
             request=request,
@@ -57,7 +57,7 @@ class Imports(BaseSDK):
             http_headers=http_headers,
             security=self.sdk_configuration.security,
             get_serialized_body=lambda: utils.serialize_request_body(
-                request, False, False, "json", models.ImportCreateFromFilesRequest
+                request, False, False, "json", models.ImportStructuredRequest
             ),
             timeout_ms=timeout_ms,
         )
@@ -74,7 +74,7 @@ class Imports(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="import-createFromFiles",
+                operation_id="import-structured",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
@@ -87,9 +87,7 @@ class Imports(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(
-                models.ImportCreateFromFilesResponse, http_res
-            )
+            return unmarshal_json_response(models.ImportStructuredResponse, http_res)
         if utils.match_response(http_res, "400", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorBADREQUESTData, http_res
@@ -117,7 +115,7 @@ class Imports(BaseSDK):
 
         raise errors.APIError("Unexpected response received", http_res)
 
-    async def create_from_files_async(
+    async def structured_async(
         self,
         *,
         items: Union[List[models.Item], List[models.ItemTypedDict]],
@@ -125,10 +123,10 @@ class Imports(BaseSDK):
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
         http_headers: Optional[Mapping[str, str]] = None,
-    ) -> models.ImportCreateFromFilesResponse:
-        r"""Import runs from files
+    ) -> models.ImportStructuredResponse:
+        r"""Import runs from structured files
 
-        Import one or more previously uploaded files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
+        Import one or more previously uploaded structured files (OpenHTF, WATS WSJF/WSXF, ATML, NI TestStand, STDF, or ATDF) in a single call. Each file is parsed independently and its result returned per-item, so one bad file does not fail the others. A file that contains several units (a multi-part STDF/ATDF datalog or a multi-report WSXF/TestStand document) creates one run per unit; all run ids are returned in the item’s `ids`.
 
         :param items: Files to import (1–100). Pass a single-item list to import one file. Each item is parsed independently; one failure does not abort the others.
         :param retries: Override the default retry configuration for this method
@@ -146,13 +144,13 @@ class Imports(BaseSDK):
         else:
             base_url = self._get_url(base_url, url_variables)
 
-        request = models.ImportCreateFromFilesRequest(
+        request = models.ImportStructuredRequest(
             items=utils.get_pydantic_model(items, List[models.Item]),
         )
 
         req = self._build_request_async(
             method="POST",
-            path="/v2/import",
+            path="/v2/imports/structured",
             base_url=base_url,
             url_variables=url_variables,
             request=request,
@@ -164,7 +162,7 @@ class Imports(BaseSDK):
             http_headers=http_headers,
             security=self.sdk_configuration.security,
             get_serialized_body=lambda: utils.serialize_request_body(
-                request, False, False, "json", models.ImportCreateFromFilesRequest
+                request, False, False, "json", models.ImportStructuredRequest
             ),
             timeout_ms=timeout_ms,
         )
@@ -181,7 +179,7 @@ class Imports(BaseSDK):
             hook_ctx=HookContext(
                 config=self.sdk_configuration,
                 base_url=base_url or "",
-                operation_id="import-createFromFiles",
+                operation_id="import-structured",
                 oauth2_scopes=[],
                 security_source=get_security_from_env(
                     self.sdk_configuration.security, models.Security
@@ -194,9 +192,235 @@ class Imports(BaseSDK):
 
         response_data: Any = None
         if utils.match_response(http_res, "200", "application/json"):
-            return unmarshal_json_response(
-                models.ImportCreateFromFilesResponse, http_res
+            return unmarshal_json_response(models.ImportStructuredResponse, http_res)
+        if utils.match_response(http_res, "400", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorBADREQUESTData, http_res
             )
+            raise errors.ErrorBADREQUEST(response_data, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = await utils.stream_to_text_async(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
+    def tabular(
+        self,
+        *,
+        upload_id: str,
+        procedure_id: str,
+        mapping: Optional[Union[models.Mapping, models.MappingTypedDict]] = None,
+        template_id: Optional[str] = None,
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.ImportTabularResponse:
+        r"""Import a run from a tabular file
+
+        Import a previously uploaded tabular file (CSV or Excel) by mapping its columns to TofuPilot fields. Provide exactly one of `mapping` (an inline column mapping) or `template_id` (a mapping template saved in the dashboard). The `procedure_id` is required and overrides any procedure referenced in the file.
+
+        :param upload_id: ID of a previously uploaded tabular file.
+        :param procedure_id: Procedure to attach the imported run to. Always overrides any procedure referenced in the file. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
+        :param mapping: Inline column mapping describing how source columns feed TofuPilot fields. Provide this OR template_id, not both.
+        :param template_id: ID of a saved mapping template to apply. Provide this OR mapping, not both.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.ImportTabularRequest(
+            upload_id=upload_id,
+            procedure_id=procedure_id,
+            mapping=utils.get_pydantic_model(mapping, Optional[models.Mapping]),
+            template_id=template_id,
+        )
+
+        req = self._build_request(
+            method="POST",
+            path="/v2/imports/tabular",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request, False, False, "json", models.ImportTabularRequest
+            ),
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = self.do_request(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="import-tabular",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["400", "401", "404", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.ImportTabularResponse, http_res)
+        if utils.match_response(http_res, "400", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorBADREQUESTData, http_res
+            )
+            raise errors.ErrorBADREQUEST(response_data, http_res)
+        if utils.match_response(http_res, "401", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorUNAUTHORIZEDData, http_res
+            )
+            raise errors.ErrorUNAUTHORIZED(response_data, http_res)
+        if utils.match_response(http_res, "404", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
+            raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "500", "application/json"):
+            response_data = unmarshal_json_response(
+                errors.ErrorINTERNALSERVERERRORData, http_res
+            )
+            raise errors.ErrorINTERNALSERVERERROR(response_data, http_res)
+        if utils.match_response(http_res, "4XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+        if utils.match_response(http_res, "5XX", "*"):
+            http_res_text = utils.stream_to_text(http_res)
+            raise errors.APIError("API error occurred", http_res, http_res_text)
+
+        raise errors.APIError("Unexpected response received", http_res)
+
+    async def tabular_async(
+        self,
+        *,
+        upload_id: str,
+        procedure_id: str,
+        mapping: Optional[Union[models.Mapping, models.MappingTypedDict]] = None,
+        template_id: Optional[str] = None,
+        retries: OptionalNullable[utils.RetryConfig] = UNSET,
+        server_url: Optional[str] = None,
+        timeout_ms: Optional[int] = None,
+        http_headers: Optional[Mapping[str, str]] = None,
+    ) -> models.ImportTabularResponse:
+        r"""Import a run from a tabular file
+
+        Import a previously uploaded tabular file (CSV or Excel) by mapping its columns to TofuPilot fields. Provide exactly one of `mapping` (an inline column mapping) or `template_id` (a mapping template saved in the dashboard). The `procedure_id` is required and overrides any procedure referenced in the file.
+
+        :param upload_id: ID of a previously uploaded tabular file.
+        :param procedure_id: Procedure to attach the imported run to. Always overrides any procedure referenced in the file. Create the procedure in the app first, then find the auto-generated ID on the procedure page.
+        :param mapping: Inline column mapping describing how source columns feed TofuPilot fields. Provide this OR template_id, not both.
+        :param template_id: ID of a saved mapping template to apply. Provide this OR mapping, not both.
+        :param retries: Override the default retry configuration for this method
+        :param server_url: Override the default server URL for this method
+        :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
+        :param http_headers: Additional headers to set or replace on requests.
+        """
+        base_url = None
+        url_variables = None
+        if timeout_ms is None:
+            timeout_ms = self.sdk_configuration.timeout_ms
+
+        if server_url is not None:
+            base_url = server_url
+        else:
+            base_url = self._get_url(base_url, url_variables)
+
+        request = models.ImportTabularRequest(
+            upload_id=upload_id,
+            procedure_id=procedure_id,
+            mapping=utils.get_pydantic_model(mapping, Optional[models.Mapping]),
+            template_id=template_id,
+        )
+
+        req = self._build_request_async(
+            method="POST",
+            path="/v2/imports/tabular",
+            base_url=base_url,
+            url_variables=url_variables,
+            request=request,
+            request_body_required=True,
+            request_has_path_params=False,
+            request_has_query_params=True,
+            user_agent_header="user-agent",
+            accept_header_value="application/json",
+            http_headers=http_headers,
+            security=self.sdk_configuration.security,
+            get_serialized_body=lambda: utils.serialize_request_body(
+                request, False, False, "json", models.ImportTabularRequest
+            ),
+            timeout_ms=timeout_ms,
+        )
+
+        if retries == UNSET:
+            if self.sdk_configuration.retry_config is not UNSET:
+                retries = self.sdk_configuration.retry_config
+
+        retry_config = None
+        if isinstance(retries, utils.RetryConfig):
+            retry_config = (retries, ["429", "500", "502", "503", "504"])
+
+        http_res = await self.do_request_async(
+            hook_ctx=HookContext(
+                config=self.sdk_configuration,
+                base_url=base_url or "",
+                operation_id="import-tabular",
+                oauth2_scopes=[],
+                security_source=get_security_from_env(
+                    self.sdk_configuration.security, models.Security
+                ),
+            ),
+            request=req,
+            error_status_codes=["400", "401", "404", "4XX", "500", "5XX"],
+            retry_config=retry_config,
+        )
+
+        response_data: Any = None
+        if utils.match_response(http_res, "200", "application/json"):
+            return unmarshal_json_response(models.ImportTabularResponse, http_res)
         if utils.match_response(http_res, "400", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorBADREQUESTData, http_res
