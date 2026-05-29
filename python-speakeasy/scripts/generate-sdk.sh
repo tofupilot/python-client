@@ -45,7 +45,7 @@ cp -r python-speakeasy/.speakeasy .tmp/.speakeasy
 
 # Step 3: Fetch and fix OpenAPI spec
 echo "📥 Fetching OpenAPI spec from localhost..."
-curl -s http://localhost:3000/api/v2/openapi.json > .tmp/openapi-raw.json
+curl -s "${SPEC_URL:-http://localhost:3000/api/v2/openapi.json}" > .tmp/openapi-raw.json
 
 echo "🔧 Fixing OpenAPI spec for Speakeasy compatibility..."
 python3 << 'PYEOF'

@@ -135,11 +135,6 @@ class TestRunMetadata:
         run = client.runs.get(id=run_id)
         assert not run.metadata
 
-    @pytest.mark.skip(
-        reason="Query param encoding mismatch: SDK form-encodes nested dict as "
-        "metadata[k][in]=v but server expects JSON-encoded string. Filter works "
-        "via internal caller; needs wider tRPC-rest query serialization fix."
-    )
     def test_list_runs_metadata_filter(
         self, client: TofuPilot, metadata_procedure_id: str
     ) -> None:

@@ -40,7 +40,7 @@ class RunListMetadataQueryParam3TypedDict(TypedDict):
 
 
 class RunListMetadataQueryParam3(BaseModel):
-    eq: Annotated[bool, FieldMetadata(query=True)]
+    eq: bool
 
 
 class RunListMetadataQueryParam2TypedDict(TypedDict):
@@ -52,15 +52,15 @@ class RunListMetadataQueryParam2TypedDict(TypedDict):
 
 
 class RunListMetadataQueryParam2(BaseModel):
-    gte: Annotated[Optional[float], FieldMetadata(query=True)] = None
+    gte: Optional[float] = None
 
-    lte: Annotated[Optional[float], FieldMetadata(query=True)] = None
+    lte: Optional[float] = None
 
-    gt: Annotated[Optional[float], FieldMetadata(query=True)] = None
+    gt: Optional[float] = None
 
-    lt: Annotated[Optional[float], FieldMetadata(query=True)] = None
+    lt: Optional[float] = None
 
-    eq: Annotated[Optional[float], FieldMetadata(query=True)] = None
+    eq: Optional[float] = None
 
 
 class RunListMetadataQueryParam1TypedDict(TypedDict):
@@ -69,11 +69,9 @@ class RunListMetadataQueryParam1TypedDict(TypedDict):
 
 
 class RunListMetadataQueryParam1(BaseModel):
-    in_: Annotated[
-        Optional[List[str]], pydantic.Field(alias="in"), FieldMetadata(query=True)
-    ] = None
+    in_: Annotated[Optional[List[str]], pydantic.Field(alias="in")] = None
 
-    contains: Annotated[Optional[str], FieldMetadata(query=True)] = None
+    contains: Optional[str] = None
 
 
 RunListQueryParamMetadataUnionTypedDict = TypeAliasType(
@@ -262,7 +260,7 @@ class RunListRequest(BaseModel):
 
     metadata: Annotated[
         Optional[Dict[str, RunListQueryParamMetadataUnion]],
-        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+        FieldMetadata(query=QueryParamMetadata(serialization="json")),
     ] = None
     r"""Filter runs by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
 

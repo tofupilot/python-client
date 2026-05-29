@@ -134,11 +134,6 @@ class TestUnitMetadata:
         unit = client.units.get(serial_number=serial)
         assert not unit.metadata
 
-    @pytest.mark.skip(
-        reason="Query param encoding mismatch: SDK form-encodes nested dict as "
-        "metadata[k][in]=v but server expects JSON-encoded string. Filter works "
-        "via internal caller; needs wider tRPC-rest query serialization fix."
-    )
     def test_list_units_metadata_filter_string_in(
         self, client: TofuPilot, timestamp
     ) -> None:
@@ -157,7 +152,6 @@ class TestUnitMetadata:
         assert s_match in ids
         assert s_other not in ids
 
-    @pytest.mark.skip(reason="Same query encoding mismatch as filter_string_in.")
     def test_list_units_metadata_filter_number_range(
         self, client: TofuPilot, timestamp
     ) -> None:
