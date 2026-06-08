@@ -375,7 +375,7 @@ Measurements = TypeAliasType(
 PhasesValueMap = Literal["PASS", "FAIL", "SKIP", "ERROR"]
 
 
-class PhasesTypedDict(TypedDict):
+class ImportTabularPhasesTypedDict(TypedDict):
     name_column: str
     outcome_column: NotRequired[str]
     started_column: NotRequired[str]
@@ -383,7 +383,7 @@ class PhasesTypedDict(TypedDict):
     value_map: NotRequired[Dict[str, PhasesValueMap]]
 
 
-class Phases(BaseModel):
+class ImportTabularPhases(BaseModel):
     name_column: Annotated[str, pydantic.Field(alias="nameColumn")]
 
     outcome_column: Annotated[Optional[str], pydantic.Field(alias="outcomeColumn")] = (
@@ -434,7 +434,7 @@ class MappingTypedDict(TypedDict):
 
     fields: FieldsTypedDict
     measurements: MeasurementsTypedDict
-    phases: NotRequired[PhasesTypedDict]
+    phases: NotRequired[ImportTabularPhasesTypedDict]
     metadata: NotRequired[List[MetadatumTypedDict]]
     unit_metadata: NotRequired[List[UnitMetadatumTypedDict]]
 
@@ -446,7 +446,7 @@ class Mapping(BaseModel):
 
     measurements: Measurements
 
-    phases: Optional[Phases] = None
+    phases: Optional[ImportTabularPhases] = None
 
     metadata: Optional[List[Metadatum]] = None
 

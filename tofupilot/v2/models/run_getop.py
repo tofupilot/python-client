@@ -695,142 +695,30 @@ RunGetMeasuredValue = TypeAliasType(
 r"""The actual measured value."""
 
 
-DataSeryValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
+RunGetDataSeryValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
 r"""Validation result: PASS, FAIL, or UNSET."""
 
-DataSeryExpectedValueTypedDict = TypeAliasType(
-    "DataSeryExpectedValueTypedDict", Union[bool, float, str, List[float], List[str]]
-)
-r"""Expected value for comparison. Type depends on measurement type."""
-
-
-DataSeryExpectedValue = TypeAliasType(
-    "DataSeryExpectedValue", Union[bool, float, str, List[float], List[str]]
-)
-r"""Expected value for comparison. Type depends on measurement type."""
-
-
-class DataSeryValidatorTypedDict(TypedDict):
-    r"""Validator result with outcome and comparison details."""
-
-    outcome: DataSeryValidatorOutcome
-    r"""Validation result: PASS, FAIL, or UNSET."""
-    operator: Nullable[str]
-    r"""Comparison operator used for validation."""
-    expected_value: Nullable[DataSeryExpectedValueTypedDict]
-    r"""Expected value for comparison. Type depends on measurement type."""
-    expression: str
-    r"""Human-readable expression string for display."""
-    is_decisive: Nullable[bool]
-    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
-    is_expression_only: bool
-    r"""True if validator only has expression (no structured operator/expected_value)."""
-    analytics_expression: Nullable[str]
-    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
-    has_custom_expression: bool
-    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
-
-
-class DataSeryValidator(BaseModel):
-    r"""Validator result with outcome and comparison details."""
-
-    outcome: DataSeryValidatorOutcome
-    r"""Validation result: PASS, FAIL, or UNSET."""
-
-    operator: Nullable[str]
-    r"""Comparison operator used for validation."""
-
-    expected_value: Nullable[DataSeryExpectedValue]
-    r"""Expected value for comparison. Type depends on measurement type."""
-
-    expression: str
-    r"""Human-readable expression string for display."""
-
-    is_decisive: Nullable[bool]
-    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
-
-    is_expression_only: bool
-    r"""True if validator only has expression (no structured operator/expected_value)."""
-
-    analytics_expression: Nullable[str]
-    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
-
-    has_custom_expression: bool
-    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
-
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler):
-        optional_fields = []
-        nullable_fields = [
-            "operator",
-            "expected_value",
-            "is_decisive",
-            "analytics_expression",
-        ]
-        null_default_fields = []
-
-        serialized = handler(self)
-
-        m = {}
-
-        for n, f in type(self).model_fields.items():
-            k = f.alias or n
-            val = serialized.get(k)
-            serialized.pop(k, None)
-
-            optional_nullable = k in optional_fields and k in nullable_fields
-            is_set = (
-                self.__pydantic_fields_set__.intersection({n})
-                or k in null_default_fields
-            )  # pylint: disable=no-member
-
-            if val is not None and val != UNSET_SENTINEL:
-                m[k] = val
-            elif val != UNSET_SENTINEL and (
-                not k in optional_fields or (optional_nullable and is_set)
-            ):
-                m[k] = val
-
-        return m
-
-
-DataSeryAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
-
-DataSeryValueTypedDict = TypeAliasType(
-    "DataSeryValueTypedDict", Union[float, str, bool]
-)
-r"""Computed aggregation value. Type depends on aggregation type."""
-
-
-DataSeryValue = TypeAliasType("DataSeryValue", Union[float, str, bool])
-r"""Computed aggregation value. Type depends on aggregation type."""
-
-
-DataSeryAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
-r"""Validation result: PASS, FAIL, or UNSET."""
-
-DataSeryAggregationExpectedValueTypedDict = TypeAliasType(
-    "DataSeryAggregationExpectedValueTypedDict",
+RunGetDataSeryExpectedValueTypedDict = TypeAliasType(
+    "RunGetDataSeryExpectedValueTypedDict",
     Union[bool, float, str, List[float], List[str]],
 )
 r"""Expected value for comparison. Type depends on measurement type."""
 
 
-DataSeryAggregationExpectedValue = TypeAliasType(
-    "DataSeryAggregationExpectedValue", Union[bool, float, str, List[float], List[str]]
+RunGetDataSeryExpectedValue = TypeAliasType(
+    "RunGetDataSeryExpectedValue", Union[bool, float, str, List[float], List[str]]
 )
 r"""Expected value for comparison. Type depends on measurement type."""
 
 
-class DataSeryAggregationValidatorTypedDict(TypedDict):
+class RunGetDataSeryValidatorTypedDict(TypedDict):
     r"""Validator result with outcome and comparison details."""
 
-    outcome: DataSeryAggregationValidatorOutcome
+    outcome: RunGetDataSeryValidatorOutcome
     r"""Validation result: PASS, FAIL, or UNSET."""
     operator: Nullable[str]
     r"""Comparison operator used for validation."""
-    expected_value: Nullable[DataSeryAggregationExpectedValueTypedDict]
+    expected_value: Nullable[RunGetDataSeryExpectedValueTypedDict]
     r"""Expected value for comparison. Type depends on measurement type."""
     expression: str
     r"""Human-readable expression string for display."""
@@ -844,16 +732,16 @@ class DataSeryAggregationValidatorTypedDict(TypedDict):
     r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
 
 
-class DataSeryAggregationValidator(BaseModel):
+class RunGetDataSeryValidator(BaseModel):
     r"""Validator result with outcome and comparison details."""
 
-    outcome: DataSeryAggregationValidatorOutcome
+    outcome: RunGetDataSeryValidatorOutcome
     r"""Validation result: PASS, FAIL, or UNSET."""
 
     operator: Nullable[str]
     r"""Comparison operator used for validation."""
 
-    expected_value: Nullable[DataSeryAggregationExpectedValue]
+    expected_value: Nullable[RunGetDataSeryExpectedValue]
     r"""Expected value for comparison. Type depends on measurement type."""
 
     expression: str
@@ -907,24 +795,138 @@ class DataSeryAggregationValidator(BaseModel):
         return m
 
 
-class DataSeryAggregationTypedDict(TypedDict):
+RunGetDataSeryAggregationOutcome = Literal["PASS", "FAIL", "UNSET"]
+r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
+
+RunGetDataSeryValueTypedDict = TypeAliasType(
+    "RunGetDataSeryValueTypedDict", Union[float, str, bool]
+)
+r"""Computed aggregation value. Type depends on aggregation type."""
+
+
+RunGetDataSeryValue = TypeAliasType("RunGetDataSeryValue", Union[float, str, bool])
+r"""Computed aggregation value. Type depends on aggregation type."""
+
+
+RunGetDataSeryAggregationValidatorOutcome = Literal["PASS", "FAIL", "UNSET"]
+r"""Validation result: PASS, FAIL, or UNSET."""
+
+RunGetDataSeryAggregationExpectedValueTypedDict = TypeAliasType(
+    "RunGetDataSeryAggregationExpectedValueTypedDict",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+RunGetDataSeryAggregationExpectedValue = TypeAliasType(
+    "RunGetDataSeryAggregationExpectedValue",
+    Union[bool, float, str, List[float], List[str]],
+)
+r"""Expected value for comparison. Type depends on measurement type."""
+
+
+class RunGetDataSeryAggregationValidatorTypedDict(TypedDict):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: RunGetDataSeryAggregationValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+    expected_value: Nullable[RunGetDataSeryAggregationExpectedValueTypedDict]
+    r"""Expected value for comparison. Type depends on measurement type."""
+    expression: str
+    r"""Human-readable expression string for display."""
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+
+class RunGetDataSeryAggregationValidator(BaseModel):
+    r"""Validator result with outcome and comparison details."""
+
+    outcome: RunGetDataSeryAggregationValidatorOutcome
+    r"""Validation result: PASS, FAIL, or UNSET."""
+
+    operator: Nullable[str]
+    r"""Comparison operator used for validation."""
+
+    expected_value: Nullable[RunGetDataSeryAggregationExpectedValue]
+    r"""Expected value for comparison. Type depends on measurement type."""
+
+    expression: str
+    r"""Human-readable expression string for display."""
+
+    is_decisive: Nullable[bool]
+    r"""Whether this validator is decisive (if it fails, measurement fails). False for marginal/warning validators."""
+
+    is_expression_only: bool
+    r"""True if validator only has expression (no structured operator/expected_value)."""
+
+    analytics_expression: Nullable[str]
+    r"""Synthetic expression from operator+expected_value for analytics tooltip. Null if expression-only."""
+
+    has_custom_expression: bool
+    r"""True if user provided a custom expression (shown in italic with analytics tooltip)."""
+
+    @model_serializer(mode="wrap")
+    def serialize_model(self, handler):
+        optional_fields = []
+        nullable_fields = [
+            "operator",
+            "expected_value",
+            "is_decisive",
+            "analytics_expression",
+        ]
+        null_default_fields = []
+
+        serialized = handler(self)
+
+        m = {}
+
+        for n, f in type(self).model_fields.items():
+            k = f.alias or n
+            val = serialized.get(k)
+            serialized.pop(k, None)
+
+            optional_nullable = k in optional_fields and k in nullable_fields
+            is_set = (
+                self.__pydantic_fields_set__.intersection({n})
+                or k in null_default_fields
+            )  # pylint: disable=no-member
+
+            if val is not None and val != UNSET_SENTINEL:
+                m[k] = val
+            elif val != UNSET_SENTINEL and (
+                not k in optional_fields or (optional_nullable and is_set)
+            ):
+                m[k] = val
+
+        return m
+
+
+class RunGetDataSeryAggregationTypedDict(TypedDict):
     r"""Aggregation result with computed value and optional validators."""
 
     id: str
     r"""Unique identifier for the aggregation."""
     type: str
     r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
-    outcome: Nullable[DataSeryAggregationOutcome]
+    outcome: Nullable[RunGetDataSeryAggregationOutcome]
     r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
-    value: Nullable[DataSeryValueTypedDict]
+    value: Nullable[RunGetDataSeryValueTypedDict]
     r"""Computed aggregation value. Type depends on aggregation type."""
     unit: NotRequired[Nullable[str]]
     r"""Unit of measurement for the aggregated value."""
-    validators: NotRequired[Nullable[List[DataSeryAggregationValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[RunGetDataSeryAggregationValidatorTypedDict]]]
     r"""Validators applied to the aggregated value."""
 
 
-class DataSeryAggregation(BaseModel):
+class RunGetDataSeryAggregation(BaseModel):
     r"""Aggregation result with computed value and optional validators."""
 
     id: str
@@ -933,16 +935,16 @@ class DataSeryAggregation(BaseModel):
     type: str
     r"""Aggregation type (e.g., MIN, MAX, MEAN, RANGE, STD_DEV)."""
 
-    outcome: Nullable[DataSeryAggregationOutcome]
+    outcome: Nullable[RunGetDataSeryAggregationOutcome]
     r"""Aggregation validation result: PASS, FAIL, UNSET, or null if no validators."""
 
-    value: Nullable[DataSeryValue]
+    value: Nullable[RunGetDataSeryValue]
     r"""Computed aggregation value. Type depends on aggregation type."""
 
     unit: OptionalNullable[str] = UNSET
     r"""Unit of measurement for the aggregated value."""
 
-    validators: OptionalNullable[List[DataSeryAggregationValidator]] = UNSET
+    validators: OptionalNullable[List[RunGetDataSeryAggregationValidator]] = UNSET
     r"""Validators applied to the aggregated value."""
 
     @model_serializer(mode="wrap")
@@ -976,7 +978,7 @@ class DataSeryAggregation(BaseModel):
         return m
 
 
-class DataSeryTypedDict(TypedDict):
+class RunGetDataSeryTypedDict(TypedDict):
     data: List[float]
     r"""Array of numeric data points for this series."""
     units: Nullable[str]
@@ -985,13 +987,13 @@ class DataSeryTypedDict(TypedDict):
     r"""Name of this data series."""
     description: NotRequired[Nullable[str]]
     r"""Description of this data series."""
-    validators: NotRequired[Nullable[List[DataSeryValidatorTypedDict]]]
+    validators: NotRequired[Nullable[List[RunGetDataSeryValidatorTypedDict]]]
     r"""Validators for this data series."""
-    aggregations: NotRequired[Nullable[List[DataSeryAggregationTypedDict]]]
+    aggregations: NotRequired[Nullable[List[RunGetDataSeryAggregationTypedDict]]]
     r"""Aggregations computed over this data series."""
 
 
-class DataSery(BaseModel):
+class RunGetDataSery(BaseModel):
     data: List[float]
     r"""Array of numeric data points for this series."""
 
@@ -1004,10 +1006,10 @@ class DataSery(BaseModel):
     description: OptionalNullable[str] = UNSET
     r"""Description of this data series."""
 
-    validators: OptionalNullable[List[DataSeryValidator]] = UNSET
+    validators: OptionalNullable[List[RunGetDataSeryValidator]] = UNSET
     r"""Validators for this data series."""
 
-    aggregations: OptionalNullable[List[DataSeryAggregation]] = UNSET
+    aggregations: OptionalNullable[List[RunGetDataSeryAggregation]] = UNSET
     r"""Aggregations computed over this data series."""
 
     @model_serializer(mode="wrap")
@@ -1056,7 +1058,7 @@ class RunGetMeasurementTypedDict(TypedDict):
     r"""Aggregations computed over this measurement."""
     measured_value: NotRequired[RunGetMeasuredValueTypedDict]
     r"""The actual measured value."""
-    data_series: NotRequired[List[DataSeryTypedDict]]
+    data_series: NotRequired[List[RunGetDataSeryTypedDict]]
     r"""Multi-dimensional measurement data series."""
 
 
@@ -1082,7 +1084,7 @@ class RunGetMeasurement(BaseModel):
     measured_value: Optional[RunGetMeasuredValue] = None
     r"""The actual measured value."""
 
-    data_series: Optional[List[DataSery]] = None
+    data_series: Optional[List[RunGetDataSery]] = None
     r"""Multi-dimensional measurement data series."""
 
     @model_serializer(mode="wrap")

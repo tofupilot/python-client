@@ -371,6 +371,8 @@ class Runs(BaseSDK):
         outcomes: Optional[List[models.RunListQueryParamOutcome]] = None,
         procedure_ids: Optional[List[str]] = None,
         procedure_versions: Optional[List[str]] = None,
+        deployment_ids: Optional[List[str]] = None,
+        environments: Optional[List[models.RunListEnvironment]] = None,
         serial_numbers: Optional[List[str]] = None,
         samples: Optional[List[models.RunListQueryParamSample]] = None,
         part_numbers: Optional[List[str]] = None,
@@ -412,6 +414,8 @@ class Runs(BaseSDK):
         :param outcomes:
         :param procedure_ids:
         :param procedure_versions:
+        :param deployment_ids:
+        :param environments:
         :param serial_numbers:
         :param samples:
         :param part_numbers:
@@ -455,6 +459,8 @@ class Runs(BaseSDK):
             outcomes=outcomes,
             procedure_ids=procedure_ids,
             procedure_versions=procedure_versions,
+            deployment_ids=deployment_ids,
+            environments=environments,
             serial_numbers=serial_numbers,
             samples=samples,
             part_numbers=part_numbers,
@@ -555,6 +561,8 @@ class Runs(BaseSDK):
         outcomes: Optional[List[models.RunListQueryParamOutcome]] = None,
         procedure_ids: Optional[List[str]] = None,
         procedure_versions: Optional[List[str]] = None,
+        deployment_ids: Optional[List[str]] = None,
+        environments: Optional[List[models.RunListEnvironment]] = None,
         serial_numbers: Optional[List[str]] = None,
         samples: Optional[List[models.RunListQueryParamSample]] = None,
         part_numbers: Optional[List[str]] = None,
@@ -596,6 +604,8 @@ class Runs(BaseSDK):
         :param outcomes:
         :param procedure_ids:
         :param procedure_versions:
+        :param deployment_ids:
+        :param environments:
         :param serial_numbers:
         :param samples:
         :param part_numbers:
@@ -639,6 +649,8 @@ class Runs(BaseSDK):
             outcomes=outcomes,
             procedure_ids=procedure_ids,
             procedure_versions=procedure_versions,
+            deployment_ids=deployment_ids,
+            environments=environments,
             serial_numbers=serial_numbers,
             samples=samples,
             part_numbers=part_numbers,

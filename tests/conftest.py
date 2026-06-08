@@ -95,7 +95,8 @@ def _v1_test_procedure():
             )
         except Exception:
             pass
-    return {"id": proc.id, "identifier": proc.identifier or proc.id}
+    # The V2 procedure-get response has no `identifier` field; fall back to id.
+    return {"id": proc.id, "identifier": getattr(proc, "identifier", None) or proc.id}
 
 
 @pytest.fixture(scope="class")

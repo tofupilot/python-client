@@ -148,14 +148,14 @@ class RecentRun(BaseModel):
         return m
 
 
-class StationTypedDict(TypedDict):
+class ProcedureGetStationTypedDict(TypedDict):
     id: str
     r"""Station ID."""
     name: str
     r"""Station name."""
 
 
-class Station(BaseModel):
+class ProcedureGetStation(BaseModel):
     id: str
     r"""Station ID."""
 
@@ -178,7 +178,7 @@ class ProcedureGetResponseTypedDict(TypedDict):
     r"""Total number of runs for this procedure."""
     recent_runs: List[RecentRunTypedDict]
     r"""List of recent runs for this procedure."""
-    stations: List[StationTypedDict]
+    stations: List[ProcedureGetStationTypedDict]
     r"""Stations linked to this procedure."""
 
 
@@ -203,7 +203,7 @@ class ProcedureGetResponse(BaseModel):
     recent_runs: List[RecentRun]
     r"""List of recent runs for this procedure."""
 
-    stations: List[Station]
+    stations: List[ProcedureGetStation]
     r"""Stations linked to this procedure."""
 
     @model_serializer(mode="wrap")

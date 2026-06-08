@@ -18,6 +18,8 @@ from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 RunListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
+RunListEnvironment = Literal["production", "preview", "development"]
+
 RunListQueryParamSample = Literal["golden", "failing"]
 
 RunListSortBy = Literal[
@@ -100,6 +102,8 @@ class RunListRequestTypedDict(TypedDict):
     outcomes: NotRequired[List[RunListQueryParamOutcome]]
     procedure_ids: NotRequired[List[str]]
     procedure_versions: NotRequired[List[str]]
+    deployment_ids: NotRequired[List[str]]
+    environments: NotRequired[List[RunListEnvironment]]
     serial_numbers: NotRequired[List[str]]
     samples: NotRequired[List[RunListQueryParamSample]]
     part_numbers: NotRequired[List[str]]
@@ -152,6 +156,16 @@ class RunListRequest(BaseModel):
 
     procedure_versions: Annotated[
         Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    deployment_ids: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    environments: Annotated[
+        Optional[List[RunListEnvironment]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 

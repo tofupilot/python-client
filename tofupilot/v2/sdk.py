@@ -16,8 +16,12 @@ import weakref
 if TYPE_CHECKING:
     from tofupilot.v2.attachments import Attachments
     from tofupilot.v2.batches import Batches
+    from tofupilot.v2.deployments import Deployments
     from tofupilot.v2.imports import Imports
+    from tofupilot.v2.logs import Logs
+    from tofupilot.v2.measurements_sdk import MeasurementsSDK
     from tofupilot.v2.parts import Parts
+    from tofupilot.v2.phases_sdk import PhasesSDK
     from tofupilot.v2.procedures import Procedures
     from tofupilot.v2.runs import Runs
     from tofupilot.v2.stations import Stations
@@ -39,6 +43,10 @@ class TofuPilot(BaseSDK):
     stations: "Stations"
     users: "Users"
     imports: "Imports"
+    logs: "Logs"
+    phases: "PhasesSDK"
+    measurements: "MeasurementsSDK"
+    deployments: "Deployments"
     _sub_sdk_map = {
         "procedures": ("tofupilot.v2.procedures", "Procedures"),
         "runs": ("tofupilot.v2.runs", "Runs"),
@@ -49,6 +57,10 @@ class TofuPilot(BaseSDK):
         "stations": ("tofupilot.v2.stations", "Stations"),
         "users": ("tofupilot.v2.users", "Users"),
         "imports": ("tofupilot.v2.imports", "Imports"),
+        "logs": ("tofupilot.v2.logs", "Logs"),
+        "phases": ("tofupilot.v2.phases_sdk", "PhasesSDK"),
+        "measurements": ("tofupilot.v2.measurements_sdk", "MeasurementsSDK"),
+        "deployments": ("tofupilot.v2.deployments", "Deployments"),
     }
 
     def __init__(
