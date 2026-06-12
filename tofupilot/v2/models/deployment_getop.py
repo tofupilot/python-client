@@ -24,7 +24,7 @@ class DeploymentGetRequest(BaseModel):
 DeploymentGetEnvironment = Literal["production", "preview", "development"]
 r"""Deployment environment."""
 
-DeploymentGetTrigger = Literal["auto", "manual"]
+DeploymentGetTrigger = Literal["auto", "manual", "cli"]
 r"""How the deployment was triggered."""
 
 DeploymentGetStatus = Literal["pending", "building", "ready", "failed"]

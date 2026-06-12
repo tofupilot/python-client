@@ -92,7 +92,7 @@ class DeploymentListRequest(BaseModel):
 DataEnvironment = Literal["production", "preview", "development"]
 r"""Deployment environment."""
 
-DeploymentListTrigger = Literal["auto", "manual"]
+DeploymentListTrigger = Literal["auto", "manual", "cli"]
 r"""How the deployment was triggered."""
 
 DeploymentListStatus = Literal["pending", "building", "ready", "failed"]
