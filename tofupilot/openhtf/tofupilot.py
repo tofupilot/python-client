@@ -90,7 +90,7 @@ class TofuPilot:
     #...
 
     def main():
-        test = Test(*your_phases, procedure_id="FVT1")
+        test = Test(*your_phases, procedure_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")  # procedure UUID from the dashboard
 
         # Stream real-time test execution data to TofuPilot Operator UI
         with TofuPilot(test):

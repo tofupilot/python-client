@@ -44,7 +44,7 @@ class upload:  # pylint: disable=invalid-name
     # ...
 
     def main():
-        test = Test(*your_phases, procedure_id="FVT1")
+        test = Test(*your_phases, procedure_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")  # procedure UUID from the dashboard
 
         # Add TofuPilot's upload callback to automatically send the test report upon completion
         test.add_output_callback(upload())
