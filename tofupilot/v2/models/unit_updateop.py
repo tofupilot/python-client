@@ -14,8 +14,8 @@ from typing import Dict, List, Literal, Optional, Union
 from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
-UnitUpdateSample = Literal["golden", "failing"]
-r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
+UnitUpdateSample = Literal["golden", "failing", "ignored"]
+r"""Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
 
 UnitUpdateMetadataTypedDict = TypeAliasType(
     "UnitUpdateMetadataTypedDict", Union[str, float, bool]
@@ -37,7 +37,7 @@ class UnitUpdateRequestBodyTypedDict(TypedDict):
     attachments: NotRequired[List[str]]
     r"""Array of upload IDs to attach to the unit."""
     sample: NotRequired[Nullable[UnitUpdateSample]]
-    r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
+    r"""Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
     metadata: NotRequired[Dict[str, Nullable[UnitUpdateMetadataTypedDict]]]
     r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
@@ -59,7 +59,7 @@ class UnitUpdateRequestBody(BaseModel):
     r"""Array of upload IDs to attach to the unit."""
 
     sample: OptionalNullable[UnitUpdateSample] = UNSET
-    r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
+    r"""Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit."""
 
     metadata: Optional[Dict[str, Nullable[UnitUpdateMetadata]]] = None
     r"""Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""

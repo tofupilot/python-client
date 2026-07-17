@@ -13,8 +13,8 @@ from typing import Dict, Literal, Optional, Union
 from typing_extensions import NotRequired, TypeAliasType, TypedDict
 
 
-UnitCreateSample = Literal["golden", "failing"]
-r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
+UnitCreateSample = Literal["golden", "failing", "ignored"]
+r"""Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
 
 UnitCreateMetadataTypedDict = TypeAliasType(
     "UnitCreateMetadataTypedDict", Union[str, float, bool]
@@ -32,7 +32,7 @@ class UnitCreateRequestTypedDict(TypedDict):
     revision_number: str
     r"""Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created."""
     sample: NotRequired[Nullable[UnitCreateSample]]
-    r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
+    r"""Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
     metadata: NotRequired[Dict[str, UnitCreateMetadataTypedDict]]
     r"""Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
 
@@ -48,7 +48,7 @@ class UnitCreateRequest(BaseModel):
     r"""Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created."""
 
     sample: OptionalNullable[UnitCreateSample] = UNSET
-    r"""Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
+    r"""Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units."""
 
     metadata: Optional[Dict[str, UnitCreateMetadata]] = None
     r"""Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""

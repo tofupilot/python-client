@@ -27,8 +27,8 @@ class UnitGetRequest(BaseModel):
     r"""Serial number of the unit to retrieve."""
 
 
-UnitGetSample = Literal["golden", "failing"]
-r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+UnitGetSample = Literal["golden", "failing", "ignored"]
+r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
 
 
 class UnitGetCreatedByUserTypedDict(TypedDict):
@@ -571,7 +571,7 @@ class UnitGetResponseTypedDict(TypedDict):
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
     sample: Nullable[UnitGetSample]
-    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
     part: UnitGetPartTypedDict
     r"""Part information with revision details for this unit. Every unit must have a part and revision."""
     parent: Nullable[UnitGetParentTypedDict]
@@ -605,7 +605,7 @@ class UnitGetResponse(BaseModel):
     r"""ISO 8601 timestamp when the unit was created."""
 
     sample: Nullable[UnitGetSample]
-    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
 
     part: UnitGetPart
     r"""Part information with revision details for this unit. Every unit must have a part and revision."""

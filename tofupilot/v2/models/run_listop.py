@@ -20,7 +20,7 @@ RunListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"
 
 RunListEnvironment = Literal["production", "preview", "development"]
 
-RunListQueryParamSample = Literal["golden", "failing"]
+RunListQueryParamSample = Literal["golden", "failing", "ignored"]
 
 RunListSortBy = Literal[
     "started_at",
@@ -489,8 +489,8 @@ class RunListProcedure(BaseModel):
         return m
 
 
-RunListUnitSample = Literal["golden", "failing"]
-r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+RunListUnitSample = Literal["golden", "failing", "ignored"]
+r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
 
 
 class RunListRevisionTypedDict(TypedDict):
@@ -568,7 +568,7 @@ class RunListUnitTypedDict(TypedDict):
     serial_number: str
     r"""Unit serial number."""
     sample: Nullable[RunListUnitSample]
-    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
     part: RunListPartTypedDict
     r"""Part information with revision details."""
     batch: NotRequired[Nullable[RunListBatchTypedDict]]
@@ -585,7 +585,7 @@ class RunListUnit(BaseModel):
     r"""Unit serial number."""
 
     sample: Nullable[RunListUnitSample]
-    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+    r"""Reference-sample classification of the unit. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
 
     part: RunListPart
     r"""Part information with revision details."""

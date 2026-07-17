@@ -21,7 +21,7 @@ LogListRunOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
 LogListEnvironment = Literal["production", "preview", "development"]
 
-LogListSample = Literal["golden", "failing"]
+LogListSample = Literal["golden", "failing", "ignored"]
 
 LogListSortBy = Literal["created_at", "level", "run_id", "outcome"]
 r"""Field to sort results by."""

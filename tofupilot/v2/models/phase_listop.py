@@ -15,7 +15,7 @@ PhaseListQueryParamRunOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABO
 
 PhaseListEnvironment = Literal["production", "preview", "development"]
 
-PhaseListQueryParamSample = Literal["production", "golden", "failing"]
+PhaseListQueryParamSample = Literal["production", "golden", "failing", "ignored"]
 
 PhaseListSortBy = Literal[
     "started_at", "duration", "outcome", "serial_number", "phase_name"
@@ -196,7 +196,7 @@ r"""Outcome of the phase."""
 RunOutcomeResponse = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 r"""Outcome of the run this phase belongs to."""
 
-PhaseListDataSample = Literal["golden", "failing"]
+PhaseListDataSample = Literal["golden", "failing", "ignored"]
 r"""Sample class of the unit (golden or failing). Null for regular units."""
 
 

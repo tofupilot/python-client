@@ -36,7 +36,7 @@ class UnitsSDK(BaseSDK):
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
         :param revision_number: Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
-        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+        :param sample: Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
         :param metadata: Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -156,7 +156,7 @@ class UnitsSDK(BaseSDK):
         :param serial_number: Unique serial number identifier for the unit. Must be unique within the organization.
         :param part_number: Component part number that defines what type of unit this is. If the part does not exist, it will be created.
         :param revision_number: Hardware revision identifier for the specific version of the part. If the revision does not exist, it will be created.
-        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
+        :param sample: Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics aggregates (FPY, Cpk, throughput) by default. Omit or null for regular production units.
         :param metadata: Custom metadata to attach to the unit (max 50 keys per unit). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -1026,7 +1026,7 @@ class UnitsSDK(BaseSDK):
         :param revision_number: New revision number for the unit.
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
-        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+        :param sample: Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit.
         :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -1157,7 +1157,7 @@ class UnitsSDK(BaseSDK):
         :param revision_number: New revision number for the unit.
         :param batch_number: New batch number for the unit. Set to null to remove batch.
         :param attachments: Array of upload IDs to attach to the unit.
-        :param sample: Reference-sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit. Both are excluded from production analytics by default. Set to null to clear and treat as a production unit.
+        :param sample: Sample classification. 'golden' marks a known-good reference unit; 'failing' marks a known-faulty reference unit; 'ignored' marks a bench-check unit excluded from analytics and alerts. All are excluded from production analytics by default. Set to null to clear and treat as a production unit.
         :param metadata: Custom metadata to upsert on the unit. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method

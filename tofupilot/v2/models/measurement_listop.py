@@ -235,7 +235,7 @@ class MeasurementListRequest(BaseModel):
 MeasurementOutcomeResponse = Literal["PASS", "FAIL", "UNSET"]
 r"""Outcome of the measurement."""
 
-MeasurementListSample = Literal["golden", "failing"]
+MeasurementListSample = Literal["golden", "failing", "ignored"]
 r"""Sample class of the unit (golden or failing). Null for regular units."""
 
 MeasurementTypeResponse = Literal[

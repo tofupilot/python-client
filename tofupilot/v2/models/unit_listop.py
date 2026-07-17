@@ -18,7 +18,7 @@ from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 UnitListQueryParamOutcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
-UnitListQueryParamSample = Literal["golden", "failing"]
+UnitListQueryParamSample = Literal["golden", "failing", "ignored"]
 
 UnitListSortBy = Literal[
     "serial_number", "created_at", "last_run_at", "part_number", "last_run_procedure"
@@ -253,8 +253,8 @@ class UnitListRequest(BaseModel):
     r"""When true, includes the unit metadata array in the response. Defaults to false to keep payloads small."""
 
 
-UnitListDataSample = Literal["golden", "failing"]
-r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+UnitListDataSample = Literal["golden", "failing", "ignored"]
+r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
 
 
 class UnitListCreatedByUserTypedDict(TypedDict):
@@ -529,7 +529,7 @@ class UnitListDataTypedDict(TypedDict):
     created_at: datetime
     r"""ISO 8601 timestamp when the unit was created."""
     sample: Nullable[UnitListDataSample]
-    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
     children: List[UnitListChildTypedDict]
     r"""Child units assembled into this unit. Limited to 10 results; use Get Unit endpoint for complete list."""
     part: UnitListPartTypedDict
@@ -559,7 +559,7 @@ class UnitListData(BaseModel):
     r"""ISO 8601 timestamp when the unit was created."""
 
     sample: Nullable[UnitListDataSample]
-    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, null = production unit."""
+    r"""Reference-sample classification. 'golden' = known-good reference, 'failing' = known-faulty reference, 'ignored' = bench-check unit excluded from analytics and alerts, null = production unit."""
 
     children: List[UnitListChild]
     r"""Child units assembled into this unit. Limited to 10 results; use Get Unit endpoint for complete list."""
