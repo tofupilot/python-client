@@ -144,8 +144,15 @@ class upload:  # pylint: disable=invalid-name
 
                 # Process each attachment in the phase
                 for attachment_name, attachment in phase.attachments.items():
+                    # OpenHTF < 1.5.0 stores attachment data in memory and has no
+                    # `size` attribute; it was added when Attachment moved to a
+                    # temp file. len(data) is what 1.5+ stores there anyway.
+                    attachment_size = getattr(attachment, "size", None)
+                    if attachment_size is None:
+                        attachment_size = len(attachment.data)
+
                     # Remove attachments that exceed the max file size
-                    if attachment.size > self._max_file_size:
+                    if attachment_size > self._max_file_size:
                         self._logger.warning(f"File too large: {attachment_name}")
                         continue
                     if number_of_attachments == self._max_attachments:
