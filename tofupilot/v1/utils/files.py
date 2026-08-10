@@ -57,6 +57,21 @@ def validate_files(
             )
 
 
+def _initialize_payload(name: str, content_type: str, size_bytes: int) -> dict:
+    """Payload for `/uploads/initialize`.
+
+    Declaring the type up front means the record carries it even if the
+    post-upload metadata read is skipped. The server validates `sizeBytes`
+    as positive and binds the upload grant to it exactly, so an empty or
+    unknown size must omit the field (the server then issues an unsized
+    grant capped at PUT time).
+    """
+    payload = {"name": name, "mimeType": content_type}
+    if size_bytes > 0:
+        payload["sizeBytes"] = size_bytes
+    return payload
+
+
 def upload_file(
     headers: dict,
     url: str,
@@ -64,22 +79,31 @@ def upload_file(
     verify: Optional[str] = None,
 ) -> str:
     """Initializes an upload and stores file in it
-    
+
     Args:
         headers (dict): Request headers including authorization
         url (str): Base API URL
         file_path (str): Path to the file to upload
         verify (Optional[str]): Path to a CA bundle file to verify the server certificate
-    
+
     Returns:
         str: The ID of the created upload
     """
     verify_setting = prepare_verify_setting(verify)
-    
+
     # Upload initialization
     initialize_url = f"{url}/uploads/initialize"
     file_name = os.path.basename(file_path)
-    payload = {"name": file_name}
+    # `guess_type` returns (None, None) for an unknown extension, which is
+    # truthy, so index before the fallback.
+    content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+    # Read the file once and size from the buffer: sizing the path here and
+    # streaming the handle at PUT would race a file still being written, and
+    # the grant rejects a Content-Length that differs from the declared size.
+    # `upload_attachments` already buffers whole files the same way.
+    with open(file_path, "rb") as file:
+        file_data = file.read()
+    payload = _initialize_payload(file_name, content_type, len(file_data))
 
     response = requests.post(
         initialize_url,
@@ -100,24 +124,19 @@ def upload_file(
     if not upload_id or not upload_url:
         raise ValueError(f"Upload initialization failed: missing 'id' or 'uploadUrl' in response: {response_json}")
 
-    # File storing
-    with open(file_path, "rb") as file:
-        # `guess_type` returns the tuple (None, None) for an unknown
-        # extension, which is truthy — the `or` fallback never fired and
-        # Content-Type went out as None, which requests rejects outright.
-        content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
-        put_response = requests.put(
-            upload_url,
-            data=file,
-            headers={"Content-Type": content_type},
-            timeout=SECONDS_BEFORE_TIMEOUT,
-            verify=verify_setting,
-        )
-        # The presigned URL expires 60s after `initialize`. Without this
-        # check an expired or rejected upload still returned an upload_id,
-        # which the caller then linked to the run — the dashboard showed
-        # an attachment whose object was never stored.
-        put_response.raise_for_status()
+    # File storing — send the buffer we sized, not a re-read of the path.
+    put_response = requests.put(
+        upload_url,
+        data=file_data,
+        headers={"Content-Type": content_type},
+        timeout=SECONDS_BEFORE_TIMEOUT,
+        verify=verify_setting,
+    )
+    # The presigned URL expires 60s after `initialize`. Without this
+    # check an expired or rejected upload still returned an upload_id,
+    # which the caller then linked to the run — the dashboard showed
+    # an attachment whose object was never stored.
+    put_response.raise_for_status()
 
     return upload_id
 
@@ -187,7 +206,15 @@ def upload_attachment_data(
     
     try:
         initialize_url = f"{url}/uploads/initialize"
-        payload = {"name": name}
+        content_type = mimetype or "application/octet-stream"
+        # Encode str ourselves so the declared size counts the bytes actually
+        # transmitted, not characters. For anything that isn't bytes after
+        # that (streams, buffer views with multi-byte items), len() is not a
+        # byte count — omit the size and take the unsized grant instead.
+        if isinstance(data, str):
+            data = data.encode("utf-8")
+        data_size = len(data) if isinstance(data, (bytes, bytearray)) else 0
+        payload = _initialize_payload(name, content_type, data_size)
 
         response = requests.post(
             initialize_url,
@@ -204,7 +231,6 @@ def upload_attachment_data(
         upload_id = response_json.get("id")
 
         # Upload the actual data
-        content_type = mimetype or "application/octet-stream"
         upload_response = requests.put(
             upload_url,
             data=data,
@@ -214,8 +240,13 @@ def upload_attachment_data(
         )
         upload_response.raise_for_status()
 
-        # Link attachment to run (uses its own verify handling)
-        notify_server(headers, url, upload_id, run_id, verify=verify, logger=logger)
+        # Link attachment to run. notify_server swallows its own exceptions
+        # and returns False; reporting success anyway would leave the bytes
+        # stored but never linked to the run, with nothing in the log.
+        if not notify_server(headers, url, upload_id, run_id, verify=verify, logger=logger):
+            with LoggerStateManager(logger):
+                logger.error(f"Attachment stored but not linked to run: {name}")
+            return False
 
         # Log success with LoggerStateManager for visibility
         with LoggerStateManager(logger):
