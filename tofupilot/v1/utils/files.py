@@ -6,6 +6,7 @@ from typing import List, Dict, Optional, Union
 import requests
 import posthog
 
+from ..constants import FILE_MAX_SIZE
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from .logger import LoggerStateManager
 from ...error_tracking import ApiV1Error
@@ -100,7 +101,16 @@ def upload_file(
     # Read the file once and size from the buffer: sizing the path here and
     # streaming the handle at PUT would race a file still being written, and
     # the grant rejects a Content-Length that differs from the declared size.
-    # `upload_attachments` already buffers whole files the same way.
+    # `upload_attachments` already buffers whole files the same way. Guard
+    # the buffering here, not only in the client caller: this util is public
+    # (utils.__all__), and an unguarded multi-GB read would sit in RAM just
+    # to be rejected by the server cap anyway.
+    file_size = os.path.getsize(file_path)
+    if file_size > FILE_MAX_SIZE:
+        raise ValueError(
+            f"File size ({file_size / 1024 / 1024:.2f} MB) exceeds the maximum "
+            f"allowed size of {FILE_MAX_SIZE / 1024 / 1024:.2f} MB: {file_path}"
+        )
     with open(file_path, "rb") as file:
         file_data = file.read()
     payload = _initialize_payload(file_name, content_type, len(file_data))
