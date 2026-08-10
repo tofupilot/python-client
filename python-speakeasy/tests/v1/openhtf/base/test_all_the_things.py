@@ -11,7 +11,7 @@ from openhtf import util
 from openhtf.output import callbacks
 from openhtf.output.callbacks import console_summary, json_factory
 from openhtf.util import units
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 @htf.measures(
     htf.Measurement("widget_type")
@@ -139,7 +139,7 @@ def analysis(test):  # pylint: disable=missing-function-docstring
 def teardown(test):
     test.logger.info("Running teardown")
 
-def test_all_the_things(tofupilot_server_url, api_key, stream_enabled, procedure_identifier, procedure_id, tmp_path, extract_id_and_check_run_exists):
+def test_all_the_things(tofupilot_server_url, api_key, procedure_identifier, procedure_id, tmp_path, extract_id_and_check_run_exists):
     test = htf.Test(
         htf.PhaseGroup.with_teardown(teardown)(
             hello_world,
@@ -177,8 +177,8 @@ def test_all_the_things(tofupilot_server_url, api_key, stream_enabled, procedure
 
     test.add_output_callbacks(console_summary.ConsoleSummary())
     
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key, stream=stream_enabled):
-        test.execute(lambda: "00220D4K")
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: "00220D4K")
 
 
     run = extract_id_and_check_run_exists(serial_number="00220D4K", part_number="PCB01", procedure_id=procedure_id)

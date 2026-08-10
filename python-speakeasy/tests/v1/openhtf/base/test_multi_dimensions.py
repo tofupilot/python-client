@@ -7,7 +7,7 @@ import numpy as np
 import openhtf as htf
 from openhtf.output.callbacks import json_factory
 from openhtf.util import units
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 
 @htf.measures(
@@ -89,8 +89,8 @@ def test_multi_dimensions(tofupilot_server_url, api_key, procedure_identifier, p
     serial_number = f"00220D4K{random_digits}"
 
     # Execute the test
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-        test.execute(lambda: serial_number)
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: serial_number)
 
 
     run = extract_id_and_check_run_exists(

@@ -3,7 +3,7 @@
 import random
 
 import openhtf as htf
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 
 @htf.measures(htf.Measurement("button_status").equals(True))
@@ -24,8 +24,8 @@ def test_procedure_version(tofupilot_server_url, api_key, procedure_identifier, 
     serial_number = f"00220B4K{random.randint(10000, 99999)}"
 
     # Execute the test
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key, stream=False):
-        test.execute(lambda: serial_number)
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: serial_number)
 
     extract_id_and_check_run_exists(
         serial_number=serial_number,

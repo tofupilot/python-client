@@ -13,7 +13,7 @@ from datetime import datetime, timedelta, timezone
 
 import openhtf as htf
 from openhtf import PhaseResult
-from tofupilot.openhtf import TofuPilot, upload
+from tofupilot.openhtf import upload
 import tofupilot
 
 
@@ -92,8 +92,8 @@ def test_phase_timeout_outcome(
         part_number="test_timeout",
     )
 
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key, stream=False):
-        test.execute(lambda: serial)
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: serial)
 
     run = extract_id_and_check_run_exists(
         serial_number=serial,
@@ -128,8 +128,8 @@ def test_phase_result_stop_halts_execution(
         part_number="test_stop",
     )
 
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key, stream=False):
-        test.execute(lambda: serial)
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: serial)
 
     run = extract_id_and_check_run_exists(
         serial_number=serial,
@@ -182,10 +182,8 @@ def test_sub_units_via_openhtf(
         part_number="test_main_unit",
         sub_units=[{"serial_number": sub_serial}],
     )
-    with TofuPilot(
-        main_test, url=tofupilot_server_url, api_key=api_key, stream=False
-    ):
-        main_test.execute(lambda: main_serial)
+    main_test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    main_test.execute(lambda: main_serial)
 
     run = extract_id_and_check_run_exists(
         serial_number=main_serial,

@@ -5,8 +5,6 @@ from .responses import (
 
     # Private types (used only by private methods)
     _OpenHTFImportResult,
-    _StreamingCredentials,
-    _StreamingResult,
     _InitializeUploadResponse,
     
     # Error response types
@@ -24,7 +22,6 @@ __all__ = [
     
     # Private types (used only by private methods)
     "_OpenHTFImportResult",
-    "_StreamingResult",
     "_InitializeUploadResponse",
     
     # Error response types

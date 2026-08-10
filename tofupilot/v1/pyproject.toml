@@ -1,7 +1,7 @@
 [project]
 name = "tofupilot-v1"
 version = "1.11.2"
-description = "TofuPilot v1 legacy client with OpenHTF integration and pytest plugin"
+description = "TofuPilot v1 legacy client with OpenHTF integration"
 authors = [{ name = "TofuPilot Team", email = "hello@tofupilot.com" }]
 readme = "../../README.md"
 license = { text = "MIT" }
@@ -24,10 +24,7 @@ dependencies = [
     "packaging>=20.0",
     "certifi>=2023.7.22",
     # OpenHTF integration
-    "openhtf",
-    "paho-mqtt>=2.0.0",
-    # pytest plugin
-    "pytest>=6.0.0",
+    "openhtf>=1.3.0",
     # Error tracking
     "posthog>=3.0.0",
 ]
@@ -37,12 +34,9 @@ Homepage = "https://github.com/tofupilot/python-client"
 Documentation = "https://tofupilot.com/docs"
 Repository = "https://github.com/tofupilot/python-client"
 
-[project.entry-points."pytest11"]
-tofupilot = "tofupilot.pytest.plugin:TestPilotPlugin"
-
 [build-system]
 requires = ["setuptools>=50.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["tofupilot.v1", "tofupilot.pytest", "tofupilot.openhtf"]
+packages = ["tofupilot.v1", "tofupilot.openhtf"]

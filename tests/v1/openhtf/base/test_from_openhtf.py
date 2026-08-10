@@ -8,7 +8,7 @@ from typing import Generator
 from openhtf import PhaseResult, Test as Openhtf_Test, measures, Measurement
 from openhtf.core.test_descriptor import TestApi
 from _pytest.logging import LogCaptureFixture
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 
 # Define a test phase to simulate the power-on procedure
@@ -100,8 +100,8 @@ class TestCreateRunFromOpenHTF:
         test = Openhtf_Test(power_on_test, serial_number="PCB01", procedure_id=procedure_identifier, part_number="test_basic")
 
         # Execute the test with a specific device identifier
-        with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-            test.execute(lambda: "0001")
+        test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+        test.execute(lambda: "0001")
 
     def test_openhtf_run_creation_with_attachments(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str) -> None:
         """Test OpenHTF run creation with file attachments."""
@@ -115,8 +115,8 @@ class TestCreateRunFromOpenHTF:
             serial_number="PCB01")
 
         # Execute the test with a specific device identifier
-        with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-            test.execute(lambda: "0001")
+        test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+        test.execute(lambda: "0001")
 
     def test_openhtf_multidimensional_measurements(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str) -> None:
         """Test OpenHTF with multi-dimensional measurements upload to TofuPilot."""
@@ -130,11 +130,11 @@ class TestCreateRunFromOpenHTF:
         )
 
         # Execute the test with a specific device identifier
-        with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-            test.execute(lambda: "MULTIDIM_001")
+        test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+        test.execute(lambda: "MULTIDIM_001")
 
     def test_upload_callback_without_context_manager(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str) -> None:
-        """Test OpenHTF run creation using upload callback directly (no TofuPilot context manager)."""
+        """Test OpenHTF run creation via the upload callback."""
         from tofupilot.openhtf import upload
 
         test = Openhtf_Test(power_on_test, procedure_id=procedure_identifier, part_number="test_upload_cb")

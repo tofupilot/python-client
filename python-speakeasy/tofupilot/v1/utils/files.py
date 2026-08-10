@@ -2,7 +2,6 @@ import json
 import mimetypes
 from logging import Logger
 import os
-import sys
 from typing import List, Dict, Optional, Union
 import requests
 import posthog
@@ -10,13 +9,22 @@ import posthog
 from ..constants.requests import SECONDS_BEFORE_TIMEOUT
 from .logger import LoggerStateManager
 from ...error_tracking import ApiV1Error
-from .network import prepare_verify_setting, cleanup_temp_cert_bundle
+from .network import prepare_verify_setting
 
 
 def log_and_raise(logger: Logger, error_message: str):
-    posthog.capture_exception(ApiV1Error(error_message))
+    """Log the error and raise ApiV1Error.
+
+    Previously called `sys.exit(1)`. That raises SystemExit, which inherits
+    from BaseException, so neither the upload callback's `except Exception`
+    nor OpenHTF's own handler caught it — a report over the size limit
+    terminated the operator's test process rather than failing the upload.
+    A library must not exit the host program; the caller decides.
+    """
+    error = ApiV1Error(error_message)
+    posthog.capture_exception(error)
     logger.error(error_message)
-    sys.exit(1)
+    raise error
 
 
 def validate_files(
@@ -68,48 +76,50 @@ def upload_file(
     """
     verify_setting = prepare_verify_setting(verify)
     
-    try:
-        # Upload initialization
-        initialize_url = f"{url}/uploads/initialize"
-        file_name = os.path.basename(file_path)
-        payload = {"name": file_name}
+    # Upload initialization
+    initialize_url = f"{url}/uploads/initialize"
+    file_name = os.path.basename(file_path)
+    payload = {"name": file_name}
 
-        response = requests.post(
-            initialize_url,
-            data=json.dumps(payload),
-            headers=headers,
+    response = requests.post(
+        initialize_url,
+        data=json.dumps(payload),
+        headers=headers,
+        timeout=SECONDS_BEFORE_TIMEOUT,
+        verify=verify_setting,
+    )
+
+    # `raise_for_status` already raises an HTTPError carrying the response
+    # (401 included), so callers can surface the API-key message from the
+    # body without a special case here.
+    response.raise_for_status()
+    response_json = response.json()
+    upload_url = response_json.get("uploadUrl")
+    upload_id = response_json.get("id")
+
+    if not upload_id or not upload_url:
+        raise ValueError(f"Upload initialization failed: missing 'id' or 'uploadUrl' in response: {response_json}")
+
+    # File storing
+    with open(file_path, "rb") as file:
+        # `guess_type` returns the tuple (None, None) for an unknown
+        # extension, which is truthy — the `or` fallback never fired and
+        # Content-Type went out as None, which requests rejects outright.
+        content_type = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
+        put_response = requests.put(
+            upload_url,
+            data=file,
+            headers={"Content-Type": content_type},
             timeout=SECONDS_BEFORE_TIMEOUT,
             verify=verify_setting,
         )
+        # The presigned URL expires 60s after `initialize`. Without this
+        # check an expired or rejected upload still returned an upload_id,
+        # which the caller then linked to the run — the dashboard showed
+        # an attachment whose object was never stored.
+        put_response.raise_for_status()
 
-        # Check for API key errors before raising for status
-        if response.status_code == 401:
-            error_data = response.json()
-            error_message = error_data.get("error", {}).get("message", "Authentication failed")
-            # Create a proper HTTPError with the response
-            http_error = requests.exceptions.HTTPError(response=response)
-            http_error.response = response
-            raise http_error
-        
-        response.raise_for_status()
-        response_json = response.json()
-        upload_url = response_json.get("uploadUrl")
-        upload_id = response_json.get("id")
-
-        # File storing
-        with open(file_path, "rb") as file:
-            content_type, _ = mimetypes.guess_type(file_path) or "application/octet-stream"
-            requests.put(
-                upload_url,
-                data=file,
-                headers={"Content-Type": content_type},
-                timeout=SECONDS_BEFORE_TIMEOUT,
-                verify=verify_setting,
-            )
-
-        return upload_id
-    finally:
-        cleanup_temp_cert_bundle(verify_setting, verify)
+    return upload_id
 
 
 def notify_server(
@@ -156,8 +166,6 @@ def notify_server(
             with LoggerStateManager(logger):
                 logger.error(f"Failed to sync attachment: {str(e)}")
         return False
-    finally:
-        cleanup_temp_cert_bundle(verify_setting, verify)
 
 
 def upload_attachment_data(
@@ -224,8 +232,6 @@ def upload_attachment_data(
                 logger.warning("Certificate must include storage subdomain")
                 logger.warning("Generate wildcard certificate or add storage hostname to SAN")
         return False
-    finally:
-        cleanup_temp_cert_bundle(verify_setting, verify)
 
 def upload_attachments(
     logger: Logger,
@@ -269,9 +275,10 @@ def upload_attachments(
             with open(file_path, "rb") as file:
                 name = os.path.basename(file_path)
                 data = file.read()
-                mimetype, _ = (
-                    mimetypes.guess_type(file_path) or "application/octet-stream"
-                )
+                # See the note in `upload_file`: guess_type's (None, None) is
+                # truthy, so this `or` never fired and an extensionless file
+                # sent Content-Type: None.
+                mimetype = mimetypes.guess_type(file_path)[0] or "application/octet-stream"
 
                 # Use shared upload function
                 upload_attachment_data(

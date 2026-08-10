@@ -4,6 +4,7 @@ import uuid
 
 import pytest
 from tofupilot import TofuPilotClient
+from tofupilot.error_tracking import ApiV1Error
 
 
 def test_single_file_attachment(
@@ -58,7 +59,7 @@ def test_oversized_file_rejected(
     big_file = tmp_path / "oversized.bin"
     big_file.write_bytes(b"\x00" * (11 * 1024 * 1024))
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(ApiV1Error):
         client.create_run(
             unit_under_test={"serial_number": "OVER-001", "part_number": "test_cr_over"},
             run_passed=True,
@@ -79,7 +80,7 @@ def test_too_many_attachments_rejected(
         f.write_text(f"content {i}")
         files.append(str(f))
 
-    with pytest.raises(SystemExit):
+    with pytest.raises(ApiV1Error):
         client.create_run(
             unit_under_test={"serial_number": "MANY-001", "part_number": "test_cr_many"},
             run_passed=True,

@@ -6,7 +6,7 @@ Adapted from https://github.com/tofupilot/examples/tree/aad0dc20dd10b55a24378e9b
 import logging
 
 import openhtf as htf
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 
 @htf.measures(htf.Measurement("button_status").equals(True))
@@ -21,8 +21,8 @@ def test_no_part_number_without_regex_config(tofupilot_server_url, api_key, proc
         procedure_id=procedure_identifier,
     )
 
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-        test.execute(lambda: "PCB101T5A123")
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: "PCB101T5A123")
 
     errors = [
         record for record in caplog.get_records("call")

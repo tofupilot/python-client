@@ -1,21 +1,15 @@
 import os
-import json
+import sys
 import datetime
 import tempfile
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from openhtf.core.test_record import TestRecord
-from openhtf.output.callbacks import json_factory
-import requests
+if TYPE_CHECKING:  # pragma: no cover - types only, never imported at runtime
+    from openhtf.core.test_record import TestRecord
 
 from ..v1.client import TofuPilotClient
-from ..v1.constants import (
-    SECONDS_BEFORE_TIMEOUT,
-)
-from ..v1.utils import (
-    notify_server,
-)
-from ..v1.utils.logger import LoggerStateManager
+from ..v1.utils.files import process_openhtf_attachments
+from ..error_tracking import ApiV1Error
 
 import posthog
 
@@ -38,16 +32,16 @@ class upload:  # pylint: disable=invalid-name
     ### Usage Example:
 
     ```python
-    from openhtf import test
+    from openhtf import Test
     from tofupilot.openhtf import upload
 
     # ...
 
     def main():
-        test = Test(*your_phases, procedure_id="FVT1")
+        test = Test(*your_phases, procedure_id="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx")  # procedure UUID from the dashboard
 
         # Add TofuPilot's upload callback to automatically send the test report upon completion
-        test.add_output_callback(upload())
+        test.add_output_callbacks(upload())
 
         test.execute(lambda: "SN15")
     ```
@@ -70,7 +64,7 @@ class upload:  # pylint: disable=invalid-name
         self._max_attachments = self.client._max_attachments
         self._max_file_size = self.client._max_file_size
 
-    def __call__(self, test_record: TestRecord) -> str:
+    def __call__(self, test_record: "TestRecord") -> str:
         """
         Returns:
             str:
@@ -98,12 +92,34 @@ class upload:  # pylint: disable=invalid-name
 
             temp_dir = tempfile.gettempdir()
 
-            # Craft system-agnostic temporary filename
+            # Craft system-agnostic temporary filename. dut_id and test_name
+            # are user data and land in a path: a lot-prefixed serial like
+            # "LOT-1/SN15" — ordinary in manufacturing — produced a path whose
+            # parent does not exist, so open() raised FileNotFoundError, the
+            # outer handler swallowed it, and the run was silently never
+            # uploaded. Anything that is not filename-safe becomes "_".
+            def _safe(part, fallback):
+                text = str(part) if part is not None else ""
+                cleaned = "".join(
+                    c if (c.isalnum() or c in "-_.") else "_" for c in text
+                ).strip("._")
+                return cleaned[:100] or fallback
+
             filename = os.path.join(
-                temp_dir, f"{dut_id}.{test_name}.{start_time_formatted}.json"
+                temp_dir,
+                f"{_safe(dut_id, 'unknown-dut')}."
+                f"{_safe(test_name, 'unknown-test')}."
+                f"{start_time_formatted}.json",
             )
 
-            # Use the existing OutputToJSON callback to write to the custom file
+            # OpenHTF's own serializer, imported here rather than at module
+            # scope. It is the one part of this file that genuinely needs the
+            # framework — it produces the exact record shape the server parses
+            # — and importing it lazily keeps `from tofupilot.openhtf import
+            # upload` working on an install without openhtf, so the failure
+            # names the missing package at the point of use.
+            from openhtf.output.callbacks import json_factory
+
             output_callback = json_factory.OutputToJSON(
                 filename,
                 inline_attachments=False,  # Exclude raw attachments
@@ -123,130 +139,63 @@ class upload:  # pylint: disable=invalid-name
                 run_id = None
 
                 if not result.get("success", False):
-                    self._logger.error("Run creation failed, skipping attachments")
-                    return result.get("upload_id", "")
+                    # The run never reached the server. Returning the upload id
+                    # here reported success with the data silently lost. Raise
+                    # so the outer handler logs it and prints the stderr
+                    # banner. (Note the limit: OpenHTF catches output-callback
+                    # exceptions and finishes with the phases' outcome, so
+                    # this cannot flip a PASS — the banner is the operator's
+                    # only console signal.)
+                    raise ApiV1Error(
+                        "Run creation failed; the run was not uploaded"
+                    )
 
                 run_id = result.get("run_id")
                 original_upload_id: str = result.get("upload_id")
 
             except Exception as e:
                 posthog.capture_exception(e)
-                self._logger.error(f"Error creating run: {str(e)}")
-                return ""
+                self._logger.error(f"Error creating run: {e}")
+                # Propagate to the outer handler, which owns the operator-
+                # visible signal. Returning "" here reported the run as
+                # uploaded when it was not.
+                raise
             finally:
                 # Ensure the file is deleted after processing
                 if os.path.exists(filename):
                     os.remove(filename)
 
-            # Process attachments
-            number_of_attachments = 0
-            for phase_idx, phase in enumerate(test_record.phases):
-
-                # Process each attachment in the phase
-                for attachment_name, attachment in phase.attachments.items():
-                    # OpenHTF < 1.5.0 stores attachment data in memory and has no
-                    # `size` attribute; it was added when Attachment moved to a
-                    # temp file. len(data) is what 1.5+ stores there anyway.
-                    attachment_size = getattr(attachment, "size", None)
-                    if attachment_size is None:
-                        attachment_size = len(attachment.data)
-
-                    # Remove attachments that exceed the max file size
-                    if attachment_size > self._max_file_size:
-                        self._logger.warning(f"File too large: {attachment_name}")
-                        continue
-                    if number_of_attachments == self._max_attachments:
-                        self._logger.warning(
-                            f"Attachment limit ({self._max_attachments}) reached"
-                        )
-                    if number_of_attachments >= self._max_attachments:
-                        break
-
-                    number_of_attachments += 1
-
-                    # Use LoggerStateManager to temporarily activate the logger
-                    with LoggerStateManager(self._logger):
-                        self._logger.info(f"Uploading attachment...")
-
-                    # Upload initialization
-                    initialize_url = f"{self._url}/uploads/initialize"
-                    payload = {"name": attachment_name}
-
-                    try:
-                        response = requests.post(
-                            initialize_url,
-                            data=json.dumps(payload),
-                            headers=self._headers,
-                            verify=self._verify,
-                            timeout=SECONDS_BEFORE_TIMEOUT,
-                        )
-
-                        response.raise_for_status()
-                        response_json = response.json()
-                        upload_url = response_json.get("uploadUrl")
-                        upload_id = response_json.get("id")
-
-                        # Handle file attachments created with test.attach_from_file
-                        try:
-                            attachment_data = attachment.data
-
-                            # Some OpenHTF implementations have file path in the attachment object
-                            if hasattr(attachment, "file_path") and getattr(
-                                attachment, "file_path"
-                            ):
-                                try:
-                                    with open(
-                                        getattr(attachment, "file_path"), "rb"
-                                    ) as f:
-                                        attachment_data = f.read()
-                                        self._logger.info(
-                                            f"Read file data from {attachment.file_path}"
-                                        )
-                                except Exception as e:
-                                    posthog.capture_exception(e)
-                                    self._logger.warning(
-                                        f"Could not read from file_path: {str(e)}"
-                                    )
-                                    # Continue with attachment.data
-
-                            requests.put(
-                                upload_url,
-                                data=attachment_data,
-                                headers={"Content-Type": attachment.mimetype},
-                                timeout=SECONDS_BEFORE_TIMEOUT,
-                                verify=self._verify,
-                            )
-                        except Exception as e:
-                            posthog.capture_exception(e)
-                            self._logger.error(f"Error uploading data: {str(e)}")
-                            continue
-
-                        notify_server(
-                            self._headers,
-                            self._url,
-                            upload_id,
-                            run_id,
-                            logger=self._logger,
-                            verify=self._verify,
-                        )
-
-                        # Use LoggerStateManager to temporarily activate the logger
-                        with LoggerStateManager(self._logger):
-                            self._logger.success(
-                                f"Uploaded attachment: {attachment_name}"
-                            )
-                    except Exception as e:
-                        posthog.capture_exception(e)
-                        # Use LoggerStateManager to temporarily activate the logger
-                        with LoggerStateManager(self._logger):
-                            self._logger.error(
-                                f"Failed to process attachment: {str(e)}"
-                            )
-                        continue
+            # Attachments go through the shared v1 pipeline. This loop used to
+            # be a hand-rolled copy of it and had already drifted: it passed
+            # the raw `verify` path to requests, skipping the certifi merge in
+            # `prepare_verify_setting`, so a custom CA became the entire trust
+            # store on this path only and presigned uploads to publicly-signed
+            # storage hosts failed TLS.
+            process_openhtf_attachments(
+                self._logger,
+                self._headers,
+                self._url,
+                test_record,
+                run_id,
+                self._max_attachments,
+                self._max_file_size,
+                needs_base64_decode=False,
+                verify=self._verify,
+            )
             return original_upload_id
         except Exception as e:
             posthog.capture_exception(e)
-            self._logger.error(
-                f"Otherwise uncaught exception: {str(e)}"
+            self._logger.error(f"Upload failed: {e}")
+            # Honesty about what raising achieves: OpenHTF catches output-
+            # callback exceptions ("Output callback ... raised; continuing"),
+            # so the test still finishes with whatever outcome its phases
+            # produced and the process still exits 0 — a raise alone cannot
+            # turn a lost upload into a visible failure. It does get the full
+            # traceback into the log instead of a bare return, and the banner
+            # below is the one signal an operator watching the console gets
+            # that this run never reached the server.
+            sys.stderr.write(
+                "\nERROR: TofuPilot upload failed — this test's run was NOT "
+                f"uploaded: {e}\n"
             )
-            return ""
+            raise

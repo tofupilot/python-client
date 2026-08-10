@@ -2,7 +2,6 @@
 
 from typing import Dict, List, Optional, Union, cast
 import os
-import sys
 import logging
 from datetime import datetime, timedelta
 from importlib.metadata import version
@@ -23,8 +22,6 @@ from .responses import (
     CreateRunResponse,
     GetRunsResponse,
     _OpenHTFImportResult,
-    _StreamingResult,
-    _StreamingCredentials,
     _InitializeUploadResponse,
     ErrorResponse,
 )
@@ -73,9 +70,15 @@ class TofuPilotClient:
         self._api_key = api_key or os.environ.get("TOFUPILOT_API_KEY")
         if self._api_key is None:
             error = "Please set TOFUPILOT_API_KEY environment variable. For more information on how to find or generate a valid API key, visit https://tofupilot.com/docs/access/api-keys."
-            posthog.capture_exception(ApiV1Error(error))
+            # Raise rather than sys.exit: SystemExit inherits from
+            # BaseException, so it passed straight through OpenHTF's handler
+            # and killed the operator's test process. `upload()` builds this
+            # client at registration time, so an unset key took the process
+            # down before a single phase ran.
+            exception = ApiV1Error(error)
+            posthog.capture_exception(exception)
             self._logger.error(error)
-            sys.exit(1)
+            raise exception
 
         if url:
             self._url = f"{url}/api/v1"
@@ -421,35 +424,3 @@ class TofuPilotClient:
         else:
             return {**result, "upload_id": upload_id,}
 
-    def _get_connection_credentials(self) -> Union[_StreamingResult, ErrorResponse]:
-        """
-        Fetches credentials required to livestream test results.
-
-        Returns:
-            a dict containing
-                "success":
-                    a bool indicating success
-                "values" if success:
-                    a dict containing:
-                        - token: JWT used for authentication
-                        - operatorPage: URL to the operator page
-                        - clientOptions: options for paho.mqtt.Client
-                        - willOptions: options for paho.mqtt.Client.will_set
-                        - connectOptions: options for paho.mqtt.Client.connect (host, port, keepalive)
-                        - publishOptions: options for paho.mqtt.Client.publish (topic, retain, qos)
-                        - subscribeOptions: options for paho.mqtt.Client.subscribe (topic, qos)
-                other fields as set in handle_http_error and handle_network_error
-        """
-        self._log_request("GET", "/streaming")
-        
-        result = api_request(
-            self._logger,
-            "GET",
-            f"{self._url}/streaming",
-            self._headers,
-            verify=self._verify,
-        )
-        if result.get("success", True):
-            return {"success": True, "values": cast(_StreamingCredentials, result)}
-        else:
-            return cast(ErrorResponse, result)

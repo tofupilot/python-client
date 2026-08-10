@@ -1,7 +1,7 @@
 [project]
 name = "tofupilot"
-version = "2.14.1"
-description = "Official Python client for TofuPilot with OpenHTF integration, real-time streaming and file attachment support"
+version = "2.15.0"
+description = "Official Python client for TofuPilot with OpenHTF integration and file attachment support"
 authors = [
     { name = "TofuPilot Team", email = "hello@tofupilot.com" },
 ]
@@ -24,9 +24,6 @@ dependencies = [
     # Core v1 dependencies
     "requests>=2.25.0",
     "certifi>=2023.7.22",
-    "openhtf",
-    "paho-mqtt>=2.0.0",
-    "pytest>=6.0.0",
     "posthog>=3.0.0",
     # Core v2 dependencies
     "httpcore>=1.0.9",
@@ -34,12 +31,26 @@ dependencies = [
     "pydantic>=2.11.2",
 ]
 
+# openhtf is only needed by the callback named after it, and was previously
+# installed for everyone: a station uploading through the V2 client pulled an
+# entire test framework it never imports. It is not imported at package level.
+#
+# openhtf carries a floor now. It was declared bare, which is how a release
+# shipped calling `Attachment.size` — added in 1.5.2 — against installs that
+# did not have it. 1.3.0 is the oldest the callback is tested against.
 [project.optional-dependencies]
+openhtf = ["openhtf>=1.3.0"]
 dev = [
     # Build and distribution tools
     "build",
     "twine",
-    # Testing dependencies
+    # Testing dependencies. pytest and openhtf were runtime deps before
+    # 2.15.0; the test suite still needs both (`pip install -e ".[dev]" &&
+    # pytest tests/` is the documented workflow, and tests/v1/openhtf/*
+    # import the framework). Same openhtf floor as the runtime extra — the
+    # CI compat matrix starts at 1.3.0.
+    "pytest>=6.0.0",
+    "openhtf>=1.3.0",
     "trycast",
     "python-dotenv",
     # Code quality tools
@@ -66,7 +77,10 @@ in-project = true
 [tool.poetry.group.dev.dependencies]
 mypy = "==1.15.0"
 pylint = "==3.2.3"
-openhtf = ">=1.5.0"
+pytest = ">=6.0.0"
+# Same floor as the runtime extra and the CI compat matrix (1.3.0); a higher
+# floor here silently tested against features older installs don't have.
+openhtf = ">=1.3.0"
 
 [build-system]
 requires = ["poetry-core"]

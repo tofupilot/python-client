@@ -2,7 +2,7 @@
 
 This package provides both v1 and v2 API clients:
 - v1: Legacy client for backward compatibility
-- v2: New Speakeasy-generated SDK with enhanced features and error tracking
+- v2: Current SDK with enhanced features and error tracking
 
 For new projects, we recommend using the v2 client.
 
@@ -34,7 +34,11 @@ _sys.modules['tofupilot.models.models'] = models.models
 _sys.modules['tofupilot.constants.attachments'] = constants.attachments
 _sys.modules['tofupilot.constants.requests'] = constants.requests
 
-# Import pytest plugin
-from .pytest import TofuPilotPlugIn
-
 from . import v2
+
+
+
+# The OpenHTF upload callback raises this when a run fails to reach the
+# server, so catching it should not require an import from a private-looking
+# module.
+from .error_tracking import ApiV1Error

@@ -4,7 +4,7 @@ import random
 
 import openhtf as htf
 from openhtf.output.callbacks import json_factory
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 
 @htf.measures(htf.Measurement("button_status").equals(True))
@@ -54,8 +54,8 @@ def test_logger(tofupilot_server_url, api_key, procedure_identifier, procedure_i
             str(tmp_path) + "test_result.json", indent=2))
 
     # Execute the test
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-        test.execute(lambda: serial_number)
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: serial_number)
 
     run = extract_id_and_check_run_exists(serial_number=serial_number, procedure_id=procedure_id, part_number="00220D")
 

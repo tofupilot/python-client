@@ -4,7 +4,7 @@ import random
 
 import openhtf as htf
 from openhtf.util import units
-from tofupilot.openhtf import TofuPilot
+from tofupilot.openhtf import upload
 
 
 @htf.measures(htf.Measurement("firmware_version").equals("1.4.3"))
@@ -81,8 +81,8 @@ def test_generic(tofupilot_server_url, api_key, procedure_identifier, procedure_
     serial_number = f"00220B4K{random_digits}"
 
     # Execute the test
-    with TofuPilot(test, url=tofupilot_server_url, api_key=api_key):
-        test.execute(lambda: serial_number)
+    test.add_output_callbacks(upload(url=tofupilot_server_url, api_key=api_key))
+    test.execute(lambda: serial_number)
 
     
     extract_id_and_check_run_exists(serial_number=serial_number, procedure_id=procedure_id, outcome="PASS", part_number="00220", revision="A", batch_number="1024-0001")

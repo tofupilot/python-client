@@ -16,8 +16,6 @@
 | Teardown phase executes after test               | ✅ Asserted  | `test_all_the_things.py` | `test_all_the_things`                | PhaseGroup.with_teardown runs teardown; phase present and PASS asserted                              |
 | Cross-phase data integrity                       | ✅ Asserted  | `test_all_the_things.py` | `test_all_the_things`                | `analysis` phase re-reads measurements and attachments set by earlier phases                         |
 | JSON output callback generates file              | 🔄 Exercised | `test_all_the_things.py` | `test_all_the_things`                | OutputToJSON callback added but file existence is not asserted                                       |
-| Streaming mode                                   | ✅ Asserted  | `test_all_the_things.py` | `test_all_the_things` (parametrized) | Runs with `stream=True`; full assertions applied                                                     |
-| Non-streaming mode                               | ✅ Asserted  | `test_all_the_things.py` | `test_all_the_things` (parametrized) | Runs with `stream=False`; full assertions applied                                                    |
 | Generic PCB test procedure                       | ✅ Asserted  | `test_generic.py`        | `test_generic`                       | Firmware, button, voltage, overcurrent, efficiency, visual ctrl. Deterministic values — always PASS. |
 | Run with part number, revision, and batch number | ✅ Asserted  | `test_generic.py`        | `test_generic`                       | Asserts all three fields on created run                                                              |
 
@@ -119,8 +117,8 @@
 | ------------------------------------------------ | ----------- | -------------------------------- | ------------------------------------ | ------------------------------------------------------------------------ |
 | Single file attachment uploaded and retrievable  | ✅ Asserted | `test_create_run_attachments.py` | `test_single_file_attachment`        | File path in `attachments` list → attachment name appears on created run |
 | Multiple file attachments in single run          | ✅ Asserted | `test_create_run_attachments.py` | `test_multiple_file_attachments`     | Several file paths → all attachment names present on created run         |
-| Oversized file (>10MB) rejected with clear error | ✅ Asserted | `test_create_run_attachments.py` | `test_oversized_file_rejected`       | `validate_files()` catches size violation → `SystemExit` raised          |
-| Too many attachments (>100) rejected             | ✅ Asserted | `test_create_run_attachments.py` | `test_too_many_attachments_rejected` | Exceeding `CLIENT_MAX_ATTACHMENTS` → `SystemExit` raised                 |
+| Oversized file (>10MB) rejected with clear error | ✅ Asserted | `test_create_run_attachments.py` | `test_oversized_file_rejected`       | `validate_files()` catches size violation → `ApiV1Error` raised          |
+| Too many attachments (>100) rejected             | ✅ Asserted | `test_create_run_attachments.py` | `test_too_many_attachments_rejected` | Exceeding `CLIENT_MAX_ATTACHMENTS` → `ApiV1Error` raised                 |
 
 #### 9e. Logs (direct)
 

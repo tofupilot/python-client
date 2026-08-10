@@ -2,7 +2,6 @@
 
 from typing import Dict, List, Optional, TypedDict, Union, Any, Literal
 
-QoSLevel = Literal[0, 1, 2]
 Outcome = Literal["PASS", "FAIL", "ERROR", "TIMEOUT", "ABORTED"]
 
 class _RunUserOptional(TypedDict, total=False):
@@ -121,52 +120,6 @@ class CreateRunResponse(SuccessResponse):
 class GetRunsResponse(SuccessResponse):
     result: List[Run]
 
-class _ClientOptions(TypedDict):
-    transport: str
-    protocol: int
-    reconnect_on_failure: bool
-
-
-class _WillOptionsOptional(TypedDict, total=False):
-    qos: QoSLevel
-    retain: bool
-
-class _WillOptions(_WillOptionsOptional):
-    topic: str
-    payload: str
-
-
-class _ConnectOptions(TypedDict):
-    host: str
-    port: int
-    keepalive: int
-
-
-class _PublishOptionsOptional(TypedDict, total=False):
-    retain: bool
-    qos: QoSLevel
-
-class _PublishOptions(_PublishOptionsOptional):
-    topic: str
-
-
-class _SubscribeOptionsOptional(TypedDict, total=False):
-    qos: QoSLevel
-
-class _SubscribeOptions(_SubscribeOptionsOptional):
-    topic: str
-
-
-class _StreamingCredentials(TypedDict):
-    token: str
-    operatorPage: str
-    clientOptions: _ClientOptions
-    willOptions: _WillOptions
-    connectOptions: _ConnectOptions
-    publishOptions: _PublishOptions
-    subscribeOptions: _SubscribeOptions
-
-
 class _InitializeUploadResponse(TypedDict):
     id: str  # UUID format
     uploadUrl: str
@@ -180,13 +133,6 @@ class _OpenHTFImportResultOptional(TypedDict, total=False):
 class _OpenHTFImportResult(_OpenHTFImportResultOptional):
     success: Literal[True]
 
-
-class _StreamingResultOptional(TypedDict, total=False):
-    values: _StreamingCredentials
-    error: Dict[str, Any]
-
-class _StreamingResult(_StreamingResultOptional):
-    success: bool
 
 # Error response types based on network utility functions
 class ErrorDetail(TypedDict):

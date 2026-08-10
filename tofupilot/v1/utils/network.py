@@ -1,4 +1,5 @@
 from typing import Dict, List, Optional, Any, Union
+import atexit
 import tempfile
 import os
 
@@ -12,8 +13,16 @@ from ..responses import HttpErrorResponse, NetworkErrorResponse, ErrorResponse
 _cert_bundle_cache = {}
 
 def prepare_verify_setting(verify: Optional[str]) -> str:
-    """Prepare verify setting for self-signed certificates by creating cached certificate bundle."""
-    if verify and isinstance(verify, str) and verify.endswith('.crt'):
+    """Prepare verify setting for self-signed certificates by creating cached certificate bundle.
+
+    The merge applies to any file path, not only `.crt`: passing `verify` to
+    requests raw makes the private CA the ONLY trusted root, so requests to
+    publicly-signed hosts (presigned storage uploads on mixed deployments)
+    fail verification. The docs tell users to pass a `.pem`, and PEM content
+    is what every extension (.pem/.crt/.cer) actually holds — gating on the
+    extension meant renaming the identical file changed the trust store.
+    """
+    if verify and isinstance(verify, str):
         try:
             cert_mtime = os.path.getmtime(verify)
             cache_key = f"{verify}:{cert_mtime}"
@@ -43,9 +52,20 @@ def prepare_verify_setting(verify: Optional[str]) -> str:
     return verify
 
 
-def cleanup_temp_cert_bundle(verify_setting: str, original_verify: Optional[str]):
-    """Clean up temporary certificate bundle if it was created."""
-    pass
+@atexit.register
+def _remove_cached_cert_bundles():
+    """Delete the temporary CA bundles this process created.
+
+    The bundles are cached and reused across requests, so they cannot be
+    removed per-call. They were never removed at all either, leaving a .pem
+    in the temp dir for every distinct cert a long-lived station process saw.
+    """
+    for path in _cert_bundle_cache.values():
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
+    _cert_bundle_cache.clear()
 
 
 def parse_error_message(response: requests.Response) -> str:
@@ -86,8 +106,6 @@ def api_request(
         return handle_http_error(logger, http_err)
     except requests.RequestException as e:
         return handle_network_error(logger, e)
-    finally:
-        cleanup_temp_cert_bundle(verify_setting, verify)
 
 
 def handle_response(
