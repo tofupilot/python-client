@@ -141,6 +141,25 @@ class TestCreateRunFromOpenHTF:
         test.add_output_callbacks(upload(api_key=api_key, url=tofupilot_server_url))
         test.execute(lambda: "0001")
 
+    def test_deprecated_context_manager_still_uploads(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str, extract_id_and_check_run_exists) -> None:
+        """The deprecated TofuPilot context manager warns but still uploads the run."""
+        from tofupilot.openhtf import TofuPilot
+
+        test = Openhtf_Test(power_on_test, procedure_id=procedure_identifier, part_number="test_ctx_manager")
+        with pytest.warns(FutureWarning, match="deprecated"):
+            ctx = TofuPilot(test, stream=False, url=tofupilot_server_url, api_key=api_key)
+        with ctx:
+            test.execute(lambda: "0001")
+
+        # The callback must be deregistered on exit, or the classic station
+        # loop (`for sn in queue: with TofuPilot(test): ...`) stacks one
+        # callback per iteration and uploads run N a total of N times.
+        assert ctx._upload not in test._test_options.output_callbacks
+
+        # OpenHTF swallows output-callback exceptions, so a green execute()
+        # proves nothing about the upload; verify the run actually landed.
+        extract_id_and_check_run_exists(serial_number="0001", part_number="test_ctx_manager")
+
     def test_create_run_from_openhtf_json_report(self, tofupilot_server_url: str, api_key: str, procedure_identifier: str, check_run_exists, tmp_path) -> None:
         """Test run creation from a pre-existing OpenHTF JSON report file."""
         from tofupilot.v1.client import TofuPilotClient

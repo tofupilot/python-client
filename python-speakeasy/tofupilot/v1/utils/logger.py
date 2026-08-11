@@ -23,22 +23,32 @@ logging.Logger.success = success
 def add_pause_methods_to_logger(logger):
     """Add pause/resume functionality to a logger"""
     original_handlers = list(logger.handlers)
-    
+
     def pause():
         """Temporarily disable all handlers"""
-        for handler in logger.handlers:
+        # Iterate a copy: removeHandler mutates logger.handlers, and removing
+        # while iterating the live list skips every other handler.
+        for handler in list(logger.handlers):
             logger.removeHandler(handler)
-    
+        logger._tp_paused = True
+
     def resume():
         """Re-enable handlers"""
         for handler in original_handlers:
             if handler not in logger.handlers:
                 logger.addHandler(handler)
-    
-    # Add methods to logger
+        logger._tp_paused = False
+
+    # Add methods to logger. The explicit paused flag lets callers save and
+    # restore pause state without inferring it from the handler list — which
+    # other code paths (host handlers) can change. The logger is a process
+    # singleton: setup_logger() re-runs on every client construction, so
+    # preserve an existing flag instead of resetting a paused logger to
+    # "running" just because another client was built mid-test.
     logger.pause = pause
     logger.resume = resume
-    
+    logger._tp_paused = getattr(logger, "_tp_paused", False)
+
     return logger
 
 
@@ -50,14 +60,16 @@ class LoggerStateManager:
         self.was_resumed = False
         
     def __enter__(self):
-        # Ensure logger is active for this block
+        # Ensure logger is active for this block. Only remember to re-pause
+        # if the logger was actually paused — unconditionally pausing on exit
+        # permanently silenced the logger for callers that never paused it.
         if hasattr(self.logger, 'resume'):
+            self.was_resumed = getattr(self.logger, '_tp_paused', False)
             self.logger.resume()
-            self.was_resumed = True
         return self
-        
+
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # If we resumed the logger, restore to paused state
+        # If we resumed a paused logger, restore the paused state
         if self.was_resumed and hasattr(self.logger, 'pause'):
             self.logger.pause()
 
