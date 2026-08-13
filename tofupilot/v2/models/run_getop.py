@@ -1380,7 +1380,7 @@ class RunGetResponseTypedDict(TypedDict):
     operated_by: NotRequired[Nullable[RunGetOperatedByTypedDict]]
     r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
     phases: NotRequired[List[RunGetPhaseTypedDict]]
-    r"""Array of execution phases in this run. Only returned if `all` or `phases` is included."""
+    r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""
     attachments: NotRequired[List[RunGetAttachmentTypedDict]]
     r"""Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included."""
     logs: NotRequired[List[RunGetLogTypedDict]]
@@ -1430,7 +1430,7 @@ class RunGetResponse(BaseModel):
     r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
 
     phases: Optional[List[RunGetPhase]] = None
-    r"""Array of execution phases in this run. Only returned if `all` or `phases` is included."""
+    r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""
 
     attachments: Optional[List[RunGetAttachment]] = None
     r"""Files attached to this run, including both regular attachments and test reports. Only returned if `all` or `attachments` is included."""

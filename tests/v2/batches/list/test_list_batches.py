@@ -1,11 +1,11 @@
 """Test batch list filtering and pagination."""
 
-import uuid
 from datetime import datetime, timedelta, timezone
 
 from tofupilot.v2 import TofuPilot
 from ..utils import assert_get_batches_success
 from ...utils import get_random_test_dates
+from ....e2e_tag import uid
 
 
 class TestListBatches:
@@ -13,7 +13,7 @@ class TestListBatches:
 
     def test_list_all_batches(self, client: TofuPilot, timestamp) -> None:
         """Test listing batches returns paginated results."""
-        batch_number = f"LIST-ALL-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"LIST-ALL-{timestamp}-{uid()}"
         client.batches.create(number=batch_number)
 
         result = client.batches.list(limit=10)
@@ -24,7 +24,7 @@ class TestListBatches:
 
     def test_list_with_number_filter(self, client: TofuPilot, timestamp) -> None:
         """Test filtering batches by number."""
-        batch_number = f"LIST-NUM-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"LIST-NUM-{timestamp}-{uid()}"
         create_result = client.batches.create(number=batch_number)
 
         result = client.batches.list(numbers=[batch_number])
@@ -35,13 +35,13 @@ class TestListBatches:
 
     def test_list_with_part_number_filter(self, client: TofuPilot, procedure_id: str, timestamp) -> None:
         """Test filtering batches by part number of associated units."""
-        batch_number = f"LIST-PN-{timestamp}-{uuid.uuid4().hex[:8]}"
-        part_number = f"LIST-PN-PART-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"LIST-PN-{timestamp}-{uid()}"
+        part_number = f"LIST-PN-PART-{timestamp}-{uid()}"
 
         # Associate batch with part via a run (runs auto-create batch/unit linkage)
         started_at, ended_at = get_random_test_dates()
         client.runs.create(
-            serial_number=f"LIST-PN-UNIT-{timestamp}-{uuid.uuid4().hex[:8]}",
+            serial_number=f"LIST-PN-UNIT-{timestamp}-{uid()}",
             procedure_id=procedure_id,
             part_number=part_number,
             started_at=started_at,
@@ -58,7 +58,7 @@ class TestListBatches:
 
     def test_list_with_search_query(self, client: TofuPilot, timestamp) -> None:
         """Test filtering batches by search query."""
-        unique = uuid.uuid4().hex[:8]
+        unique = uid()
         batch_number = f"LIST-SEARCH-{timestamp}-{unique}"
         client.batches.create(number=batch_number)
 
@@ -72,7 +72,7 @@ class TestListBatches:
         """Test cursor-based pagination."""
         numbers = []
         for i in range(3):
-            num = f"LIST-PG-{i}-{timestamp}-{uuid.uuid4().hex[:8]}"
+            num = f"LIST-PG-{i}-{timestamp}-{uid()}"
             client.batches.create(number=num)
             numbers.append(num)
 
@@ -93,7 +93,7 @@ class TestListBatches:
 
     def test_list_with_ids_filter(self, client: TofuPilot, timestamp) -> None:
         """Test filtering batches by specific IDs."""
-        batch_number = f"LIST-IDS-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"LIST-IDS-{timestamp}-{uid()}"
         create_result = client.batches.create(number=batch_number)
 
         result = client.batches.list(ids=[create_result.id])
@@ -104,7 +104,7 @@ class TestListBatches:
     def test_list_with_created_at_date_range(self, client: TofuPilot, timestamp) -> None:
         """Test filtering batches by created_after and created_before."""
         now = datetime.now(timezone.utc)
-        batch_number = f"LIST-CDATE-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"LIST-CDATE-{timestamp}-{uid()}"
         create_result = client.batches.create(number=batch_number)
 
         result = client.batches.list(
@@ -118,7 +118,7 @@ class TestListBatches:
 
     def test_list_with_revision_numbers_filter(self, client: TofuPilot, procedure_id: str, timestamp) -> None:
         """Test filtering batches by revision number of associated units."""
-        unique = uuid.uuid4().hex[:8]
+        unique = uid()
         batch_number = f"LIST-REV-{timestamp}-{unique}"
         part_number = f"LIST-REV-PART-{timestamp}-{unique}"
         revision_number = f"LIST-REV-REV-{timestamp}-{unique}"
@@ -150,7 +150,7 @@ class TestListBatches:
         """Test that sort_by and sort_order change result ordering."""
         numbers = []
         for i in range(2):
-            num = f"LIST-SORT-{i}-{timestamp}-{uuid.uuid4().hex[:8]}"
+            num = f"LIST-SORT-{i}-{timestamp}-{uid()}"
             client.batches.create(number=num)
             numbers.append(num)
 

@@ -1,9 +1,9 @@
 """Test unit creation validation rules."""
 
-import uuid
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND, ErrorCONFLICT
+from ....e2e_tag import uid
 
 
 class TestCreateUnitValidation:
@@ -12,7 +12,7 @@ class TestCreateUnitValidation:
         """Test creating a unit with non-existent revision."""
         fake_part_number = f"FAKE-PART-{timestamp}"
         fake_revision_number = f"FAKE-REV-{timestamp}"
-        serial_number = f"UNIT-{uuid.uuid4().hex[:8]}"
+        serial_number = f"UNIT-{uid()}"
         
         with pytest.raises(ErrorNOTFOUND) as exc_info:
             client.units.create(
@@ -43,7 +43,7 @@ class TestCreateUnitValidation:
             number=revision_number
         )
         
-        serial_number = f"UNIT-DUP-TEST-{uuid.uuid4().hex[:8]}"
+        serial_number = f"UNIT-DUP-TEST-{uid()}"
         
         # Create first unit
         response1 = client.units.create(

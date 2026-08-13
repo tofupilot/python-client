@@ -11,6 +11,7 @@ from ...utils import (
     assert_station_access_forbidden,
     get_random_test_dates,
 )
+from ....e2e_tag import uid
 
 
 class TestDeleteRun:
@@ -24,7 +25,7 @@ class TestDeleteRun:
             return
 
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-DEL-{unique_id}",
@@ -53,7 +54,7 @@ class TestDeleteRun:
         run_ids = []
         for i in range(3):
             started_at, ended_at = get_random_test_dates()
-            unique_id = str(uuid.uuid4())[:8]
+            unique_id = uid()
 
             result = client.runs.create(
                 serial_number=f"SN-DEL-MULTI-{i}-{unique_id}",
@@ -94,7 +95,7 @@ class TestDeleteRun:
             return
 
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-DEL-TWICE-{unique_id}",

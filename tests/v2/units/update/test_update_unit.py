@@ -1,7 +1,5 @@
 """Test updating units."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND, ErrorCONFLICT
@@ -10,6 +8,7 @@ from ...utils import (
     assert_create_run_success,
     get_random_test_dates,
 )
+from ....e2e_tag import uid
 
 
 class TestUpdateUnit:
@@ -83,7 +82,7 @@ class TestUpdateUnit:
 
     def test_update_nonexistent_unit(self, client: TofuPilot, auth_type: str) -> None:
         """Test updating a unit that doesn't exist."""
-        fake_serial = f"NONEXISTENT-{uuid.uuid4().hex[:8]}"
+        fake_serial = f"NONEXISTENT-{uid()}"
 
         with pytest.raises(ErrorNOTFOUND):
             client.units.update(

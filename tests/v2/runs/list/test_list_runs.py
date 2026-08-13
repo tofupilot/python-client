@@ -10,6 +10,7 @@ from ...utils import (
     assert_get_runs_success,
     get_random_test_dates,
 )
+from ....e2e_tag import uid
 
 
 class TestListRuns:
@@ -17,7 +18,7 @@ class TestListRuns:
 
     def test_list_with_outcome_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by outcome."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-OUTCOME-{unique_id}"
 
         # Create a PASS run
@@ -58,7 +59,7 @@ class TestListRuns:
     def test_list_with_procedure_id_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by procedure ID."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         client.runs.create(
             serial_number=f"SN-PROC-{unique_id}",
@@ -78,7 +79,7 @@ class TestListRuns:
     def test_list_with_serial_number_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by serial number."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         serial = f"SN-FILTER-{unique_id}"
 
         create_result = client.runs.create(
@@ -100,7 +101,7 @@ class TestListRuns:
     def test_list_with_part_number_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by part number."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part = f"PART-LIST-{unique_id}"
 
         create_result = client.runs.create(
@@ -121,7 +122,7 @@ class TestListRuns:
 
     def test_list_with_date_range_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by started_after and started_before."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-DATE-{unique_id}"
         now = datetime.now(timezone.utc)
 
@@ -156,7 +157,7 @@ class TestListRuns:
             return
 
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-CREATED-{unique_id}"
 
         create_result = client.runs.create(
@@ -186,7 +187,7 @@ class TestListRuns:
 
     def test_list_with_duration_range(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by duration_min and duration_max."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-DUR-{unique_id}"
 
         # Create a run with a 5-minute duration
@@ -217,7 +218,7 @@ class TestListRuns:
 
     def test_list_pagination(self, client: TofuPilot, procedure_id: str) -> None:
         """Test cursor-based pagination."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-PAGE-{unique_id}"
 
         # Create 3 runs
@@ -252,7 +253,7 @@ class TestListRuns:
 
     def test_list_sort_order(self, client: TofuPilot, procedure_id: str) -> None:
         """Test that sort_order changes result ordering."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-SORT-{unique_id}"
         now = datetime.now(timezone.utc)
 
@@ -314,7 +315,7 @@ class TestListRuns:
 
     def test_list_with_ids_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by specific IDs."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         started_at, ended_at = get_random_test_dates()
         create_result = client.runs.create(
@@ -334,7 +335,7 @@ class TestListRuns:
 
     def test_list_with_procedure_versions_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by procedure version tags."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         version_tag = f"v{unique_id}"
         part_number = f"PART-PVER-{unique_id}"
 
@@ -360,7 +361,7 @@ class TestListRuns:
 
     def test_list_with_revision_numbers_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by revision numbers."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-REVF-{unique_id}"
         revision_number = f"REV-{unique_id}"
 
@@ -390,7 +391,7 @@ class TestListRuns:
 
     def test_list_with_ended_at_date_range(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by ended_after and ended_before."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-END-{unique_id}"
         now = datetime.now(timezone.utc)
 
@@ -418,7 +419,7 @@ class TestListRuns:
 
     def test_list_with_created_at_date_range(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering runs by created_after and created_before."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-CRE-{unique_id}"
         now = datetime.now(timezone.utc)
 
@@ -448,7 +449,7 @@ class TestListRuns:
         if auth_type == "user":
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-STA-{unique_id}"
 
         started_at, ended_at = get_random_test_dates()
@@ -485,7 +486,7 @@ class TestListRuns:
         if not operator_email:
             pytest.skip("TOFUPILOT_EMAIL_ADDRESS_USER not set")
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-OPR-{unique_id}"
 
         started_at, ended_at = get_random_test_dates()

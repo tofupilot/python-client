@@ -11,6 +11,7 @@ from ...utils import (
     assert_get_run_success,
     get_random_test_dates,
 )
+from ....e2e_tag import uid
 
 
 class TestGetRun:
@@ -19,7 +20,7 @@ class TestGetRun:
     def test_get_run_by_id(self, client: TofuPilot, procedure_id: str) -> None:
         """Test getting a run by its ID and verifying top-level fields."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-GET-{unique_id}",
@@ -56,7 +57,7 @@ class TestGetRun:
     ) -> None:
         """Test that get run includes phases and measurements in nested structure."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-GET-PHASES-{unique_id}",
@@ -112,7 +113,7 @@ class TestGetRun:
     ) -> None:
         """Test that get run includes logs with correct level and message."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-GET-LOGS-{unique_id}",
@@ -154,7 +155,7 @@ class TestGetRun:
         self, client: TofuPilot, procedure_id: str
     ) -> None:
         """Test that get run includes sub_units in response."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         now = datetime.now(timezone.utc)
 
         # Create sub-unit run first
@@ -194,7 +195,7 @@ class TestGetRun:
     ) -> None:
         """Test that get run returns multi-dimensional measurement data via data_series."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         x_data = [0.0, 1.0, 2.0, 3.0, 4.0]
         y_voltage = [3.0, 3.2, 3.3, 3.2, 3.1]
@@ -274,7 +275,7 @@ class TestGetRun:
     ) -> None:
         """Test that get run returns MDM validators and aggregations via data_series."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-GET-MDM-VA-{unique_id}",

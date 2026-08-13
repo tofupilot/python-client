@@ -84,7 +84,7 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "403", "409", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -99,9 +99,6 @@ class Stations(BaseSDK):
         if utils.match_response(http_res, "403", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
             raise errors.ErrorFORBIDDEN(response_data, http_res)
-        if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(errors.ErrorCONFLICTData, http_res)
-            raise errors.ErrorCONFLICT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -190,7 +187,7 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "403", "409", "4XX", "500", "5XX"],
+            error_status_codes=["401", "403", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -205,9 +202,6 @@ class Stations(BaseSDK):
         if utils.match_response(http_res, "403", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorFORBIDDENData, http_res)
             raise errors.ErrorFORBIDDEN(response_data, http_res)
-        if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(errors.ErrorCONFLICTData, http_res)
-            raise errors.ErrorCONFLICT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -438,7 +432,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetCurrentResponse:
         r"""Get current station
 
-        Get the station the request is authenticated as, with its linked procedures and connection status.
+        Get the station the request is authenticated as, with its linked procedures.
 
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -528,7 +522,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetCurrentResponse:
         r"""Get current station
 
-        Get the station the request is authenticated as, with its linked procedures and connection status.
+        Get the station the request is authenticated as, with its linked procedures.
 
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
@@ -619,7 +613,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetResponse:
         r"""Get station
 
-        Get a station by ID, with its linked procedures, connection status, and recent activity.
+        Get a station by ID, with its linked procedures and recent activity.
 
         :param id: Unique identifier of the station to retrieve
         :param retries: Override the default retry configuration for this method
@@ -716,7 +710,7 @@ class Stations(BaseSDK):
     ) -> models.StationGetResponse:
         r"""Get station
 
-        Get a station by ID, with its linked procedures, connection status, and recent activity.
+        Get a station by ID, with its linked procedures and recent activity.
 
         :param id: Unique identifier of the station to retrieve
         :param retries: Override the default retry configuration for this method
@@ -888,7 +882,7 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "404", "409", "4XX", "500", "5XX"],
+            error_status_codes=["401", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -903,9 +897,6 @@ class Stations(BaseSDK):
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
-        if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(errors.ErrorCONFLICTData, http_res)
-            raise errors.ErrorCONFLICT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res
@@ -1006,7 +997,7 @@ class Stations(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["401", "404", "409", "4XX", "500", "5XX"],
+            error_status_codes=["401", "404", "4XX", "500", "5XX"],
             retry_config=retry_config,
         )
 
@@ -1021,9 +1012,6 @@ class Stations(BaseSDK):
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
-        if utils.match_response(http_res, "409", "application/json"):
-            response_data = unmarshal_json_response(errors.ErrorCONFLICTData, http_res)
-            raise errors.ErrorCONFLICT(response_data, http_res)
         if utils.match_response(http_res, "500", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorINTERNALSERVERERRORData, http_res

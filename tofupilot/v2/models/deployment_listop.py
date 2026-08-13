@@ -174,7 +174,7 @@ class DeploymentListCommit(BaseModel):
         return m
 
 
-DeploymentListProvider = Literal["github", "gitlab"]
+DeploymentListProvider = Literal["github", "gitlab", "bitbucket"]
 
 
 class DeploymentListRepositoryTypedDict(TypedDict):

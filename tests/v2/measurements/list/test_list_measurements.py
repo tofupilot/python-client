@@ -1,9 +1,8 @@
 """Test measurements list filtering, pagination, and sorting (public V2 endpoint)."""
 
-import uuid
-
 from tofupilot.v2 import TofuPilot
 from ...utils import assert_create_run_success, get_random_test_dates
+from ....e2e_tag import uid
 
 
 def _seed_run_with_measurements(client: TofuPilot, procedure_id: str, part_number: str, serial: str):
@@ -46,7 +45,7 @@ class TestListMeasurements:
 
     def test_list_returns_measurements_across_types(self, client: TofuPilot, procedure_id: str) -> None:
         """Measurements of mixed value types are returned for the run."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_measurements(
             client, procedure_id, f"PART-M-{unique_id}", f"SN-M-{unique_id}"
         )
@@ -64,7 +63,7 @@ class TestListMeasurements:
 
     def test_measurement_outcomes_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """The measurement_outcomes filter narrows to matching measurements."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_measurements(
             client, procedure_id, f"PART-MO-{unique_id}", f"SN-MO-{unique_id}"
         )
@@ -78,7 +77,7 @@ class TestListMeasurements:
 
     def test_single_pair_pin(self, client: TofuPilot, procedure_id: str) -> None:
         """phase_name + measurement_name pin to a single measurement."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_measurements(
             client, procedure_id, f"PART-MP-{unique_id}", f"SN-MP-{unique_id}"
         )
@@ -95,7 +94,7 @@ class TestListMeasurements:
 
     def test_limit_and_cursor_pagination(self, client: TofuPilot, procedure_id: str) -> None:
         """limit caps the page and next_cursor walks the result set."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_measurements(
             client, procedure_id, f"PART-MPG-{unique_id}", f"SN-MPG-{unique_id}"
         )

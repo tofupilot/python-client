@@ -1,12 +1,11 @@
 """Test updating batches."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND, ErrorCONFLICT
 from ..utils import assert_update_batch_success, assert_get_batch_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestUpdateBatch:
@@ -19,8 +18,8 @@ class TestUpdateBatch:
                 client.batches.update(number="any", new_number="any-new")
             return
 
-        batch_number = f"UPD-BATCH-{timestamp}-{uuid.uuid4().hex[:8]}"
-        new_number = f"UPD-BATCH-NEW-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"UPD-BATCH-{timestamp}-{uid()}"
+        new_number = f"UPD-BATCH-NEW-{timestamp}-{uid()}"
         client.batches.create(number=batch_number)
 
         result = client.batches.update(number=batch_number, new_number=new_number)
@@ -38,7 +37,7 @@ class TestUpdateBatch:
                 client.batches.update(number="nonexistent", new_number="anything")
             return
 
-        fake_number = f"NONEXISTENT-{uuid.uuid4().hex[:8]}"
+        fake_number = f"NONEXISTENT-{uid()}"
 
         with pytest.raises(ErrorNOTFOUND):
             client.batches.update(number=fake_number, new_number="anything")
@@ -50,7 +49,7 @@ class TestUpdateBatch:
                 client.batches.update(number="any", new_number="any")
             return
 
-        unique = uuid.uuid4().hex[:8]
+        unique = uid()
         number_a = f"UPD-DUP-A-{timestamp}-{unique}"
         number_b = f"UPD-DUP-B-{timestamp}-{unique}"
         client.batches.create(number=number_a)

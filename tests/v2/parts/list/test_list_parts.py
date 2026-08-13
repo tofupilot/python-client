@@ -1,9 +1,8 @@
 """Test part listing, search, pagination, and sorting."""
 
-import uuid
-
 from tofupilot.v2 import TofuPilot
 from ..utils import assert_create_part_success, assert_get_parts_success
+from ....e2e_tag import uid
 
 
 class TestListParts:
@@ -19,7 +18,7 @@ class TestListParts:
 
     def test_list_with_search_query(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test filtering parts by search query."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"SEARCH-PART-{unique_id}-{timestamp}"
         name = f"SearchTest Part {unique_id}"
         create_result = client.parts.create(number=part_number, name=name)
@@ -33,7 +32,7 @@ class TestListParts:
 
     def test_list_pagination(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test cursor-based pagination."""
-        unique_prefix = f"PAGPART-{timestamp}-{str(uuid.uuid4())[:6]}"
+        unique_prefix = f"PAGPART-{timestamp}-{uid()}"
         for i in range(3):
             client.parts.create(number=f"{unique_prefix}-{i}")
 
@@ -49,7 +48,7 @@ class TestListParts:
     def test_list_sort_order(self, client: TofuPilot, auth_type: str, timestamp: str) -> None:
         """Test that sort_by and sort_order change result ordering."""
         for i in range(2):
-            unique_id = str(uuid.uuid4())[:8]
+            unique_id = uid()
             client.parts.create(number=f"SORT-PART-{i}-{unique_id}-{timestamp}")
 
         asc_result = client.parts.list(sort_by="created_at", sort_order="asc", limit=2)

@@ -8,6 +8,7 @@ import tofupilot
 from ..utils import assert_create_revision_success, assert_update_revision_success
 from ...parts.utils import assert_create_part_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 def upload_to_presigned_url(upload_url: str, content: bytes, content_type: str = "image/png") -> None:
@@ -49,7 +50,7 @@ class TestRevisionImageUpload:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-IMG-{timestamp}-{unique_id}"
 
         part_result = client.parts.create(number=part_number, name=f"Image Test Part {unique_id}")
@@ -83,7 +84,7 @@ class TestRevisionImageUpload:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-IMG-DL-{timestamp}-{unique_id}"
 
         part_result = client.parts.create(number=part_number, name=f"Image Download Test Part {unique_id}")
@@ -135,7 +136,7 @@ class TestRevisionImageUpload:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-IMG-REM-{timestamp}-{unique_id}"
 
         part_result = client.parts.create(number=part_number, name=f"Image Remove Test Part {unique_id}")
@@ -186,7 +187,7 @@ class TestRevisionImageUpload:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-IMG-NUM-{timestamp}-{unique_id}"
 
         part_result = client.parts.create(number=part_number, name=f"Image+Number Test Part {unique_id}")

@@ -63,7 +63,7 @@ class StationGetCurrentCommit(BaseModel):
         return m
 
 
-StationGetCurrentProvider = Literal["github", "gitlab"]
+StationGetCurrentProvider = Literal["github", "gitlab", "bitbucket"]
 r"""Git provider"""
 
 

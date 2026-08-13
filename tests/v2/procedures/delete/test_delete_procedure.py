@@ -7,6 +7,7 @@ from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_procedure_success, assert_delete_procedure_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestDeleteProcedure:
@@ -20,7 +21,7 @@ class TestDeleteProcedure:
             return
 
         # Create a procedure to delete
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         name = f"DeleteTest-{unique_id}-{timestamp}"
         create_result = client.procedures.create(name=name)
         assert_create_procedure_success(create_result)

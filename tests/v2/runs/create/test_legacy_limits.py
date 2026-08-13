@@ -4,11 +4,11 @@ This test suite verifies that the legacy lower_limit and upper_limit fields
 still work alongside the new validators syntax, ensuring backward compatibility.
 """
 
-import uuid
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError
 from ...utils import get_random_test_dates, assert_create_run_success
+from ....e2e_tag import uid
 
 
 # =============================================================================
@@ -19,7 +19,7 @@ from ...utils import get_random_test_dates, assert_create_run_success
 def test_legacy_lower_limit_only(client: TofuPilot, procedure_id: str):
     """Test legacy lower_limit field (no upper_limit)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-LOWER-{unique_id}",
@@ -53,7 +53,7 @@ def test_legacy_lower_limit_only(client: TofuPilot, procedure_id: str):
 def test_legacy_upper_limit_only(client: TofuPilot, procedure_id: str):
     """Test legacy upper_limit field (no lower_limit)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-UPPER-{unique_id}",
@@ -87,7 +87,7 @@ def test_legacy_upper_limit_only(client: TofuPilot, procedure_id: str):
 def test_legacy_both_limits(client: TofuPilot, procedure_id: str):
     """Test legacy lower_limit and upper_limit together (range check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-BOTH-{unique_id}",
@@ -122,7 +122,7 @@ def test_legacy_both_limits(client: TofuPilot, procedure_id: str):
 def test_legacy_limits_with_failure(client: TofuPilot, procedure_id: str):
     """Test legacy limits with measurement that fails."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-FAIL-{unique_id}",
@@ -162,7 +162,7 @@ def test_legacy_limits_with_failure(client: TofuPilot, procedure_id: str):
 def test_legacy_limits_coexist_with_validators(client: TofuPilot, procedure_id: str):
     """Test that legacy limits can coexist with new validators in same run (different measurements)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-COEXIST-{unique_id}",
@@ -215,7 +215,7 @@ def test_legacy_limits_coexist_with_validators(client: TofuPilot, procedure_id: 
 def test_legacy_limits_multiple_measurements(client: TofuPilot, procedure_id: str):
     """Test multiple measurements using legacy limits."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MULTI-LEGACY-{unique_id}",
@@ -271,7 +271,7 @@ def test_legacy_limits_multiple_measurements(client: TofuPilot, procedure_id: st
 def test_legacy_limits_with_negative_values(client: TofuPilot, procedure_id: str):
     """Test legacy limits with negative values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-NEGATIVE-{unique_id}",
@@ -306,7 +306,7 @@ def test_legacy_limits_with_negative_values(client: TofuPilot, procedure_id: str
 def test_legacy_limits_with_zero(client: TofuPilot, procedure_id: str):
     """Test legacy limits with zero as boundary."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-ZERO-{unique_id}",
@@ -340,7 +340,7 @@ def test_legacy_limits_with_zero(client: TofuPilot, procedure_id: str):
 def test_legacy_limits_equal_boundaries(client: TofuPilot, procedure_id: str):
     """Test legacy limits where lower_limit equals upper_limit (exact value check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-EQUAL-{unique_id}",
@@ -375,7 +375,7 @@ def test_legacy_limits_equal_boundaries(client: TofuPilot, procedure_id: str):
 def test_legacy_limits_very_small_range(client: TofuPilot, procedure_id: str):
     """Test legacy limits with very small range (tight tolerance)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-TIGHT-{unique_id}",
@@ -415,7 +415,7 @@ def test_legacy_limits_very_small_range(client: TofuPilot, procedure_id: str):
 def test_legacy_limits_integer_values(client: TofuPilot, procedure_id: str):
     """Test legacy limits with integer values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-INT-{unique_id}",
@@ -449,7 +449,7 @@ def test_legacy_limits_integer_values(client: TofuPilot, procedure_id: str):
 def test_legacy_limits_float_precision(client: TofuPilot, procedure_id: str):
     """Test legacy limits with high-precision float values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LEGACY-FLOAT-{unique_id}",
@@ -492,7 +492,7 @@ def test_station_can_create_run_with_legacy_limits(client: TofuPilot, procedure_
         return
 
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-LEGACY-{unique_id}",
@@ -540,7 +540,7 @@ def test_station_can_create_run_with_legacy_limits(client: TofuPilot, procedure_
 def test_migration_from_legacy_to_new_syntax(client: TofuPilot, procedure_id: str):
     """Test migration scenario: same measurement name used with both syntaxes across different runs."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     # First run with legacy syntax
     result1 = client.runs.create(
@@ -616,7 +616,7 @@ def test_migration_from_legacy_to_new_syntax(client: TofuPilot, procedure_id: st
 def test_backward_compatibility_multiple_phases(client: TofuPilot, procedure_id: str):
     """Test backward compatibility across multiple phases with legacy syntax."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-BACK-COMPAT-{unique_id}",

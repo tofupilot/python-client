@@ -11,6 +11,7 @@ from ...utils import (
     assert_update_run_success,
     get_random_test_dates,
 )
+from ....e2e_tag import uid
 
 
 def upload_to_presigned_url(upload_url: str, content: bytes, content_type: str = "text/plain") -> None:
@@ -29,7 +30,7 @@ class TestUpdateRun:
     def test_update_run_with_attachment(self, client: TofuPilot, procedure_id: str) -> None:
         """Test updating a run with an attachment."""
         started_at, ended_at = get_random_test_dates()
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
 
         create_result = client.runs.create(
             serial_number=f"SN-UPD-{unique_id}",

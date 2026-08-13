@@ -8,6 +8,7 @@ from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_station_success, assert_remove_station_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestRemoveStation:
@@ -70,7 +71,7 @@ class TestRemoveStation:
         station_ids: List[str] = []
         
         for i in range(3):
-            name = f"Batch Remove Station {i+1} - {timestamp}-{str(uuid.uuid4())[:8]}"
+            name = f"Batch Remove Station {i+1} - {timestamp}-{uid()}"
             result = client.stations.create(name=name)
             station_ids.append(result.id)
         

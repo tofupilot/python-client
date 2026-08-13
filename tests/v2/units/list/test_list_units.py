@@ -1,11 +1,11 @@
 """Test units list filtering, pagination, and sorting."""
 
-import uuid
 from datetime import datetime, timedelta, timezone
 
 from tofupilot.v2 import TofuPilot
 from ..utils import assert_get_units_success
 from ...utils import assert_create_run_success, get_random_test_dates
+from ....e2e_tag import uid
 
 
 class TestListUnits:
@@ -115,7 +115,7 @@ class TestListUnits:
 
     def test_list_with_batch_numbers_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """Test filtering units by batch number."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         batch_number = f"BATCH-{unique_id}"
 
         # Create a unit with a batch via runs.create

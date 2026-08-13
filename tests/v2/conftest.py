@@ -1,12 +1,10 @@
-import os
-import requests
 import pytest
-from datetime import datetime, timezone
 from typing import Callable, Tuple
+from ..e2e_tag import uid
 from .units.utils import assert_create_unit_success
 
-# Import client fixture from utils to make it available for all tests
-from .utils import client, user_client  # pyright: ignore[reportUnusedImport] # noqa: F401
+# Import client fixtures from utils to make them available for all tests
+from .utils import client, user_client, station_client  # pyright: ignore[reportUnusedImport] # noqa: F401
 
 @pytest.fixture
 def auth_type(request: pytest.FixtureRequest) -> str:
@@ -17,34 +15,11 @@ def auth_type(request: pytest.FixtureRequest) -> str:
 
 @pytest.fixture
 def timestamp():
-    return datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')
-
-
-@pytest.fixture(scope="session", autouse=True)
-def ensure_station_linked_to_procedure():
-    """Ensure the CI test station is linked to the test procedure before any tests run.
-
-    Uses the internal tRPC endpoint since the V2 API doesn't expose station-procedure linking.
-    Idempotent: silently succeeds if already linked.
-    """
-    url = os.environ.get("TOFUPILOT_URL")
-    user_key = os.environ.get("TOFUPILOT_API_KEY_USER")
-    procedure_id = os.environ.get("TOFUPILOT_PROCEDURE_ID")
-    station_id = os.environ.get("TOFUPILOT_STATION_ID")
-
-    if not all([url, user_key, procedure_id, station_id]):
-        return
-
-    headers = {"Authorization": f"Bearer {user_key}", "Content-Type": "application/json"}
-    try:
-        requests.post(
-            f"{url}/api/trpc/station.linkProcedure",
-            headers=headers,
-            json={"json": {"id": station_id, "procedure_id": procedure_id}},
-            timeout=10,
-        )
-    except Exception:
-        pass
+    # One tagged fragment per test, shared by every name that test builds, so
+    # they are all claimable by clients/e2e-cleanup.py and by nothing else.
+    # Named for what it used to be, a wall-clock stamp; it has only ever been
+    # used for uniqueness and is never parsed back into a date.
+    return uid()
 
 
 @pytest.fixture()

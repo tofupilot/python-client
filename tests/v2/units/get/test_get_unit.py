@@ -1,7 +1,5 @@
 """Test getting individual unit details."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
@@ -10,6 +8,7 @@ from ...utils import (
     assert_create_run_success,
     get_random_test_dates,
 )
+from ....e2e_tag import uid
 
 
 class TestGetUnit:
@@ -31,7 +30,7 @@ class TestGetUnit:
 
     def test_get_nonexistent_unit(self, client: TofuPilot) -> None:
         """Test getting a unit that doesn't exist."""
-        fake_serial = f"NONEXISTENT-{uuid.uuid4().hex[:8]}"
+        fake_serial = f"NONEXISTENT-{uid()}"
 
         with pytest.raises(ErrorNOTFOUND):
             client.units.get(serial_number=fake_serial)

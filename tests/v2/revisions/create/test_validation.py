@@ -2,11 +2,11 @@
 
 import pytest
 from datetime import datetime, timezone
-import uuid
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError, ErrorCONFLICT, ErrorNOTFOUND
 from ..utils import assert_create_revision_success
 from ...parts.utils import assert_create_part_success
+from ....e2e_tag import uid
 
 
 class TestCreateRevisionValidation:
@@ -16,7 +16,7 @@ class TestCreateRevisionValidation:
     def test_part(self, client: TofuPilot, auth_type: str, timestamp: str) -> tuple[str, str]:
         """Create a test part for revision validation tests."""
             
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"PART-VAL-{timestamp}-{unique_id}"
         
         result = client.parts.create(

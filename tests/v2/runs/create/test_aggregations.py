@@ -4,11 +4,11 @@ This test suite covers aggregations computed over measurement values (min, max, 
 with optional validators on aggregated values.
 """
 
-import uuid
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError
 from ...utils import get_random_test_dates, assert_create_run_success
+from ....e2e_tag import uid
 
 
 # =============================================================================
@@ -19,7 +19,7 @@ from ...utils import get_random_test_dates, assert_create_run_success
 def test_aggregation_avg(client: TofuPilot, procedure_id: str):
     """Test aggregation with type 'avg' (average)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-AVG-{unique_id}",
@@ -61,7 +61,7 @@ def test_aggregation_avg(client: TofuPilot, procedure_id: str):
 def test_aggregation_type_with_special_characters(client: TofuPilot, procedure_id: str):
     """Test aggregation with special characters in type (%, -, /, _)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-SPECIAL-{unique_id}",
@@ -104,7 +104,7 @@ def test_aggregation_type_with_special_characters(client: TofuPilot, procedure_i
 def test_multiple_aggregations_on_single_measurement(client: TofuPilot, procedure_id: str):
     """Test multiple aggregations on a single measurement."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MULTI-AGG-{unique_id}",
@@ -168,7 +168,7 @@ def test_multiple_aggregations_on_single_measurement(client: TofuPilot, procedur
 def test_aggregation_outcome_pass(client: TofuPilot, procedure_id: str):
     """Test aggregation with PASS outcome."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-PASS-{unique_id}",
@@ -207,7 +207,7 @@ def test_aggregation_outcome_pass(client: TofuPilot, procedure_id: str):
 def test_aggregation_outcome_fail(client: TofuPilot, procedure_id: str):
     """Test aggregation with FAIL outcome."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-FAIL-{unique_id}",
@@ -246,7 +246,7 @@ def test_aggregation_outcome_fail(client: TofuPilot, procedure_id: str):
 def test_aggregation_outcome_unset(client: TofuPilot, procedure_id: str):
     """Test aggregation with UNSET outcome (no validation)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-UNSET-{unique_id}",
@@ -290,7 +290,7 @@ def test_aggregation_outcome_unset(client: TofuPilot, procedure_id: str):
 def test_aggregation_with_single_validator(client: TofuPilot, procedure_id: str):
     """Test aggregation with a single validator on aggregated value."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-VAL-1-{unique_id}",
@@ -338,7 +338,7 @@ def test_aggregation_with_single_validator(client: TofuPilot, procedure_id: str)
 def test_aggregation_with_multiple_validators(client: TofuPilot, procedure_id: str):
     """Test aggregation with multiple validators (range check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-VAL-MULTI-{unique_id}",
@@ -391,7 +391,7 @@ def test_aggregation_with_multiple_validators(client: TofuPilot, procedure_id: s
 def test_aggregation_with_failing_validator(client: TofuPilot, procedure_id: str):
     """Test aggregation where validator fails."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-VAL-FAIL-{unique_id}",
@@ -440,7 +440,7 @@ def test_aggregation_with_failing_validator(client: TofuPilot, procedure_id: str
 def test_aggregation_validator_with_is_decisive(client: TofuPilot, procedure_id: str):
     """Test aggregation validator with is_decisive flag."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-DFM-{unique_id}",
@@ -487,7 +487,7 @@ def test_aggregation_validator_with_is_decisive(client: TofuPilot, procedure_id:
 def test_multiple_aggregations_each_with_validators(client: TofuPilot, procedure_id: str):
     """Test multiple aggregations each with their own validators."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-COMPLEX-{unique_id}",
@@ -571,7 +571,7 @@ def test_multiple_aggregations_each_with_validators(client: TofuPilot, procedure
 def test_aggregation_with_string_value(client: TofuPilot, procedure_id: str):
     """Test aggregation with string value (e.g., mode of categorical data)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-STR-{unique_id}",
@@ -617,7 +617,7 @@ def test_aggregation_with_string_value(client: TofuPilot, procedure_id: str):
 def test_aggregation_with_boolean_value(client: TofuPilot, procedure_id: str):
     """Test aggregation with boolean value (e.g., all pass check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-BOOL-{unique_id}",
@@ -668,7 +668,7 @@ def test_aggregation_with_boolean_value(client: TofuPilot, procedure_id: str):
 def test_measurement_with_no_aggregations(client: TofuPilot, procedure_id: str):
     """Test measurement without aggregations (omitted field)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-NO-AGG-{unique_id}",
@@ -700,7 +700,7 @@ def test_measurement_with_no_aggregations(client: TofuPilot, procedure_id: str):
 def test_measurement_with_empty_aggregations_array(client: TofuPilot, procedure_id: str):
     """Test measurement with empty aggregations array."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-EMPTY-AGG-{unique_id}",
@@ -733,7 +733,7 @@ def test_measurement_with_empty_aggregations_array(client: TofuPilot, procedure_
 def test_measurement_with_null_aggregations(client: TofuPilot, procedure_id: str):
     """Test measurement with null aggregations field."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-NULL-AGG-{unique_id}",
@@ -774,7 +774,7 @@ def test_station_can_create_run_with_aggregations(client: TofuPilot, procedure_i
         return
 
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-AGG-{unique_id}",
@@ -830,7 +830,7 @@ def test_station_can_create_run_with_aggregations_and_validators(client: TofuPil
         return
 
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-AGG-VAL-{unique_id}",
@@ -888,7 +888,7 @@ def test_station_can_create_run_with_aggregations_and_validators(client: TofuPil
 def test_aggregation_validator_type_mismatch(client: TofuPilot, procedure_id: str):
     """Test aggregation with validator that has type mismatch."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-TYPE-MISMATCH-{unique_id}",
@@ -935,7 +935,7 @@ def test_aggregation_validator_type_mismatch(client: TofuPilot, procedure_id: st
 def test_aggregation_on_empty_array(client: TofuPilot, procedure_id: str):
     """Test aggregation computed on empty array."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-EMPTY-{unique_id}",
@@ -974,7 +974,7 @@ def test_aggregation_on_empty_array(client: TofuPilot, procedure_id: str):
 def test_aggregation_with_negative_values(client: TofuPilot, procedure_id: str):
     """Test aggregation on negative values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-AGG-NEGATIVE-{unique_id}",

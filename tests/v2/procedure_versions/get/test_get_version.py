@@ -10,6 +10,7 @@ from ..utils import (
     assert_get_procedure_version_success,
 )
 from ...procedures.utils import assert_create_procedure_success
+from ....e2e_tag import uid
 
 
 class TestGetProcedureVersion:
@@ -28,7 +29,7 @@ class TestGetProcedureVersion:
             return
 
         # Create procedure + version
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         procedure = client.procedures.create(name=f"GetVersionTest-{unique_id}-{timestamp}")
         assert_create_procedure_success(procedure)
 
@@ -57,7 +58,7 @@ class TestGetProcedureVersion:
             return
 
         # Create a real procedure so the 404 is specifically about the tag
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         procedure = client.procedures.create(name=f"GetVersionNotFound-{unique_id}")
         assert_create_procedure_success(procedure)
 

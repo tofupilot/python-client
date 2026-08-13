@@ -4,20 +4,17 @@ End-to-end tests for the TofuPilot Python SDK.
 
 ## Setup
 
-1. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Configure environment variables in `.env`:
+1. Configure environment variables in `clients/.env.local` (shared by all client
+   test suites, loaded by `tests/conftest.py`):
    ```bash
    TOFUPILOT_URL=http://localhost:3000
    TOFUPILOT_API_KEY_USER=your-user-api-key
    TOFUPILOT_API_KEY_STATION=your-station-api-key
-   TOFUPILOT_PROCEDURE_ID=your-procedure-id
    ```
+   The session procedure is created automatically and the station is linked to it
+   by the conftest (station id resolved from the station key itself).
 
-3. Install dependencies:
+2. Install dependencies:
    ```bash
    pip install -e ".[dev]"
    ```
@@ -37,18 +34,16 @@ python -m pytest -v
 
 ## Testing Against Vercel Preview Deployments
 
-For testing against Vercel preview deployments with [Deployment Protection](https://vercel.com/docs/security/deployment-protection) enabled:
+Point `TOFUPILOT_URL` at the preview:
 
-1. Get your bypass secret from Vercel Dashboard:
-   - Project Settings > Deployment Protection > Protection Bypass for Automation
+```bash
+TOFUPILOT_URL=https://your-preview-deployment.vercel.app
+```
 
-2. Add to your `.env`:
-   ```bash
-   TOFUPILOT_URL=https://your-preview-deployment.vercel.app
-   VERCEL_AUTOMATION_BYPASS_SECRET=your-bypass-secret
-   ```
-
-The test fixtures automatically inject the bypass header when `VERCEL_AUTOMATION_BYPASS_SECRET` is set.
+The suite only works while [Deployment Protection](https://vercel.com/docs/security/deployment-protection)
+is off on that project. Nothing here injects a protection bypass header — if
+protection is turned back on, every request 401s before it reaches the API, and
+the bypass has to be implemented in the fixtures first.
 
 ## Environment Variables
 
@@ -57,5 +52,3 @@ The test fixtures automatically inject the bypass header when `VERCEL_AUTOMATION
 | `TOFUPILOT_URL` | API base URL (e.g., `http://localhost:3000`) |
 | `TOFUPILOT_API_KEY_USER` | User API key for authentication |
 | `TOFUPILOT_API_KEY_STATION` | Station API key for authentication |
-| `TOFUPILOT_PROCEDURE_ID` | Procedure ID for V1 tests |
-| `VERCEL_AUTOMATION_BYPASS_SECRET` | (Optional) Vercel deployment protection bypass |

@@ -2,10 +2,10 @@
 
 from datetime import datetime, timezone
 import requests
-import uuid
 import os
 from typing import TYPE_CHECKING
 from ..utils import assert_create_station_success, assert_update_station_success, assert_get_station_success
+from ....e2e_tag import uid
 
 if TYPE_CHECKING:
     from tofupilot.v2 import TofuPilot
@@ -52,7 +52,7 @@ class TestStationImageUpload:
             return
             
         # Step 1: Create a station
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         station_name = f"Image Test Station {timestamp}-{unique_id}"
         
         station_result = client.stations.create(name=station_name)
@@ -84,7 +84,7 @@ class TestStationImageUpload:
             return
             
         # Step 1: Create a station
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         station_name = f"Image Download Test Station {timestamp}-{unique_id}"
         
         station_result = client.stations.create(name=station_name)
@@ -138,7 +138,7 @@ class TestStationImageUpload:
             return
             
         # Step 1: Create a station with an image
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         station_name = f"Image Remove Test Station {timestamp}-{unique_id}"
         
         station_result = client.stations.create(name=station_name)
@@ -180,7 +180,7 @@ class TestStationImageUpload:
             return
             
         # Step 1: Create a station
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         station_name = f"Image+Name Test Station {timestamp}-{unique_id}"
         
         station_result = client.stations.create(name=station_name)

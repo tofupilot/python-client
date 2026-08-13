@@ -108,7 +108,7 @@ class Branch(BaseModel):
     name: str
 
 
-DeploymentGetProvider = Literal["github", "gitlab"]
+DeploymentGetProvider = Literal["github", "gitlab", "bitbucket"]
 
 
 class DeploymentGetRepositoryTypedDict(TypedDict):

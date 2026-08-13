@@ -1,19 +1,19 @@
 """Test retry_count field on phases."""
 
-import uuid
 from tofupilot.v2 import TofuPilot
 from ...utils import get_random_test_dates, assert_create_run_success
+from ....e2e_tag import uid
 
 
 def test_retry_count_stored_and_returned(client: TofuPilot, procedure_id: str):
     """Phases with explicit retry_count are stored and returned correctly."""
     started_at, ended_at = get_random_test_dates()
-    uid = str(uuid.uuid4())[:8]
+    unique = uid()
 
     result = client.runs.create(
-        serial_number=f"SN-RETRY-{uid}",
+        serial_number=f"SN-RETRY-{unique}",
         procedure_id=procedure_id,
-        part_number=f"PART-RETRY-{uid}",
+        part_number=f"PART-RETRY-{unique}",
         started_at=started_at,
         outcome="PASS",
         ended_at=ended_at,
@@ -54,12 +54,12 @@ def test_retry_count_stored_and_returned(client: TofuPilot, procedure_id: str):
 def test_retry_count_defaults_to_zero(client: TofuPilot, procedure_id: str):
     """Phases without retry_count default to 0."""
     started_at, ended_at = get_random_test_dates()
-    uid = str(uuid.uuid4())[:8]
+    unique = uid()
 
     result = client.runs.create(
-        serial_number=f"SN-RETRY-DEF-{uid}",
+        serial_number=f"SN-RETRY-DEF-{unique}",
         procedure_id=procedure_id,
-        part_number=f"PART-RETRY-DEF-{uid}",
+        part_number=f"PART-RETRY-DEF-{unique}",
         started_at=started_at,
         outcome="PASS",
         ended_at=ended_at,

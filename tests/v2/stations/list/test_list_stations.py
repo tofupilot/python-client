@@ -5,6 +5,7 @@ import pytest
 from tofupilot.v2 import TofuPilot
 from ..utils import assert_create_station_success, assert_get_stations_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestListStations:
@@ -39,7 +40,7 @@ class TestListStations:
                 client.stations.list(search_query="test")
             return
 
-        unique_name = f"SearchableStation-{timestamp}-{uuid.uuid4().hex[:8]}"
+        unique_name = f"SearchableStation-{timestamp}-{uid()}"
         create_result = client.stations.create(name=unique_name)
         assert_create_station_success(create_result)
 

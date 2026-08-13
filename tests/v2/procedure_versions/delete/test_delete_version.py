@@ -11,6 +11,7 @@ from ..utils import (
 )
 from ...procedures.utils import assert_create_procedure_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestDeleteProcedureVersion:
@@ -27,7 +28,7 @@ class TestDeleteProcedureVersion:
             return
 
         # Create procedure + version
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         procedure = client.procedures.create(name=f"DeleteVersionTest-{unique_id}-{timestamp}")
         assert_create_procedure_success(procedure)
 
@@ -55,7 +56,7 @@ class TestDeleteProcedureVersion:
             return
 
         # Create a real procedure so the 404 is specifically about the tag
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         procedure = client.procedures.create(name=f"DeleteVersionNotFound-{unique_id}-{timestamp}")
         assert_create_procedure_success(procedure)
 

@@ -1,9 +1,8 @@
 """Test logs list filtering, pagination, and sorting (public V2 endpoint)."""
 
-import uuid
-
 from tofupilot.v2 import TofuPilot
 from ...utils import assert_create_run_success, get_random_test_dates
+from ....e2e_tag import uid
 
 
 def _seed_run_with_logs(client: TofuPilot, procedure_id: str, part_number: str, serial: str):
@@ -41,7 +40,7 @@ class TestListLogs:
 
     def test_list_returns_logs_for_run(self, client: TofuPilot, procedure_id: str) -> None:
         """Logs created with a run are returned by the list endpoint, filtered by run."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_logs(
             client, procedure_id, f"PART-LOGS-{unique_id}", f"SN-LOGS-{unique_id}"
         )
@@ -54,7 +53,7 @@ class TestListLogs:
 
     def test_level_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """The level filter narrows results to the requested levels."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_logs(
             client, procedure_id, f"PART-LVL-{unique_id}", f"SN-LVL-{unique_id}"
         )
@@ -66,7 +65,7 @@ class TestListLogs:
 
     def test_limit_and_cursor_pagination(self, client: TofuPilot, procedure_id: str) -> None:
         """limit caps the page and next_cursor walks the result set."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_logs(
             client, procedure_id, f"PART-PAGE-{unique_id}", f"SN-PAGE-{unique_id}"
         )

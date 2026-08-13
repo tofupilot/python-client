@@ -5,7 +5,6 @@ Tests both the new sub-resource API and legacy backward-compatible endpoints.
 
 import os
 import tempfile
-import uuid
 from types import SimpleNamespace
 
 import pytest
@@ -13,6 +12,7 @@ import requests as http_requests
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import get_random_test_dates
+from ...e2e_tag import uid
 
 
 class TestLegacyInitialize:
@@ -52,9 +52,9 @@ class TestRunAttachmentsUpload:
     def test_upload_to_run(self, client: TofuPilot, procedure_id: str) -> None:
         started_at, ended_at = get_random_test_dates()
         run = client.runs.create(
-            serial_number=f"UP-{uuid.uuid4().hex[:8]}",
+            serial_number=f"UP-{uid()}",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             ended_at=ended_at,
             outcome="PASS",
@@ -85,9 +85,9 @@ class TestRunAttachmentsDownload:
 
         started_at, ended_at = get_random_test_dates()
         run = client.runs.create(
-            serial_number=f"DL-{uuid.uuid4().hex[:8]}",
+            serial_number=f"DL-{uid()}",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             ended_at=ended_at,
             outcome="PASS",
@@ -125,9 +125,9 @@ class TestNewRunEndpoint:
     def test_create_attachment_returns_id_and_url(self, client: TofuPilot, procedure_id: str) -> None:
         started_at, ended_at = get_random_test_dates()
         run = client.runs.create(
-            serial_number=f"RAW-{uuid.uuid4().hex[:8]}",
+            serial_number=f"RAW-{uid()}",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             ended_at=ended_at,
             outcome="PASS",

@@ -1,9 +1,8 @@
 """Test phases list filtering, pagination, and sorting (public V2 endpoint)."""
 
-import uuid
-
 from tofupilot.v2 import TofuPilot
 from ...utils import assert_create_run_success, get_random_test_dates
+from ....e2e_tag import uid
 
 
 def _seed_run_with_phases(client: TofuPilot, procedure_id: str, part_number: str, serial: str):
@@ -39,7 +38,7 @@ class TestListPhases:
 
     def test_list_returns_phases_for_run(self, client: TofuPilot, procedure_id: str) -> None:
         """Phases created with a run are returned, filtered to that run by id."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_phases(
             client, procedure_id, f"PART-PH-{unique_id}", f"SN-PH-{unique_id}"
         )
@@ -51,7 +50,7 @@ class TestListPhases:
 
     def test_outcome_filter(self, client: TofuPilot, procedure_id: str) -> None:
         """The phase outcome filter narrows to matching phases."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_phases(
             client, procedure_id, f"PART-PHO-{unique_id}", f"SN-PHO-{unique_id}"
         )
@@ -63,7 +62,7 @@ class TestListPhases:
 
     def test_limit_and_cursor_pagination(self, client: TofuPilot, procedure_id: str) -> None:
         """limit caps the page and next_cursor walks the result set."""
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         run_id = _seed_run_with_phases(
             client, procedure_id, f"PART-PHP-{unique_id}", f"SN-PHP-{unique_id}"
         )

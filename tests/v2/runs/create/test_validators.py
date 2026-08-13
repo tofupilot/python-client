@@ -4,11 +4,11 @@ This test suite covers the new structured validator syntax with operator and exp
 replacing the legacy lower_limit/upper_limit fields.
 """
 
-import uuid
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError
 from ...utils import get_random_test_dates, assert_create_run_success, assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 # =============================================================================
@@ -19,8 +19,8 @@ from ...utils import get_random_test_dates, assert_create_run_success, assert_st
 def test_validator_greater_than_or_equal(client: TofuPilot, procedure_id: str):
     """Test validator with >= operator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-GTE-{unique_id}",
@@ -61,7 +61,7 @@ def test_validator_greater_than_or_equal(client: TofuPilot, procedure_id: str):
 def test_validator_less_than_or_equal(client: TofuPilot, procedure_id: str):
     """Test validator with <= operator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -101,7 +101,7 @@ def test_validator_less_than_or_equal(client: TofuPilot, procedure_id: str):
 def test_validator_greater_than(client: TofuPilot, procedure_id: str):
     """Test validator with > operator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -141,7 +141,7 @@ def test_validator_greater_than(client: TofuPilot, procedure_id: str):
 def test_validator_less_than(client: TofuPilot, procedure_id: str):
     """Test validator with < operator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -181,7 +181,7 @@ def test_validator_less_than(client: TofuPilot, procedure_id: str):
 def test_validator_equals(client: TofuPilot, procedure_id: str):
     """Test validator with == operator for numeric values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -220,7 +220,7 @@ def test_validator_equals(client: TofuPilot, procedure_id: str):
 def test_validator_not_equals(client: TofuPilot, procedure_id: str):
     """Test validator with != operator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -259,7 +259,7 @@ def test_validator_not_equals(client: TofuPilot, procedure_id: str):
 def test_validator_string_equals(client: TofuPilot, procedure_id: str):
     """Test validator with == operator for string values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -298,7 +298,7 @@ def test_validator_string_equals(client: TofuPilot, procedure_id: str):
 def test_validator_matches_regex(client: TofuPilot, procedure_id: str):
     """Test validator with matches operator for regex patterns."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -337,7 +337,7 @@ def test_validator_matches_regex(client: TofuPilot, procedure_id: str):
 def test_validator_in_list(client: TofuPilot, procedure_id: str):
     """Test validator with in operator for list membership."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -376,7 +376,7 @@ def test_validator_in_list(client: TofuPilot, procedure_id: str):
 def test_validator_not_in_list(client: TofuPilot, procedure_id: str):
     """Test validator with not in operator for list exclusion."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-NOT-IN-{unique_id}",
@@ -415,7 +415,7 @@ def test_validator_not_in_list(client: TofuPilot, procedure_id: str):
 def test_validator_range(client: TofuPilot, procedure_id: str):
     """Test validator with range operator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -460,7 +460,7 @@ def test_validator_range(client: TofuPilot, procedure_id: str):
 def test_multiple_validators_on_single_measurement(client: TofuPilot, procedure_id: str):
     """Test multiple validators on a single measurement (e.g., range check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -505,7 +505,7 @@ def test_multiple_validators_on_single_measurement(client: TofuPilot, procedure_
 def test_multiple_validators_with_mixed_outcomes(client: TofuPilot, procedure_id: str):
     """Test multiple validators where some pass and some fail."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -555,7 +555,7 @@ def test_multiple_validators_with_mixed_outcomes(client: TofuPilot, procedure_id
 def test_validator_outcome_pass(client: TofuPilot, procedure_id: str):
     """Test validator with PASS outcome."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -594,7 +594,7 @@ def test_validator_outcome_pass(client: TofuPilot, procedure_id: str):
 def test_validator_outcome_fail(client: TofuPilot, procedure_id: str):
     """Test validator with FAIL outcome."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -633,7 +633,7 @@ def test_validator_outcome_fail(client: TofuPilot, procedure_id: str):
 def test_validator_outcome_unset(client: TofuPilot, procedure_id: str):
     """Test validator with UNSET outcome (no validation performed)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -677,7 +677,7 @@ def test_validator_outcome_unset(client: TofuPilot, procedure_id: str):
 def test_expression_only_validator(client: TofuPilot, procedure_id: str):
     """Test validator with only expression field (no operator/expected_value)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -715,7 +715,7 @@ def test_expression_only_validator(client: TofuPilot, procedure_id: str):
 def test_validator_with_custom_expression_and_operator(client: TofuPilot, procedure_id: str):
     """Test validator with both operator and custom expression field."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -761,7 +761,7 @@ def test_validator_with_custom_expression_and_operator(client: TofuPilot, proced
 def test_validator_is_decisive_true(client: TofuPilot, procedure_id: str):
     """Test validator with is_decisive=true (validator caused measurement failure)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -802,7 +802,7 @@ def test_validator_is_decisive_true(client: TofuPilot, procedure_id: str):
 def test_validator_is_decisive_false(client: TofuPilot, procedure_id: str):
     """Test validator with is_decisive=false (indicative only, doesn't cause failure)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -843,7 +843,7 @@ def test_validator_is_decisive_false(client: TofuPilot, procedure_id: str):
 def test_validators_mixed_is_decisive(client: TofuPilot, procedure_id: str):
     """Test multiple validators with different is_decisive values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -895,7 +895,7 @@ def test_validators_mixed_is_decisive(client: TofuPilot, procedure_id: str):
 def test_validator_boolean_equals_true(client: TofuPilot, procedure_id: str):
     """Test validator with boolean expected_value = true."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -934,7 +934,7 @@ def test_validator_boolean_equals_true(client: TofuPilot, procedure_id: str):
 def test_validator_boolean_equals_false(client: TofuPilot, procedure_id: str):
     """Test validator with boolean expected_value = false."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -978,7 +978,7 @@ def test_validator_boolean_equals_false(client: TofuPilot, procedure_id: str):
 def test_measurement_with_no_validators(client: TofuPilot, procedure_id: str):
     """Test measurement without any validators (omitted field)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -1010,7 +1010,7 @@ def test_measurement_with_no_validators(client: TofuPilot, procedure_id: str):
 def test_measurement_with_empty_validators_array(client: TofuPilot, procedure_id: str):
     """Test measurement with empty validators array."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-LTE-{unique_id}",
@@ -1043,7 +1043,7 @@ def test_measurement_with_empty_validators_array(client: TofuPilot, procedure_id
 def test_measurement_with_null_validators(client: TofuPilot, procedure_id: str):
     """Test measurement with null validators field."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-NULL-VAL-{unique_id}",
@@ -1085,7 +1085,7 @@ def test_station_can_create_run_with_validators(client: TofuPilot, procedure_id:
         return
     
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     # Stations should be able to create runs with validators
     result = client.runs.create(
@@ -1135,7 +1135,7 @@ def test_station_can_create_run_with_expression_only_validators(client: TofuPilo
         return
     
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-EXPR-{unique_id}",
@@ -1176,7 +1176,7 @@ def test_station_can_create_run_with_multiple_validators(client: TofuPilot, proc
         return
     
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-MULTI-{unique_id}",
@@ -1225,7 +1225,7 @@ def test_station_can_create_run_with_all_validator_types(client: TofuPilot, proc
         return
     
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-ALL-{unique_id}",
@@ -1293,7 +1293,7 @@ def test_station_can_create_run_with_all_validator_types(client: TofuPilot, proc
 def test_validator_numeric_operator_with_string_value(client: TofuPilot, procedure_id: str):
     """Test numeric operator with string expected_value (type mismatch)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     # Server should accept this and store it (may fall back to expression-only)
     result = client.runs.create(
@@ -1334,7 +1334,7 @@ def test_validator_numeric_operator_with_string_value(client: TofuPilot, procedu
 def test_validator_matches_operator_with_numeric_value(client: TofuPilot, procedure_id: str):
     """Test matches operator (string) with numeric expected_value (type mismatch)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-TYPE-MISMATCH-2-{unique_id}",
@@ -1373,7 +1373,7 @@ def test_validator_matches_operator_with_numeric_value(client: TofuPilot, proced
 def test_validator_boolean_on_numeric_measurement(client: TofuPilot, procedure_id: str):
     """Test boolean validator on numeric measurement value."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-BOOL-ON-NUM-{unique_id}",
@@ -1412,7 +1412,7 @@ def test_validator_boolean_on_numeric_measurement(client: TofuPilot, procedure_i
 def test_validator_numeric_on_string_measurement(client: TofuPilot, procedure_id: str):
     """Test numeric validator on string measurement value."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-NUM-ON-STR-{unique_id}",
@@ -1451,7 +1451,7 @@ def test_validator_numeric_on_string_measurement(client: TofuPilot, procedure_id
 def test_validator_on_json_measurement(client: TofuPilot, procedure_id: str):
     """Test validator on JSON/object measurement value."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-VAL-ON-JSON-{unique_id}",
@@ -1490,7 +1490,7 @@ def test_validator_on_json_measurement(client: TofuPilot, procedure_id: str):
 def test_validator_with_very_large_number(client: TofuPilot, procedure_id: str):
     """Test validator with very large numeric values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-LARGE-NUM-{unique_id}",
@@ -1529,7 +1529,7 @@ def test_validator_with_very_large_number(client: TofuPilot, procedure_id: str):
 def test_validator_with_negative_numbers(client: TofuPilot, procedure_id: str):
     """Test validator with negative numeric values."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-NEGATIVE-{unique_id}",

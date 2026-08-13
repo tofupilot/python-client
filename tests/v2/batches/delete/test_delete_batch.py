@@ -1,12 +1,11 @@
 """Test deleting batches."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_delete_batch_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestDeleteBatch:
@@ -19,7 +18,7 @@ class TestDeleteBatch:
                 client.batches.delete(number="any")
             return
 
-        batch_number = f"DEL-BATCH-{timestamp}-{uuid.uuid4().hex[:8]}"
+        batch_number = f"DEL-BATCH-{timestamp}-{uid()}"
         client.batches.create(number=batch_number)
 
         result = client.batches.delete(number=batch_number)
@@ -35,7 +34,7 @@ class TestDeleteBatch:
                 client.batches.delete(number="nonexistent")
             return
 
-        fake_number = f"NONEXISTENT-{uuid.uuid4().hex[:8]}"
+        fake_number = f"NONEXISTENT-{uid()}"
 
         with pytest.raises(ErrorNOTFOUND):
             client.batches.delete(number=fake_number)

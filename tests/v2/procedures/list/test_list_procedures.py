@@ -1,10 +1,10 @@
 """Test procedure listing, search, pagination, and date filtering."""
 
-import uuid
 from datetime import datetime, timedelta, timezone
 
 from tofupilot.v2 import TofuPilot
 from ..utils import assert_create_procedure_success, assert_get_procedures_success
+from ....e2e_tag import uid
 
 
 class TestListProcedures:
@@ -25,7 +25,7 @@ class TestListProcedures:
             return
 
         # Create a procedure with a unique name
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         name = f"SearchTest-{unique_id}-{timestamp}"
         create_result = client.procedures.create(name=name)
         assert_create_procedure_success(create_result)
@@ -46,7 +46,7 @@ class TestListProcedures:
             return
 
         # Create 3 procedures to ensure enough data
-        unique_prefix = f"PagProc-{timestamp}-{str(uuid.uuid4())[:6]}"
+        unique_prefix = f"PagProc-{timestamp}-{uid()}"
         for i in range(3):
             client.procedures.create(name=f"{unique_prefix}-{i}")
 
@@ -75,7 +75,7 @@ class TestListProcedures:
         now = datetime.now(timezone.utc)
 
         # Create a procedure
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         name = f"DateTest-{unique_id}-{timestamp}"
         create_result = client.procedures.create(name=name)
         assert_create_procedure_success(create_result)

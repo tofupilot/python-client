@@ -1,13 +1,12 @@
 """Test deleting revisions."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_revision_success, assert_delete_revision_success
 from ...parts.utils import assert_create_part_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestDeleteRevision:
@@ -23,7 +22,7 @@ class TestDeleteRevision:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"DEL-REV-{unique_id}-{timestamp}"
         revision_number = f"REV-{unique_id}"
 
@@ -50,7 +49,7 @@ class TestDeleteRevision:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"DEL-REV-NF-{unique_id}-{timestamp}"
 
         part = client.parts.create(number=part_number, name=f"Delete Rev NotFound Test {unique_id}")

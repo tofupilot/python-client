@@ -6,6 +6,7 @@ import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_procedure_success, assert_get_procedure_success
+from ....e2e_tag import uid
 
 
 class TestGetProcedure:
@@ -21,7 +22,7 @@ class TestGetProcedure:
             return
 
         # Create a fresh procedure for isolation
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         name = f"GetTest-{unique_id}-{timestamp}"
         create_result = client.procedures.create(name=name)
         assert_create_procedure_success(create_result)

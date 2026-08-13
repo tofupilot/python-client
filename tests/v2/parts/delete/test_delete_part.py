@@ -1,12 +1,11 @@
 """Test deleting parts."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_part_success, assert_delete_part_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestDeletePart:
@@ -19,7 +18,7 @@ class TestDeletePart:
                 client.parts.delete(number="any")
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"DEL-PART-{unique_id}-{timestamp}"
         create_result = client.parts.create(
             number=part_number,
@@ -43,6 +42,6 @@ class TestDeletePart:
                 client.parts.delete(number="nonexistent")
             return
 
-        fake_number = f"NONEXISTENT-{uuid.uuid4().hex[:8]}"
+        fake_number = f"NONEXISTENT-{uid()}"
         with pytest.raises(ErrorNOTFOUND):
             client.parts.delete(number=fake_number)

@@ -5,6 +5,7 @@ from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError, ErrorNOTFOUND
 from tests.v2.procedures.utils import assert_create_procedure_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 def test_create_version_empty_name(client: TofuPilot, auth_type: str) -> None:
@@ -12,11 +13,11 @@ def test_create_version_empty_name(client: TofuPilot, auth_type: str) -> None:
     if auth_type == "station":
         # Stations cannot create procedures (HTTP 403 FORBIDDEN)
         with assert_station_access_forbidden("create procedure"):
-            client.procedures.create(name="Test Procedure")
+            client.procedures.create(name=f"Test Procedure {uid()}")
         return
     
     # Create a procedure first
-    procedure_result = client.procedures.create(name="Test Procedure")
+    procedure_result = client.procedures.create(name=f"Test Procedure {uid()}")
     assert_create_procedure_success(procedure_result)
     
     with pytest.raises(APIError) as exc_info:
@@ -35,11 +36,11 @@ def test_create_version_long_name(client: TofuPilot, auth_type: str) -> None:
     if auth_type == "station":
         # Stations cannot create procedures (HTTP 403 FORBIDDEN)
         with assert_station_access_forbidden("create procedure"):
-            client.procedures.create(name="Test Procedure")
+            client.procedures.create(name=f"Test Procedure {uid()}")
         return
     
     # Create a procedure first
-    procedure_result = client.procedures.create(name="Test Procedure")
+    procedure_result = client.procedures.create(name=f"Test Procedure {uid()}")
     assert_create_procedure_success(procedure_result)
     
     with pytest.raises(APIError) as exc_info:

@@ -16,6 +16,8 @@ from typing import Union
 
 import tofupilot
 
+from .e2e_tag import e2e_tag
+
 
 @pytest.fixture(scope="class")
 def tofupilot_server_url() -> str:
@@ -81,20 +83,32 @@ def _v1_test_procedure():
         api_key=api_key,
         server_url=f"{url}/api",
     )
-    result = v2_client.procedures.create(name="V1 Test Procedure")
+    result = v2_client.procedures.create(name=f"V1 Test Procedure {e2e_tag()}")
     proc = v2_client.procedures.get(id=result.id)
-    # Link test station to the new procedure so station auth tests work
-    station_id = os.environ.get("TOFUPILOT_STATION_ID")
-    if station_id:
-        try:
-            requests.post(
-                f"{url}/api/trpc/station.linkProcedure",
-                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
-                json={"json": {"id": station_id, "procedure_id": proc.id}},
-                timeout=10,
+    # Stations may only insert runs on procedures linked to them (station_procedures
+    # table). Link the CI station to the session procedure, resolving its id from the
+    # station key itself — no env var to forget. The link goes through the internal
+    # tRPC route because the V2 API deliberately exposes no linking endpoint.
+    # Fail loudly: a silent miss here used to surface as 161 downstream 403s.
+    station_key = os.environ.get("TOFUPILOT_API_KEY_STATION")
+    if station_key:
+        station_client = tofupilot.v2.TofuPilot(
+            api_key=station_key,
+            server_url=f"{url}/api",
+        )
+        station_id = station_client.stations.get_current().id
+        resp = requests.post(
+            f"{url}/api/trpc/station.linkProcedure",
+            headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            json={"json": {"id": station_id, "procedure_id": proc.id}},
+            timeout=30,
+        )
+        # 409 = already linked, fine on re-runs against the same data
+        if resp.status_code not in (200, 409):
+            pytest.fail(
+                f"Could not link station {station_id} to procedure {proc.id}: "
+                f"HTTP {resp.status_code} — {resp.text[:300]}"
             )
-        except Exception:
-            pass
     # The V2 procedure-get response has no `identifier` field; fall back to id.
     return {"id": proc.id, "identifier": getattr(proc, "identifier", None) or proc.id}
 

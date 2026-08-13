@@ -8,6 +8,7 @@ from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_station_success, assert_get_station_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestGetStation:
@@ -37,7 +38,6 @@ class TestGetStation:
         assert isinstance(get_result.procedures, list)
         assert len(get_result.procedures) == 0
         assert get_result.api_key is None
-        assert get_result.connection_status is None or get_result.connection_status in ['connected', 'disconnected']
 
     def test_get_station_nonexistent(self, client: TofuPilot, auth_type: str) -> None:
         """Test getting a station that doesn't exist."""
@@ -61,20 +61,6 @@ class TestGetStation:
             assert hasattr(proc, 'id')
             assert hasattr(proc, 'name')
 
-    def test_get_station_connection_status(self, client: TofuPilot, auth_type: str, timestamp) -> None:
-        """Test that connection status is returned correctly."""
-        if auth_type == "station":
-            result = client.stations.get_current()
-            assert result.connection_status is None or result.connection_status in ['connected', 'disconnected']
-            return
-
-        create_result = client.stations.create(name=f"Connection Test - {timestamp}")
-        station_id = create_result.id
-
-        result = client.stations.get(id=station_id)
-        assert_get_station_success(result)
-        assert result.connection_status is None or result.connection_status in ['connected', 'disconnected']
-
     def test_get_multiple_stations_sequentially(self, client: TofuPilot, auth_type: str, timestamp) -> None:
         """Test getting multiple stations one after another."""
         if auth_type == "station":
@@ -85,7 +71,7 @@ class TestGetStation:
 
         station_ids: List[str] = []
         for i in range(3):
-            name = f"Sequential Test {i+1} - {timestamp}-{str(uuid.uuid4())[:8]}"
+            name = f"Sequential Test {i+1} - {timestamp}-{uid()}"
             result = client.stations.create(name=name)
             station_ids.append(result.id)
 

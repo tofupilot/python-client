@@ -1,12 +1,11 @@
 """Test deleting units."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_delete_unit_success, assert_get_unit_success
 from ...utils import assert_station_access_forbidden
+from ....e2e_tag import uid
 
 
 class TestDeleteUnit:
@@ -35,7 +34,7 @@ class TestDeleteUnit:
                 client.units.delete(serial_numbers=["nonexistent"])
             return
 
-        fake_serial = f"NONEXISTENT-{uuid.uuid4().hex[:8]}"
+        fake_serial = f"NONEXISTENT-{uid()}"
 
         with pytest.raises(ErrorNOTFOUND):
             client.units.delete(serial_numbers=[fake_serial])

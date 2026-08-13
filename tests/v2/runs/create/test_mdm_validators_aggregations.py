@@ -4,11 +4,11 @@ This test suite covers the structured multi-dimensional data format using x_axis
 with per-axis validators and aggregations, replacing the legacy multi-dimensional array format.
 """
 
-import uuid
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError
 from ...utils import get_random_test_dates, assert_create_run_success
+from ....e2e_tag import uid
 
 
 # =============================================================================
@@ -19,7 +19,7 @@ from ...utils import get_random_test_dates, assert_create_run_success
 def test_mdm_basic_x_axis_y_axis(client: TofuPilot, procedure_id: str):
     """Test basic x_axis and y_axis structure without validators/aggregations."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-BASIC-{unique_id}",
@@ -62,7 +62,7 @@ def test_mdm_basic_x_axis_y_axis(client: TofuPilot, procedure_id: str):
 def test_mdm_multiple_y_axis_series(client: TofuPilot, procedure_id: str):
     """Test multiple y_axis series (multiple data series against same x_axis)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-MULTI-Y-{unique_id}",
@@ -115,7 +115,7 @@ def test_mdm_multiple_y_axis_series(client: TofuPilot, procedure_id: str):
 def test_x_axis_with_single_validator(client: TofuPilot, procedure_id: str):
     """Test x_axis with a single validator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-X-VAL-1-{unique_id}",
@@ -163,7 +163,7 @@ def test_x_axis_with_single_validator(client: TofuPilot, procedure_id: str):
 def test_x_axis_with_multiple_validators(client: TofuPilot, procedure_id: str):
     """Test x_axis with multiple validators (range check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-X-VAL-MULTI-{unique_id}",
@@ -216,7 +216,7 @@ def test_x_axis_with_multiple_validators(client: TofuPilot, procedure_id: str):
 def test_x_axis_validator_with_fail_outcome(client: TofuPilot, procedure_id: str):
     """Test x_axis validator that fails."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-X-VAL-FAIL-{unique_id}",
@@ -270,7 +270,7 @@ def test_x_axis_validator_with_fail_outcome(client: TofuPilot, procedure_id: str
 def test_x_axis_with_single_aggregation(client: TofuPilot, procedure_id: str):
     """Test x_axis with a single aggregation."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-X-AGG-1-{unique_id}",
@@ -319,7 +319,7 @@ def test_x_axis_with_single_aggregation(client: TofuPilot, procedure_id: str):
 def test_x_axis_with_multiple_aggregations(client: TofuPilot, procedure_id: str):
     """Test x_axis with multiple aggregations (min, max, avg)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-X-AGG-MULTI-{unique_id}",
@@ -380,7 +380,7 @@ def test_x_axis_with_multiple_aggregations(client: TofuPilot, procedure_id: str)
 def test_x_axis_aggregation_with_validators(client: TofuPilot, procedure_id: str):
     """Test x_axis aggregation with nested validators."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-X-AGG-VAL-{unique_id}",
@@ -446,7 +446,7 @@ def test_x_axis_aggregation_with_validators(client: TofuPilot, procedure_id: str
 def test_y_axis_with_single_validator(client: TofuPilot, procedure_id: str):
     """Test y_axis with a single validator."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-Y-VAL-1-{unique_id}",
@@ -494,7 +494,7 @@ def test_y_axis_with_single_validator(client: TofuPilot, procedure_id: str):
 def test_y_axis_with_multiple_validators(client: TofuPilot, procedure_id: str):
     """Test y_axis with multiple validators (range check)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-Y-VAL-MULTI-{unique_id}",
@@ -547,7 +547,7 @@ def test_y_axis_with_multiple_validators(client: TofuPilot, procedure_id: str):
 def test_multiple_y_axis_each_with_validators(client: TofuPilot, procedure_id: str):
     """Test multiple y_axis series, each with their own validators."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MULTI-Y-VAL-{unique_id}",
@@ -623,7 +623,7 @@ def test_multiple_y_axis_each_with_validators(client: TofuPilot, procedure_id: s
 def test_y_axis_with_single_aggregation(client: TofuPilot, procedure_id: str):
     """Test y_axis with a single aggregation."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-Y-AGG-1-{unique_id}",
@@ -672,7 +672,7 @@ def test_y_axis_with_single_aggregation(client: TofuPilot, procedure_id: str):
 def test_y_axis_with_multiple_aggregations(client: TofuPilot, procedure_id: str):
     """Test y_axis with multiple aggregations."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-Y-AGG-MULTI-{unique_id}",
@@ -739,7 +739,7 @@ def test_y_axis_with_multiple_aggregations(client: TofuPilot, procedure_id: str)
 def test_y_axis_aggregation_with_validators(client: TofuPilot, procedure_id: str):
     """Test y_axis aggregation with nested validators."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-Y-AGG-VAL-{unique_id}",
@@ -795,7 +795,7 @@ def test_y_axis_aggregation_with_validators(client: TofuPilot, procedure_id: str
 def test_multiple_y_axis_each_with_aggregations(client: TofuPilot, procedure_id: str):
     """Test multiple y_axis series, each with their own aggregations."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MULTI-Y-AGG-{unique_id}",
@@ -875,7 +875,7 @@ def test_multiple_y_axis_each_with_aggregations(client: TofuPilot, procedure_id:
 def test_both_axes_with_validators(client: TofuPilot, procedure_id: str):
     """Test both x_axis and y_axis with validators."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-XY-VAL-{unique_id}",
@@ -937,7 +937,7 @@ def test_both_axes_with_validators(client: TofuPilot, procedure_id: str):
 def test_both_axes_with_aggregations(client: TofuPilot, procedure_id: str):
     """Test both x_axis and y_axis with aggregations."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-XY-AGG-{unique_id}",
@@ -994,7 +994,7 @@ def test_both_axes_with_aggregations(client: TofuPilot, procedure_id: str):
 def test_comprehensive_mdm_all_features(client: TofuPilot, procedure_id: str):
     """Test comprehensive MDM with all features: x/y axes, validators, aggregations."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-FULL-{unique_id}",
@@ -1132,7 +1132,7 @@ def test_station_can_create_mdm_with_validators(client: TofuPilot, procedure_id:
         return
 
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-MDM-VAL-{unique_id}",
@@ -1190,7 +1190,7 @@ def test_station_can_create_mdm_with_aggregations(client: TofuPilot, procedure_i
         return
 
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-MDM-AGG-{unique_id}",
@@ -1250,7 +1250,7 @@ def test_station_can_create_comprehensive_mdm(client: TofuPilot, procedure_id: s
         return
 
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-STATION-MDM-FULL-{unique_id}",
@@ -1333,7 +1333,7 @@ def test_station_can_create_comprehensive_mdm(client: TofuPilot, procedure_id: s
 def test_mdm_with_measurement_level_validators(client: TofuPilot, procedure_id: str):
     """Test MDM with validators at the measurement level (not inside x_axis/y_axis)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-MEAS-VAL-{unique_id}",
@@ -1381,7 +1381,7 @@ def test_mdm_with_measurement_level_validators(client: TofuPilot, procedure_id: 
 def test_mdm_with_measurement_level_aggregations(client: TofuPilot, procedure_id: str):
     """Test MDM with aggregations at the measurement level (not inside x_axis/y_axis)."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-MEAS-AGG-{unique_id}",
@@ -1430,7 +1430,7 @@ def test_mdm_with_measurement_level_aggregations(client: TofuPilot, procedure_id
 def test_mdm_with_measurement_and_axis_validators(client: TofuPilot, procedure_id: str):
     """Test MDM with validators at both measurement level and inside axes."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-BOTH-VAL-{unique_id}",
@@ -1492,7 +1492,7 @@ def test_mdm_with_measurement_and_axis_validators(client: TofuPilot, procedure_i
 def test_mdm_with_measurement_and_axis_aggregations(client: TofuPilot, procedure_id: str):
     """Test MDM with aggregations at both measurement level and inside axes."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-BOTH-AGG-{unique_id}",
@@ -1561,7 +1561,7 @@ def test_mdm_with_measurement_and_axis_aggregations(client: TofuPilot, procedure
 def test_mdm_mismatched_array_lengths(client: TofuPilot, procedure_id: str):
     """Test MDM where x_axis and y_axis have different lengths."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-LENGTH-MISMATCH-{unique_id}",
@@ -1602,7 +1602,7 @@ def test_mdm_mismatched_array_lengths(client: TofuPilot, procedure_id: str):
 def test_mdm_empty_arrays(client: TofuPilot, procedure_id: str):
     """Test MDM with empty data arrays."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-EMPTY-{unique_id}",
@@ -1643,7 +1643,7 @@ def test_mdm_empty_arrays(client: TofuPilot, procedure_id: str):
 def test_mdm_negative_values_both_axes(client: TofuPilot, procedure_id: str):
     """Test MDM with negative values on both axes."""
     started_at, ended_at = get_random_test_dates()
-    unique_id = str(uuid.uuid4())[:8]
+    unique_id = uid()
 
     result = client.runs.create(
         serial_number=f"SN-MDM-NEGATIVE-{unique_id}",

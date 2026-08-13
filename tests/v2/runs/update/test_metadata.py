@@ -6,6 +6,7 @@ import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError, ErrorBADREQUEST
 from ...utils import get_random_test_dates
+from ....e2e_tag import uid
 
 
 @pytest.fixture(scope="class")
@@ -23,7 +24,7 @@ def _create_run(
     unit_metadata: Optional[dict] = None,
 ) -> Tuple[str, str]:
     """Create a run with a fresh serial. Returns (run_id, serial_number)."""
-    serial = f"META-RUN-{uuid.uuid4().hex[:8]}"
+    serial = f"META-RUN-{uid()}"
     started_at, ended_at = get_random_test_dates()
     kwargs = dict(
         serial_number=serial,

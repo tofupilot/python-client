@@ -8,6 +8,7 @@ from tofupilot.v2 import TofuPilot
 from tofupilot.v2.client_with_error_tracking import TofuPilotValidationError
 from tofupilot.v2.errors import ErrorBADREQUEST, ErrorNOTFOUND
 from ...utils import get_random_test_dates
+from ....e2e_tag import uid
 
 
 def test_create_run_with_empty_serial_number(client: TofuPilot, procedure_id: str):
@@ -17,7 +18,7 @@ def test_create_run_with_empty_serial_number(client: TofuPilot, procedure_id: st
         client.runs.create(  # type: ignore[call-arg]
             serial_number="",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -32,7 +33,7 @@ def test_create_run_with_whitespace_serial_number(client: TofuPilot, procedure_i
         client.runs.create(  # type: ignore[call-arg]
             serial_number="   ",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -53,7 +54,7 @@ def test_create_run_with_invalid_procedure_id(client: TofuPilot, auth_type):
             client.runs.create(  # type: ignore[call-arg]
                 serial_number="TEST-001",
                 procedure_id=fake_id,
-                part_number="TEST-PCB-001",
+                part_number=f"TEST-PCB-{uid()}",
                 started_at=started_at,
                 outcome="PASS",
                 ended_at=ended_at,
@@ -65,7 +66,7 @@ def test_create_run_with_invalid_procedure_id(client: TofuPilot, auth_type):
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=fake_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -80,7 +81,7 @@ def test_create_run_with_malformed_procedure_id(client: TofuPilot):
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id="not-a-uuid",
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -95,7 +96,7 @@ def test_create_run_with_invalid_outcome(client: TofuPilot, procedure_id: str):
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="INVALID_OUTCOME",  # type: ignore[arg-type]
             ended_at=ended_at,
@@ -104,16 +105,16 @@ def test_create_run_with_invalid_outcome(client: TofuPilot, procedure_id: str):
 
 
 def test_create_run_with_end_before_start(client: TofuPilot, procedure_id: str):
-    """Test that creating a run with end time before start time fails with a server error."""
-    from tofupilot.v2.errors import APIError, ErrorINTERNALSERVERERROR
+    """Test that creating a run with end time before start time fails with a 400."""
+    from tofupilot.v2.errors import ErrorBADREQUEST
     start_time = datetime.now(timezone.utc)
     end_time = start_time - timedelta(hours=1)
 
-    with pytest.raises((APIError, ErrorINTERNALSERVERERROR)):
+    with pytest.raises(ErrorBADREQUEST):
         client.runs.create(
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=start_time,
             ended_at=end_time,
             outcome="PASS",
@@ -127,7 +128,7 @@ def test_create_run_with_ended_at_but_no_outcome(client: TofuPilot, procedure_id
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             ended_at=ended_at,
         )
@@ -141,7 +142,7 @@ def test_create_run_with_outcome_but_no_ended_at(client: TofuPilot, procedure_id
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
         )
@@ -156,7 +157,7 @@ def test_create_run_with_very_long_serial_number(client: TofuPilot, procedure_id
         client.runs.create(  # type: ignore[call-arg]
             serial_number=long_serial,
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -171,7 +172,7 @@ def test_create_run_with_invalid_batch_number(client: TofuPilot, procedure_id: s
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             batch_number="",  # Empty batch number should fail
             outcome="PASS",
@@ -203,7 +204,7 @@ def test_create_run_with_invalid_operated_by(client: TofuPilot, procedure_id: st
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             operated_by="invalid_operator",
             outcome="PASS",
@@ -217,7 +218,7 @@ def test_create_run_with_invalid_operated_by(client: TofuPilot, procedure_id: st
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             operated_by="",
             outcome="PASS",
@@ -229,12 +230,12 @@ def test_create_run_with_invalid_operated_by(client: TofuPilot, procedure_id: st
 def test_create_run_with_procedure_version(client: TofuPilot, procedure_id: str):
     """Test that creating a run with procedure_version links the run to a version."""
     started_at, ended_at = get_random_test_dates()
-    version_tag = f"v{uuid.uuid4().hex[:8]}"
+    version_tag = f"v{uid()}"
 
     result = client.runs.create(
-        serial_number="TEST-001",
+        serial_number=f"TEST-001-{uid()}",
         procedure_id=procedure_id,
-        part_number="TEST-PCB-001",
+        part_number=f"TEST-PCB-{uid()}",
         started_at=started_at,
         ended_at=ended_at,
         outcome="PASS",
@@ -254,9 +255,9 @@ def test_create_run_with_docstring(client: TofuPilot, procedure_id: str):
     doc = "Automated regression test for power supply module."
 
     result = client.runs.create(
-        serial_number="TEST-001",
+        serial_number=f"TEST-001-{uid()}",
         procedure_id=procedure_id,
-        part_number="TEST-PCB-001",
+        part_number=f"TEST-PCB-{uid()}",
         started_at=started_at,
         ended_at=ended_at,
         outcome="PASS",
@@ -276,7 +277,7 @@ def test_create_run_without_required_fields(client: TofuPilot):
     with pytest.raises(TypeError):
         client.runs.create(  # type: ignore[call-arg]
             procedure_id=str(uuid.uuid4()),
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -287,7 +288,7 @@ def test_create_run_without_required_fields(client: TofuPilot):
     with pytest.raises(TypeError):
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             outcome="PASS",
             ended_at=ended_at,
@@ -298,7 +299,32 @@ def test_create_run_without_required_fields(client: TofuPilot):
         client.runs.create(  # type: ignore[call-arg]
             serial_number="TEST-001",
             procedure_id=str(uuid.uuid4()),
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             outcome="PASS",
             ended_at=datetime.now(timezone.utc) + timedelta(minutes=5),
         )
+
+def test_station_create_run_on_unlinked_procedure_forbidden(user_client: TofuPilot, station_client: TofuPilot, timestamp):
+    """A station may only insert runs on procedures explicitly linked to it.
+
+    Deliberate design (no auto-link, see TP-693): the 403 is the contract, and its
+    message must point at the remediation path.
+    """
+    from tofupilot.v2.errors import ErrorFORBIDDEN
+
+    proc = user_client.procedures.create(name=f"Unlinked Procedure {timestamp}")
+    started_at, ended_at = get_random_test_dates()
+
+    with pytest.raises(ErrorFORBIDDEN) as exc_info:
+        station_client.runs.create(
+            serial_number=f"UNLINKED-{timestamp}",
+            procedure_id=proc.id,
+            part_number="UNLINKED-PCB-001",
+            started_at=started_at,
+            outcome="PASS",
+            ended_at=ended_at,
+        )
+
+    message = str(exc_info.value)
+    assert "not authorized" in message
+    assert "Link the procedure" in message

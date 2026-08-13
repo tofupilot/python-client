@@ -5,10 +5,10 @@ Tests the simplified workflow: client.runs.attach(id, file)
 
 import os
 import tempfile
-import uuid
 
 from tofupilot.v2 import TofuPilot
 from ...utils import get_random_test_dates
+from ....e2e_tag import uid
 
 
 class TestRunAttachments:
@@ -18,9 +18,9 @@ class TestRunAttachments:
         """Attach a file to a run using the simplified attach helper."""
         started_at, ended_at = get_random_test_dates()
         run = client.runs.create(
-            serial_number=f"ATTACH-{uuid.uuid4().hex[:8]}",
+            serial_number=f"ATTACH-{uid()}",
             procedure_id=procedure_id,
-            part_number="TEST-PCB-001",
+            part_number=f"TEST-PCB-{uid()}",
             started_at=started_at,
             ended_at=ended_at,
             outcome="PASS",

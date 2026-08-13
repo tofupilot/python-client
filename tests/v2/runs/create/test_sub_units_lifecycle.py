@@ -1,9 +1,9 @@
 """Test sub_units lifecycle in run creation."""
 
-import uuid
 from datetime import datetime, timedelta, timezone
 from tofupilot.v2 import TofuPilot
 from ...utils import assert_create_run_success
+from ....e2e_tag import uid
 
 
 class TestSubUnitsLifecycle:
@@ -11,7 +11,7 @@ class TestSubUnitsLifecycle:
     def test_sub_units_creation_and_linking(self, client: TofuPilot, procedure_id: str) -> None:
         """Test complete lifecycle of sub-units creation and linking."""
         # Generate unique identifiers for this test
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         
         # Main unit and sub-units
         MAIN_SERIAL = f"MainUnit-{unique_id}"
@@ -126,7 +126,7 @@ class TestSubUnitsLifecycle:
     def test_run_without_sub_units(self, client: TofuPilot, procedure_id: str) -> None:
         """Test that runs without sub_units work normally."""
         # Generate unique identifiers for this test
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         SERIAL_NUMBER = f"TestUnit-NoSub-{unique_id}"
         PART_NUMBER = f"TestPart-NoSub-{unique_id}"
         REVISION_NUMBER = f"Rev-NoSub-{unique_id}"
@@ -164,7 +164,7 @@ class TestSubUnitsLifecycle:
     def test_run_with_empty_sub_units(self, client: TofuPilot, procedure_id: str) -> None:
         """Test that runs with empty sub_units array work properly."""
         # Generate unique identifiers for this test
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         SERIAL_NUMBER = f"TestUnit-EmptySub-{unique_id}"
         PART_NUMBER = f"TestPart-EmptySub-{unique_id}"
         REVISION_NUMBER = f"Rev-EmptySub-{unique_id}"
@@ -203,7 +203,7 @@ class TestSubUnitsLifecycle:
     def test_sub_unit_parent_change(self, client: TofuPilot, procedure_id: str) -> None:
         """Test parentChange behavior when a sub-unit with an existing parent is assigned to a new parent."""
         # Generate unique identifiers for this test
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         
         # Units
         FIRST_PARENT_SERIAL = f"FirstParent-{unique_id}"
@@ -291,7 +291,7 @@ class TestSubUnitsLifecycle:
     def test_run_with_single_sub_unit(self, client: TofuPilot, procedure_id: str) -> None:
         """Test that runs with a single sub-unit work properly."""
         # Generate unique identifiers for this test
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         
         MAIN_SERIAL = f"MainUnit-Single-{unique_id}"
         SUB_SERIAL = f"SubUnit-Single-{unique_id}"

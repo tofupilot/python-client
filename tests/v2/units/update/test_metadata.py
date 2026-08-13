@@ -4,6 +4,7 @@ import uuid
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import APIError, ErrorBADREQUEST
+from ....e2e_tag import uid
 
 
 def _make_unit(client: TofuPilot, timestamp: str) -> str:
@@ -17,7 +18,7 @@ def _make_unit(client: TofuPilot, timestamp: str) -> str:
     rev = f"R-{suffix}"
     client.parts.create(number=part_number, name=f"Metadata test part {timestamp}")
     client.parts.revisions.create(part_number=part_number, number=rev)
-    serial = f"META-UNIT-{uuid.uuid4().hex[:8]}"
+    serial = f"META-UNIT-{uid()}"
     client.units.create(
         serial_number=serial,
         part_number=part_number,
@@ -35,7 +36,7 @@ class TestUnitMetadata:
         rev = f"R-{suffix}"
         client.parts.create(number=part_number, name="Metadata create test")
         client.parts.revisions.create(part_number=part_number, number=rev)
-        serial = f"META-CREATE-{uuid.uuid4().hex[:8]}"
+        serial = f"META-CREATE-{uid()}"
 
         client.units.create(
             serial_number=serial,

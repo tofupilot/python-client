@@ -3,6 +3,7 @@
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorBADREQUEST
+from ....e2e_tag import uid
 
 
 class TestCreateBatchValidation:
@@ -40,7 +41,7 @@ class TestCreateBatchValidation:
         ]
         
         import uuid
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         
         for test_name, special_pattern in special_chars_tests:
             batch_number = f"{special_pattern}-{timestamp}-{unique_id}-{test_name}"
@@ -73,7 +74,7 @@ class TestCreateBatchValidation:
         
         # Test various special characters that should NOT be allowed
         
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         
         batch_number = f"{special_pattern}-{timestamp}-{unique_id}-{test_name}"
         

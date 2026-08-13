@@ -101,7 +101,7 @@ class ProcedureListCreatedByUser(BaseModel):
         return m
 
 
-ProcedureListProvider = Literal["github", "gitlab"]
+ProcedureListProvider = Literal["github", "gitlab", "bitbucket"]
 
 
 class LinkedRepositoryTypedDict(TypedDict):

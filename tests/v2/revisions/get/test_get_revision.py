@@ -1,12 +1,11 @@
 """Test getting revisions."""
 
-import uuid
-
 import pytest
 from tofupilot.v2 import TofuPilot
 from tofupilot.v2.errors import ErrorNOTFOUND
 from ..utils import assert_create_revision_success, assert_get_revision_success
 from ...parts.utils import assert_create_part_success
+from ....e2e_tag import uid
 
 
 class TestGetRevision:
@@ -22,7 +21,7 @@ class TestGetRevision:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"GET-REV-{unique_id}-{timestamp}"
         revision_number = f"REV-{unique_id}"
 
@@ -52,7 +51,7 @@ class TestGetRevision:
                 )
             return
 
-        unique_id = str(uuid.uuid4())[:8]
+        unique_id = uid()
         part_number = f"GET-REV-NF-{unique_id}-{timestamp}"
 
         part = client.parts.create(number=part_number, name=f"Nonexistent Rev Test {unique_id}")
