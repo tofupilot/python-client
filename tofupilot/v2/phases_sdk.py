@@ -28,6 +28,7 @@ class PhasesSDK(BaseSDK):
         procedure_versions: Optional[List[str]] = None,
         environments: Optional[List[models.PhaseListEnvironment]] = None,
         operated_by_ids: Optional[List[str]] = None,
+        operated_by_names: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         created_by_user_ids: Optional[List[str]] = None,
         serial_numbers: Optional[List[str]] = None,
@@ -62,6 +63,7 @@ class PhasesSDK(BaseSDK):
         :param procedure_versions:
         :param environments:
         :param operated_by_ids:
+        :param operated_by_names:
         :param created_by_station_ids:
         :param created_by_user_ids:
         :param serial_numbers:
@@ -103,6 +105,7 @@ class PhasesSDK(BaseSDK):
             procedure_versions=procedure_versions,
             environments=environments,
             operated_by_ids=operated_by_ids,
+            operated_by_names=operated_by_names,
             created_by_station_ids=created_by_station_ids,
             created_by_user_ids=created_by_user_ids,
             serial_numbers=serial_numbers,
@@ -199,6 +202,7 @@ class PhasesSDK(BaseSDK):
         procedure_versions: Optional[List[str]] = None,
         environments: Optional[List[models.PhaseListEnvironment]] = None,
         operated_by_ids: Optional[List[str]] = None,
+        operated_by_names: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         created_by_user_ids: Optional[List[str]] = None,
         serial_numbers: Optional[List[str]] = None,
@@ -233,6 +237,7 @@ class PhasesSDK(BaseSDK):
         :param procedure_versions:
         :param environments:
         :param operated_by_ids:
+        :param operated_by_names:
         :param created_by_station_ids:
         :param created_by_user_ids:
         :param serial_numbers:
@@ -274,6 +279,7 @@ class PhasesSDK(BaseSDK):
             procedure_versions=procedure_versions,
             environments=environments,
             operated_by_ids=operated_by_ids,
+            operated_by_names=operated_by_names,
             created_by_station_ids=created_by_station_ids,
             created_by_user_ids=created_by_user_ids,
             serial_numbers=serial_numbers,

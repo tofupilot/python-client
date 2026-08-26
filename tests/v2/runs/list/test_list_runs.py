@@ -513,3 +513,37 @@ class TestListRuns:
         assert_get_runs_success(result)
         result_ids = [r.id for r in result.data]
         assert create_result.id in result_ids
+
+    def test_list_with_operated_by_names_filter(self, client: TofuPilot, procedure_id: str) -> None:
+        """Filter runs by declared operator name (operator without an account)."""
+        unique_id = uid()
+        part_number = f"PART-OPRN-{unique_id}"
+        declared_name = f"Declared Operator {unique_id}"
+
+        started_at, ended_at = get_random_test_dates()
+        create_result = client.runs.create(
+            serial_number=f"UNIT-OPRN-{unique_id}",
+            procedure_id=procedure_id,
+            part_number=part_number,
+            started_at=started_at,
+            outcome="PASS",
+            ended_at=ended_at,
+            operated_by=declared_name,
+        )
+        assert_create_run_success(create_result)
+
+        result = client.runs.list(
+            operated_by_names=[declared_name],
+            part_numbers=[part_number],
+        )
+        assert_get_runs_success(result)
+        result_ids = [r.id for r in result.data]
+        assert create_result.id in result_ids
+
+        # A different name must not match.
+        empty = client.runs.list(
+            operated_by_names=[f"Someone Else {unique_id}"],
+            part_numbers=[part_number],
+        )
+        assert_get_runs_success(empty)
+        assert create_result.id not in [r.id for r in empty.data]

@@ -42,6 +42,7 @@ class PhaseListRequestTypedDict(TypedDict):
     procedure_versions: NotRequired[List[str]]
     environments: NotRequired[List[PhaseListEnvironment]]
     operated_by_ids: NotRequired[List[str]]
+    operated_by_names: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     created_by_user_ids: NotRequired[List[str]]
     serial_numbers: NotRequired[List[str]]
@@ -126,6 +127,11 @@ class PhaseListRequest(BaseModel):
     ] = None
 
     operated_by_ids: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    operated_by_names: Annotated[
         Optional[List[str]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None

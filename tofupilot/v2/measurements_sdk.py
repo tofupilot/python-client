@@ -30,6 +30,7 @@ class MeasurementsSDK(BaseSDK):
         revision_numbers: Optional[List[str]] = None,
         batch_numbers: Optional[List[str]] = None,
         operated_by_ids: Optional[List[str]] = None,
+        operated_by_names: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         created_by_user_ids: Optional[List[str]] = None,
         started_after: Optional[datetime] = None,
@@ -72,6 +73,7 @@ class MeasurementsSDK(BaseSDK):
         :param revision_numbers:
         :param batch_numbers:
         :param operated_by_ids:
+        :param operated_by_names:
         :param created_by_station_ids:
         :param created_by_user_ids:
         :param started_after:
@@ -119,6 +121,7 @@ class MeasurementsSDK(BaseSDK):
             revision_numbers=revision_numbers,
             batch_numbers=batch_numbers,
             operated_by_ids=operated_by_ids,
+            operated_by_names=operated_by_names,
             created_by_station_ids=created_by_station_ids,
             created_by_user_ids=created_by_user_ids,
             started_after=started_after,
@@ -221,6 +224,7 @@ class MeasurementsSDK(BaseSDK):
         revision_numbers: Optional[List[str]] = None,
         batch_numbers: Optional[List[str]] = None,
         operated_by_ids: Optional[List[str]] = None,
+        operated_by_names: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         created_by_user_ids: Optional[List[str]] = None,
         started_after: Optional[datetime] = None,
@@ -263,6 +267,7 @@ class MeasurementsSDK(BaseSDK):
         :param revision_numbers:
         :param batch_numbers:
         :param operated_by_ids:
+        :param operated_by_names:
         :param created_by_station_ids:
         :param created_by_user_ids:
         :param started_after:
@@ -310,6 +315,7 @@ class MeasurementsSDK(BaseSDK):
             revision_numbers=revision_numbers,
             batch_numbers=batch_numbers,
             operated_by_ids=operated_by_ids,
+            operated_by_names=operated_by_names,
             created_by_station_ids=created_by_station_ids,
             created_by_user_ids=created_by_user_ids,
             started_after=started_after,

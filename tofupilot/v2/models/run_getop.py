@@ -135,32 +135,32 @@ class RunGetCreatedByStation(BaseModel):
 
 
 class RunGetOperatedByTypedDict(TypedDict):
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
 
-    id: str
-    r"""Operator ID."""
+    id: Nullable[str]
+    r"""Operator user ID. Null when the operator is a declared name without a TofuPilot account."""
     name: Nullable[str]
-    r"""Operator display name."""
+    r"""Operator display name: the account name for linked operators, the declared free-text value otherwise."""
     email: Nullable[str]
-    r"""Operator email address."""
+    r"""Operator email address. Null for declared names (unverified operators have no account email)."""
 
 
 class RunGetOperatedBy(BaseModel):
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
 
-    id: str
-    r"""Operator ID."""
+    id: Nullable[str]
+    r"""Operator user ID. Null when the operator is a declared name without a TofuPilot account."""
 
     name: Nullable[str]
-    r"""Operator display name."""
+    r"""Operator display name: the account name for linked operators, the declared free-text value otherwise."""
 
     email: Nullable[str]
-    r"""Operator email address."""
+    r"""Operator email address. Null for declared names (unverified operators have no account email)."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name", "email"]
+        nullable_fields = ["id", "name", "email"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -1378,7 +1378,7 @@ class RunGetResponseTypedDict(TypedDict):
     created_by_station: NotRequired[Nullable[RunGetCreatedByStationTypedDict]]
     r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
     operated_by: NotRequired[Nullable[RunGetOperatedByTypedDict]]
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
     phases: NotRequired[List[RunGetPhaseTypedDict]]
     r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""
     attachments: NotRequired[List[RunGetAttachmentTypedDict]]
@@ -1427,7 +1427,7 @@ class RunGetResponse(BaseModel):
     r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
 
     operated_by: OptionalNullable[RunGetOperatedBy] = UNSET
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
 
     phases: Optional[List[RunGetPhase]] = None
     r"""Array of execution phases in this run, ordered by start time, then by name and retry attempt for phases that share one. Retry attempts of a phase therefore always appear in attempt order. Only returned if `all` or `phases` is included."""

@@ -48,6 +48,7 @@ class MeasurementListRequestTypedDict(TypedDict):
     revision_numbers: NotRequired[List[str]]
     batch_numbers: NotRequired[List[str]]
     operated_by_ids: NotRequired[List[str]]
+    operated_by_names: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     created_by_user_ids: NotRequired[List[str]]
     started_after: NotRequired[datetime]
@@ -147,6 +148,11 @@ class MeasurementListRequest(BaseModel):
     ] = None
 
     operated_by_ids: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    operated_by_names: Annotated[
         Optional[List[str]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None

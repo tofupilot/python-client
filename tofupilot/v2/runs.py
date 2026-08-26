@@ -60,7 +60,7 @@ class Runs(BaseSDK):
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
-        :param operated_by: Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
+        :param operated_by: Operator who executed the test run: an email address or a free-text name. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. An email matching a member of the calling organization links the run to that user account; any other value (a name, or an unrecognized email) is recorded verbatim as a declared operator name. Declared names are informative only — they are not verified identities.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
         :param revision_number: Hardware revision identifier for the unit. Matched case-insensitively. If none exist, a revision with this number will be created. If no revision is specified, the unit will be linked to the default revision of the part number.
         :param batch_number: Production batch identifier for grouping units manufactured together. Matched case-insensitively. If none exist, a batch with this batch number will be created. If no batch number is specified, the unit will not be linked to any batch.
@@ -236,7 +236,7 @@ class Runs(BaseSDK):
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
-        :param operated_by: Email address of the operator who executed the test run. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. If the email does not match a member of the calling organization, it is silently dropped and the run is recorded with no operator. The run is linked to this user (when resolved) to track who performed the test.
+        :param operated_by: Operator who executed the test run: an email address or a free-text name. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. An email matching a member of the calling organization links the run to that user account; any other value (a name, or an unrecognized email) is recorded verbatim as a declared operator name. Declared names are informative only — they are not verified identities.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
         :param revision_number: Hardware revision identifier for the unit. Matched case-insensitively. If none exist, a revision with this number will be created. If no revision is specified, the unit will be linked to the default revision of the part number.
         :param batch_number: Production batch identifier for grouping units manufactured together. Matched case-insensitively. If none exist, a batch with this batch number will be created. If no batch number is specified, the unit will not be linked to any batch.
@@ -389,6 +389,7 @@ class Runs(BaseSDK):
         created_by_user_ids: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         operated_by_ids: Optional[List[str]] = None,
+        operated_by_names: Optional[List[str]] = None,
         limit: Optional[int] = 50,
         cursor: Optional[int] = None,
         sort_by: Optional[models.RunListSortBy] = "started_at",
@@ -432,6 +433,7 @@ class Runs(BaseSDK):
         :param created_by_user_ids:
         :param created_by_station_ids:
         :param operated_by_ids:
+        :param operated_by_names:
         :param limit: Maximum number of runs to return per page.
         :param cursor:
         :param sort_by: Field to sort results by.
@@ -477,6 +479,7 @@ class Runs(BaseSDK):
             created_by_user_ids=created_by_user_ids,
             created_by_station_ids=created_by_station_ids,
             operated_by_ids=operated_by_ids,
+            operated_by_names=operated_by_names,
             limit=limit,
             cursor=cursor,
             sort_by=sort_by,
@@ -579,6 +582,7 @@ class Runs(BaseSDK):
         created_by_user_ids: Optional[List[str]] = None,
         created_by_station_ids: Optional[List[str]] = None,
         operated_by_ids: Optional[List[str]] = None,
+        operated_by_names: Optional[List[str]] = None,
         limit: Optional[int] = 50,
         cursor: Optional[int] = None,
         sort_by: Optional[models.RunListSortBy] = "started_at",
@@ -622,6 +626,7 @@ class Runs(BaseSDK):
         :param created_by_user_ids:
         :param created_by_station_ids:
         :param operated_by_ids:
+        :param operated_by_names:
         :param limit: Maximum number of runs to return per page.
         :param cursor:
         :param sort_by: Field to sort results by.
@@ -667,6 +672,7 @@ class Runs(BaseSDK):
             created_by_user_ids=created_by_user_ids,
             created_by_station_ids=created_by_station_ids,
             operated_by_ids=operated_by_ids,
+            operated_by_names=operated_by_names,
             limit=limit,
             cursor=cursor,
             sort_by=sort_by,

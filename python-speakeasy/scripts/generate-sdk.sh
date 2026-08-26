@@ -1,6 +1,20 @@
 #!/bin/bash
 set -e
 
+# Guard: the generated runtime is decided by the CLI version, not by gen.lock —
+# an unpinned local CLI silently upgrades it (follow_redirects, new modules, …).
+# gen.lock's speakeasyVersion is the single source of truth; put that exact CLI
+# first on PATH before regenerating.
+EXPECTED_SPEAKEASY=$(awk '/^[[:space:]]*speakeasyVersion:/ {print $2; exit}' python-speakeasy/.speakeasy/gen.lock)
+ACTUAL_SPEAKEASY=$(speakeasy --version 2>/dev/null | awk '/^speakeasy version/ {print $3; exit}')
+if [ -z "$EXPECTED_SPEAKEASY" ] || [ "$ACTUAL_SPEAKEASY" != "$EXPECTED_SPEAKEASY" ]; then
+    echo "❌ speakeasy CLI is '${ACTUAL_SPEAKEASY:-not found}' but gen.lock pins '${EXPECTED_SPEAKEASY:-unknown}'."
+    echo "   Download it: https://github.com/speakeasy-api/speakeasy/releases/tag/v${EXPECTED_SPEAKEASY}"
+    echo "   then: export PATH=\"/path/to/speakeasy-${EXPECTED_SPEAKEASY}:\$PATH\""
+    exit 1
+fi
+echo "✅ speakeasy CLI ${ACTUAL_SPEAKEASY} matches gen.lock pin"
+
 echo "🔄 Starting SDK generation..."
 
 # Step 1: Backup critical v2 files

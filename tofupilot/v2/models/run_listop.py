@@ -120,6 +120,7 @@ class RunListRequestTypedDict(TypedDict):
     created_by_user_ids: NotRequired[List[str]]
     created_by_station_ids: NotRequired[List[str]]
     operated_by_ids: NotRequired[List[str]]
+    operated_by_names: NotRequired[List[str]]
     limit: NotRequired[int]
     r"""Maximum number of runs to return per page."""
     cursor: NotRequired[int]
@@ -249,6 +250,11 @@ class RunListRequest(BaseModel):
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
 
+    operated_by_names: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
     limit: Annotated[
         Optional[int],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
@@ -363,32 +369,32 @@ class RunListCreatedByStation(BaseModel):
 
 
 class RunListOperatedByTypedDict(TypedDict):
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
 
-    id: str
-    r"""Operator ID."""
+    id: Nullable[str]
+    r"""Operator user ID. Null when the operator is a declared name without a TofuPilot account."""
     name: Nullable[str]
-    r"""Operator display name."""
+    r"""Operator display name: the account name for linked operators, the declared free-text value otherwise."""
     email: Nullable[str]
-    r"""Operator email address."""
+    r"""Operator email address. Null for declared names (unverified operators have no account email)."""
 
 
 class RunListOperatedBy(BaseModel):
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
 
-    id: str
-    r"""Operator ID."""
+    id: Nullable[str]
+    r"""Operator user ID. Null when the operator is a declared name without a TofuPilot account."""
 
     name: Nullable[str]
-    r"""Operator display name."""
+    r"""Operator display name: the account name for linked operators, the declared free-text value otherwise."""
 
     email: Nullable[str]
-    r"""Operator email address."""
+    r"""Operator email address. Null for declared names (unverified operators have no account email)."""
 
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
         optional_fields = []
-        nullable_fields = ["name", "email"]
+        nullable_fields = ["id", "name", "email"]
         null_default_fields = []
 
         serialized = handler(self)
@@ -656,7 +662,7 @@ class RunListDataTypedDict(TypedDict):
     created_by_station: NotRequired[Nullable[RunListCreatedByStationTypedDict]]
     r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
     operated_by: NotRequired[Nullable[RunListOperatedByTypedDict]]
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
     metadata: NotRequired[Dict[str, RunListDataMetadataTypedDict]]
     r"""Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`."""
 
@@ -696,7 +702,7 @@ class RunListData(BaseModel):
     r"""Station whose API key was used to create this run. Only returned if `all` or `created_by` is included."""
 
     operated_by: OptionalNullable[RunListOperatedBy] = UNSET
-    r"""User who operated this run. Only returned if `all` or `operated_by` is included."""
+    r"""Operator of this run: a linked organization member (id/email set) or a declared free-text name (id/email null). Only returned if `all` or `operated_by` is included."""
 
     metadata: Optional[Dict[str, RunListDataMetadata]] = None
     r"""Custom metadata key/value pairs on the run. Only present when the request sets `include_metadata=true`."""

@@ -196,23 +196,31 @@ def test_create_run_with_invalid_part_number(client: TofuPilot, procedure_id: st
     assert exc_info.value.data.issues and "part" in exc_info.value.data.issues[0].message.lower()
 
 
-def test_create_run_with_invalid_operated_by(client: TofuPilot, procedure_id: str):
-    """Test that creating a run with invalid operated_by fails."""
-    # Test with empty list
+def test_create_run_with_free_text_operated_by(client: TofuPilot, procedure_id: str):
+    """A non-email operated_by is accepted and recorded as a declared operator name."""
     started_at, ended_at = get_random_test_dates()
-    with pytest.raises(ErrorBADREQUEST) as exc_info:
-        client.runs.create(  # type: ignore[call-arg]
-            serial_number="TEST-001",
-            procedure_id=procedure_id,
-            part_number=f"TEST-PCB-{uid()}",
-            started_at=started_at,
-            operated_by="invalid_operator",
-            outcome="PASS",
-            ended_at=ended_at,
-        )
-    assert exc_info.value.data.issues and ("operated_by" in exc_info.value.data.issues[0].message.lower() or "email" in exc_info.value.data.issues[0].message.lower())
+    declared_name = f"Jean Dupont {uid()}"
+    result = client.runs.create(
+        serial_number=f"TEST-001-{uid()}",
+        procedure_id=procedure_id,
+        part_number=f"TEST-PCB-{uid()}",
+        started_at=started_at,
+        operated_by=declared_name,
+        outcome="PASS",
+        ended_at=ended_at,
+    )
+    assert result.id is not None
 
-    # Test with empty string in list
+    run = client.runs.get(id=result.id)
+    assert run.operated_by is not None
+    assert run.operated_by.name == declared_name
+    # Declared operators have no TofuPilot account: id/email stay null.
+    assert run.operated_by.id is None
+    assert run.operated_by.email is None
+
+
+def test_create_run_with_blank_operated_by_fails(client: TofuPilot, procedure_id: str):
+    """A blank operated_by is still rejected (a run must not be attributed to '')."""
     started_at, ended_at = get_random_test_dates()
     with pytest.raises(ErrorBADREQUEST) as exc_info:
         client.runs.create(  # type: ignore[call-arg]
@@ -224,7 +232,9 @@ def test_create_run_with_invalid_operated_by(client: TofuPilot, procedure_id: st
             outcome="PASS",
             ended_at=ended_at,
         )
-    assert exc_info.value.data.issues and ("operated_by" in exc_info.value.data.issues[0].message.lower() or "email" in exc_info.value.data.issues[0].message.lower())
+    # The field name travels in the issue `path`, not its message — the typed
+    # issue object only exposes the message, so assert on the min-length text.
+    assert exc_info.value.data.issues and "too small" in exc_info.value.data.issues[0].message.lower()
 
 
 def test_create_run_with_procedure_version(client: TofuPilot, procedure_id: str):
