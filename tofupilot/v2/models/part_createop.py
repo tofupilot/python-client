@@ -2,8 +2,16 @@
 
 from __future__ import annotations
 from tofupilot.v2.types import BaseModel
-from typing import Optional
-from typing_extensions import NotRequired, TypedDict
+from typing import Dict, Optional, Union
+from typing_extensions import NotRequired, TypeAliasType, TypedDict
+
+
+PartCreateMetadataTypedDict = TypeAliasType(
+    "PartCreateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+PartCreateMetadata = TypeAliasType("PartCreateMetadata", Union[str, float, bool])
 
 
 class PartCreateRequestTypedDict(TypedDict):
@@ -13,6 +21,8 @@ class PartCreateRequestTypedDict(TypedDict):
     r"""Human-readable name for the part. If not provided, a default name will be used."""
     revision_number: NotRequired[str]
     r"""Revision identifier for the part version. If not provided, default revision identifier will be used."""
+    metadata: NotRequired[Dict[str, PartCreateMetadataTypedDict]]
+    r"""Custom metadata to attach to the part (max 50 keys per part). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
 
 
 class PartCreateRequest(BaseModel):
@@ -24,6 +34,9 @@ class PartCreateRequest(BaseModel):
 
     revision_number: Optional[str] = None
     r"""Revision identifier for the part version. If not provided, default revision identifier will be used."""
+
+    metadata: Optional[Dict[str, PartCreateMetadata]] = None
+    r"""Custom metadata to attach to the part (max 50 keys per part). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
 
 
 class PartCreateResponseTypedDict(TypedDict):

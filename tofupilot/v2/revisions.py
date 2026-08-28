@@ -3,10 +3,10 @@
 from .basesdk import BaseSDK
 from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
-from tofupilot.v2.types import OptionalNullable, UNSET
+from tofupilot.v2.types import Nullable, OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, Mapping, Optional
+from typing import Any, Dict, Mapping, Optional, Union
 
 
 class Revisions(BaseSDK):
@@ -217,6 +217,12 @@ class Revisions(BaseSDK):
         revision_number: str,
         number: Optional[str] = None,
         image_id: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.PartUpdateRevisionMetadata]],
+                Dict[str, Nullable[models.PartUpdateRevisionMetadataTypedDict]],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -230,6 +236,7 @@ class Revisions(BaseSDK):
         :param revision_number: Current revision number to update.
         :param number: New revision number to set.
         :param image_id: Upload ID for the revision image, or empty string to remove image
+        :param metadata: Custom metadata to upsert on the revision. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -251,6 +258,7 @@ class Revisions(BaseSDK):
             request_body=models.PartUpdateRevisionRequestBody(
                 number=number,
                 image_id=image_id,
+                metadata=metadata,
             ),
         )
 
@@ -335,6 +343,12 @@ class Revisions(BaseSDK):
         revision_number: str,
         number: Optional[str] = None,
         image_id: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.PartUpdateRevisionMetadata]],
+                Dict[str, Nullable[models.PartUpdateRevisionMetadataTypedDict]],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -348,6 +362,7 @@ class Revisions(BaseSDK):
         :param revision_number: Current revision number to update.
         :param number: New revision number to set.
         :param image_id: Upload ID for the revision image, or empty string to remove image
+        :param metadata: Custom metadata to upsert on the revision. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -369,6 +384,7 @@ class Revisions(BaseSDK):
             request_body=models.PartUpdateRevisionRequestBody(
                 number=number,
                 image_id=image_id,
+                metadata=metadata,
             ),
         )
 
@@ -651,6 +667,12 @@ class Revisions(BaseSDK):
         *,
         part_number: str,
         number: str,
+        metadata: Optional[
+            Union[
+                Dict[str, models.PartCreateRevisionMetadata],
+                Dict[str, models.PartCreateRevisionMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -662,6 +684,7 @@ class Revisions(BaseSDK):
 
         :param part_number: Part number to create a revision for.
         :param number: Revision number (e.g., version number or code).
+        :param metadata: Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -681,6 +704,7 @@ class Revisions(BaseSDK):
             part_number=part_number,
             request_body=models.PartCreateRevisionRequestBody(
                 number=number,
+                metadata=metadata,
             ),
         )
 
@@ -763,6 +787,12 @@ class Revisions(BaseSDK):
         *,
         part_number: str,
         number: str,
+        metadata: Optional[
+            Union[
+                Dict[str, models.PartCreateRevisionMetadata],
+                Dict[str, models.PartCreateRevisionMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -774,6 +804,7 @@ class Revisions(BaseSDK):
 
         :param part_number: Part number to create a revision for.
         :param number: Revision number (e.g., version number or code).
+        :param metadata: Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -793,6 +824,7 @@ class Revisions(BaseSDK):
             part_number=part_number,
             request_body=models.PartCreateRevisionRequestBody(
                 number=number,
+                metadata=metadata,
             ),
         )
 

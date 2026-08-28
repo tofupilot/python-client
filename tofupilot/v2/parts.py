@@ -5,10 +5,10 @@ from .sdkconfiguration import SDKConfiguration
 from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
 from tofupilot.v2.revisions import Revisions
-from tofupilot.v2.types import OptionalNullable, UNSET
+from tofupilot.v2.types import Nullable, OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 
 class Parts(BaseSDK):
@@ -28,6 +28,12 @@ class Parts(BaseSDK):
         number: str,
         name: Optional[str] = None,
         revision_number: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.PartCreateMetadata],
+                Dict[str, models.PartCreateMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -40,6 +46,7 @@ class Parts(BaseSDK):
         :param number: Unique identifier number for the part.
         :param name: Human-readable name for the part. If not provided, a default name will be used.
         :param revision_number: Revision identifier for the part version. If not provided, default revision identifier will be used.
+        :param metadata: Custom metadata to attach to the part (max 50 keys per part). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -59,6 +66,7 @@ class Parts(BaseSDK):
             number=number,
             name=name,
             revision_number=revision_number,
+            metadata=metadata,
         )
 
         req = self._build_request(
@@ -134,6 +142,12 @@ class Parts(BaseSDK):
         number: str,
         name: Optional[str] = None,
         revision_number: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.PartCreateMetadata],
+                Dict[str, models.PartCreateMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -146,6 +160,7 @@ class Parts(BaseSDK):
         :param number: Unique identifier number for the part.
         :param name: Human-readable name for the part. If not provided, a default name will be used.
         :param revision_number: Revision identifier for the part version. If not provided, default revision identifier will be used.
+        :param metadata: Custom metadata to attach to the part (max 50 keys per part). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -165,6 +180,7 @@ class Parts(BaseSDK):
             number=number,
             name=name,
             revision_number=revision_number,
+            metadata=metadata,
         )
 
         req = self._build_request_async(
@@ -243,6 +259,13 @@ class Parts(BaseSDK):
         procedure_ids: Optional[List[str]] = None,
         sort_by: Optional[models.PartListSortBy] = "created_at",
         sort_order: Optional[models.PartListSortOrder] = "desc",
+        metadata: Optional[
+            Union[
+                Dict[str, models.PartListQueryParamMetadataUnion],
+                Dict[str, models.PartListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -258,6 +281,8 @@ class Parts(BaseSDK):
         :param procedure_ids:
         :param sort_by: Field to sort results by.
         :param sort_order: Sort order direction.
+        :param metadata: Filter parts by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the custom metadata object on each part in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -280,6 +305,10 @@ class Parts(BaseSDK):
             procedure_ids=procedure_ids,
             sort_by=sort_by,
             sort_order=sort_order,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.PartListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request(
@@ -352,6 +381,13 @@ class Parts(BaseSDK):
         procedure_ids: Optional[List[str]] = None,
         sort_by: Optional[models.PartListSortBy] = "created_at",
         sort_order: Optional[models.PartListSortOrder] = "desc",
+        metadata: Optional[
+            Union[
+                Dict[str, models.PartListQueryParamMetadataUnion],
+                Dict[str, models.PartListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -367,6 +403,8 @@ class Parts(BaseSDK):
         :param procedure_ids:
         :param sort_by: Field to sort results by.
         :param sort_order: Sort order direction.
+        :param metadata: Filter parts by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the custom metadata object on each part in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -389,6 +427,10 @@ class Parts(BaseSDK):
             procedure_ids=procedure_ids,
             sort_by=sort_by,
             sort_order=sort_order,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.PartListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request_async(
@@ -652,6 +694,12 @@ class Parts(BaseSDK):
         number: str,
         new_number: Optional[str] = None,
         name: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.PartUpdateMetadata]],
+                Dict[str, Nullable[models.PartUpdateMetadataTypedDict]],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -664,6 +712,7 @@ class Parts(BaseSDK):
         :param number: Part number of the part to update.
         :param new_number: New unique identifier number for the part.
         :param name: New human-readable name for the part.
+        :param metadata: Custom metadata to upsert on the part. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -684,6 +733,7 @@ class Parts(BaseSDK):
             request_body=models.PartUpdateRequestBody(
                 new_number=new_number,
                 name=name,
+                metadata=metadata,
             ),
         )
 
@@ -763,6 +813,12 @@ class Parts(BaseSDK):
         number: str,
         new_number: Optional[str] = None,
         name: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.PartUpdateMetadata]],
+                Dict[str, Nullable[models.PartUpdateMetadataTypedDict]],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -775,6 +831,7 @@ class Parts(BaseSDK):
         :param number: Part number of the part to update.
         :param new_number: New unique identifier number for the part.
         :param name: New human-readable name for the part.
+        :param metadata: Custom metadata to upsert on the part. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -795,6 +852,7 @@ class Parts(BaseSDK):
             request_body=models.PartUpdateRequestBody(
                 new_number=new_number,
                 name=name,
+                metadata=metadata,
             ),
         )
 

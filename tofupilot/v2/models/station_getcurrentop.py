@@ -9,8 +9,8 @@ from tofupilot.v2.types import (
     UNSET,
     UNSET_SENTINEL,
 )
-from typing import List, Literal
-from typing_extensions import NotRequired, TypedDict
+from typing import Dict, List, Literal, Optional, Union
+from typing_extensions import NotRequired, TypeAliasType, TypedDict
 
 
 class StationGetCurrentCommitTypedDict(TypedDict):
@@ -242,6 +242,16 @@ class StationGetCurrentTeam(BaseModel):
     name: str
 
 
+StationGetCurrentMetadataTypedDict = TypeAliasType(
+    "StationGetCurrentMetadataTypedDict", Union[str, float, bool]
+)
+
+
+StationGetCurrentMetadata = TypeAliasType(
+    "StationGetCurrentMetadata", Union[str, float, bool]
+)
+
+
 class StationGetCurrentResponseTypedDict(TypedDict):
     r"""Current station retrieved successfully"""
 
@@ -257,6 +267,8 @@ class StationGetCurrentResponseTypedDict(TypedDict):
     r"""Slug of the organization this station belongs to"""
     team: Nullable[StationGetCurrentTeamTypedDict]
     r"""Team this station is assigned to"""
+    metadata: NotRequired[Dict[str, StationGetCurrentMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the station."""
 
 
 class StationGetCurrentResponse(BaseModel):
@@ -280,9 +292,12 @@ class StationGetCurrentResponse(BaseModel):
     team: Nullable[StationGetCurrentTeam]
     r"""Team this station is assigned to"""
 
+    metadata: Optional[Dict[str, StationGetCurrentMetadata]] = None
+    r"""Custom metadata key/value pairs on the station."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
+        optional_fields = ["metadata"]
         nullable_fields = ["api_key", "team"]
         null_default_fields = []
 

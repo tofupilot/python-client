@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 from datetime import datetime
+import pydantic
 from pydantic import model_serializer
 from tofupilot.v2.types import BaseModel, Nullable, UNSET_SENTINEL
 from tofupilot.v2.utils import FieldMetadata, QueryParamMetadata
-from typing import List, Literal, Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, List, Literal, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 PartListSortBy = Literal["name", "number", "created_at"]
@@ -14,6 +15,65 @@ r"""Field to sort results by."""
 
 PartListSortOrder = Literal["asc", "desc"]
 r"""Sort order direction."""
+
+
+class PartListMetadataQueryParam3TypedDict(TypedDict):
+    eq: bool
+
+
+class PartListMetadataQueryParam3(BaseModel):
+    eq: bool
+
+
+class PartListMetadataQueryParam2TypedDict(TypedDict):
+    gte: NotRequired[float]
+    lte: NotRequired[float]
+    gt: NotRequired[float]
+    lt: NotRequired[float]
+    eq: NotRequired[float]
+
+
+class PartListMetadataQueryParam2(BaseModel):
+    gte: Optional[float] = None
+
+    lte: Optional[float] = None
+
+    gt: Optional[float] = None
+
+    lt: Optional[float] = None
+
+    eq: Optional[float] = None
+
+
+class PartListMetadataQueryParam1TypedDict(TypedDict):
+    in_: NotRequired[List[str]]
+    contains: NotRequired[str]
+
+
+class PartListMetadataQueryParam1(BaseModel):
+    in_: Annotated[Optional[List[str]], pydantic.Field(alias="in")] = None
+
+    contains: Optional[str] = None
+
+
+PartListQueryParamMetadataUnionTypedDict = TypeAliasType(
+    "PartListQueryParamMetadataUnionTypedDict",
+    Union[
+        PartListMetadataQueryParam3TypedDict,
+        PartListMetadataQueryParam1TypedDict,
+        PartListMetadataQueryParam2TypedDict,
+    ],
+)
+
+
+PartListQueryParamMetadataUnion = TypeAliasType(
+    "PartListQueryParamMetadataUnion",
+    Union[
+        PartListMetadataQueryParam3,
+        PartListMetadataQueryParam1,
+        PartListMetadataQueryParam2,
+    ],
+)
 
 
 class PartListRequestTypedDict(TypedDict):
@@ -26,6 +86,10 @@ class PartListRequestTypedDict(TypedDict):
     r"""Field to sort results by."""
     sort_order: NotRequired[PartListSortOrder]
     r"""Sort order direction."""
+    metadata: NotRequired[Dict[str, PartListQueryParamMetadataUnionTypedDict]]
+    r"""Filter parts by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
+    include_metadata: NotRequired[bool]
+    r"""When true, includes the custom metadata object on each part in the response. Defaults to false to keep payloads small."""
 
 
 class PartListRequest(BaseModel):
@@ -62,6 +126,18 @@ class PartListRequest(BaseModel):
     ] = "desc"
     r"""Sort order direction."""
 
+    metadata: Annotated[
+        Optional[Dict[str, PartListQueryParamMetadataUnion]],
+        FieldMetadata(query=QueryParamMetadata(serialization="json")),
+    ] = None
+    r"""Filter parts by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`."""
+
+    include_metadata: Annotated[
+        Optional[bool],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = False
+    r"""When true, includes the custom metadata object on each part in the response. Defaults to false to keep payloads small."""
+
 
 class PartListRevisionTypedDict(TypedDict):
     id: str
@@ -78,6 +154,14 @@ class PartListRevision(BaseModel):
     r"""Revision number."""
 
 
+PartListDataMetadataTypedDict = TypeAliasType(
+    "PartListDataMetadataTypedDict", Union[str, float, bool]
+)
+
+
+PartListDataMetadata = TypeAliasType("PartListDataMetadata", Union[str, float, bool])
+
+
 class PartListDataTypedDict(TypedDict):
     id: str
     r"""Unique database identifier of the part."""
@@ -89,6 +173,8 @@ class PartListDataTypedDict(TypedDict):
     r"""Time at which the part was created."""
     revisions: List[PartListRevisionTypedDict]
     r"""List of revisions for this part."""
+    metadata: NotRequired[Dict[str, PartListDataMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the part. Only present when the request sets `include_metadata=true`."""
 
 
 class PartListData(BaseModel):
@@ -106,6 +192,9 @@ class PartListData(BaseModel):
 
     revisions: List[PartListRevision]
     r"""List of revisions for this part."""
+
+    metadata: Optional[Dict[str, PartListDataMetadata]] = None
+    r"""Custom metadata key/value pairs on the part. Only present when the request sets `include_metadata=true`."""
 
 
 class PartListMetaTypedDict(TypedDict):

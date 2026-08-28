@@ -3,10 +3,10 @@
 from .basesdk import BaseSDK
 from tofupilot.v2 import errors, models, utils
 from tofupilot.v2._hooks import HookContext
-from tofupilot.v2.types import OptionalNullable, UNSET
+from tofupilot.v2.types import Nullable, OptionalNullable, UNSET
 from tofupilot.v2.utils import get_security_from_env
 from tofupilot.v2.utils.unmarshal_json_response import unmarshal_json_response
-from typing import Any, List, Mapping, Optional
+from typing import Any, Dict, List, Mapping, Optional, Union
 
 
 class Stations(BaseSDK):
@@ -15,6 +15,12 @@ class Stations(BaseSDK):
         *,
         name: str,
         procedure_id: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.StationCreateMetadata],
+                Dict[str, models.StationCreateMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -26,6 +32,7 @@ class Stations(BaseSDK):
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
+        :param metadata: Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -44,6 +51,7 @@ class Stations(BaseSDK):
         request = models.StationCreateRequest(
             name=name,
             procedure_id=procedure_id,
+            metadata=metadata,
         )
 
         req = self._build_request(
@@ -118,6 +126,12 @@ class Stations(BaseSDK):
         *,
         name: str,
         procedure_id: Optional[str] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.StationCreateMetadata],
+                Dict[str, models.StationCreateMetadataTypedDict],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -129,6 +143,7 @@ class Stations(BaseSDK):
 
         :param name: Name of the station
         :param procedure_id: Optional procedure ID to link the station to
+        :param metadata: Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -147,6 +162,7 @@ class Stations(BaseSDK):
         request = models.StationCreateRequest(
             name=name,
             procedure_id=procedure_id,
+            metadata=metadata,
         )
 
         req = self._build_request_async(
@@ -223,6 +239,13 @@ class Stations(BaseSDK):
         cursor: Optional[int] = None,
         search_query: Optional[str] = None,
         procedure_ids: Optional[List[str]] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.StationListQueryParamMetadataUnion],
+                Dict[str, models.StationListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -236,6 +259,8 @@ class Stations(BaseSDK):
         :param cursor:
         :param search_query:
         :param procedure_ids:
+        :param metadata: Filter stations by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the custom metadata object on each station in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -256,6 +281,10 @@ class Stations(BaseSDK):
             cursor=cursor,
             search_query=search_query,
             procedure_ids=procedure_ids,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.StationListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request(
@@ -326,6 +355,13 @@ class Stations(BaseSDK):
         cursor: Optional[int] = None,
         search_query: Optional[str] = None,
         procedure_ids: Optional[List[str]] = None,
+        metadata: Optional[
+            Union[
+                Dict[str, models.StationListQueryParamMetadataUnion],
+                Dict[str, models.StationListQueryParamMetadataUnionTypedDict],
+            ]
+        ] = None,
+        include_metadata: Optional[bool] = False,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -339,6 +375,8 @@ class Stations(BaseSDK):
         :param cursor:
         :param search_query:
         :param procedure_ids:
+        :param metadata: Filter stations by custom metadata. Supports up to 5 keys per request. Per-key operators: string `{in: [...]}`/`{contains: \"...\"}`, number `{gte, lte, gt, lt, eq}`, bool `{eq: true|false}`.
+        :param include_metadata: When true, includes the custom metadata object on each station in the response. Defaults to false to keep payloads small.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -359,6 +397,10 @@ class Stations(BaseSDK):
             cursor=cursor,
             search_query=search_query,
             procedure_ids=procedure_ids,
+            metadata=utils.get_pydantic_model(
+                metadata, Optional[Dict[str, models.StationListQueryParamMetadataUnion]]
+            ),
+            include_metadata=include_metadata,
         )
 
         req = self._build_request_async(
@@ -803,6 +845,12 @@ class Stations(BaseSDK):
         name: Optional[str] = None,
         image_id: Optional[str] = None,
         team_id: OptionalNullable[str] = UNSET,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.StationUpdateMetadata]],
+                Dict[str, Nullable[models.StationUpdateMetadataTypedDict]],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -816,6 +864,7 @@ class Stations(BaseSDK):
         :param name: New name for the station
         :param image_id: Upload ID for the station image, or empty string to remove image
         :param team_id: Team ID to assign this station to, or null to unassign
+        :param metadata: Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -837,6 +886,7 @@ class Stations(BaseSDK):
                 name=name,
                 image_id=image_id,
                 team_id=team_id,
+                metadata=metadata,
             ),
         )
 
@@ -918,6 +968,12 @@ class Stations(BaseSDK):
         name: Optional[str] = None,
         image_id: Optional[str] = None,
         team_id: OptionalNullable[str] = UNSET,
+        metadata: Optional[
+            Union[
+                Dict[str, Nullable[models.StationUpdateMetadata]],
+                Dict[str, Nullable[models.StationUpdateMetadataTypedDict]],
+            ]
+        ] = None,
         retries: OptionalNullable[utils.RetryConfig] = UNSET,
         server_url: Optional[str] = None,
         timeout_ms: Optional[int] = None,
@@ -931,6 +987,7 @@ class Stations(BaseSDK):
         :param name: New name for the station
         :param image_id: Upload ID for the station image, or empty string to remove image
         :param team_id: Team ID to assign this station to, or null to unassign
+        :param metadata: Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key.
         :param retries: Override the default retry configuration for this method
         :param server_url: Override the default server URL for this method
         :param timeout_ms: Override the default request timeout configuration for this method in milliseconds
@@ -952,6 +1009,7 @@ class Stations(BaseSDK):
                 name=name,
                 image_id=image_id,
                 team_id=team_id,
+                metadata=metadata,
             ),
         )
 

@@ -2,8 +2,16 @@
 
 from __future__ import annotations
 from tofupilot.v2.types import BaseModel
-from typing import Optional
-from typing_extensions import NotRequired, TypedDict
+from typing import Dict, Optional, Union
+from typing_extensions import NotRequired, TypeAliasType, TypedDict
+
+
+StationCreateMetadataTypedDict = TypeAliasType(
+    "StationCreateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+StationCreateMetadata = TypeAliasType("StationCreateMetadata", Union[str, float, bool])
 
 
 class StationCreateRequestTypedDict(TypedDict):
@@ -11,6 +19,8 @@ class StationCreateRequestTypedDict(TypedDict):
     r"""Name of the station"""
     procedure_id: NotRequired[str]
     r"""Optional procedure ID to link the station to"""
+    metadata: NotRequired[Dict[str, StationCreateMetadataTypedDict]]
+    r"""Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config."""
 
 
 class StationCreateRequest(BaseModel):
@@ -19,6 +29,9 @@ class StationCreateRequest(BaseModel):
 
     procedure_id: Optional[str] = None
     r"""Optional procedure ID to link the station to"""
+
+    metadata: Optional[Dict[str, StationCreateMetadata]] = None
+    r"""Custom metadata to attach to the station (max 50 keys per station). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value. Use it for descriptive fields such as location or asset tag — not for procedure configuration, which belongs to station config."""
 
 
 class StationCreateResponseTypedDict(TypedDict):

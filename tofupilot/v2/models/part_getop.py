@@ -11,8 +11,8 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
-from typing import List
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, List, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 class PartGetRequestTypedDict(TypedDict):
@@ -115,6 +115,14 @@ class PartGetRevision(BaseModel):
     r"""ISO 8601 timestamp when the revision was created."""
 
 
+PartGetMetadataTypedDict = TypeAliasType(
+    "PartGetMetadataTypedDict", Union[str, float, bool]
+)
+
+
+PartGetMetadata = TypeAliasType("PartGetMetadata", Union[str, float, bool])
+
+
 class PartGetResponseTypedDict(TypedDict):
     r"""Part retrieved successfully"""
 
@@ -132,6 +140,8 @@ class PartGetResponseTypedDict(TypedDict):
     r"""User who created this part."""
     created_by_station: NotRequired[Nullable[PartGetCreatedByStationTypedDict]]
     r"""Station that created this part."""
+    metadata: NotRequired[Dict[str, PartGetMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the part."""
 
 
 class PartGetResponse(BaseModel):
@@ -158,9 +168,12 @@ class PartGetResponse(BaseModel):
     created_by_station: OptionalNullable[PartGetCreatedByStation] = UNSET
     r"""Station that created this part."""
 
+    metadata: Optional[Dict[str, PartGetMetadata]] = None
+    r"""Custom metadata key/value pairs on the part."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["created_by_user", "created_by_station"]
+        optional_fields = ["created_by_user", "created_by_station", "metadata"]
         nullable_fields = ["created_by_user", "created_by_station"]
         null_default_fields = []
 

@@ -10,8 +10,16 @@ from tofupilot.v2.types import (
     UNSET_SENTINEL,
 )
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing import Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
+
+
+StationUpdateMetadataTypedDict = TypeAliasType(
+    "StationUpdateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+StationUpdateMetadata = TypeAliasType("StationUpdateMetadata", Union[str, float, bool])
 
 
 class StationUpdateRequestBodyTypedDict(TypedDict):
@@ -21,6 +29,8 @@ class StationUpdateRequestBodyTypedDict(TypedDict):
     r"""Upload ID for the station image, or empty string to remove image"""
     team_id: NotRequired[Nullable[str]]
     r"""Team ID to assign this station to, or null to unassign"""
+    metadata: NotRequired[Dict[str, Nullable[StationUpdateMetadataTypedDict]]]
+    r"""Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
 
 class StationUpdateRequestBody(BaseModel):
@@ -33,9 +43,12 @@ class StationUpdateRequestBody(BaseModel):
     team_id: OptionalNullable[str] = UNSET
     r"""Team ID to assign this station to, or null to unassign"""
 
+    metadata: Optional[Dict[str, Nullable[StationUpdateMetadata]]] = None
+    r"""Custom metadata to upsert on the station. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = ["name", "image_id", "team_id"]
+        optional_fields = ["name", "image_id", "team_id", "metadata"]
         nullable_fields = ["team_id"]
         null_default_fields = []
 

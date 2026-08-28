@@ -3,17 +3,33 @@
 from __future__ import annotations
 from tofupilot.v2.types import BaseModel
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing_extensions import Annotated, TypedDict
+from typing import Dict, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
+
+
+PartCreateRevisionMetadataTypedDict = TypeAliasType(
+    "PartCreateRevisionMetadataTypedDict", Union[str, float, bool]
+)
+
+
+PartCreateRevisionMetadata = TypeAliasType(
+    "PartCreateRevisionMetadata", Union[str, float, bool]
+)
 
 
 class PartCreateRevisionRequestBodyTypedDict(TypedDict):
     number: str
     r"""Revision number (e.g., version number or code)."""
+    metadata: NotRequired[Dict[str, PartCreateRevisionMetadataTypedDict]]
+    r"""Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
 
 
 class PartCreateRevisionRequestBody(BaseModel):
     number: str
     r"""Revision number (e.g., version number or code)."""
+
+    metadata: Optional[Dict[str, PartCreateRevisionMetadata]] = None
+    r"""Custom metadata to attach to the revision (max 50 keys per revision). Plain object of key/value pairs; values can be string, number, or boolean. Type is detected from the value."""
 
 
 class PartCreateRevisionRequestTypedDict(TypedDict):

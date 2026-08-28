@@ -5,8 +5,8 @@ from datetime import datetime
 from pydantic import model_serializer
 from tofupilot.v2.types import BaseModel, Nullable, UNSET_SENTINEL
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata
-from typing import List
-from typing_extensions import Annotated, TypedDict
+from typing import Dict, List, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
 
 
 class PartGetRevisionRequestTypedDict(TypedDict):
@@ -135,6 +135,16 @@ class PartGetRevisionUnit(BaseModel):
     r"""Serial number of the unit."""
 
 
+PartGetRevisionMetadataTypedDict = TypeAliasType(
+    "PartGetRevisionMetadataTypedDict", Union[str, float, bool]
+)
+
+
+PartGetRevisionMetadata = TypeAliasType(
+    "PartGetRevisionMetadata", Union[str, float, bool]
+)
+
+
 class PartGetRevisionResponseTypedDict(TypedDict):
     r"""Revision retrieved successfully"""
 
@@ -152,6 +162,8 @@ class PartGetRevisionResponseTypedDict(TypedDict):
     r"""Part associated with this revision."""
     units: List[PartGetRevisionUnitTypedDict]
     r"""List of units created with this revision."""
+    metadata: NotRequired[Dict[str, PartGetRevisionMetadataTypedDict]]
+    r"""Custom metadata key/value pairs on the revision."""
 
 
 class PartGetRevisionResponse(BaseModel):
@@ -178,9 +190,12 @@ class PartGetRevisionResponse(BaseModel):
     units: List[PartGetRevisionUnit]
     r"""List of units created with this revision."""
 
+    metadata: Optional[Dict[str, PartGetRevisionMetadata]] = None
+    r"""Custom metadata key/value pairs on the revision."""
+
     @model_serializer(mode="wrap")
     def serialize_model(self, handler):
-        optional_fields = []
+        optional_fields = ["metadata"]
         nullable_fields = ["created_at", "created_by_user", "created_by_station"]
         null_default_fields = []
 

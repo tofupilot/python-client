@@ -2,10 +2,18 @@
 
 from __future__ import annotations
 from datetime import datetime
-from tofupilot.v2.types import BaseModel
+from tofupilot.v2.types import BaseModel, Nullable
 from tofupilot.v2.utils import FieldMetadata, PathParamMetadata, RequestMetadata
-from typing import Optional
-from typing_extensions import Annotated, NotRequired, TypedDict
+from typing import Dict, Optional, Union
+from typing_extensions import Annotated, NotRequired, TypeAliasType, TypedDict
+
+
+PartUpdateMetadataTypedDict = TypeAliasType(
+    "PartUpdateMetadataTypedDict", Union[str, float, bool]
+)
+
+
+PartUpdateMetadata = TypeAliasType("PartUpdateMetadata", Union[str, float, bool])
 
 
 class PartUpdateRequestBodyTypedDict(TypedDict):
@@ -13,6 +21,8 @@ class PartUpdateRequestBodyTypedDict(TypedDict):
     r"""New unique identifier number for the part."""
     name: NotRequired[str]
     r"""New human-readable name for the part."""
+    metadata: NotRequired[Dict[str, Nullable[PartUpdateMetadataTypedDict]]]
+    r"""Custom metadata to upsert on the part. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
 
 class PartUpdateRequestBody(BaseModel):
@@ -21,6 +31,9 @@ class PartUpdateRequestBody(BaseModel):
 
     name: Optional[str] = None
     r"""New human-readable name for the part."""
+
+    metadata: Optional[Dict[str, Nullable[PartUpdateMetadata]]] = None
+    r"""Custom metadata to upsert on the part. Plain object of key/value pairs. PATCH semantics: keys not present here are preserved. Pass `null` as a value to delete a key."""
 
 
 class PartUpdateRequestTypedDict(TypedDict):
