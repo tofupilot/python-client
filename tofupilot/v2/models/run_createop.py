@@ -1221,6 +1221,8 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created."""
     deployment_id: NotRequired[Nullable[str]]
     r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
+    client_run_ref: NotRequired[str]
+    r"""Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before."""
     procedure_version: NotRequired[Nullable[str]]
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
     operated_by: NotRequired[str]
@@ -1264,6 +1266,9 @@ class RunCreateRequest(BaseModel):
     deployment_id: OptionalNullable[str] = UNSET
     r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
 
+    client_run_ref: Optional[str] = None
+    r"""Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before."""
+
     procedure_version: OptionalNullable[str] = UNSET
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
 
@@ -1301,6 +1306,7 @@ class RunCreateRequest(BaseModel):
     def serialize_model(self, handler):
         optional_fields = [
             "deployment_id",
+            "client_run_ref",
             "procedure_version",
             "operated_by",
             "part_number",
