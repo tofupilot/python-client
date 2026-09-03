@@ -103,6 +103,8 @@ class RunListRequestTypedDict(TypedDict):
     procedure_ids: NotRequired[List[str]]
     procedure_versions: NotRequired[List[str]]
     deployment_ids: NotRequired[List[str]]
+    execution_ids: NotRequired[List[str]]
+    slot_keys: NotRequired[List[str]]
     environments: NotRequired[List[RunListEnvironment]]
     serial_numbers: NotRequired[List[str]]
     samples: NotRequired[List[RunListQueryParamSample]]
@@ -161,6 +163,16 @@ class RunListRequest(BaseModel):
     ] = None
 
     deployment_ids: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    execution_ids: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    slot_keys: Annotated[
         Optional[List[str]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None
@@ -651,6 +663,12 @@ class RunListDataTypedDict(TypedDict):
     r"""ISO 8601 duration of the run (computed from started_at and ended_at)."""
     outcome: RunListDataOutcome
     r"""Final result of the run execution."""
+    execution_id: Nullable[str]
+    r"""Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs."""
+    slot_key: Nullable[str]
+    r"""Key of the fixture slot that produced this run. Null for single-slot runs."""
+    slot_name: Nullable[str]
+    r"""Display name of the slot as declared at run time. Null when absent."""
     procedure: RunListProcedureTypedDict
     r"""Test procedure associated with this run."""
     unit: RunListUnitTypedDict
@@ -686,6 +704,15 @@ class RunListData(BaseModel):
     outcome: RunListDataOutcome
     r"""Final result of the run execution."""
 
+    execution_id: Nullable[str]
+    r"""Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs."""
+
+    slot_key: Nullable[str]
+    r"""Key of the fixture slot that produced this run. Null for single-slot runs."""
+
+    slot_name: Nullable[str]
+    r"""Display name of the slot as declared at run time. Null when absent."""
+
     procedure: RunListProcedure
     r"""Test procedure associated with this run."""
 
@@ -718,6 +745,9 @@ class RunListData(BaseModel):
         ]
         nullable_fields = [
             "docstring",
+            "execution_id",
+            "slot_key",
+            "slot_name",
             "created_by_user",
             "created_by_station",
             "operated_by",

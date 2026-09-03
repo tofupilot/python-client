@@ -1223,6 +1223,12 @@ class RunCreateRequestTypedDict(TypedDict):
     r"""Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs."""
     client_run_ref: NotRequired[str]
     r"""Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before."""
+    execution_id: NotRequired[Nullable[str]]
+    r"""Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs."""
+    slot_key: NotRequired[Nullable[str]]
+    r"""Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution."""
+    slot_name: NotRequired[Nullable[str]]
+    r"""Display name of the slot as declared at run time. Requires slot_key. Stored as-is so later fixture renames do not rewrite old runs."""
     procedure_version: NotRequired[Nullable[str]]
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
     operated_by: NotRequired[str]
@@ -1269,6 +1275,15 @@ class RunCreateRequest(BaseModel):
     client_run_ref: Optional[str] = None
     r"""Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before."""
 
+    execution_id: OptionalNullable[str] = UNSET
+    r"""Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs."""
+
+    slot_key: OptionalNullable[str] = UNSET
+    r"""Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution."""
+
+    slot_name: OptionalNullable[str] = UNSET
+    r"""Display name of the slot as declared at run time. Requires slot_key. Stored as-is so later fixture renames do not rewrite old runs."""
+
     procedure_version: OptionalNullable[str] = UNSET
     r"""Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version."""
 
@@ -1307,6 +1322,9 @@ class RunCreateRequest(BaseModel):
         optional_fields = [
             "deployment_id",
             "client_run_ref",
+            "execution_id",
+            "slot_key",
+            "slot_name",
             "procedure_version",
             "operated_by",
             "part_number",
@@ -1319,7 +1337,13 @@ class RunCreateRequest(BaseModel):
             "metadata",
             "unit_metadata",
         ]
-        nullable_fields = ["deployment_id", "procedure_version"]
+        nullable_fields = [
+            "deployment_id",
+            "execution_id",
+            "slot_key",
+            "slot_name",
+            "procedure_version",
+        ]
         null_default_fields = []
 
         serialized = handler(self)

@@ -1367,6 +1367,12 @@ class RunGetResponseTypedDict(TypedDict):
     r"""ISO 8601 duration of the run (computed from started_at and ended_at)."""
     outcome: RunGetOutcome
     r"""Final result of the run execution."""
+    execution_id: Nullable[str]
+    r"""Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs."""
+    slot_key: Nullable[str]
+    r"""Key of the fixture slot that produced this run. Null for single-slot runs."""
+    slot_name: Nullable[str]
+    r"""Display name of the slot as declared at run time. Null when absent."""
     procedure: RunGetProcedureTypedDict
     r"""Test procedure associated with this run."""
     unit: RunGetUnitTypedDict
@@ -1410,6 +1416,15 @@ class RunGetResponse(BaseModel):
 
     outcome: RunGetOutcome
     r"""Final result of the run execution."""
+
+    execution_id: Nullable[str]
+    r"""Groups the runs produced by one multi-slot execution, one run per slot. Null for single-slot runs."""
+
+    slot_key: Nullable[str]
+    r"""Key of the fixture slot that produced this run. Null for single-slot runs."""
+
+    slot_name: Nullable[str]
+    r"""Display name of the slot as declared at run time. Null when absent."""
 
     procedure: RunGetProcedure
     r"""Test procedure associated with this run."""
@@ -1458,6 +1473,9 @@ class RunGetResponse(BaseModel):
         ]
         nullable_fields = [
             "docstring",
+            "execution_id",
+            "slot_key",
+            "slot_name",
             "created_by_user",
             "created_by_station",
             "operated_by",

@@ -21,6 +21,9 @@ class Runs(BaseSDK):
         serial_number: str,
         deployment_id: OptionalNullable[str] = UNSET,
         client_run_ref: Optional[str] = None,
+        execution_id: OptionalNullable[str] = UNSET,
+        slot_key: OptionalNullable[str] = UNSET,
+        slot_name: OptionalNullable[str] = UNSET,
         procedure_version: OptionalNullable[str] = UNSET,
         operated_by: Optional[str] = None,
         part_number: Optional[str] = None,
@@ -61,6 +64,9 @@ class Runs(BaseSDK):
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param client_run_ref: Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
+        :param execution_id: Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs.
+        :param slot_key: Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution.
+        :param slot_name: Display name of the slot as declared at run time. Requires slot_key. Stored as-is so later fixture renames do not rewrite old runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
         :param operated_by: Operator who executed the test run: an email address or a free-text name. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. An email matching a member of the calling organization links the run to that user account; any other value (a name, or an unrecognized email) is recorded verbatim as a declared operator name. Declared names are informative only — they are not verified identities.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
@@ -92,6 +98,9 @@ class Runs(BaseSDK):
             procedure_id=procedure_id,
             deployment_id=deployment_id,
             client_run_ref=client_run_ref,
+            execution_id=execution_id,
+            slot_key=slot_key,
+            slot_name=slot_name,
             procedure_version=procedure_version,
             operated_by=operated_by,
             started_at=started_at,
@@ -148,7 +157,17 @@ class Runs(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["400", "401", "403", "404", "422", "4XX", "500", "5XX"],
+            error_status_codes=[
+                "400",
+                "401",
+                "403",
+                "404",
+                "409",
+                "422",
+                "4XX",
+                "500",
+                "5XX",
+            ],
             retry_config=retry_config,
         )
 
@@ -171,6 +190,9 @@ class Runs(BaseSDK):
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "409", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorCONFLICTData, http_res)
+            raise errors.ErrorCONFLICT(response_data, http_res)
         if utils.match_response(http_res, "422", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNPROCESSABLECONTENTData, http_res
@@ -200,6 +222,9 @@ class Runs(BaseSDK):
         serial_number: str,
         deployment_id: OptionalNullable[str] = UNSET,
         client_run_ref: Optional[str] = None,
+        execution_id: OptionalNullable[str] = UNSET,
+        slot_key: OptionalNullable[str] = UNSET,
+        slot_name: OptionalNullable[str] = UNSET,
         procedure_version: OptionalNullable[str] = UNSET,
         operated_by: Optional[str] = None,
         part_number: Optional[str] = None,
@@ -240,6 +265,9 @@ class Runs(BaseSDK):
         :param serial_number: Unique serial number of the unit under test. Matched case-insensitively. If no unit with this serial number exists, one will be created.
         :param deployment_id: Deployment ID this run was executed from. Set by the CLI when running a pulled deployment so the run is linked back to the exact build it ran. Validated against the procedure; left null for ad-hoc or local runs.
         :param client_run_ref: Idempotency reference for this upload, minted and persisted by the caller BEFORE the request is sent. When a second request carries the same reference, it is recognised as a retry of the first and returns the run already created rather than creating another one. That is what makes an upload safe to retry after a lost or timed-out response. The reference must be unique per organization and must never be reused for different data: derive it from the credential id returned at login plus a counter persisted locally (the CLI sends `<credential id>_<counter>`), never from a timestamp alone, since a clock can go backwards. Omit the field and every request creates a new run, exactly as before.
+        :param execution_id: Groups the runs produced by one multi-slot execution, one run per slot. Minted by the client once per start and shared by every slot run of that start. Omit for single-slot runs.
+        :param slot_key: Key of the fixture slot that produced this run, from the procedure execution.slots config. Requires execution_id. One run per slot per execution.
+        :param slot_name: Display name of the slot as declared at run time. Requires slot_key. Stored as-is so later fixture renames do not rewrite old runs.
         :param procedure_version: Specific version of the test procedure used for the run. Matched case-insensitively. If none exist, a procedure with this procedure version will be created. If no procedure version is specified, the run will not be linked to any specific version.
         :param operated_by: Operator who executed the test run: an email address or a free-text name. Honored only for API-key callers (user keys and station keys); browser session callers are auto-stamped with the session user and this field is ignored. An email matching a member of the calling organization links the run to that user account; any other value (a name, or an unrecognized email) is recorded verbatim as a declared operator name. Declared names are informative only — they are not verified identities.
         :param part_number: Component part number for the unit. Matched case-insensitively. This field is required if the part number cannot be extracted from the serial number (as set in the settings). This field takes precedence over extraction from serial number. A component with the provided or extracted part number will be created if one does not exist.
@@ -271,6 +299,9 @@ class Runs(BaseSDK):
             procedure_id=procedure_id,
             deployment_id=deployment_id,
             client_run_ref=client_run_ref,
+            execution_id=execution_id,
+            slot_key=slot_key,
+            slot_name=slot_name,
             procedure_version=procedure_version,
             operated_by=operated_by,
             started_at=started_at,
@@ -327,7 +358,17 @@ class Runs(BaseSDK):
                 ),
             ),
             request=req,
-            error_status_codes=["400", "401", "403", "404", "422", "4XX", "500", "5XX"],
+            error_status_codes=[
+                "400",
+                "401",
+                "403",
+                "404",
+                "409",
+                "422",
+                "4XX",
+                "500",
+                "5XX",
+            ],
             retry_config=retry_config,
         )
 
@@ -350,6 +391,9 @@ class Runs(BaseSDK):
         if utils.match_response(http_res, "404", "application/json"):
             response_data = unmarshal_json_response(errors.ErrorNOTFOUNDData, http_res)
             raise errors.ErrorNOTFOUND(response_data, http_res)
+        if utils.match_response(http_res, "409", "application/json"):
+            response_data = unmarshal_json_response(errors.ErrorCONFLICTData, http_res)
+            raise errors.ErrorCONFLICT(response_data, http_res)
         if utils.match_response(http_res, "422", "application/json"):
             response_data = unmarshal_json_response(
                 errors.ErrorUNPROCESSABLECONTENTData, http_res
@@ -378,6 +422,8 @@ class Runs(BaseSDK):
         procedure_ids: Optional[List[str]] = None,
         procedure_versions: Optional[List[str]] = None,
         deployment_ids: Optional[List[str]] = None,
+        execution_ids: Optional[List[str]] = None,
+        slot_keys: Optional[List[str]] = None,
         environments: Optional[List[models.RunListEnvironment]] = None,
         serial_numbers: Optional[List[str]] = None,
         samples: Optional[List[models.RunListQueryParamSample]] = None,
@@ -422,6 +468,8 @@ class Runs(BaseSDK):
         :param procedure_ids:
         :param procedure_versions:
         :param deployment_ids:
+        :param execution_ids:
+        :param slot_keys:
         :param environments:
         :param serial_numbers:
         :param samples:
@@ -468,6 +516,8 @@ class Runs(BaseSDK):
             procedure_ids=procedure_ids,
             procedure_versions=procedure_versions,
             deployment_ids=deployment_ids,
+            execution_ids=execution_ids,
+            slot_keys=slot_keys,
             environments=environments,
             serial_numbers=serial_numbers,
             samples=samples,
@@ -571,6 +621,8 @@ class Runs(BaseSDK):
         procedure_ids: Optional[List[str]] = None,
         procedure_versions: Optional[List[str]] = None,
         deployment_ids: Optional[List[str]] = None,
+        execution_ids: Optional[List[str]] = None,
+        slot_keys: Optional[List[str]] = None,
         environments: Optional[List[models.RunListEnvironment]] = None,
         serial_numbers: Optional[List[str]] = None,
         samples: Optional[List[models.RunListQueryParamSample]] = None,
@@ -615,6 +667,8 @@ class Runs(BaseSDK):
         :param procedure_ids:
         :param procedure_versions:
         :param deployment_ids:
+        :param execution_ids:
+        :param slot_keys:
         :param environments:
         :param serial_numbers:
         :param samples:
@@ -661,6 +715,8 @@ class Runs(BaseSDK):
             procedure_ids=procedure_ids,
             procedure_versions=procedure_versions,
             deployment_ids=deployment_ids,
+            execution_ids=execution_ids,
+            slot_keys=slot_keys,
             environments=environments,
             serial_numbers=serial_numbers,
             samples=samples,
