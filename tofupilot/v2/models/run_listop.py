@@ -105,6 +105,7 @@ class RunListRequestTypedDict(TypedDict):
     deployment_ids: NotRequired[List[str]]
     execution_ids: NotRequired[List[str]]
     slot_keys: NotRequired[List[str]]
+    slot_names: NotRequired[List[str]]
     environments: NotRequired[List[RunListEnvironment]]
     serial_numbers: NotRequired[List[str]]
     samples: NotRequired[List[RunListQueryParamSample]]
@@ -173,6 +174,11 @@ class RunListRequest(BaseModel):
     ] = None
 
     slot_keys: Annotated[
+        Optional[List[str]],
+        FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
+    ] = None
+
+    slot_names: Annotated[
         Optional[List[str]],
         FieldMetadata(query=QueryParamMetadata(style="form", explode=True)),
     ] = None

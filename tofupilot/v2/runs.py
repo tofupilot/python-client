@@ -424,6 +424,7 @@ class Runs(BaseSDK):
         deployment_ids: Optional[List[str]] = None,
         execution_ids: Optional[List[str]] = None,
         slot_keys: Optional[List[str]] = None,
+        slot_names: Optional[List[str]] = None,
         environments: Optional[List[models.RunListEnvironment]] = None,
         serial_numbers: Optional[List[str]] = None,
         samples: Optional[List[models.RunListQueryParamSample]] = None,
@@ -470,6 +471,7 @@ class Runs(BaseSDK):
         :param deployment_ids:
         :param execution_ids:
         :param slot_keys:
+        :param slot_names:
         :param environments:
         :param serial_numbers:
         :param samples:
@@ -518,6 +520,7 @@ class Runs(BaseSDK):
             deployment_ids=deployment_ids,
             execution_ids=execution_ids,
             slot_keys=slot_keys,
+            slot_names=slot_names,
             environments=environments,
             serial_numbers=serial_numbers,
             samples=samples,
@@ -623,6 +626,7 @@ class Runs(BaseSDK):
         deployment_ids: Optional[List[str]] = None,
         execution_ids: Optional[List[str]] = None,
         slot_keys: Optional[List[str]] = None,
+        slot_names: Optional[List[str]] = None,
         environments: Optional[List[models.RunListEnvironment]] = None,
         serial_numbers: Optional[List[str]] = None,
         samples: Optional[List[models.RunListQueryParamSample]] = None,
@@ -669,6 +673,7 @@ class Runs(BaseSDK):
         :param deployment_ids:
         :param execution_ids:
         :param slot_keys:
+        :param slot_names:
         :param environments:
         :param serial_numbers:
         :param samples:
@@ -717,6 +722,7 @@ class Runs(BaseSDK):
             deployment_ids=deployment_ids,
             execution_ids=execution_ids,
             slot_keys=slot_keys,
+            slot_names=slot_names,
             environments=environments,
             serial_numbers=serial_numbers,
             samples=samples,
